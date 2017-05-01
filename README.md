@@ -1,18 +1,9 @@
-### Serverless FIDO U2F test
+### Serverless OnlyKey test site
 
-This allows you to test a FIDO U2F token without a server.  It can also
-be used as reference code for a U2F server implementation.
-
-To make it work you have to 1) use a FIDO-U2F enabled browser (as of this
-writing that means either Chrome, or Firefox with the U2F extension) and
-2) serve these files from an HTTPS URL.
-
-Other than that it should be pretty self-explanatory.
-
-Except as otherwise noted, the following license applies:
+Thanks to Ron Garret for originally posting this here - https://github.com/rongarret/u2f-test
 
 The MIT License (MIT)
-Copyright (c) 2016 by Ron Garret
+Copyright (c) 2017 by Ron Garret
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
