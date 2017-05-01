@@ -1,4 +1,6 @@
 <!doctype html>
+<html>
+<head>
 <meta charset="utf-8"/>
 
 <script src="u2f-api.js"></script>
@@ -8,10 +10,14 @@
 
 <h1>FIDO U2F Test</h1>
 
-User ID: <input id=userid value=test></input>
+User ID: 
+  <input id=userid value=test></input>
 <br><br>
 <button onclick="enroll_local()">Enroll</button>
 <button onclick="auth_local()">Auth</button>
 <br>
 
 <div id=messages></div>
+</head>
+</html>
+
