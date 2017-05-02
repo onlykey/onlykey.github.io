@@ -90,9 +90,11 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   msg("Authorizing user " + userId());
   var messageHeader = [255, 255, 255, 255, 228];
   var epochTime = [89, 8, 219, 7]; //5908DB07
+  var emptyarray = new Array(55).fill(0);
   //epochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + epochTime);
   keyHandle = messageHeader.concat(epochTime);
+  keyHandle = keyHandle.concat(emptyarray);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   var req = { "challenge": challenge, "keyHandle": keyHandle,
