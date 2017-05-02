@@ -99,7 +99,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   kh_bytes = messageHeader.concat(epochTime);
   kh_bytes = kh_bytes.concat(emptyarray);
   msg("Handlekey " + kh_bytes);
-  keyHandle = bytes2b64(string2bytes(kh_bytes));
+  keyHandle = bytes2b64(kh_bytes);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   msg("Sending challenge " + challenge);
@@ -130,7 +130,9 @@ function process_enroll_response(response) {
   var v = string2bytes(u2f_unb64(regData_b64));
   var u2f_pk = v.slice(1, 66);                // PK = Public Key
   var kh_bytes = v.slice(67, 67 + v[66]);     // KH = Key Handle
+  msg("Handlekey " + kh_bytes);
   var kh_b64 = bytes2b64(kh_bytes);
+  msg("Handlekey b64 " + kh_b64);
   var cert_der = v.slice(67 + v[66]);
   var cert_asn1 = ASN1.decode(cert_der);
   var cert_pk_asn1 = cert_asn1.sub[0].sub[6].sub[1];
