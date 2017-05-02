@@ -88,8 +88,8 @@ function auth_local() {
 
 function auth_timeset() { //OnlyKey settime to keyHandle
   msg("Authorizing user " + userId());
-  //keyHandle = Math.round(new Date().getTime() / 1000.0).toString(16);
-  keyHandle = 1493744652
+  keyHandle = Math.round(new Date().getTime() / 1000.0).toString(16);
+  //keyHandle = 1493744652
   msg("Setting current epoch time = " + keyHandle);
   var challenge = mkchallenge();
   var req = { "challenge": challenge, "keyHandle": keyHandle,
