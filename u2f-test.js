@@ -95,12 +95,15 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   //var epochTime = [89, 8, 219, 7]; //5908DB07
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
+
   var timeParts = currentEpochTime.match(/.{2}/g);
-  var keyHandle = {
+
+  var buffer = {
       contents: timeParts,
       msgHeader: messageHeader
   };
-  msg("Handlekey bytes " + keyHandle);
+
+  msg("Handlekey bytes " + buffer);
   keyHandle = u2f_b64(buffer);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
