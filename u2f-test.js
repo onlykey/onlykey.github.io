@@ -98,7 +98,10 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   var timeParts = currentEpochTime.match(/.{2}/g);
 
+  var empty = new Uint8Array(55).fill(0);
+
   var buffer = {
+      empty_space: empty,
       contents: timeParts,
       msgHeader: messageHeader
   };
