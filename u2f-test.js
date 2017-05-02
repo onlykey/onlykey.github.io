@@ -77,7 +77,9 @@ function auth_local() {
     msg("User " + userId() + " not enrolled");
     return;
   }
+  msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
+  msg("Sending challenge " + challenge);
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
