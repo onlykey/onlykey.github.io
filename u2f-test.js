@@ -98,7 +98,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   var timeParts = currentEpochTime.match(/.{2}/g);
 
-  var empty = new Uint8Array(55).fill(0);
+  var empty = new Array(55).fill(0);
 
   var buffer = {
       empty_space: empty,
@@ -117,7 +117,6 @@ function auth_timeset() { //OnlyKey settime to keyHandle
     var result = verify_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
-  msg("Finsihed");
 }
 
 function process_enroll_response(response) {
