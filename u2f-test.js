@@ -91,15 +91,14 @@ function auth_local() {
 
 function auth_timeset() { //OnlyKey settime to keyHandle
   msg("Authorizing user " + userId());
-  var messageHeader = [255, 255, 255, 255, 228];
-  var epochTime = [89, 8, 219, 7]; //5908DB07
-  var emptyarray = new Uint8Array(55);
-  //epochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+  var buffer = new Uint8Array(64); //Same as USB HID packet size
+  var messageHeader = [255, 255, 255, 255, 228]; //Same header and message type used
+  //var epochTime = [89, 8, 219, 7]; //5908DB07
+  var epochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + epochTime);
-  kh_bytes = messageHeader.concat(epochTime);
-  kh_bytes = kh_bytes.concat(emptyarray);
-  msg("Handlekey " + kh_bytes);
-  keyHandle = bytes2b64(kh_bytes);
+  buffer = messageHeader.concat(epochTime);
+  msg("Handlekey bytes " + buffer);
+  keyHandle = bytes2b64(buffer);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   msg("Sending challenge " + challenge);
