@@ -86,6 +86,7 @@ function auth_local() {
     var result = verify_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
+    msg("Finsihed");
 }
 
 function auth_timeset() { //OnlyKey settime to keyHandle
@@ -95,8 +96,9 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   var emptyarray = new Array(55).fill(0);
   //epochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + epochTime);
-  keyHandle = messageHeader.concat(epochTime);
-  keyHandle = keyHandle.concat(emptyarray);
+  kh_bytes = messageHeader.concat(epochTime);
+  kh_bytes = keyHandle.concat(emptyarray);
+  keyHandle = bytes2b64(kh_bytes);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   msg("Sending challenge " + challenge);
@@ -106,6 +108,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
     var result = verify_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
+  msg("Finsihed");
 }
 
 function process_enroll_response(response) {
