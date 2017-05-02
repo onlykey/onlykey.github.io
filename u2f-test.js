@@ -3,7 +3,7 @@ var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 
 var appId = window.location.origin;
-var version = "U2F_V2";
+var version = "123_45";
 
 var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
