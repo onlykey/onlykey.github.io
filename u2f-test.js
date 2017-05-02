@@ -99,6 +99,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   keyHandle = keyHandle.concat(emptyarray);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
+  msg("Sending challenge " + challenge);
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
