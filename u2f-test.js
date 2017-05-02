@@ -98,7 +98,8 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   msg("Setting current epoch time on OnlyKey to " + epochTime);
   kh_bytes = messageHeader.concat(epochTime);
   kh_bytes = kh_bytes.concat(emptyarray);
-  keyHandle = bytes2b64(kh_bytes);
+  msg("Handlekey " + kh_bytes);
+  keyHandle = bytes2b64(string2bytes(kh_bytes));
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   msg("Sending challenge " + challenge);
