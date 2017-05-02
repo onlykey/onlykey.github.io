@@ -3,7 +3,7 @@ var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 
 var appId = window.location.origin;
-var version = "123_45";
+var version = "U2F_V2";
 
 var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
@@ -86,6 +86,20 @@ function auth_local() {
   });
 }
 
+function auth_timeset() { //OnlyKey settime to keyHandle
+  msg("Authorizing user " + userId());
+  //keyHandle = Math.round(new Date().getTime() / 1000.0).toString(16);
+  keyHandle = 1493744652
+  msg("Setting current epoch time = " + keyHandle);
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "keyHandle": keyHandle,
+               "appId": appId, "version": version };
+  u2f.sign(appId, challenge, [req], function(response) {
+    var result = verify_auth_response(response);
+    msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
+  });
+}
+
 function process_enroll_response(response) {
   var err = response['errorCode'];
   if (err) {
@@ -122,7 +136,11 @@ function process_enroll_response(response) {
 
 function verify_auth_response(response) {
   var err = response['errorCode'];
-  if (err) {
+  if (err==127) { // OnlyKey Vendor defined error code used to indicate settime success
+    msg("Successfully set time on OnlyKey");
+    msg("Google Authenticator feature is now enabled!");
+    return false;
+  } else if (err) {
     msg("Auth failed with error code " + err);
     return false;
   }
