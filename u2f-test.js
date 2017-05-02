@@ -102,7 +102,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   var buffer = messageHeader.concat(timeParts);
 
-  buffer = timeParts.concat(empty);
+  buffer = buffer.concat(empty);
 
   msg("Handlekey bytes " + buffer);
   keyHandle = u2f_b64(buffer);
