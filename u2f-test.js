@@ -105,7 +105,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   buffer = buffer.concat(empty);
 
   msg("Handlekey bytes " + buffer);
-  keyHandle = u2f_b64(buffer);
+  keyHandle = u2f_b64(string2bytes(buffer));
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   msg("Sending challenge " + challenge);
