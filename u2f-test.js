@@ -29,6 +29,9 @@ function string2bytes(s) {
   for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
   return bytes;
 }
+function hexStrToDec(hexStr) {
+    return new Number('0x' + hexStr).toString(10);
+}
 
 function bcat(buflist) {
   var len = 0;
@@ -96,7 +99,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
 
-  var timeParts = currentEpochTime.match(/.{2}/g);
+  var timeParts = currentEpochTime.match(/.{2}/g).forEach(hexStrToDec);
 
   var empty = new Array(55).fill(0);
 
