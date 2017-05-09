@@ -15,6 +15,16 @@ function msg(s) { id('messages').innerHTML += "<br>" + s; }
 
 function userId() { return id('userid').value; }
 
+function b64EncodeUnicode(str) {
+    // first we use encodeURIComponent to get percent-encoded UTF-8,
+    // then we convert the percent encodings into raw bytes which
+    // can be fed into btoa.
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+    }));
+}
+
 function u2f_b64(s) {
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
@@ -96,19 +106,13 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   msg("Authorizing user " + userId());
   var messageHeader = [255, 255, 255, 255, 228];
 
-  messageHeader = bytes2string(messageHeader)
-
   //var epochTime = [89, 8, 219, 7]; //5908DB07
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
 
   var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
 
-  timeParts = bytes2string(timeParts)
-
   var empty = new Array(55).fill(0);
-
-  empty = bytes2string(empty)
 
   var buffer = messageHeader.concat(timeParts);
 
@@ -116,7 +120,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   msg("Handlekey bytes " + buffer);
 
-  keyHandle = bytes2b64(buffer);
+  keyHandle = b64EncodeUnicode(buffer);
 
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
