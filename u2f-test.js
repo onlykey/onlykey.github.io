@@ -108,7 +108,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   var empty = new Array(55).fill(0);
 
-  empty = empty = bytes2string(empty)
+  empty = bytes2string(empty)
 
   var buffer = messageHeader.concat(timeParts);
 
