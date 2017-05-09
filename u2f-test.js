@@ -114,7 +114,6 @@ function auth_local() {
 }
 
 function auth_timeset() { //OnlyKey settime to keyHandle
-  enroll_simulate()
   msg("Authorizing user " + userId());
   var message = [255, 255, 255, 255, 228]; //Add header and message type
 
