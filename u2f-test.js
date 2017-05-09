@@ -101,6 +101,8 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
 
+  timeParts = string2bytes(timeParts)
+
   var empty = new Array(55).fill(0);
 
   var buffer = messageHeader.concat(timeParts);
@@ -110,6 +112,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   msg("Handlekey bytes " + buffer);
 
   keyHandle = bytes2b64(buffer);
+
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   msg("Sending challenge " + challenge);
