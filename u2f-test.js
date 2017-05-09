@@ -87,6 +87,16 @@ function enroll_local() {
   });
 }
 
+function enroll_simulate() {
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "appId": appId, "version": version};
+  u2f.register(appId, [req], [], function(response) {
+    msg("Response is " + response);
+    var result = process_enroll_response(response);
+    msg("User " + test + " enroll " + (result ? "succeeded" : "failed"));
+  });
+}
+
 function auth_local() {
   msg("Authorizing user " + userId());
   keyHandle = userDict[userId()];
@@ -107,7 +117,7 @@ function auth_local() {
 }
 
 function auth_timeset() { //OnlyKey settime to keyHandle
-  enroll_simulate()
+  //enroll_simulate()
   var message = [255, 255, 255, 255, 228]; //Add header and message type
 
   //var epochTime = [89, 8, 219, 7]; //5908DB07
