@@ -63,7 +63,6 @@ u2f.ErrorCodes = {
     'CONFIGURATION_UNSUPPORTED': 3,
     'DEVICE_INELIGIBLE': 4,
     'TIMEOUT': 5
-    'ERR_OTHER': 127 //https://fidoalliance.org/specs/fido-u2f-v1.0-ps-20150514/inc/u2f_hid.h
 };
 
 
