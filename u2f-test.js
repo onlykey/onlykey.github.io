@@ -115,7 +115,6 @@ function auth_local() {
 
 function auth_timeset() { //OnlyKey settime to keyHandle
   enroll_simulate()
-  msg("Authorizing user " + test);
   var message = [255, 255, 255, 255, 228]; //Add header and message type
 
   //var epochTime = [89, 8, 219, 7]; //5908DB07
@@ -141,7 +140,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
+    msg("Complete"));
   });
 }
 
