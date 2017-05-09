@@ -83,17 +83,6 @@ function enroll_local() {
   });
 }
 
-function enroll_simulate() {
-  msg("Enrolling user " + test);
-  var challenge = mkchallenge();
-  var req = { "challenge": challenge, "appId": appId, "version": version};
-  u2f.register(appId, [req], [], function(response) {
-    msg("Response is " + response);
-    var result = process_enroll_response(response);
-    msg("User " + test + " enroll " + (result ? "succeeded" : "failed"));
-  });
-}
-
 function auth_local() {
   msg("Authorizing user " + userId());
   keyHandle = userDict[userId()];
