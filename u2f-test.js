@@ -104,8 +104,8 @@ function auth_local() {
 
 function auth_timeset() { //OnlyKey settime to keyHandle
   msg("Authorizing user " + userId());
-  var messageHeader  = new Uint8Array(5);
-  messageHeader = [255, 255, 255, 255, 228]; //Add header and message type
+  var message = new Uint8Array(5);
+  message = [255, 255, 255, 255, 228]; //Add header and message type
 
   //var epochTime = [89, 8, 219, 7]; //5908DB07
   var currentEpochTime = string2bytes(Math.round(new Date().getTime() / 1000.0).toString(16));
@@ -115,13 +115,13 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   var empty = new Uint8Array(55).fill(0);
 
-  var message = messageHeader.concat(timeParts);
+  Array.prototype.push.apply(message, timeParts);
 
-  var buffer = message.concat(empty);
+  Array.prototype.push.apply(message, empty);
 
-  msg("Handlekey bytes " + buffer);
+  msg("Handlekey bytes " + message);
 
-  keyHandle = bytes2b64(buffer);
+  keyHandle = bytes2b64(message);
 
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
