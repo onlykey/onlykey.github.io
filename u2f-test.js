@@ -94,7 +94,10 @@ function auth_local() {
 
 function auth_timeset() { //OnlyKey settime to keyHandle
   msg("Authorizing user " + userId());
-  var messageHeader = [255, 255, 255, 255, 228]; //Same header and message type used in App
+  var messageHeader = new Array(5).fill(0);
+
+  messageHeader = [255, 255, 255, 255, 228]; //Same header and message type used in App
+  
   //var epochTime = [89, 8, 219, 7]; //5908DB07
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
