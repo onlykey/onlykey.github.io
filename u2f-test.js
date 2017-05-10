@@ -133,7 +133,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
+    var result = display_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
 }
@@ -156,7 +156,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
+    var result = display_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
 }
@@ -179,7 +179,7 @@ function auth_decrypt_request() { //OnlyKey decrypt request to keyHandle
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
+    var result = display_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
 }
@@ -202,7 +202,7 @@ function auth_sign_request() { //OnlyKey sign request to keyHandle
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
+    var result = display_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
 }
@@ -279,5 +279,22 @@ function verify_auth_response(response) {
   var counter = new BN(sigData.slice(1,5)).toNumber();
   msg("User present: " + userPresent);
   msg("Counter: " + counter);
+  return true;
+}
+
+function display_auth_response(response) {
+  var err = response['errorCode'];
+  if (err==127) { // OnlyKey Vendor defined error code used to indicate settime success
+    msg("Successfully set time on OnlyKey");
+    msg("Google Authenticator feature is now enabled!");
+    return false;
+  } else if (err) {
+    msg("Auth failed with error code " + err);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  var clientData_str = u2f_unb64(clientData_b64);
+  var clientData_bytes = string2bytes(clientData_str);
+  msg("Received from OnlyKey: " + clientData_bytes);
   return true;
 }
