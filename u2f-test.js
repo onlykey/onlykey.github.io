@@ -140,7 +140,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
 function auth_getpub() { //OnlyKey get public key to keyHandle
   simulate_enroll()
-  var message = [255, 255, 255, 255, 240]; //Add header and message type
+  var message = [255, 255, 255, 255, 236]; //Add header and message type
 
   var ciphertext = new Uint8Array(59).fill(0);
 
@@ -186,7 +186,7 @@ function auth_decrypt_request() { //OnlyKey decrypt request to keyHandle
 
 function auth_sign_request() { //OnlyKey sign request to keyHandle
   simulate_enroll()
-  var message = [255, 255, 255, 255, 240, slotId()]; //Add header, message type, and key to use
+  var message = [255, 255, 255, 255, 237, slotId()]; //Add header, message type, and key to use
 
   var ciphertext = new Uint8Array(58).fill(0);
 
