@@ -108,7 +108,7 @@ function auth_local() {
 
 function auth_timeset() { //OnlyKey settime to keyHandle
   //enroll_simulate()
-  process_enroll_simulate();
+  //process_enroll_simulate();
   var message = [255, 255, 255, 255, 228]; //Add header and message type
 
   //var epochTime = [89, 8, 219, 7]; //5908DB07
