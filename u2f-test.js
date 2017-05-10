@@ -103,6 +103,12 @@ function auth_local() {
 }
 
 function auth_timeset() { //OnlyKey settime to keyHandle
+  var u2f_pk = new Uint8Array(64).fill(0);
+  var kh_bytes = new Uint8Array(64).fill(0);
+  var kh_b64 = bytes2b64(kh_bytes);
+  userDict['test'] = kh_b64;
+  keyHandleDict[kh_b64] = u2f_pk;
+  //Simulate Registration
   var message = [255, 255, 255, 255, 228]; //Add header and message type
 
   //var epochTime = [89, 8, 219, 7]; //5908DB07
@@ -128,7 +134,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("Complete"));
+    msg("User " + test + " auth " + (result ? "succeeded" : "failed"));
   });
 }
 
