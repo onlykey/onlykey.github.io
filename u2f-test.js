@@ -15,10 +15,6 @@ function msg(s) { id('messages').innerHTML += "<br>" + s; }
 
 function userId() { return id('userid').value; }
 
-function keySlot() { return id('keyslot').value; }
-
-function Blob() { return id('blob').value; }
-
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
     // then we convert the percent encodings into raw bytes which
@@ -107,7 +103,7 @@ function auth_local() {
 }
 
 function auth_timeset() { //OnlyKey settime to keyHandle
-  enroll_simulate()
+  msg("Authorizing user " + userId());
   var message = [255, 255, 255, 255, 228]; //Add header and message type
 
   //var epochTime = [89, 8, 219, 7]; //5908DB07
@@ -133,97 +129,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("Complete"));
-  });
-}
-
-function auth_getpub() { //OnlyKey get public key to keyHandle
-  var message = [255, 255, 255, 255, 236]; //Add header and message type
-
-  //var epochTime = [89, 8, 219, 7]; //5908DB07
-  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-  msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
-
-  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-
-  var empty = new Uint8Array(55).fill(0);
-
-  Array.prototype.push.apply(message, timeParts);
-
-  Array.prototype.push.apply(message, empty);
-
-  msg("Handlekey bytes " + message);
-
-  keyHandle = bytes2b64(message);
-
-  msg("Sending Handlekey " + keyHandle);
-  var challenge = mkchallenge();
-  msg("Sending challenge " + challenge);
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
-    msg("Complete"));
-  });
-}
-
-function auth_decrypt_request() { //OnlyKey decrypt request to keyHandle
-  var message = [255, 255, 255, 255, 240]; //Add header and message type
-
-  //var epochTime = [89, 8, 219, 7]; //5908DB07
-  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-  msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
-
-  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-
-  var empty = new Uint8Array(55).fill(0);
-
-  Array.prototype.push.apply(message, timeParts);
-
-  Array.prototype.push.apply(message, empty);
-
-  msg("Handlekey bytes " + message);
-
-  keyHandle = bytes2b64(message);
-
-  msg("Sending Handlekey " + keyHandle);
-  var challenge = mkchallenge();
-  msg("Sending challenge " + challenge);
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
-    msg("Complete"));
-  });
-}
-
-function auth_sign_request() { //OnlyKey sign request to keyHandle
-  var message = [255, 255, 255, 255, 237]; //Add header and message type
-
-  //var epochTime = [89, 8, 219, 7]; //5908DB07
-  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-  msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
-
-  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-
-  var empty = new Uint8Array(55).fill(0);
-
-  Array.prototype.push.apply(message, timeParts);
-
-  Array.prototype.push.apply(message, empty);
-
-  msg("Handlekey bytes " + message);
-
-  keyHandle = bytes2b64(message);
-
-  msg("Sending Handlekey " + keyHandle);
-  var challenge = mkchallenge();
-  msg("Sending challenge " + challenge);
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
-    msg("Complete"));
+    msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
 }
 
