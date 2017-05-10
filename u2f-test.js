@@ -106,7 +106,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   var u2f_pk = new Uint8Array(64).fill(0);
   var kh_bytes = new Uint8Array(64).fill(0);
   var kh_b64 = bytes2b64(kh_bytes);
-  userDict['test'] = kh_b64;
+  userDict[userId()] = kh_b64;
   keyHandleDict[kh_b64] = u2f_pk;
   //Simulate Registration
   var message = [255, 255, 255, 255, 228]; //Add header and message type
