@@ -13,7 +13,10 @@ function id(s) { return document.getElementById(s); }
 
 function msg(s) { id('messages').innerHTML += "<br>" + s; }
 
-function userId() { return id('userid').value; }
+function userId() {
+    var el = id('userid');
+    return el && el.value || 'u2ftest';
+}
 
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
