@@ -88,13 +88,8 @@ function enroll_local() {
 }
 
 function enroll_simulate() {
-  var challenge = mkchallenge();
-  var req = { "challenge": challenge, "appId": appId, "version": version};
-  u2f.register(appId, [req], [], function(response) {
-    msg("Response is " + response);
-    var result = process_enroll_simulate();
-    msg("Complete"));
-  });
+  var result = process_enroll_simulate();
+  msg("Complete");
 }
 
 function auth_local() {
