@@ -87,6 +87,11 @@ function enroll_local() {
   });
 }
 
+function enroll_simulate() {
+  var result = process_enroll_simulate();
+  msg("Complete");
+}
+
 function auth_local() {
   msg("Authorizing user " + userId());
   keyHandle = userDict[userId()];
@@ -107,8 +112,7 @@ function auth_local() {
 }
 
 function auth_timeset() { //OnlyKey settime to keyHandle
-  //enroll_simulate()
-  process_enroll_simulate();
+  enroll_simulate()
   var message = [255, 255, 255, 255, 228]; //Add header and message type
 
   //var epochTime = [89, 8, 219, 7]; //5908DB07
@@ -265,10 +269,10 @@ function process_enroll_response(response) {
 }
 
 function process_enroll_simulate() {
-  var u2f_pk = new Uint8Array(64).fill(0);
+  var u2f_pk = new Uint8Array(65).fill(0);
   var kh_bytes = new Uint8Array(64).fill(0);
   var kh_b64 = bytes2b64(kh_bytes);
-  userDict['test'] = kh_b64;
+  userDict[test] = kh_b64;
   keyHandleDict[kh_b64] = u2f_pk;
 }
 
