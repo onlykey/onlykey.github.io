@@ -18,6 +18,8 @@ function userId() {
     return el && el.value || 'u2ftest';
 }
 
+function slotId() { return id('slotid').value; }
+
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
     // then we convert the percent encodings into raw bytes which
@@ -132,7 +134,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("User " + test + " auth " + (result ? "succeeded" : "failed"));
+    msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
 }
 
@@ -163,7 +165,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("User " + test + " auth " + (result ? "succeeded" : "failed"));
+    msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   });
 }
 
