@@ -142,7 +142,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
   simulate_enroll()
   var message = [255, 255, 255, 255, 236, slotId()]; //Add header and message type
 
-  var ciphertext = new Uint8Array(59).fill(0);
+  var ciphertext = new Uint8Array(58).fill(0);
 
   Array.prototype.push.apply(message, ciphertext);
 
