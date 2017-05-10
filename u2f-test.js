@@ -92,8 +92,8 @@ function enroll_simulate() {
   var req = { "challenge": challenge, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     msg("Response is " + response);
-    var result = process_enroll_response(response);
-    msg("User " + test + " enroll " + (result ? "succeeded" : "failed"));
+    var result = process_enroll_simulate();
+    msg("Complete"));
   });
 }
 
@@ -271,6 +271,14 @@ function process_enroll_response(response) {
     keyHandleDict[kh_b64] = u2f_pk;
   }
   return v;
+}
+
+function process_enroll_simulate() {
+  var u2f_pk = new Uint8Array(65).fill(0);
+  var kh_bytes = new Uint8Array(64).fill(0);
+  var kh_b64 = bytes2b64(kh_bytes);
+  userDict[test] = kh_b64;
+  keyHandleDict[kh_b64] = u2f_pk;
 }
 
 function verify_auth_response(response) {
