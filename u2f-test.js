@@ -83,7 +83,7 @@ function mkchallenge() {
 function mk_key() {
   var s = [];
   var Key = ec.genKeyPair();
-  var pubKey = ec.keyFromPublic(toHex(pair.pubBytes());
+  var pubKey = ec.keyFromPublic(toHex(pair.pubBytes()));
   msg("Creating Curve25519 Public" + pubKey);
   return u2f_b64(ec.join());
 }
