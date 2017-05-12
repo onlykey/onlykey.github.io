@@ -303,7 +303,7 @@ function process_enroll_response(response) {
 
 //Function to process U2F registration response
 function process_poll_response(response) {
-  var err = response['errorCode'];]
+  var err = response['errorCode'];
   if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
     return true;
   }
