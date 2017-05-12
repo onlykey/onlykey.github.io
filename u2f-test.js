@@ -95,7 +95,6 @@ function mk_polling() {
 
 //Function to create new key to be sent via U2F auth message challenge
 function mk_key() {
-  var s = [];
   var ecdh = new elliptic.ec(curve25519);
   var Key = ec.genKeyPair();
   var pubKey = Key.getPublic('hex');
@@ -104,6 +103,27 @@ function mk_key() {
   msg("Creating Curve25519 Public" + pubKey);
   return u2f_b64(pubKey.join());
 }
+
+//Function to create timestamp to be sent via U2F register message challenge
+function mk_time() {
+  var s = [];
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  s[0] = 255;
+  s[1] = 255;
+  s[2] = 255;
+  s[3] = 255;
+  s[4] = 228; //Add header and message type
+  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+  msg("Setting current time on OnlyKey to " + (new Date()));
+  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+  s[5] = timeParts[0];
+  s[6] = timeParts[1];
+  s[7] = timeParts[2];
+  s[8] = timeParts[3];
+  msg("Challenge" + s);
+  return u2f_b64(s.join());
+}
+
 
 //Basic U2F enroll test
 function enroll_local() {
@@ -160,20 +180,7 @@ function simulate_enroll() {
 //Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
 function enroll_timeset() { //OnlyKey settime to keyHandle
   msg("Sending Set Time to OnlyKey");
-  var challenge = mkchallenge();
-  challenge[0] = 255;
-  challenge[1] = 255;
-  challenge[2] = 255;
-  challenge[3] = 255;
-  challenge[4] = 228; //Add header and message type
-  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-  msg("Setting current time on OnlyKey to " + (new Date()));
-  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-  challenge[5] = timeParts[0];
-  challenge[6] = timeParts[1];
-  challenge[7] = timeParts[2];
-  challenge[8] = timeParts[3];
-  msg("Sending Challenge" + challenge);
+  var challenge = mk_time();
   var req = { "challenge": challenge, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
