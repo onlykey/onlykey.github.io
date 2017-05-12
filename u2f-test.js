@@ -100,6 +100,7 @@ function mk_key() {
   var Key = ec.genKeyPair();
   var pubKey = Key.getPublic('hex');
   //pubKey.toString(16);
+  //ec.keyFromPublic(publicKey).getPublic()
   msg("Creating Curve25519 Public" + pubKey);
   return u2f_b64(pubKey.join());
 }
@@ -145,36 +146,37 @@ function auth_local() {
   });
     msg("Finsihed");
 }
+//Function to simulate U2F registration so we can send U2F auth
+function simulate_enroll() {
+  var u2f_pk = new Uint8Array(64).fill(0);
+  var kh_bytes = new Uint8Array(64).fill(0);
+  var kh_b64 = bytes2b64(kh_bytes);
+  userDict[userId()] = kh_b64;
+  keyHandleDict[kh_b64] = u2f_pk;
+  //Simulate Registration
+}
 
-//Function to set time on OnlyKey via U2F auth message Keyhandle
-function auth_timeset() { //OnlyKey settime to keyHandle
-  simulate_enroll()
-  var message = [255, 255, 255, 255, 228]; //Add header and message type
 
-  //var epochTime = [89, 8, 219, 7]; //5908DB07
-  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-  msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
-
-  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-
-  var empty = new Uint8Array(55).fill(0);
-
-  Array.prototype.push.apply(message, timeParts);
-
-  Array.prototype.push.apply(message, empty);
-
-  msg("Handlekey bytes " + message);
-
-  keyHandle = bytes2b64(message);
-
-  msg("Sending Handlekey " + keyHandle);
+//Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
+function enroll_timeset() { //OnlyKey settime to keyHandle
+  msg("Sending Set Time to OnlyKey");
   var challenge = mkchallenge();
-  msg("Sending challenge " + challenge);
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
-    msg("Set Time " + (result ? "succeeded" : "failed"));
+  challenge[0] = 255;
+  challenge[1] = 255;
+  challenge[2] = 255;
+  challenge[3] = 255;
+  challenge[4] = 228; //Add header and message type
+  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+  msg("Setting current time on OnlyKey to " + (new Date()));
+  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+  challenge[5] = timeParts[0];
+  challenge[6] = timeParts[1];
+  challenge[7] = timeParts[2];
+  challenge[8] = timeParts[3];
+  var req = { "challenge": challenge, "appId": appId, "version": version};
+  u2f.register(appId, [req], [], function(response) {
+    var result = process_custom_response(response);
+    msg("Set Time" + (result ? "succeeded" : "failed"));
   });
 }
 
@@ -254,15 +256,7 @@ function auth_sign_request() { //OnlyKey sign request to keyHandle
   });
 }
 
-//Function to simulate U2F registration so we can send U2F auth
-function simulate_enroll() {
-  var u2f_pk = new Uint8Array(64).fill(0);
-  var kh_bytes = new Uint8Array(64).fill(0);
-  var kh_b64 = bytes2b64(kh_bytes);
-  userDict[userId()] = kh_b64;
-  keyHandleDict[kh_b64] = u2f_pk;
-  //Simulate Registration
-}
+
 
 //Function to process U2F registration response
 function process_enroll_response(response) {
@@ -304,29 +298,25 @@ function process_enroll_response(response) {
   return v;
 }
 
-//Function to process U2F registration response
-function process_poll_response(response) {
+//Function to process custom U2F registration response
+function process_custom_response(response) {
   var err = response['errorCode'];
   if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
     return true;
   }
   if (err) {
-    msg("Polling failed with error code " + err);
+    msg("Failed with error code " + err);
     return false;
   }
   var clientData_b64 = response['clientData'];
   var regData_b64 = response['registrationData'];
-  var clientData_str = u2f_unb64(clientData_b64);
-  var clientData = JSON.parse(clientData_str);
-  var origin = clientData['origin'];
   var v = string2bytes(u2f_unb64(regData_b64));
-  var u2f_pk = v.slice(1, 66);                // PK = Public Key
-  var kh_bytes = v.slice(67, 67 + v[66]);     // KH = Key Handle
-  msg("Handlekey " + kh_bytes);
-  var kh_b64 = bytes2b64(kh_bytes);
-  msg("Handlekey b64 " + kh_b64);
-  var cert_der = v.slice(67 + v[66]);
-  msg("Data Received " + cert_der);  //Data encoded in cert field
+  var u2f_pk = v.slice(1, 66);                // X25519 Public Key PK = Public Key
+  msg("ECDH Public Key from OnlyKey" + u2f_pk);
+  var kh_bytes = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
+  msg("Hardware Generated Random Number " + kh_bytes);
+  var data_blob = v.slice(67 + v[66]);
+  msg("Data Received " + data_blob);  //Data encoded in cert field
   return true;
 }
 
