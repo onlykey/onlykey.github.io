@@ -197,9 +197,9 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
     var result = verify_auth_response(response);
     msg("Get Public Key " + (result ? "succeeded" : "failed"));
   });
-  setTimeout(function(){
-  enroll_poll_response() //Poll for response
-}, 1000); 
+  //setTimeout(function(){
+  //enroll_poll_response() //Poll for response
+  //}, 1000);
 
 }
 
@@ -263,7 +263,7 @@ function simulate_enroll() {
 
 //Function to process U2F registration response
 function process_enroll_response(response) {
-  var err = response['errorCode'];]
+  var err = response['errorCode'];
   if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
     return true;
   }
