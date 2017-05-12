@@ -85,7 +85,7 @@ function mk_key() {
   var Key = ec.genKeyPair();
   var pubKey = ec.keyFromPublic(toHex(pair.pubBytes()));
   msg("Creating Curve25519 Public" + pubKey);
-  return u2f_b64(ec.join());
+  return u2f_b64(pubKey.join());
 }
 
 function enroll_local() {
