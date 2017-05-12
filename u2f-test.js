@@ -74,12 +74,25 @@ function asn1bytes(asn1) {
     asn1.stream.pos, asn1.stream.pos + asn1.length + asn1.header);
 }
 
+//Generate a random number for challenge value
 function mkchallenge() {
   var s = [];
   for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
   return u2f_b64(s.join());
 }
 
+//Generate a polling request
+function mk_polling() {
+  var s = [];
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  s[0] = 0xFF;
+  s[1] = 0xFF;
+  s[2] = 0xFF;
+  s[3] = 0xFF;
+  return u2f_b64(s.join());
+}
+
+//Function to create new key to be sent via U2F auth message challenge
 function mk_key() {
   var s = [];
   var Key = ec.genKeyPair();
@@ -88,6 +101,7 @@ function mk_key() {
   return u2f_b64(pubKey.join());
 }
 
+//Basic U2F enroll test
 function enroll_local() {
   msg("Enrolling user " + userId());
   var challenge = mkchallenge();
@@ -98,6 +112,18 @@ function enroll_local() {
   });
 }
 
+//Poll OnlyKey for response to previous request
+function enroll_poll_response() {
+  msg("Enrolling user " + userId());
+  var challenge = mk_polling();
+  var req = { "challenge": challenge, "appId": appId, "version": version};
+  u2f.register(appId, [req], [], function(response) {
+    var result = process_poll_response(response);
+    msg("Poll Response" + (result ? "succeeded" : "failed"));
+  });
+}
+
+//Basic U2F auth test
 function auth_local() {
   msg("Authorizing user " + userId());
   keyHandle = userDict[userId()];
@@ -117,6 +143,7 @@ function auth_local() {
     msg("Finsihed");
 }
 
+//Function to set time on OnlyKey via U2F auth message Keyhandle
 function auth_timeset() { //OnlyKey settime to keyHandle
   simulate_enroll()
   var message = [255, 255, 255, 255, 228]; //Add header and message type
@@ -148,6 +175,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   });
 }
 
+//Function to get public key on OnlyKey via U2F auth message Keyhandle
 function auth_getpub() { //OnlyKey get public key to keyHandle
   simulate_enroll()
   var message = [255, 255, 255, 255, 236, slotId()]; //Add header and message type
@@ -169,8 +197,13 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
     var result = verify_auth_response(response);
     msg("Get Public Key " + (result ? "succeeded" : "failed"));
   });
+  setTimeout(function(){
+  enroll_poll_response() //Poll for response
+}, 1000); 
+
 }
 
+//Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt_request() { //OnlyKey decrypt request to keyHandle
   simulate_enroll()
   var message = [255, 255, 255, 255, 240, slotId()]; //Add header, message type, and key to use
@@ -194,6 +227,7 @@ function auth_decrypt_request() { //OnlyKey decrypt request to keyHandle
   });
 }
 
+//Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
 function auth_sign_request() { //OnlyKey sign request to keyHandle
   simulate_enroll()
   var message = [255, 255, 255, 255, 237, slotId()]; //Add header, message type, and key to use
@@ -217,6 +251,7 @@ function auth_sign_request() { //OnlyKey sign request to keyHandle
   });
 }
 
+//Function to simulate U2F registration so we can send U2F auth
 function simulate_enroll() {
   var u2f_pk = new Uint8Array(64).fill(0);
   var kh_bytes = new Uint8Array(64).fill(0);
@@ -226,8 +261,12 @@ function simulate_enroll() {
   //Simulate Registration
 }
 
+//Function to process U2F registration response
 function process_enroll_response(response) {
-  var err = response['errorCode'];
+  var err = response['errorCode'];]
+  if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
+    return true;
+  }
   if (err) {
     msg("Registration failed with error code " + err);
     return false;
@@ -262,9 +301,36 @@ function process_enroll_response(response) {
   return v;
 }
 
+//Function to process U2F registration response
+function process_poll_response(response) {
+  var err = response['errorCode'];]
+  if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
+    return true;
+  }
+  if (err) {
+    msg("Polling failed with error code " + err);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  var regData_b64 = response['registrationData'];
+  var clientData_str = u2f_unb64(clientData_b64);
+  var clientData = JSON.parse(clientData_str);
+  var origin = clientData['origin'];
+  var v = string2bytes(u2f_unb64(regData_b64));
+  var u2f_pk = v.slice(1, 66);                // PK = Public Key
+  var kh_bytes = v.slice(67, 67 + v[66]);     // KH = Key Handle
+  msg("Handlekey " + kh_bytes);
+  var kh_b64 = bytes2b64(kh_bytes);
+  msg("Handlekey b64 " + kh_b64);
+  var cert_der = v.slice(67 + v[66]);
+  msg("Data Received " + cert_der);  //Data encoded in cert field
+  return true;
+}
+
+//Function to process U2F auth response
 function verify_auth_response(response) {
   var err = response['errorCode'];
-  if (err==1) {
+  if (err==1) { //OnlyKey uses err 1 from auth as ACK
     return true;
   } else if (err) {
     msg("Auth failed with error code " + err);
