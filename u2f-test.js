@@ -9,7 +9,8 @@ var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
-var ec = new EdDSA('ed25519');
+var ECDH = require('elliptic').ec;
+var ec = new ECDH('curve25519');
 
 function id(s) { return document.getElementById(s); }
 
@@ -95,8 +96,10 @@ function mk_polling() {
 //Function to create new key to be sent via U2F auth message challenge
 function mk_key() {
   var s = [];
+  var ecdh = new elliptic.ec(curve25519);
   var Key = ec.genKeyPair();
-  var pubKey = ec.keyFromPublic(toHex(pair.pubBytes()));
+  var pubKey = Key.getPublic('hex');
+  //pubKey.toString(16);
   msg("Creating Curve25519 Public" + pubKey);
   return u2f_b64(pubKey.join());
 }
