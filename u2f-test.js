@@ -173,6 +173,7 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   challenge[6] = timeParts[1];
   challenge[7] = timeParts[2];
   challenge[8] = timeParts[3];
+  msg("Sending Challenge" + challenge);
   var req = { "challenge": challenge, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
