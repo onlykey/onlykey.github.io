@@ -189,8 +189,8 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   var buffer = messageHeader.concat(timeParts);
   buffer = buffer.concat(empty);
   msg("Handlekey bytes " + buffer);
-  challenge = bytes2b64(buffer);
-  var req = { "challenge": challenge, "appId": appId, "version": version};
+  var challenge_timeset = bytes2b64(buffer);
+  var req = { "challenge": challenge_timeset, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Set Time" + (result ? "succeeded" : "failed"));
@@ -199,7 +199,6 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
 
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
 function auth_getpub() { //OnlyKey get public key to keyHandle
-  simulate_enroll()
   var message = [255, 255, 255, 255, 236, slotId()]; //Add header and message type
 
   var ciphertext = new Uint8Array(58).fill(0);

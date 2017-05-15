@@ -87,14 +87,13 @@ Application receives the data which is decrypted using same key derived from ECD
 
 ### Security Objectives
 
-1) Serverless - All processing done via javascript in users own browser (nothing on server to hack).
+1) Serverless - All processing done via javascript in users own browser (no server to hack).
 
 2) No logins required / No data retention - Retain no metadata, or other tracking information.
 
-3) Double Encryption - All potentially sensitive data should be sent via HTTPS but also end-to-end encrypted using AES/ECDH shared secret.
+3) Double Encryption - Everything should be sent via HTTPS but anything sensitive should also be end-to-end encrypted using AES/ECDH shared secret.
 
 ### License
-
 
 Thanks to Ron Garret for originally posting a serverless implementation of U2F here - https://github.com/rongarret/u2f-test
 
@@ -119,3 +118,18 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## Cryptography Notice
+
+This distribution includes cryptographic software. The country in which you currently reside may have restrictions on the import, possession, use, and/or re-export to another country, of encryption software.
+BEFORE using any encryption software, please check your country's laws, regulations and policies concerning the import, possession, or use, and re-export of encryption software, to see if this is permitted.
+See <http://www.wassenaar.org/> for more information.
+
+The U.S. Government Department of Commerce, Bureau of Industry and Security (BIS), has classified this software as Export Commodity Control Number (ECCN) 5D002.C.1, which includes information security software using or performing cryptographic functions with asymmetric algorithms.
+The form and manner of this distribution makes it eligible for export under the License Exception ENC Technology Software Unrestricted (TSU) exception (see the BIS Export Administration Regulations, Section 740.13) for both object code and source code.
+
+The following cryptographic software is included in this distribution:
+
+   "Fast Elliptic Curve Cryptography in plain javascript" - https://github.com/indutny/elliptic
+
+For more information on export restrictions see: http://www.apache.org/licenses/exports/
