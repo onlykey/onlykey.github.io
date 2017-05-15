@@ -108,18 +108,18 @@ function mk_key() {
 function mk_time() {
   var s = [];
   for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  s[0] = 255;
-  s[1] = 255;
-  s[2] = 255;
-  s[3] = 255;
-  s[4] = 228; //Add header and message type
+  s[0] = String.fromCharCode(255);
+  s[1] = String.fromCharCode(255);
+  s[2] = String.fromCharCode(255);
+  s[3] = String.fromCharCode(255);
+  s[4] = String.fromCharCode(228); //Add header and message type
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current time on OnlyKey to " + (new Date()));
   var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-  s[5] = timeParts[0];
-  s[6] = timeParts[1];
-  s[7] = timeParts[2];
-  s[8] = timeParts[3];
+  s[5] = currentEpochTime[0];
+  s[6] = currentEpochTime[1];
+  s[7] = currentEpochTime[2];
+  s[8] = currentEpochTime[3];
   msg("Challenge" + s);
   return u2f_b64(s.join());
 }
