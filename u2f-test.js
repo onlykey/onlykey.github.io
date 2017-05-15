@@ -185,14 +185,17 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
   var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-  var empty = new Array(22).fill(0);
+  var empty = new Array(55).fill(0);
   Array.prototype.push.apply(message, timeParts);
   Array.prototype.push.apply(message, empty);
-  msg("challenge bytes " + message);
-  var challenge_timeset = bytes2b64(message);
+  msg("keyHandle bytes " + message);
+  var keyHandle = bytes2b64(message);
   //var challenge_timeset = mk_time();
-  msg("challenge b64 " + challenge_timeset);
-  var req = { "challenge": challenge_timeset, "appId": appId, "version": version};
+  msg("keyHandle b64 " + keyHandle);
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "keyHandle": keyHandle,
+               "appId": appId, "version": version };
+  //var req = { "challenge": challenge_timeset, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Set Time" + (result ? "succeeded" : "failed"));
