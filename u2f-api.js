@@ -62,7 +62,7 @@ u2f.ErrorCodes = {
     'BAD_REQUEST': 2,
     'CONFIGURATION_UNSUPPORTED': 3,
     'DEVICE_INELIGIBLE': 4,
-    'TIMEOUT': 5,
+    'TIMEOUT': 5
     //'ACK': 127, //Ack packet received
     //'NOT_SIGN': 128, //Error key not set as signature key
     //'NOT_DECR': 129, //Error key not set as decryption key
