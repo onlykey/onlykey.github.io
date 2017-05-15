@@ -193,9 +193,8 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   //var challenge_timeset = mk_time();
   msg("keyHandle b64 " + keyHandle);
   var challenge = mkchallenge();
-  var key = {"keyHandle": keyHandle};
-  var req = { "challenge": challenge, "appId": appId, "version": version};
-  u2f.register(appId, [req], [key], function(response) {
+  var req = { "challenge": challenge, "version": version};
+  u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Set Time" + (result ? "succeeded" : "failed"));
   });
