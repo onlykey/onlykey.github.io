@@ -85,11 +85,7 @@ function mkchallenge() {
 //Generate a polling request
 function mk_polling() {
   var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  s[0] = 0xFF;
-  s[1] = 0xFF;
-  s[2] = 0xFF;
-  s[3] = 0xFF;
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(0);
   return u2f_b64(s.join());
 }
 
@@ -103,27 +99,6 @@ function mk_key() {
   msg("Creating Curve25519 Public" + pubKey);
   return u2f_b64(pubKey.join());
 }
-
-//Function to create timestamp to be sent via U2F register message challenge
-function mk_time() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  s[0] = String.fromCharCode(255);
-  s[1] = String.fromCharCode(255);
-  s[2] = String.fromCharCode(255);
-  s[3] = String.fromCharCode(255);
-  s[4] = String.fromCharCode(228); //Add header and message type
-  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-  msg("Setting current time on OnlyKey to " + (new Date()));
-  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-  s[5] = currentEpochTime[0];
-  s[6] = currentEpochTime[1];
-  s[7] = currentEpochTime[2];
-  s[8] = currentEpochTime[3];
-  msg("Challenge" + s);
-  return u2f_b64(s.join());
-}
-
 
 //Basic U2F enroll test
 function enroll_local() {
@@ -196,6 +171,17 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   u2f.register(appId, [req], [key], function(response) {
     var result = process_custom_response(response);
     msg("Set Time" + (result ? "succeeded" : "failed"));
+  });
+}
+
+//Function to set request data from OnlyKey
+function enroll_polling() { //OnlyKey settime to keyHandle
+  msg("Requesting response from OnlyKey");
+  var challenge = mk_polling();
+  var req = { "challenge": challenge, "appId": appId, "version": version};
+  u2f.register(appId, [req], [], function(response) {
+    var result = process_custom_response(response);
+    msg("Polling " + (result ? "succeeded" : "failed"));
   });
 }
 
