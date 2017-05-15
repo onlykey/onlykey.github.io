@@ -188,8 +188,9 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   var empty = new Array(23).fill(0);
   Array.prototype.push.apply(message, timeParts);
   Array.prototype.push.apply(message, empty);
-  msg("Handlekey bytes " + message);
+  msg("challenge bytes " + message);
   var challenge_timeset = bytes2b64(message);
+  msg("challenge b64 " + challenge_timeset);
   var req = { "challenge": challenge_timeset, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
