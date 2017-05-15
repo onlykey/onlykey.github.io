@@ -75,10 +75,10 @@ function asn1bytes(asn1) {
     asn1.stream.pos, asn1.stream.pos + asn1.length + asn1.header);
 }
 
-
+//Generate a random number for challenge value
 function mkchallenge() {
   var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(0);
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
   return u2f_b64(s.join());
 }
 
@@ -185,15 +185,14 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
   var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-  var empty = new Array(23).fill(0);
+  var empty = new Array(22).fill(0);
   Array.prototype.push.apply(message, timeParts);
   Array.prototype.push.apply(message, empty);
-  msg("keyHandle bytes " + message);
-  var keyHandle = bytes2string(message);
-  //var challenge_timeset = mk_time();
-  msg("keyHandle b64 " + keyHandle);
+  msg("challenge bytes " + message);
+  var appId = bytes2b64(message);
   var challenge = mkchallenge();
-  var req = { "challenge": keyHandle, "appId": appId, "version": version};
+  msg("challenge b64 " + challenge);
+  var req = { "challenge": challenge, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Set Time" + (result ? "succeeded" : "failed"));
