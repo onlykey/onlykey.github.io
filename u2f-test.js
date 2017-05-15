@@ -211,7 +211,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
   keyHandle = bytes2b64(message);
 
   msg("Sending Handlekey " + keyHandle);
-  var challenge = mk_key();
+  var challenge = mkchallenge();
   msg("Sending challenge " + challenge);
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };

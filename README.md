@@ -81,11 +81,20 @@ Encode *data which is encrypted with key derived from ECDH shared secret
 └─────────────────┴────────────────┴─────────────────┴───────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
-Application receives the data which is decrypted using same key derived from ECDH shared secret. 
+Application receives the data which is decrypted using same key derived from ECDH shared secret.
 
 ```
 
+### Security Objectives
+
+1) Serverless - All processing done via javascript in users own browser (nothing on server to hack).
+
+2) No logins required / No data retention - Retain no metadata, or other tracking information.
+
+3) Double Encryption - All potentially sensitive data should be sent via HTTPS but also end-to-end encrypted using AES/ECDH shared secret.
+
 ### License
+
 
 Thanks to Ron Garret for originally posting a serverless implementation of U2F here - https://github.com/rongarret/u2f-test
 
