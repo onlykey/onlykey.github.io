@@ -181,15 +181,15 @@ function simulate_enroll() {
 //Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
 function enroll_timeset() { //OnlyKey settime to keyHandle
   msg("Sending Set Time to OnlyKey");
-  var messageHeader = [255, 255, 255, 255, 228]; //Same header and message type used in App
+  var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
   msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
   var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
   var empty = new Array(23).fill(0);
-  var buffer = messageHeader.concat(timeParts);
-  buffer = buffer.concat(empty);
-  msg("Handlekey bytes " + buffer);
-  var challenge_timeset = bytes2b64(buffer);
+  Array.prototype.push.apply(message, timeParts);
+  Array.prototype.push.apply(message, empty);
+  msg("Handlekey bytes " + message);
+  var challenge_timeset = bytes2b64(message);
   var req = { "challenge": challenge_timeset, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
