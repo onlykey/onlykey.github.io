@@ -154,7 +154,8 @@ function simulate_enroll() {
 
 
 //Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
-function enroll_timeset() { //OnlyKey settime to keyHandle
+function auth_timeset() { //OnlyKey settime to keyHandle
+  simulate_enroll();
   msg("Sending Set Time to OnlyKey");
   var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
@@ -163,15 +164,19 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   var empty = new Array(55).fill(0);
   Array.prototype.push.apply(message, timeParts);
   Array.prototype.push.apply(message, empty);
-  msg("Encoded Message " + message);
-  var keyhandle = bytes2b64(message);
+  var keyHandle = bytes2b64(message);
+  msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
-  var req = { "challenge": challenge, "appId": appId, "version": version};
-  var key = { "keyHandle": keyhandle, "appId": appId, "version": version};
-  u2f.register(appId, [req], [key], function(response) {
-    var result = process_custom_response(response);
-    msg("Set Time" + (result ? "succeeded" : "failed"));
+  var req = { "challenge": challenge, "keyHandle": keyHandle,
+               "appId": appId, "version": version };
+  u2f.sign(appId, challenge, [req], function(response) {
+    var result = verify_auth_response(response);
+    msg("Set Time Request Sent" + (result ? "Successfully" : "Error"));
   });
+
+  setTimeout(function(){
+  enroll_polling() //Poll for response
+  }, 2000);
 }
 
 //Function to set request data from OnlyKey
@@ -187,6 +192,7 @@ function enroll_polling() { //OnlyKey settime to keyHandle
 
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
 function auth_getpub() { //OnlyKey get public key to keyHandle
+  simulate_enroll();
   var message = [255, 255, 255, 255, 236, slotId()]; //Add header and message type
 
   var ciphertext = new Uint8Array(58).fill(0);
@@ -206,9 +212,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
     var result = verify_auth_response(response);
     msg("Get Public Key " + (result ? "succeeded" : "failed"));
   });
-  //setTimeout(function(){
-  //enroll_poll_response() //Poll for response
-  //}, 1000);
+
 
 }
 
