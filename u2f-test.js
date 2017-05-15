@@ -75,10 +75,10 @@ function asn1bytes(asn1) {
     asn1.stream.pos, asn1.stream.pos + asn1.length + asn1.header);
 }
 
-//Generate a random number for challenge value
+
 function mkchallenge() {
   var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(0);
   return u2f_b64(s.join());
 }
 
@@ -193,10 +193,9 @@ function enroll_timeset() { //OnlyKey settime to keyHandle
   //var challenge_timeset = mk_time();
   msg("keyHandle b64 " + keyHandle);
   var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  //var req = { "challenge": challenge_timeset, "appId": appId, "version": version};
-  u2f.register(appId, [req], [], function(response) {
+  var key = {"keyHandle": keyHandle};
+  var req = { "challenge": challenge, "appId": appId, "version": version};
+  u2f.register(appId, [req], [key], function(response) {
     var result = process_custom_response(response);
     msg("Set Time" + (result ? "succeeded" : "failed"));
   });
