@@ -12,34 +12,119 @@ information is available on U2F protocol [here](https://fidoalliance.org/specs/f
 │ APPLICATION  │                                                   │ OnlyKey │
 └──────────────┘                                                   └─────────┘
 
-1. Registration Request Message: enroll_timeset()
-Encode *timestamp in U2F challenge field
-DESCRIPTION: Set the current time on OnlyKey and start communication.
+INITIALIZE - SET TIME, GET PUBLIC KEY, GET FIRMWARE VERSION
+
+1. Authentication Request Message: auth_timeset()
+Encode a *packet in U2F Key Handle field to set current time.
+┌──────────────────┬──────────────────┬──────────────────┐
+│    challenge     │       appId      │    Key Handle    │  
+│      random      │      crp.to      │     *packet      │  
+│    (32 bytes)    │     (32 bytes)   │    (64 bytes)    │
+└──────────────────┴──────────────────┴──────────────────┘
+───────────────────────────────────────────────────────────────────────────▶
+
+2.  Authentication Response Message: verify_auth_response(response)
+Error type 1 (OTHER_ERROR) used as an ACK,
+DESCRIPTION: Acknowledge message received. Any other error code indicates failure.
+┌─────────────────┐
+│  Error Message  │      
+│       *ACK      │   
+│     (1 byte)    │   
+└─────────────────┘
+◀───────────────────────────────────────────────────────────────────────────
+
+3.  Registration Request Message: enroll_polling()
+OnlyKey checks the appId and if it is correct and there is data waiting to be sent data message triggers a registration response with encoded data.
 ┌──────────────────┬──────────────────┬──────────────────┐
 │    challenge     │       appId      │      version     │  
-│    *timestamp    │       crp.to     │      U2F_V2      │  
+│      random      │       crp.to     │      U2F_V2      │  
 │    (32 bytes)    │     (32 bytes)   │     (4 bytes)    │
 └──────────────────┴──────────────────┴──────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
-2. Registration Response Message: process_custom_response(response)
-Encode *X25519 Public Key (for ECDH) and a *Random Number generated via OnlyKey TRNG
-DESCRIPTION: Send public key to encrypt future messages, and random for use in generating app private key.
+4. Registration Response Message: process_custom_response(response)
+Encode Public Key field with OnlyKey public session key for ECDH, Key Handle with hardware generated *random number, Certificate field with OnlyKey Firmware *version.
 ┌─────────────────┬────────────────┬─────────────────┬───────────────────┐
 │   Public Key    │   Key Handle   │   Certificate   │     Signature     │
-│ *OnlyKey Public │ *Random Number │     <Empty>     │      <Empty>      │
+│  *session key   │ *random number │    *version     │    <Not Used>     │
 │   (65 bytes)    │   (64 bytes)   │ (Variable Size) │    (64 bytes)     │
 └─────────────────┴────────────────┴─────────────────┴───────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
-3. Authentication Request Message: auth_getpub(), auth_decrypt(), auth_sign()
-Encode a packet in U2F Key Handle field to get a public key, decrypt message, or sign message
-DESCRIPTION: Packet is encrypted with key derived from ECDH shared secret
+
+PUBLIC KEY REQUEST - GET THE PUBLIC KEY FOR ECC KEYS (1-32) and RSA KEYS (1-4)
+
+1. Authentication Request Message: auth_getpub()
+Encode a *packet in U2F Key Handle field to request public key from slot # slotId().
 ┌──────────────────┬──────────────────┬──────────────────┐
 │    challenge     │       appId      │    Key Handle    │  
-│   *App Public    │      crp.to      │     *packet      │  
+│      random      │      crp.to      │     *packet      │  
 │    (32 bytes)    │     (32 bytes)   │    (64 bytes)    │
 └──────────────────┴──────────────────┴──────────────────┘
+───────────────────────────────────────────────────────────────────────────▶
+
+2.  Authentication Response Message: verify_auth_response(response)
+Error type 1 (OTHER_ERROR) used as an ACK,
+DESCRIPTION: Acknowledge message received. Any other error code indicates failure.
+┌─────────────────┐
+│  Error Message  │      
+│       *ACK      │   
+│     (1 byte)    │   
+└─────────────────┘
+◀───────────────────────────────────────────────────────────────────────────
+
+3.  Registration Request Message: enroll_polling()
+OnlyKey checks the appId and if it is correct and there is data waiting to be sent data message triggers a registration response with encoded data.
+┌──────────────────┬──────────────────┬──────────────────┐
+│    challenge     │       appId      │      version     │  
+│      random      │       crp.to     │      U2F_V2      │  
+│    (32 bytes)    │     (32 bytes)   │     (4 bytes)    │
+└──────────────────┴──────────────────┴──────────────────┘
+───────────────────────────────────────────────────────────────────────────▶
+
+4. Registration Response Message: process_custom_response(response)
+Encode Public Key field with OnlyKey public session key for ECDH, Key Handle with hardware generated *random number, Certificate field with *slot public key assigned to the requested slot #.
+┌─────────────────┬────────────────┬──────────────────┬───────────────────┐
+│   Public Key    │   Key Handle   │   Certificate    │     Signature     │
+│  *session key   │ *random number │ *slot public key │    <Not Used>     │
+│   (65 bytes)    │   (64 bytes)   │ (Variable Size)  │    (64 bytes)     │
+└─────────────────┴────────────────┴──────────────────┴───────────────────┘
+◀───────────────────────────────────────────────────────────────────────────
+
+
+DECRYPTION/SIGNING REQUEST - DECRYPT OR SIGN DATA USING ECC KEYS (1-32) and RSA KEYS (1-4)
+
+1. Authentication Request Message: auth_decrypt(), auth_sign()
+
+First, generate ECDH shared secret from OnlyKey's provided public session key and locally generated ECDH private using hardware generated random number from OnlyKey.
+
+
+Encode a *packet in U2F Key Handle field to request decryption using private key in slot # slotId().
+*encrypted packet is encrypted with key derived from shared secret - includes ciphertext broken into chunks (i.e. 1 of 3 packets for 128 byte encrypted payload).
+┌──────────────────┬──────────────────┬───────────────────┐
+│    challenge     │       appId      │     Key Handle    │  
+│      random      │      crp.to      │ *encrypted packet │  
+│    (32 bytes)    │     (32 bytes)   │     (64 bytes)    │
+└──────────────────┴──────────────────┴───────────────────┘
+───────────────────────────────────────────────────────────────────────────▶
+
+2.  Authentication Response Message: verify_auth_response(response)
+Error type 1 (OTHER_ERROR) used as an ACK,
+DESCRIPTION: Acknowledge message received. Any other error code indicates failure.
+┌─────────────────┐
+│  Error Message  │      
+│       *ACK      │   
+│     (1 byte)    │   
+└─────────────────┘
+◀───────────────────────────────────────────────────────────────────────────
+
+3.  Encode a *packet in U2F Key Handle field to request decryption using private key in slot # slotId().
+*encrypted packet is encrypted with key derived from shared secret - includes ciphertext broken into chunks (i.e. 2 of 3 packets for 128 byte encrypted payload).
+┌──────────────────┬──────────────────┬───────────────────┐
+│    challenge     │       appId      │     Key Handle    │  
+│      random      │      crp.to      │ *encrypted packet │  
+│    (32 bytes)    │     (32 bytes)   │     (64 bytes)    │
+└──────────────────┴──────────────────┴───────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
 4.  Authentication Response Message: verify_auth_response(response)
@@ -52,36 +137,31 @@ DESCRIPTION: Acknowledge message received. Any other error code indicates failur
 └─────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
-
-At this point the app sends multiple Authentication Request Messages packets until the OnlyKey has
-the full message. Once full message is received both the App and the OnlyKey generate a hash of
-the message that is used to generate a 3 digit code. The OnlyKey light flashes continuously
-and the app prompts the user to enter the 3 digit code to authorize the signing / decrypting of
-that message. This ensures that user presence is required to sign / decrypt and that the authorization applies
-to a specific plaintext, not a spoofed message.
-
-Once the 3 digit code is entered, the decryption / signing is completed and the result is stored on the OnlyKey
-until it is polled for the message.
-
-
-5.  Encode *polling in U2F challenge field, this message polls OnlyKey for a response to previous decrypt/sign request.
-┌──────────────────┬──────────────────┬──────────────────┐
-│    challenge     │       appId      │      version     │  
-│     *polling     │       crp.to     │      U2F_V2      │  
-│    (32 bytes)    │     (32 bytes)   │     (4 bytes)    │
-└──────────────────┴──────────────────┴──────────────────┘
+5.  Encode a *packet in U2F Key Handle field to request decryption using private key in slot # slotId().
+*encrypted packet is encrypted with key derived from shared secret - includes ciphertext broken into chunks (i.e. 3 of 3 packets for 128 byte encrypted payload).
+┌──────────────────┬──────────────────┬───────────────────┐
+│    challenge     │       appId      │     Key Handle    │  
+│      random      │      crp.to      │ *encrypted packet │  
+│    (32 bytes)    │     (32 bytes)   │     (64 bytes)    │
+└──────────────────┴──────────────────┴───────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
+Once full message is received both the App and the OnlyKey generate a hash of
+the message that is used to generate a 3 digit code. The OnlyKey light flashes continuously
+and the app prompts the user to enter the 3 digit code to authorize the signing / decrypting of
+that message. This ensures that user presence is required to sign / decrypt and that the authorization applies to a specific plaintext, not a spoofed message.
+
+Once the 3 digit code is entered, the decryption / signing is completed and the result is stored on the OnlyKey until polling occurs.
+
 6. Registration Response Message: process_custom_response(response)
-Encode *data which is encrypted with key derived from ECDH shared secret
-┌─────────────────┬────────────────┬─────────────────┬───────────────────┐
-│   Public Key    │   Key Handle   │   Certificate   │     Signature     │
-│ *OnlyKey Public │ *Random Number │     *data       │      <Empty>      │
-│   (65 bytes)    │   (64 bytes)   │ (Variable Size) │    (64 bytes)     │
-└─────────────────┴────────────────┴─────────────────┴───────────────────┘
+Encode Public Key field with OnlyKey *public key for ECDH, Key Handle with hardware generated *random number, Certificate field with the *encrypted packet is encrypted with key derived from shared secret - includes plaintext from decryption request or signature from signing request.
+┌─────────────────┬────────────────┬────────────────────┬───────────────────┐
+│   Public Key    │   Key Handle   │    Certificate     │     Signature     │
+│   *public key   │ *random number │ *encrypted packet  │    <Not Used>     │
+│   (65 bytes)    │   (64 bytes)   │   (Variable Size)  │    (64 bytes)     │
+└─────────────────┴────────────────┴────────────────────┴───────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
-Application receives the data which is decrypted using same key derived from ECDH shared secret.
 
 ```
 
