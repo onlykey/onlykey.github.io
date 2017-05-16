@@ -156,16 +156,16 @@ function simulate_enroll() {
 //Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
 function auth_timeset() { //OnlyKey settime to keyHandle
   simulate_enroll();
-  msg("Sending Set Time to OnlyKey");
+  //msg("Sending Set Time to OnlyKey");
   var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-  msg("Setting current epoch time on OnlyKey to " + currentEpochTime);
+  msg("Setting current time on OnlyKey to " + new Date().getTime());
   var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
   var empty = new Array(55).fill(0);
   Array.prototype.push.apply(message, timeParts);
   Array.prototype.push.apply(message, empty);
   var keyHandle = bytes2b64(message);
-  msg("Sending Handlekey " + keyHandle);
+  //msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
@@ -177,6 +177,8 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   setTimeout(function(){
   enroll_polling() //Poll for response
 }, 1000);
+  var version = data_blob.slice(0, 18);
+  msg("OnlyKey Connected! Firmware version " + bytes2string(version));
 }
 
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
@@ -315,12 +317,12 @@ function process_custom_response(response) {
   var regData_b64 = response['registrationData'];
   var v = string2bytes(u2f_unb64(regData_b64));
   var u2f_pk = v.slice(1, 66);                // X25519 Public Key PK = Public Key
-  msg("ECDH Public Key from OnlyKey" + u2f_pk);
+  //msg("ECDH Public Key from OnlyKey" + u2f_pk);
   var kh_bytes = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
-  msg("Hardware Generated Random Number " + kh_bytes);
+  //msg("Hardware Generated Random Number " + kh_bytes);
   var data_blob = v.slice(67 + v[66]);
-  msg("Data Received " + data_blob);  //Data encoded in cert field
-  msg("Data Received " + bytes2string(data_blob));
+  //msg("Data Received " + data_blob);  //Data encoded in cert field
+  //msg("Data Received " + bytes2string(data_blob));
   var kh_b64 = bytes2b64(kh_bytes);
   userDict[userId()] = kh_b64;
   keyHandleDict[kh_b64] = u2f_pk;
