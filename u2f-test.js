@@ -176,7 +176,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   setTimeout(function(){
   enroll_polling() //Poll for response
-  }, 2000);
+}, 1000);
 }
 
 //Function to set request data from OnlyKey
@@ -188,6 +188,30 @@ function enroll_polling() { //OnlyKey settime to keyHandle
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
   });
+}
+
+
+//Function to get public key on OnlyKey via U2F auth message Keyhandle
+function auth_getpub() { //OnlyKey get public key to keyHandle
+  simulate_enroll();
+  var message = [255, 255, 255, 255, 236, slotId()]; //Add header and message type
+  msg("Sending Get Public Request to OnlyKey Slot " + slotId());
+  var ciphertext = new Uint8Array(58).fill(0);
+  Array.prototype.push.apply(message, ciphertext);
+  msg("Handlekey bytes " + message);
+  var keyHandle = bytes2b64(message);
+  msg("Sending Handlekey " + keyHandle);
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "keyHandle": keyHandle,
+               "appId": appId, "version": version };
+  u2f.sign(appId, challenge, [req], function(response) {
+    var result = verify_auth_response(response);
+    msg("Get Public Request Sent" + (result ? "Successfully" : "Error"));
+  });
+
+  setTimeout(function(){
+  enroll_polling() //Poll for response
+}, 1000);
 }
 
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
@@ -323,7 +347,7 @@ function process_custom_response(response) {
   msg("Hardware Generated Random Number " + kh_bytes);
   var data_blob = v.slice(67 + v[66]);
   msg("Data Received " + data_blob);  //Data encoded in cert field
-  msg("Data Received " + bytes2string(data_blob));  
+  msg("Data Received " + bytes2string(data_blob));
   var kh_b64 = bytes2b64(kh_bytes);
   userDict[userId()] = kh_b64;
   keyHandleDict[kh_b64] = u2f_pk;
