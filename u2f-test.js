@@ -289,7 +289,7 @@ function process_enroll_response(response) {
   msg("Handlekey " + kh_bytes);
   var kh_b64 = bytes2b64(kh_bytes);
   msg("Handlekey b64 " + kh_b64);
-  var cert_der = v.slice(67 + v[66]);
+  var cert_der = v.slice(67 + v[66], v[67 + v[66]]);
   var cert_asn1 = ASN1.decode(cert_der);
   var cert_pk_asn1 = cert_asn1.sub[0].sub[6].sub[1];
   var cert_pk_bytes = asn1bytes(cert_pk_asn1);
@@ -323,6 +323,7 @@ function process_custom_response(response) {
   msg("Hardware Generated Random Number " + kh_bytes);
   var data_blob = v.slice(67 + v[66]);
   msg("Data Received " + data_blob);  //Data encoded in cert field
+  msg("Data Received " + bytes2string(data_blob));  
   var kh_b64 = bytes2b64(kh_bytes);
   userDict[userId()] = kh_b64;
   keyHandleDict[kh_b64] = u2f_pk;
