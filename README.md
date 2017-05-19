@@ -165,13 +165,17 @@ Encode Public Key field with OnlyKey *public key for ECDH, Key Handle with hardw
 
 ```
 
-### Security Objectives
+### Security Goals
 
-1) Serverless - All processing done via javascript in users own browser (no server to hack).
+**Empower the people**: Give people the ability to securely send and receive messages using any computer.
 
-2) No logins required / No data retention - Retain no metadata, or other tracking information.
+**Serverless**: All processing done via javascript in users own browser (no server to hack).
 
-3) Double Encryption - Everything should be sent via HTTPS but anything sensitive should also be end-to-end encrypted using AES/ECDH shared secret.
+**Private**: No logins required. No data retention. No tracking!!! No emails. No ads. No demographics. Retain no metadata, or other tracking information we don't know who / what / where you are.
+
+**Strong Crypto** - Everything should be sent via HTTPS and data between browser and OnlyKey should be end-to-end encrypted using AES/ECDH shared secret.
+
+**Open source & audit-able**
 
 ### License
 
