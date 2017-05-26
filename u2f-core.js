@@ -179,13 +179,11 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   setTimeout(function(){
   enroll_polling();
-  if (data_blob==0) {
-    headermsg("OnlyKey Not Connected! Insert Unlocked OnlyKey and Refresh Page");
-  } else {
+
     var version = data_blob.slice(0, 18);
     msg("Success! Firmware version " + bytes2string(version));
     headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
-  }
+
   }, 1000);
 }
 
