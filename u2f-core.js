@@ -16,6 +16,8 @@ function id(s) { return document.getElementById(s); }
 
 function msg(s) { id('messages').innerHTML += "<br>" + s; }
 
+function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
+
 function userId() {
     var el = id('userid');
     return el && el.value || 'u2ftest';
@@ -171,14 +173,15 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("OnlyKey is" + (result ? "Connected" : "Not Connected"));
+    msg("OnlyKey is " + (result ? "Connected" : "Not Connected"));
   });
 
   setTimeout(function(){
   enroll_polling(); //Poll for response
   var version = data_blob.slice(0, 18);
   msg("Success! Firmware version " + bytes2string(version));
-}, 1000);
+  headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
+  }, 1000);
 
 }
 
@@ -200,7 +203,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
     msg("Get Public Request Sent" + (result ? "Successfully" : "Error"));
   });
 
-  setTimeout(function(){
+  setTimeout(function() {
   enroll_polling() //Poll for response
 }, 1000);
 }
