@@ -178,7 +178,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   });
 
   setTimeout(function(){
-  enroll_polling()
+  enroll_polling();
   if (data_blob==0) {
     headermsg("OnlyKey Not Connected! Insert Unlocked OnlyKey and Refresh Page");
   } else {
