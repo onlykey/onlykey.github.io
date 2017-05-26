@@ -177,10 +177,13 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   });
 
   setTimeout(function(){
-  enroll_polling(); //Poll for response
-  var version = data_blob.slice(0, 18);
-  msg("Success! Firmware version " + bytes2string(version));
-  headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
+  if (enroll_polling()) { //Poll for response
+    var version = data_blob.slice(0, 18);
+    msg("Success! Firmware version " + bytes2string(version));
+    headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
+  } else {
+    headermsg("OnlyKey Not Connected! Insert Unlocked OnlyKey and Refresh Page");
+  }
   }, 1000);
 
 }
@@ -212,11 +215,17 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 function enroll_polling() { //OnlyKey settime to keyHandle
   msg("Requesting response from OnlyKey");
   var challenge = mk_polling();
+  var result = 0;
   var req = { "challenge": challenge, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
-    var result = process_custom_response(response);
+    result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
   });
+  if (result==0) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
