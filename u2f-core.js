@@ -179,6 +179,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   setTimeout(function(){
   enroll_polling();
+    msg("Data Received " + data_blob);  //Data encoded in cert field
     var version = data_blob.slice(0, 18);
     msg("Success! Firmware version " + bytes2string(version));
     headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
@@ -325,7 +326,7 @@ function process_custom_response(response) {
   var kh_bytes = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
   //msg("Hardware Generated Random Number " + kh_bytes);
   data_blob = v.slice(67 + v[66]);
-  //msg("Data Received " + data_blob);  //Data encoded in cert field
+  msg("Data Received " + data_blob);  //Data encoded in cert field
   //msg("Data Received " + bytes2string(data_blob));
   var kh_b64 = bytes2b64(kh_bytes);
   userDict[userId()] = kh_b64;
