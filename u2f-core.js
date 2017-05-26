@@ -1,6 +1,7 @@
 
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
+var data_blob = 0;
 
 var appId = window.location.origin;
 var version = "U2F_V2";
@@ -177,16 +178,14 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   });
 
   setTimeout(function(){
-  var data_blob = enroll_polling(); //Poll for response
-  if (data_blob==false) {
-      headermsg("OnlyKey Not Connected! Insert Unlocked OnlyKey and Refresh Page");
+  if (!enroll_polling()) {
+    headermsg("OnlyKey Not Connected! Insert Unlocked OnlyKey and Refresh Page");
   } else {
     var version = data_blob.slice(0, 18);
     msg("Success! Firmware version " + bytes2string(version));
     headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
   }
   }, 1000);
-
 }
 
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
@@ -216,17 +215,11 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 function enroll_polling() { //OnlyKey settime to keyHandle
   msg("Requesting response from OnlyKey");
   var challenge = mk_polling();
-  var result = 0;
   var req = { "challenge": challenge, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
-    result = process_custom_response(response);
+    var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
   });
-  if (result==0) {
-    return false;
-  } else {
-    return true;
-  }
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -334,13 +327,13 @@ function process_custom_response(response) {
   //msg("ECDH Public Key from OnlyKey" + u2f_pk);
   var kh_bytes = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
   //msg("Hardware Generated Random Number " + kh_bytes);
-  var data_blob = v.slice(67 + v[66]);
+  data_blob = v.slice(67 + v[66]);
   //msg("Data Received " + data_blob);  //Data encoded in cert field
   //msg("Data Received " + bytes2string(data_blob));
   var kh_b64 = bytes2b64(kh_bytes);
   userDict[userId()] = kh_b64;
   keyHandleDict[kh_b64] = u2f_pk;
-  return data_blob;
+  return true;
 }
 
 //Function to process U2F auth response
