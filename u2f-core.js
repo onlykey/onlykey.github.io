@@ -179,11 +179,9 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 
   setTimeout(function(){
   enroll_polling();
-
     var version = data_blob.slice(0, 18);
     msg("Success! Firmware version " + bytes2string(version));
     headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
-
   }, 1000);
 }
 
