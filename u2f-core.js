@@ -171,13 +171,13 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("Set Time Request Sent" + (result ? "Successfully" : "Error"));
+    msg("OnlyKey is" + (result ? "Connected" : "Not Connected"));
   });
 
   setTimeout(function(){
   enroll_polling(); //Poll for response
   var version = data_blob.slice(0, 18);
-  msg("OnlyKey Connected! Firmware version " + bytes2string(version));
+  msg("Success! Firmware version " + bytes2string(version));
 }, 1000);
 
 }
