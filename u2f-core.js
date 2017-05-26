@@ -157,7 +157,6 @@ function simulate_enroll() {
 
 //Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
 function auth_timeset() { //OnlyKey settime to keyHandle
-  var data_blob;
   simulate_enroll();
   //msg("Sending Set Time to OnlyKey");
   var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
@@ -178,12 +177,13 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   });
 
   setTimeout(function(){
-  if (enroll_polling()) { //Poll for response
+  var data_blob = enroll_polling(); //Poll for response
+  if (data_blob==false) {
+      headermsg("OnlyKey Not Connected! Insert Unlocked OnlyKey and Refresh Page");
+  } else {
     var version = data_blob.slice(0, 18);
     msg("Success! Firmware version " + bytes2string(version));
     headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
-  } else {
-    headermsg("OnlyKey Not Connected! Insert Unlocked OnlyKey and Refresh Page");
   }
   }, 1000);
 
@@ -334,13 +334,13 @@ function process_custom_response(response) {
   //msg("ECDH Public Key from OnlyKey" + u2f_pk);
   var kh_bytes = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
   //msg("Hardware Generated Random Number " + kh_bytes);
-  data_blob = v.slice(67 + v[66]);
+  var data_blob = v.slice(67 + v[66]);
   //msg("Data Received " + data_blob);  //Data encoded in cert field
   //msg("Data Received " + bytes2string(data_blob));
   var kh_b64 = bytes2b64(kh_bytes);
   userDict[userId()] = kh_b64;
   keyHandleDict[kh_b64] = u2f_pk;
-  return true;
+  return data_blob;
 }
 
 //Function to process U2F auth response
