@@ -3,7 +3,6 @@ var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var data_blob = {};
 var hw_RNG = {};
-var ok_ecc_pk = {};
 
 var appId = window.location.origin;
 var version = "U2F_V2";
@@ -193,7 +192,8 @@ function enroll_polling(type) {
     msg("Polling " + (result ? "succeeded" : "failed"));
     if (type == 1) {
       if (result == true) {
-        var version = bytes2string(data_blob.slice(8, 19));
+        msg("ECDH Public Key from OnlyKey" + data_blob.slice(0, 33));
+        var version = bytes2string(data_blob.slice(40, 51));
         msg("Success! Firmware " + version);
         headermsg("OnlyKey Connected! Firmware " + version);
       }
@@ -224,8 +224,6 @@ function process_custom_response(response) {
   var clientData_b64 = response['clientData'];
   var regData_b64 = response['registrationData'];
   var v = string2bytes(u2f_unb64(regData_b64));
-  ok_ecc_pk = v.slice(1, 33);                // X25519 Public Key PK
-  msg("ECDH Public Key from OnlyKey" + ok_ecc_pk);
   hw_RNG = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
   msg("Hardware Generated Random Number " + hw_RNG);
   data_blob = v.slice(67 + v[66]);

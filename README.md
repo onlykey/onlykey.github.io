@@ -37,18 +37,19 @@ DESCRIPTION: Acknowledge message received. Any other error code indicates failur
 OnlyKey checks the appId and if it is correct and there is data waiting to be sent data message triggers a registration response with encoded data.
 ┌──────────────────┬──────────────────┬──────────────────┐
 │    challenge     │       appId      │      version     │  
-│      random      │       crp.to     │      U2F_V2      │  
+│      *zeros      │       crp.to     │      U2F_V2      │  
 │    (32 bytes)    │     (32 bytes)   │     (4 bytes)    │
 └──────────────────┴──────────────────┴──────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
 4. Registration Response Message: process_custom_response(response)
-Encode Public Key field with OnlyKey public session key for ECDH, Key Handle with hardware generated *random number, Certificate field with OnlyKey Firmware *version.
-┌─────────────────┬────────────────┬─────────────────┬───────────────────┐
-│   Public Key    │   Key Handle   │   Certificate   │     Signature     │
-│  *session key   │ *random number │    *version     │    <Not Used>     │
-│   (65 bytes)    │   (64 bytes)   │ (Variable Size) │    (64 bytes)     │
-└─────────────────┴────────────────┴─────────────────┴───────────────────┘
+Encode Key Handle with hardware generated *random number, Certificate field with OnlyKey Firmware *version and
+a public session key for ECDH.
+┌─────────────────┬────────────────┬──────────────────────┬───────────────────┐
+│   Public Key    │   Key Handle   │     Certificate      │     Signature     │
+│   <Not Used>    │ *random number │ *version and public  │    <Not Used>     │
+│   (65 bytes)    │   (64 bytes)   │   (Variable Size)    │    (64 bytes)     │
+└─────────────────┴────────────────┴──────────────────────┴───────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
 
@@ -83,10 +84,10 @@ OnlyKey checks the appId and if it is correct and there is data waiting to be se
 ───────────────────────────────────────────────────────────────────────────▶
 
 4. Registration Response Message: process_custom_response(response)
-Encode Public Key field with OnlyKey public session key for ECDH, Key Handle with hardware generated *random number, Certificate field with *slot public key assigned to the requested slot #.
+Encode Key Handle with hardware generated *random number, Certificate field with *slot public key assigned to the requested slot #.
 ┌─────────────────┬────────────────┬──────────────────┬───────────────────┐
 │   Public Key    │   Key Handle   │   Certificate    │     Signature     │
-│  *session key   │ *random number │ *slot public key │    <Not Used>     │
+│   <Not Used>    │ *random number │ *slot public key │    <Not Used>     │
 │   (65 bytes)    │   (64 bytes)   │ (Variable Size)  │    (64 bytes)     │
 └─────────────────┴────────────────┴──────────────────┴───────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
@@ -154,10 +155,10 @@ that message. This ensures that user presence is required to sign / decrypt and 
 Once the 3 digit code is entered, the decryption / signing is completed and the result is stored on the OnlyKey until polling occurs.
 
 6. Registration Response Message: process_custom_response(response)
-Encode Public Key field with OnlyKey *public key for ECDH, Key Handle with hardware generated *random number, Certificate field with the *encrypted packet is encrypted with key derived from shared secret - includes plaintext from decryption request or signature from signing request.
+Encode Key Handle with hardware generated *random number, Certificate field with the *encrypted packet is encrypted with key derived from shared secret - includes plaintext from decryption request or signature from signing request.
 ┌─────────────────┬────────────────┬────────────────────┬───────────────────┐
 │   Public Key    │   Key Handle   │    Certificate     │     Signature     │
-│   *public key   │ *random number │ *encrypted packet  │    <Not Used>     │
+│   <Not Used>    │ *random number │ *encrypted packet  │    <Not Used>     │
 │   (65 bytes)    │   (64 bytes)   │   (Variable Size)  │    (64 bytes)     │
 └─────────────────┴────────────────┴────────────────────┴───────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
