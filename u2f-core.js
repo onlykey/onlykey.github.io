@@ -191,11 +191,11 @@ function enroll_polling(type) { //OnlyKey settime to keyHandle
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
       if (result == true) {
-      msg("Data Received " + data_blob);  //Data encoded in cert field
-      var version = data_blob.slice(0, 18);
-      msg("Version " + version);  //Data encoded in cert field
-      msg("Success! Firmware version " + bytes2string(version));
-      headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
+        if (type == 1) {
+          var version = bytes2string(data_blob.slice(8, 19));
+          msg("Success! Firmware version " + version);
+          headermsg("OnlyKey Connected! Firmware version " + version);
+      }
     }
   });
 }
