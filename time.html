@@ -56,6 +56,9 @@
     <div class="header yui3-u-1">
         <p><img src="https://rawgithub.com/onlykey/onlykey.github.io/master/ok.jpg" alt="logo" align="middle"></p>
         <h2 class="yui3-u">OnlyKey Web Access Apps</h2>
+        <pre><code data-language="javascript">
+        <div id=header_messages></div>
+        </code></pre></center>
 
     </div>
     <div class="content">
@@ -64,11 +67,15 @@
         <button onclick="auth_timeset()">Set Time</button>
         <br>
 
-<h2>OnlyKey Console Messages Appear Below</h2>
-<pre><code data-language="javascript">
-<div id=messages></div>
-</code></pre>
+        <h2>OnlyKey Console Messages Appear Below</h2>
+        <pre><code data-language="javascript"><font color="008700">
+        <div id=messages></div>
+        </font></code></pre>
 
     </div>
-</body>
+    <script>
+    //call after page loaded
+    window.onload=auth_timeset();
+    </script>
+  </body>
 </html>

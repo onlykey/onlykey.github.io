@@ -7,6 +7,11 @@ https://apps.crp.to
 The protocol outlined below utilizes existing communication channel via U2F. More
 information is available on U2F protocol [here](https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-raw-message-formats.html).
 
+Overview
+
+U2F utilizes registration and authentication message types. To send data to the OnlyKey, messages are encoded in the Key Handle of the authentication message type. To receive data back, messages are encoded in the Certificate of the registration message type. This method provides a reliable form of communication that is supported anywhere U2F is supported including Chrome, Chromium, Opera, and Firefox (w/plugin).
+
+
 ```
 ┌──────────────┐                                                   ┌─────────┐
 │ APPLICATION  │                                                   │ OnlyKey │

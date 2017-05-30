@@ -192,7 +192,7 @@ function enroll_polling(type) {
     msg("Polling " + (result ? "succeeded" : "failed"));
     if (type == 1) {
       if (result == true) {
-        msg("ECDH Public Key from OnlyKey" + data_blob.slice(0, 33));
+        msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
         var version = bytes2string(data_blob.slice(40, 51));
         msg("Success! Firmware " + version);
         headermsg("OnlyKey Connected! Firmware " + version);
