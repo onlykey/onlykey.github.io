@@ -77,7 +77,7 @@ DESCRIPTION: Acknowledge message received. Any other error code indicates failur
 OnlyKey checks the appId and if it is correct and there is data waiting to be sent data message triggers a registration response with encoded data.
 ┌──────────────────┬──────────────────┬──────────────────┐
 │    challenge     │       appId      │      version     │  
-│      random      │       crp.to     │      U2F_V2      │  
+│      *zeros      │       crp.to     │      U2F_V2      │  
 │    (32 bytes)    │     (32 bytes)   │     (4 bytes)    │
 └──────────────────┴──────────────────┴──────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶

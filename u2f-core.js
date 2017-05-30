@@ -196,20 +196,18 @@ function enroll_polling(type) {
         var version = bytes2string(data_blob.slice(8, 19));
         msg("Success! Firmware " + version);
         headermsg("OnlyKey Connected! Firmware " + version);
-      } else {
-        msg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
-        headermsg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
       }
     } else if (type == 2) {
       if (result == true) {
         var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
         msg("Success! Public Key " + pubkey);
-      } else {
-        msg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
       }
+    } else if (result == true) {
+      msg("Polling succeeded but no data was received");
+    } else {
+      msg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
+      headermsg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
     }
-
-
   });
 }
 
@@ -231,7 +229,7 @@ function process_custom_response(response) {
   hw_RNG = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
   msg("Hardware Generated Random Number " + hw_RNG);
   data_blob = v.slice(67 + v[66]);
-  msg("Data Received " + data_blob);  //Data encoded in cert field
+  //msg("Data Received " + data_blob);  //Data encoded in cert field
   return true;
 }
 
@@ -250,7 +248,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("Get Public Request Sent" + (result ? "Successfully" : "Error"));
+    msg("Get Public Request Sent " + (result ? "Successfully" : "Error"));
   });
 
   setTimeout(function(){
@@ -280,7 +278,7 @@ function auth_decrypt() { //OnlyKey decrypt request to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("Decrypt Request Sent" + (result ? "Successfully" : "Error"));
+    msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
   });
 }
 
@@ -304,7 +302,7 @@ function auth_sign_request() { //OnlyKey sign request to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("Sign Request Sent" + (result ? "Successfully" : "Error"));
+    msg("Sign Request Sent " + (result ? "Successfully" : "Error"));
   });
 }
 
