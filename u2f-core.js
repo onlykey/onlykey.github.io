@@ -178,14 +178,57 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   });
 
   setTimeout(function(){
-  var result = enroll_polling();
-    msg("Result" + result);  //Data encoded in cert field
-    msg("Data Received " + data_blob);  //Data encoded in cert field
-    var version = data_blob.slice(0, 18);
-    msg("Version " + version);  //Data encoded in cert field
-    msg("Success! Firmware version " + bytes2string(version));
-    headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
+  enroll_polling(1);
   }, 1000);
+}
+
+//Function to set request data from OnlyKey
+function enroll_polling(type) { //OnlyKey settime to keyHandle
+  msg("Requesting response from OnlyKey");
+  var challenge = mk_polling();
+  var req = { "challenge": challenge, "appId": appId, "version": version};
+  var result;
+  u2f.register(appId, [req], [], function(response) {
+    result = process_custom_response(response);
+    msg("Polling " + (result ? "succeeded" : "failed"));
+  });
+  if (result==true) {
+    if (type==1) {
+      msg("Result" + result);  //Data encoded in cert field
+      msg("Data Received " + data_blob);  //Data encoded in cert field
+      var version = data_blob.slice(0, 18);
+      msg("Version " + version);  //Data encoded in cert field
+      msg("Success! Firmware version " + bytes2string(version));
+      headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
+
+    }
+  }
+}
+
+//Function to process custom U2F registration response
+function process_custom_response(response) {
+  var err = response['errorCode'];
+  if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
+    return true;
+  }
+  if (err) {
+    msg("Failed with error code " + err);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  var regData_b64 = response['registrationData'];
+  var v = string2bytes(u2f_unb64(regData_b64));
+  var u2f_pk = v.slice(1, 66);                // X25519 Public Key PK = Public Key
+  //msg("ECDH Public Key from OnlyKey" + u2f_pk);
+  var kh_bytes = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
+  //msg("Hardware Generated Random Number " + kh_bytes);
+  data_blob = v.slice(67 + v[66]);
+  msg("Data Received " + data_blob);  //Data encoded in cert field
+  //msg("Data Received " + bytes2string(data_blob));
+  var kh_b64 = bytes2b64(kh_bytes);
+  userDict[userId()] = kh_b64;
+  keyHandleDict[kh_b64] = u2f_pk;
+  return true;
 }
 
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
@@ -211,18 +254,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 }, 1000);
 }
 
-//Function to set request data from OnlyKey
-function enroll_polling() { //OnlyKey settime to keyHandle
-  msg("Requesting response from OnlyKey");
-  var challenge = mk_polling();
-  var req = { "challenge": challenge, "appId": appId, "version": version};
-  var result;
-  u2f.register(appId, [req], [], function(response) {
-    result = process_custom_response(response);
-    msg("Polling " + (result ? "succeeded" : "failed"));
-  });
-  return result;
-}
+
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt() { //OnlyKey decrypt request to keyHandle
@@ -312,31 +344,7 @@ function process_enroll_response(response) {
   return v;
 }
 
-//Function to process custom U2F registration response
-function process_custom_response(response) {
-  var err = response['errorCode'];
-  if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
-    return true;
-  }
-  if (err) {
-    msg("Failed with error code " + err);
-    return false;
-  }
-  var clientData_b64 = response['clientData'];
-  var regData_b64 = response['registrationData'];
-  var v = string2bytes(u2f_unb64(regData_b64));
-  var u2f_pk = v.slice(1, 66);                // X25519 Public Key PK = Public Key
-  //msg("ECDH Public Key from OnlyKey" + u2f_pk);
-  var kh_bytes = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
-  //msg("Hardware Generated Random Number " + kh_bytes);
-  data_blob = v.slice(67 + v[66]);
-  msg("Data Received " + data_blob);  //Data encoded in cert field
-  //msg("Data Received " + bytes2string(data_blob));
-  var kh_b64 = bytes2b64(kh_bytes);
-  userDict[userId()] = kh_b64;
-  keyHandleDict[kh_b64] = u2f_pk;
-  return true;
-}
+
 
 //Function to process U2F auth response
 function verify_auth_response(response) {
