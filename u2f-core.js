@@ -177,9 +177,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
     msg("OnlyKey is " + (result ? "Connected" : "Not Connected"));
   });
 
-  setTimeout(function(){
-  enroll_polling(1);
-  }, 1000);
+  setTimeout(enroll_polling(1), 1000);
 }
 
 //Function to set request data from OnlyKey
@@ -200,7 +198,6 @@ function enroll_polling(type) { //OnlyKey settime to keyHandle
       msg("Version " + version);  //Data encoded in cert field
       msg("Success! Firmware version " + bytes2string(version));
       headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
-
     }
   }
 }
