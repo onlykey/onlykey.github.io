@@ -177,36 +177,9 @@ function auth_timeset() { //OnlyKey settime to keyHandle
     msg("OnlyKey is " + (result ? "Connected" : "Not Connected"));
   });
 
-  setTimeout(function(){enroll_polling(1)}, 1000);
-}
-
-//Function to process U2F auth response
-function verify_auth_response(response) {
-  var err = response['errorCode'];
-  if (err==1) { //OnlyKey uses err 1 from auth as ACK
-    return true;
-  } else if (err) {
-    msg("Auth failed with error code " + err);
-    return false;
-  }
-  var clientData_b64 = response['clientData'];
-  var clientData_str = u2f_unb64(clientData_b64);
-  var clientData_bytes = string2bytes(clientData_str);
-  var clientData = JSON.parse(clientData_str);
-  var origin = clientData['origin'];
-  var kh = response['keyHandle'];
-  var pk = keyHandleDict[kh];
-  var key = p256.keyFromPublic(pk, 'der');
-  var sigData = string2bytes(u2f_unb64(response['signatureData']));
-  var sig = sigData.slice(5);
-  var appid = document.location.origin;
-  var m = bcat([sha256(appid), sigData.slice(0,5), sha256(clientData_bytes)]);
-  if (!key.verify(sha256(m), sig)) return false;
-  var userPresent = sigData[0];
-  var counter = new BN(sigData.slice(1,5)).toNumber();
-  msg("User present: " + userPresent);
-  msg("Counter: " + counter);
-  return true;
+  setTimeout(function(){
+  enroll_polling(1);
+  }, 1000);
 }
 
 //Function to set request data from OnlyKey
@@ -214,21 +187,17 @@ function enroll_polling(type) { //OnlyKey settime to keyHandle
   msg("Requesting response from OnlyKey");
   var challenge = mk_polling();
   var req = { "challenge": challenge, "appId": appId, "version": version};
-  var result;
   u2f.register(appId, [req], [], function(response) {
-    result = process_custom_response(response);
+    var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
-  });
-  if (result==true) {
-    if (type==1) {
-      msg("Result" + result);  //Data encoded in cert field
+      if (result == true) {
       msg("Data Received " + data_blob);  //Data encoded in cert field
       var version = data_blob.slice(0, 18);
       msg("Version " + version);  //Data encoded in cert field
       msg("Success! Firmware version " + bytes2string(version));
       headermsg("OnlyKey Connected! Firmware version " + bytes2string(version));
     }
-  }
+  });
 }
 
 //Function to process custom U2F registration response
@@ -368,6 +337,37 @@ function process_enroll_response(response) {
     keyHandleDict[kh_b64] = u2f_pk;
   }
   return v;
+}
+
+
+
+//Function to process U2F auth response
+function verify_auth_response(response) {
+  var err = response['errorCode'];
+  if (err==1) { //OnlyKey uses err 1 from auth as ACK
+    return true;
+  } else if (err) {
+    msg("Auth failed with error code " + err);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  var clientData_str = u2f_unb64(clientData_b64);
+  var clientData_bytes = string2bytes(clientData_str);
+  var clientData = JSON.parse(clientData_str);
+  var origin = clientData['origin'];
+  var kh = response['keyHandle'];
+  var pk = keyHandleDict[kh];
+  var key = p256.keyFromPublic(pk, 'der');
+  var sigData = string2bytes(u2f_unb64(response['signatureData']));
+  var sig = sigData.slice(5);
+  var appid = document.location.origin;
+  var m = bcat([sha256(appid), sigData.slice(0,5), sha256(clientData_bytes)]);
+  if (!key.verify(sha256(m), sig)) return false;
+  var userPresent = sigData[0];
+  var counter = new BN(sigData.slice(1,5)).toNumber();
+  msg("User present: " + userPresent);
+  msg("Counter: " + counter);
+  return true;
 }
 
 /**
