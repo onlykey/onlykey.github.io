@@ -2,6 +2,8 @@
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var data_blob = {};
+var hw_RNG = {};
+var ok_ecc_pk = {};
 
 var appId = window.location.origin;
 var version = "U2F_V2";
@@ -182,21 +184,32 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   }, 1000);
 }
 
-//Function to set request data from OnlyKey
-function enroll_polling(type) { //OnlyKey settime to keyHandle
+function enroll_polling(type) {
   msg("Requesting response from OnlyKey");
   var challenge = mk_polling();
   var req = { "challenge": challenge, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
+    if (type == 1) {
       if (result == true) {
-        if (type == 1) {
-          var version = bytes2string(data_blob.slice(8, 19));
-          msg("Success! Firmware version " + version);
-          headermsg("OnlyKey Connected! Firmware version " + version);
+        var version = bytes2string(data_blob.slice(8, 19));
+        msg("Success! Firmware " + version);
+        headermsg("OnlyKey Connected! Firmware " + version);
+      } else {
+        msg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
+        headermsg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
+      }
+    } else if (type == 2) {
+      if (result == true) {
+        var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+        msg("Success! Public Key " + pubkey);
+      } else {
+        msg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
       }
     }
+
+
   });
 }
 
@@ -213,16 +226,12 @@ function process_custom_response(response) {
   var clientData_b64 = response['clientData'];
   var regData_b64 = response['registrationData'];
   var v = string2bytes(u2f_unb64(regData_b64));
-  var u2f_pk = v.slice(1, 66);                // X25519 Public Key PK = Public Key
-  //msg("ECDH Public Key from OnlyKey" + u2f_pk);
-  var kh_bytes = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
-  //msg("Hardware Generated Random Number " + kh_bytes);
+  ok_ecc_pk = v.slice(1, 33);                // X25519 Public Key PK
+  msg("ECDH Public Key from OnlyKey" + ok_ecc_pk);
+  hw_RNG = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
+  msg("Hardware Generated Random Number " + hw_RNG);
   data_blob = v.slice(67 + v[66]);
   msg("Data Received " + data_blob);  //Data encoded in cert field
-  //msg("Data Received " + bytes2string(data_blob));
-  var kh_b64 = bytes2b64(kh_bytes);
-  userDict[userId()] = kh_b64;
-  keyHandleDict[kh_b64] = u2f_pk;
   return true;
 }
 
@@ -244,9 +253,9 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
     msg("Get Public Request Sent" + (result ? "Successfully" : "Error"));
   });
 
-  setTimeout(function() {
-  enroll_polling() //Poll for response
-}, 1000);
+  setTimeout(function(){
+  enroll_polling(2);
+  }, 1000);
 }
 
 
