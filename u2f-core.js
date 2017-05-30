@@ -1,7 +1,7 @@
 
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
-var data_blob = 0;
+var data_blob = {};
 
 var appId = window.location.origin;
 var version = "U2F_V2";
@@ -178,7 +178,8 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   });
 
   setTimeout(function(){
-  enroll_polling();
+  var result = enroll_polling();
+    msg("Result" + result);  //Data encoded in cert field
     msg("Data Received " + data_blob);  //Data encoded in cert field
     var version = data_blob.slice(0, 18);
     msg("Version " + version);  //Data encoded in cert field
@@ -215,10 +216,12 @@ function enroll_polling() { //OnlyKey settime to keyHandle
   msg("Requesting response from OnlyKey");
   var challenge = mk_polling();
   var req = { "challenge": challenge, "appId": appId, "version": version};
+  var result;
   u2f.register(appId, [req], [], function(response) {
-    var result = process_custom_response(response);
+    result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
   });
+  return result;
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
