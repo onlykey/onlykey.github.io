@@ -175,7 +175,8 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("OnlyKey is " + (result ? "Connected" : "Not Connected"));
+    msg("OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
+    headermsg("OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
   });
 
   setTimeout(function(){
@@ -190,23 +191,17 @@ function enroll_polling(type) {
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
-    if (type == 1) {
-      if (result == true) {
+    if (result == false) {
+    } else if (type == 1) {
         msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
         var version = bytes2string(data_blob.slice(40, 51));
-        msg("Success! Firmware " + version);
-        headermsg("OnlyKey Connected! Firmware " + version);
-      }
+        msg("Firmware " + version);
+        headermsg("Firmware " + version);
     } else if (type == 2) {
-      if (result == true) {
         var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-        msg("Success! Public Key " + pubkey);
-      }
-    } else if (result == true) {
+        msg("Public Key " + pubkey);
+    } else  {
       msg("Polling succeeded but no data was received");
-    } else {
-      msg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
-      headermsg("OnlyKey Not Connected! Connect Unlocked OnlyKey and Refresh Page");
     }
   });
 }
