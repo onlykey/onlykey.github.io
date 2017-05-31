@@ -1,0 +1,151 @@
+body {
+    margin: 0, 0, 0, 0;
+    background: #FFFAFA;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+h1,
+h5 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 35px;
+    text-align: center;
+}
+
+h5,
+a {
+    color: #3C3C3C;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #969696;
+}
+
+input[type="text"] {
+    padding: 12px;
+    border: none;
+    border-bottom: solid 2px #c9c9c9;
+    transition: border 0.4s;
+}
+
+input[type="text"]:focus,
+input[type="text"].focus {
+    border-bottom: solid 2px #969696;
+}
+
+textarea {
+    padding: 12px;
+    border: none;
+    border: solid 2px #c9c9c9;
+    transition: border 0.4s;
+}
+
+textarea:focus,
+textarea.focus {
+    border: solid 2px #969696;
+}
+
+button {
+    font-size: 15px;
+    padding: 12px;
+    border: none;
+    border: solid 2px #c9c9c9;
+    transition: all 0.4s;
+    background-color: #FFFAFA;
+}
+
+button:active,
+button:hover {
+    border: solid 2px #969696;
+}
+
+#container {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 70%;
+    min-width: 100;
+}
+
+#message {
+    min-height: 70%;
+}
+
+fieldset {
+    padding: 0px 10px 10px 10px;
+    border: solid 2px #3C3C3C;
+    margin-bottom: 5px;
+}
+
+fieldset * {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.error {
+    background: rgba(255, 50, 50, 1);
+}
+
+.working {
+    background: linear-gradient(270deg, #00ff42, #0081ff, #ba00ff);
+    background-size: 600% 600%;
+    -webkit-animation: statusWorking 5s ease infinite;
+    -moz-animation: statusWorking 5s ease infinite;
+    -o-animation: statusWorking 5s ease infinite;
+    animation: statusWorking 5s ease infinite;
+}
+
+@-webkit-keyframes statusWorking {
+    0% {
+        background-position: 0% 50%
+    }
+    50% {
+        background-position: 100% 50%
+    }
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@-moz-keyframes statusWorking {
+    0% {
+        background-position: 0% 50%
+    }
+    50% {
+        background-position: 100% 50%
+    }
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@-o-keyframes statusWorking {
+    0% {
+        background-position: 0% 50%
+    }
+    50% {
+        background-position: 100% 50%
+    }
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@keyframes statusWorking {
+    0% {
+        background-position: 0% 50%
+    }
+    50% {
+        background-position: 100% 50%
+    }
+    100% {
+        background-position: 0% 50%
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    #container {
+        max-width: 92%;
+    }
+}
