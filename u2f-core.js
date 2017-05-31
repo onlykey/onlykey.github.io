@@ -11,8 +11,8 @@ var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
-var ECDH = require('elliptic').ec;
-var ec = new ECDH('curve25519');
+//var ECDH = require('elliptic').ec;
+//var ec = new ECDH('curve25519');
 
 function id(s) { return document.getElementById(s); }
 
