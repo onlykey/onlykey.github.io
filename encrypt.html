@@ -5,9 +5,55 @@
   <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
   <link href="style.css" rel="stylesheet">
+  <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
+  <link rel="stylesheet" href="https://rawgithub.com/onlykey/onlykey.github.io/master/gallerycss-csstable-min.css">
+  <link rel="stylesheet" href="https://rawgithub.com/onlykey/onlykey.github.io/master/gallerycss-csslist-min.css">
+  <link rel="stylesheet" href="https://rawgithub.com/onlykey/onlykey.github.io/master/gallerycss-cssform-min.css">
+  <link rel="stylesheet" href="https://rawgithub.com/onlykey/onlykey.github.io/master/cssnormalize-min.css">
+  <link rel="stylesheet" href="https://rawgithub.com/onlykey/onlykey.github.io/master/cssgrids-responsive-min.css">
+  <link rel="stylesheet" href="https://rawgithub.com/onlykey/onlykey.github.io/master/cssbutton-min.css">
+
+  <!-- Some custom styles to make things pretty. -->
+  <link rel="stylesheet" type="text/css" href="https://rawgithub.com/onlykey/onlykey.github.io/master/ui.css">
+
+  <!-- RainbowJS Syntax Highlighting - Github Theme.
+       For more themes, go to https://github.com/ccampbell/rainbow/tree/master/themes -->
+  <link rel="stylesheet" type="text/css" href="https://rawgithub.com/onlykey/onlykey.github.io/master/github.css">
+
+  <!-- Modify header colors here to customize the look and feel of the site-->
+  <style>
+
+      .header {
+          background: white;
+       }
+          .header h1 {
+              color: rgb(164, 6, 1);
+          }
+           .header h2 {
+               font-weight:300;
+               margin:0;
+               color: rgb(137, 137, 137);
+           }
+  </style>
+
 </head>
 <body>
-  <h1><i class="fa fa-key" aria-hidden="true"></i> pgp2go</h1>
+  <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
+      <span class="yui3-menu-heading">CryptoTrust</span>
+      <ul>
+          <li class="yui3-menu-active"><a href="https://apps.crp.to">Apps</a></li>
+          <li><a href="https://docs.crp.to">Documentation</a></li>
+          <li><a href="https://crp.to">Home</a></li>
+      </ul>
+  </div>
+  <div class="header yui3-u-1">
+      <p><img src="https://rawgithub.com/onlykey/onlykey.github.io/master/ok.jpg" alt="logo" align="middle"></p>
+      <h2 class="yui3-u">OnlyKey Web Access Apps</h2>
+      <pre><code data-language="javascript">
+      <div id=header_messages></div>
+      </code></pre></center>
+
+  </div>
   <h5>encrypt messages in your browser using <a href="https://keybase.io/kbpgp" target="_blank">kbpgp.js</a></h5>
   <div id="container">
     <fieldset>
