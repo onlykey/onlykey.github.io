@@ -29869,7 +29869,7 @@
         a = document.getElementById("pgpkeyurl"),
         f = document.getElementById("message"),
         u = document.getElementById("btnencrypt");
-        ok_decrypt = document.getElementById("btndecrypt");
+        var ok_decrypt = document.getElementById("btndecrypt");
     class c {
         constructor() {
             document.getElementsByTagName("fieldset")[0].style.backgroundColor = s({
