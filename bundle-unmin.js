@@ -29869,7 +29869,7 @@
         a = document.getElementById("pgpkeyurl"),
         f = document.getElementById("message"),
         u = document.getElementById("btnencrypt");
-        constructor() {
+        class c{constructor() {
             document.getElementsByTagName("fieldset")[0].style.backgroundColor = s({
                 luminosity: "bright",
                 format: "rgba"
