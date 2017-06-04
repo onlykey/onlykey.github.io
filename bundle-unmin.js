@@ -83,6 +83,13 @@
             return e
         }
 
+        function ok_decrypt(e, t) {
+            var n = t.length < 0 ? 0 : 0 | d(t.length);
+            e = i(e, n);
+            for (var r = 0; r < n; r += 1) e[r] = 255 & t[r];
+            return e
+        }
+
         function p(e, t, n, r) {
             if (t.byteLength, n < 0 || t.byteLength < n) throw new RangeError("'offset' is out of bounds");
             if (t.byteLength < n + (r || 0)) throw new RangeError("'length' is out of bounds");
