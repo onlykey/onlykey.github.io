@@ -29927,6 +29927,8 @@
                         } else {
                           console.log("Loaded private key w/o passphrase");
                         }
+                      }
+                    }
 
                 u.textContent = "Decrypting message ...";
                 var ring = new i.keyring.KeyRing;
