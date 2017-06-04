@@ -29869,8 +29869,6 @@
         a = document.getElementById("pgpkeyurl"),
         f = document.getElementById("message"),
         u = document.getElementById("btnencrypt");
-        ok_decrypt = document.getElementById("btndecrypt");
-    class c {
         constructor() {
             document.getElementsByTagName("fieldset")[0].style.backgroundColor = s({
                 luminosity: "bright",
@@ -29949,16 +29947,9 @@
             u.textContent = e.message, u.classList.remove("working"), u.classList.add("error")
         }
     }
-    let ok_decrypt = new c;
-    u.onclick = function() {
-        return ok_decrypt.startDecryption(), !1
-    }, a.onkeyup = function() {
-        let e = Math.trunc(a.value.length * parseFloat(window.getComputedStyle(a, null).getPropertyValue("font-size")) / (1.5 * a.offsetWidth)) + 1;
-        a.rows = e > 10 ? 10 : e
-    }
     let h = new c;
     u.onclick = function() {
-        return h.startEncryption(), !1
+        return h.startDecryption(), !1
     }, a.onkeyup = function() {
         let e = Math.trunc(a.value.length * parseFloat(window.getComputedStyle(a, null).getPropertyValue("font-size")) / (1.5 * a.offsetWidth)) + 1;
         a.rows = e > 10 ? 10 : e
