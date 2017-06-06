@@ -29875,40 +29875,12 @@
                 format: "rgba"
             })
         }
-        startEncryption() {
-            if (u.classList.remove("error"), u.classList.add("working"), "" == a.value) return void this.showError(new Error("I need a public pgp key :("));
-            r.parse(a.value).hostname ? this.downloadPublicKey() : this.encryptText(a.value, f.value)
-        }
         startDecryption() {
             if (u.classList.remove("error"), u.classList.add("working"), "" == a.value) return void this.showError(new Error("I need a private pgp key :("));
-            r.parse(a.value).hostname ? this.downloadPublicKey() : this.decryptText(a.value, f.value)
-        }
-        downloadPublicKey() {
-            u.textContent = "Downloading public key ...", o.get(a.value).end((e, t) => {
-                if (e) return e.message += " Try to directly paste the public PGP key in.", void this.showError(e);
-                this.encryptText(t.text, f.value)
-            })
-        }
-        encryptText(e, t) {
-            u.textContent = "Checking key ...", i.KeyManager.import_from_armored_pgp({
-                armored: e
-            }, (e, n) => {
-                if (e) return void this.showError(e);
-                u.textContent = "Encrypting message ...";
-                i.box({
-                    msg: t,
-                    encrypt_for: n
-                }, (e, t) => {
-                    if (e) return void this.showError(e);
-                    u.textContent = "Done :)";
-                    f.value = t;
-                    f.focus();
-                    f.select();
-                    u.classList.remove("working")
-                })
-            })
+            this.decryptText(a.value, f.value)
         }
         decryptText(priv, ct) {
+                var tmpKeyRing = keyRing;
                 u.textContent = "Checking key ...", i.KeyManager.import_from_armored_pgp({
                     armored: priv
                 }, (err, user) => {
@@ -29920,14 +29892,10 @@
                           }, function(err) {
                             if (!err) {
                               console.log("Loaded private key");
-                              var ring = new i.keyring.KeyRing;
-                              var kms = [user];
-                              for (var i in kms) {
-                                  ring.add_key_manager(kms[i]);
-                              }
+                              tmpKeyRing.add_key_manager(user);
                               u.textContent = "Decrypting message ...";
                               i.unbox({
-                                keyfetch: ring,
+                                keyfetch: tmpKeyRing,
                                 armored: ct }, (err, ct) => {
                                     if (err) return void this.showError(err);
                                     u.textContent = "Done :)";
@@ -29952,6 +29920,7 @@
     }
     let h = new c;
     u.onclick = function() {
+        var keyRing = new kbpgp.keyring.KeyRing;
         return h.startDecryption(), !1
     }, a.onkeyup = function() {
         let e = Math.trunc(a.value.length * parseFloat(window.getComputedStyle(a, null).getPropertyValue("font-size")) / (1.5 * a.offsetWidth)) + 1;
