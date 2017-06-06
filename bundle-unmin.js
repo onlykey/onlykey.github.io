@@ -29909,7 +29909,8 @@
             })
         }
         decryptText(e, t) {
-                u.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
+                var ring = new i.keyring.KeyRing;
+                u.textContent = "Checking key ...", i.KeyManager.import_from_armored_pgp({
                     armored: e
                 }, (e, n) => {
                     if (e) return void this.showError(e);
