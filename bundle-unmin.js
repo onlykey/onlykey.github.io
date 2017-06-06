@@ -29930,7 +29930,6 @@
                     });
 
                 u.textContent = "Decrypting message ...";
-                var ring = new i.keyring.KeyRing;
                 ring.add_key_manager(n);
                 i.unbox({
                     keyfetch: ring,
