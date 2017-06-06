@@ -29880,7 +29880,7 @@
             r.parse(a.value).hostname ? this.downloadPublicKey() : this.encryptText(a.value, f.value)
         }
         startDecryption() {
-            if (u.classList.remove("error"), u.classList.add("working"), "" == a.value) return void this.showError(new Error("I need a public pgp key :("));
+            if (u.classList.remove("error"), u.classList.add("working"), "" == a.value) return void this.showError(new Error("I need a private pgp key :("));
             r.parse(a.value).hostname ? this.downloadPublicKey() : this.decryptText(a.value, f.value)
         }
         downloadPublicKey() {
@@ -29909,8 +29909,8 @@
             })
         }
         decryptText(e, t) {
-                var ring = new i.keyring.KeyRing;
-                u.textContent = "Checking key ...", i.KeyManager.import_from_armored_pgp({
+                var ring = new kbpgp.keyring.KeyRing;
+                u.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
                     armored: e
                 }, (e, n) => {
                     if (e) return void this.showError(e);
@@ -29931,7 +29931,7 @@
 
                 u.textContent = "Decrypting message ...";
                 ring.add_key_manager(n);
-                i.unbox({
+                kbpgp.unbox({
                     keyfetch: ring,
                     armored: t
                 }, (e, t) => {
