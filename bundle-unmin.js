@@ -29909,6 +29909,7 @@
             })
         }
         decryptText(priv, ct) {
+                var ring = new kbpgp.keyring.KeyRing;
                 u.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
                     armored: priv
                 }, (err, user) => {
@@ -29930,7 +29931,7 @@
 	                       console.log(err);
 	                      }
                     });
-                var ring = new kbpgp.keyring.KeyRing;
+
                 ring.add_key_manager(user);
                 u.textContent = "Decrypting message ...";
                 kbpgp.unbox({
