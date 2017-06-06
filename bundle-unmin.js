@@ -29908,18 +29908,18 @@
                 })
             })
         }
-        decryptText(e, t) {
+        decryptText(priv, ct) {
                 var ring = new kbpgp.keyring.KeyRing;
                 u.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
-                    armored: e
-                }, (e, n) => {
-                    if (e) return void this.showError(e);
-                    if (!e) {
-                      if (n.is_pgp_locked()) {
-                          n.unlock_pgp({
+                    armored: priv
+                }, (err, user) => {
+                    if (err) return void this.showError(err);
+                    if (!err) {
+                      if (user.is_pgp_locked()) {
+                          user.unlock_pgp({
                             passphrase: "test"
-                          }, function(e) {
-                            if (!e) {
+                          }, function(err) {
+                            if (!err) {
                               console.log("Loaded private key");
                             }
                           });
@@ -29930,14 +29930,14 @@
                     });
 
                 u.textContent = "Decrypting message ...";
-                ring.add_key_manager(n);
+                ring.add_key_manager(user);
                 kbpgp.unbox({
                     keyfetch: ring,
-                    armored: t
-                }, (e, t) => {
-                    if (e) return void this.showError(e);
+                    armored: ct
+                }, (err, ct) => {
+                    if (err) return void this.showError(err);
                     u.textContent = "Done :)";
-                    f.value = t;
+                    f.value = ct;
                     f.focus();
                     f.select();
                     u.classList.remove("working")
