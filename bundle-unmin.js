@@ -29909,8 +29909,7 @@
             })
         }
         decryptText(priv, ct) {
-                var ring = new kbpgp.keyring.KeyRing;
-                u.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
+                u.textContent = "Checking key ...", i.KeyManager.import_from_armored_pgp({
                     armored: priv
                 }, (err, user) => {
                     if (err) return void this.showError(err);
@@ -29920,31 +29919,32 @@
                             passphrase: "test"
                           }, function(err) {
                             if (!err) {
-
                               console.log("Loaded private key");
-                            }
-                          });
-                        } else {
+                              var ring = new i.keyring.KeyRing;
+                              var kms = [user];
+                              for (var i in kms) {
+                                  ring.add_key_manager(kms[i]);
+                              }
+                              u.textContent = "Decrypting message ...";
+                              i.unbox({
+                                keyfetch: ring,
+                                armored: ct }, (err, ct) => {
+                                    if (err) return void this.showError(err);
+                                    u.textContent = "Done :)";
+                                    f.value = ct;
+                                    f.focus();
+                                    f.select();
+                                    u.classList.remove("working")
+                                });
+                              }
+                        });
+                      } else {
                           console.log("Loaded private key w/o passphrase");
                         }
                       } else {
 	                       console.log(err);
 	                      }
                     });
-
-                ring.add_key_manager(user);
-                u.textContent = "Decrypting message ...";
-                kbpgp.unbox({
-                    keyfetch: ring,
-                    armored: ct
-                }, (err, ct) => {
-                    if (err) return void this.showError(err);
-                    u.textContent = "Done :)";
-                    f.value = ct;
-                    f.focus();
-                    f.select();
-                    u.classList.remove("working")
-                });
         }
         showError(e) {
             u.textContent = e.message, u.classList.remove("working"), u.classList.add("error")
