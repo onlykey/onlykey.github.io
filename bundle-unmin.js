@@ -29909,7 +29909,6 @@
             })
         }
         decryptText(priv, ct) {
-                var ring = new kbpgp.keyring.KeyRing;
                 u.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
                     armored: priv
                 }, (err, user) => {
@@ -29920,6 +29919,7 @@
                             passphrase: "test"
                           }, function(err) {
                             if (!err) {
+
                               console.log("Loaded private key");
                             }
                           });
@@ -29928,9 +29928,9 @@
                         }
                       }
                     });
-
-                u.textContent = "Decrypting message ...";
+                var ring = new kbpgp.keyring.KeyRing;
                 ring.add_key_manager(user);
+                u.textContent = "Decrypting message ...";
                 kbpgp.unbox({
                     keyfetch: ring,
                     armored: ct
