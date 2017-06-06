@@ -29926,7 +29926,9 @@
                         } else {
                           console.log("Loaded private key w/o passphrase");
                         }
-                      }
+                      } else {
+	                       console.log(err);
+	                      }
                     });
                 var ring = new kbpgp.keyring.KeyRing;
                 ring.add_key_manager(user);
@@ -29941,7 +29943,7 @@
                     f.focus();
                     f.select();
                     u.classList.remove("working")
-                })
+                });
         }
         showError(e) {
             u.textContent = e.message, u.classList.remove("working"), u.classList.add("error")
