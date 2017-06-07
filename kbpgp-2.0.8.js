@@ -15022,6 +15022,9 @@ _break()
       var cipher, err, ret, ___iced_passed_deferral, __iced_deferrals, __iced_k, _ref1;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
+      //I think sesskey or pkcs5 is the symmetric session key, have to test this
+      console.log("sesskey kbpgp line 15026: ", sesskey);
+      console.log("sesskey kbpgp line 15027: ", pkcs5);
       _ref1 = katch(function() {
         return import_key_pgp(sesskey, pkcs5);
       }), err = _ref1[0], cipher = _ref1[1];
@@ -17704,75 +17707,75 @@ _break()
       }
 
       /* Chinese remainder theorem (CRT) states:
-      
+
         Suppose n1, n2, ..., nk are positive integers which are pairwise
         coprime (n1 and n2 have no common factors other than 1). For any
         integers x1, x2, ..., xk there exists an integer x solving the
         system of simultaneous congruences (where ~= means modularly
         congruent so a ~= b mod n means a mod n = b mod n):
-      
+
         x ~= x1 mod n1
         x ~= x2 mod n2
         ...
         x ~= xk mod nk
-      
+
         This system of congruences has a single simultaneous solution x
         between 0 and n - 1. Furthermore, each xk solution and x itself
         is congruent modulo the product n = n1*n2*...*nk.
         So x1 mod n = x2 mod n = xk mod n = x mod n.
-      
+
         The single simultaneous solution x can be solved with the following
         equation:
-      
+
         x = sum(xi*ri*si) mod n where ri = n/ni and si = ri^-1 mod ni.
-      
+
         Where x is less than n, xi = x mod ni.
-      
+
         For RSA we are only concerned with k = 2. The modulus n = pq, where
         p and q are coprime. The RSA decryption algorithm is:
-      
+
         y = x^d mod n
-      
+
         Given the above:
-      
+
         x1 = x^d mod p
         r1 = n/p = q
         s1 = q^-1 mod p
         x2 = x^d mod q
         r2 = n/q = p
         s2 = p^-1 mod q
-      
+
         So y = (x1r1s1 + x2r2s2) mod n
              = ((x^d mod p)q(q^-1 mod p) + (x^d mod q)p(p^-1 mod q)) mod n
-      
+
         According to Fermat's Little Theorem, if the modulus P is prime,
         for any integer A not evenly divisible by P, A^(P-1) ~= 1 mod P.
         Since A is not divisible by P it follows that if:
         N ~= M mod (P - 1), then A^N mod P = A^M mod P. Therefore:
-      
+
         A^N mod P = A^(M mod (P - 1)) mod P. (The latter takes less effort
         to calculate). In order to calculate x^d mod p more quickly the
         exponent d mod (p - 1) is stored in the RSA private key (the same
         is done for x^d mod q). These values are referred to as dP and dQ
         respectively. Therefore we now have:
-      
+
         y = ((x^dP mod p)q(q^-1 mod p) + (x^dQ mod q)p(p^-1 mod q)) mod n
-      
+
         Since we'll be reducing x^dP by modulo p (same for q) we can also
         reduce x by p (and q respectively) before hand. Therefore, let
-      
+
         xp = ((x mod p)^dP mod p), and
         xq = ((x mod q)^dQ mod q), yielding:
-      
+
         y = (xp*q*(q^-1 mod p) + xq*p*(p^-1 mod q)) mod n
-      
+
         This can be further reduced to a simple algorithm that only
         requires 1 inverse (the q inverse is used) to be used and stored.
         The algorithm is called Garner's algorithm. If qInv is the
         inverse of q, we simply calculate:
-      
+
         y = (qInv*(xp - xq) mod p) * q + xq
-      
+
         However, there are two further complications. First, we need to
         ensure that xp > xq to prevent signed BigIntegers from being used
         so we add p until this is true (since we will be mod'ing with
@@ -18709,7 +18712,7 @@ if (!engine) {
 }
 
 for (var k in syms) {
-	exports[k] = syms[k];	
+	exports[k] = syms[k];
 }
 
 },{"./lib/fast":72,"./lib/pure":73,"./lib/wrap":74}],72:[function(require,module,exports){
@@ -18727,13 +18730,13 @@ for (var k in syms) {
 			// Filter out any empty spaces.
 			a = a.replace(/\s+/g,'');
 			if (!b) { b = 10; }
-			this._v = bigint(a,b);	
+			this._v = bigint(a,b);
 		} else if (typeof(a) == 'number') {
 			this._v = bigint(a);
 		} else if (typeof(a) == 'object' && Array.isArray(a)) {
 			this._v = bigint.fromBuffer(new Buffer(a));
 		} else if (a.constructor != zed.constructor) {
-			throw new Error("failed to get valid inner object in constructor");	
+			throw new Error("failed to get valid inner object in constructor");
 		} else {
 			this._v = a;
 		}
@@ -18887,7 +18890,7 @@ for (var k in syms) {
 		else if (buf[0] == 0) { ret = BigInteger.fromBuffer(buf); }
 		else {
 			ret = BigInteger.fromBuffer(buf);
-			if (buf[0] & 0x80) { 
+			if (buf[0] & 0x80) {
 				var z = BigInteger.ONE.shiftLeft(ret.bitLength())
 				ret = ret.subtract(z);
 			}
@@ -18911,7 +18914,7 @@ for (var k in syms) {
 	BigInteger.prototype.toDERInteger = function () {
 		var ret = null;
 		var s = this.signum();
-		
+
 		if (s == 0) { ret = new Buffer([0]); }
 		else if (s < 0) {
 			var z = this.compute_twos_complement();
@@ -18956,7 +18959,7 @@ for (var k in syms) {
 		var l = b.length;
 		var ret = new Array(l);
 		for (var i = 0; i < l; i++) {
-			ret[i] = b[i];	
+			ret[i] = b[i];
 		}
 		return ret;
 	};
@@ -19014,7 +19017,7 @@ for (var k in syms) {
 		return res.eq(zed);
 	};
 
-	// returns bit length of the integer x. stolen from 
+	// returns bit length of the integer x. stolen from
 	// elsewhere is jsbn.
 	function nbits(x) {
   		var r = 1, t;
@@ -19050,7 +19053,7 @@ for (var k in syms) {
 		if (!base) { base = 10; }
 		var raw = this._v.toString(base);
 		if (raw.length == 0) {
-			raw = "0";	
+			raw = "0";
 		} else if (base == 16 && raw.length > 1) {
 			if (raw[0] == "0") {
 				raw = raw.slice(1);
@@ -19080,14 +19083,14 @@ for (var k in syms) {
 }).call(this,require("buffer").Buffer)
 },{"./wrap":74,"buffer":80}],73:[function(require,module,exports){
 (function (Buffer){
-(function (){ 
-	 
+(function (){
+
 	 /*
-	  * Copyright (c) 2003-2005  Tom Wu (tjw@cs.Stanford.EDU) 
+	  * Copyright (c) 2003-2005  Tom Wu (tjw@cs.Stanford.EDU)
 	  * All Rights Reserved.
 	  *
-	  * Modified by Recurity Labs GmbH 
-	  * 
+	  * Modified by Recurity Labs GmbH
+	  *
 	  * Permission is hereby granted, free of charge, to any person obtaining
 	  * a copy of this software and associated documentation files (the
 	  * "Software"), to deal in the Software without restriction, including
@@ -19099,9 +19102,9 @@ for (var k in syms) {
 	  * The above copyright notice and this permission notice shall be
 	  * included in all copies or substantial portions of the Software.
 	  *
-	  * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-	  * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-	  * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+	  * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
+	  * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
+	  * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 	  *
 	  * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
 	  * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
@@ -19114,16 +19117,16 @@ for (var k in syms) {
 	  * All redistributions must retain an intact copy of this copyright notice
 	  * and disclaimer.
 	  */
-	 
+
 	 // Basic JavaScript BN library - subset useful for RSA encryption.
-	 
+
 	 // Bits per digit
 	 var dbits;
-	 
+
 	 // JavaScript engine analysis
 	 var canary = 0xdeadbeefcafe;
 	 var j_lm = ((canary&0xffffff)==0xefcafe);
-	 
+
 	 // (public) Constructor
 	 function BigInteger(a,b,c) {
 	   // bigi has this, so add it in...
@@ -19134,15 +19137,15 @@ for (var k in syms) {
 	     else if(b == null && "string" != typeof a) this.fromString(a,256);
 	     else this.fromString(a,b);
 	 }
-	 
+
 	 // return new, unset BigInteger
 	 function nbi() { return new BigInteger(null); }
-	 
+
 	 // am: Compute w_j += (x*this_i), propagate carries,
 	 // c is initial carry, returns final carry.
 	 // c < 3*dvalue, x < 2*dvalue, this_i < dvalue
 	 // We need to select the fastest one that works in this environment.
-	 
+
 	 // am1: use a single mult and divide to get the high bits,
 	 // max digit bits should be 26 because
 	 // max internal value = 2*dvalue^2-2*dvalue (< 2^53)
@@ -19183,20 +19186,20 @@ for (var k in syms) {
 	   }
 	   return c;
 	 }
-	 
+
 	 // Chrome seems to prefer this...
 	 BigInteger.prototype.am = am3;
 	 dbits = 28;
-	 
+
 	 BigInteger.prototype.DB = dbits;
 	 BigInteger.prototype.DM = ((1<<dbits)-1);
 	 BigInteger.prototype.DV = (1<<dbits);
-	 
+
 	 var BI_FP = 52;
 	 BigInteger.prototype.FV = Math.pow(2,BI_FP);
 	 BigInteger.prototype.F1 = BI_FP-dbits;
 	 BigInteger.prototype.F2 = 2*dbits-BI_FP;
-	 
+
 	 // Digit conversions
 	 var BI_RM = "0123456789abcdefghijklmnopqrstuvwxyz";
 	 var BI_RC = new Array();
@@ -19207,20 +19210,20 @@ for (var k in syms) {
 	 for(vv = 10; vv < 36; ++vv) BI_RC[rr++] = vv;
 	 rr = "A".charCodeAt(0);
 	 for(vv = 10; vv < 36; ++vv) BI_RC[rr++] = vv;
-	 
+
 	 function int2char(n) { return BI_RM.charAt(n); }
 	 function intAt(s,i) {
 	   var c = BI_RC[s.charCodeAt(i)];
 	   return (c==null)?-1:c;
 	 }
-	 
+
 	 // (protected) copy this to r
 	 function bnpCopyTo(r) {
 	   for(var i = this.t-1; i >= 0; --i) r[i] = this[i];
 	   r.t = this.t;
 	   r.s = this.s;
 	 }
-	 
+
 	 // (protected) set from integer value x, -DV <= x < DV
 	 function bnpFromInt(x) {
 	   this.t = 1;
@@ -19229,10 +19232,10 @@ for (var k in syms) {
 	   else if(x < -1) this[0] = x+this.DV;
 	   else this.t = 0;
 	 }
-	 
+
 	 // return bigint initialized to value
 	 function nbv(i) { var r = nbi(); r.fromInt(i); return r; }
-	 
+
 	 // (protected) set from string and radix
 	 function bnpFromString(s,b,unsigned) {
 	   var k;
@@ -19272,13 +19275,13 @@ for (var k in syms) {
 	   if(mi) BigInteger.ZERO.subTo(this,this);
 	   return this;
 	 }
-	 
+
 	 // (protected) clamp off excess high words
 	 function bnpClamp() {
 	   var c = this.s&this.DM;
 	   while(this.t > 0 && this[this.t-1] == c) --this.t;
 	 }
-	 
+
 	 // (public) return string representation in given radix
 	 function bnToString(b) {
 	   if(this.s < 0) return "-"+this.negate().toString(b);
@@ -19308,13 +19311,13 @@ for (var k in syms) {
 	   }
 	   return m?r:"0";
 	 }
-	 
+
 	 // (public) -this
 	 function bnNegate() { var r = nbi(); BigInteger.ZERO.subTo(this,r); return r; }
-	 
+
 	 // (public) |this|
 	 function bnAbs() { return (this.s<0)?this.negate():this; }
-	 
+
 	 // (public) return + if this > a, - if this < a, 0 if equal
 	 function bnCompareTo(a) {
 	   var r = this.s-a.s;
@@ -19325,7 +19328,7 @@ for (var k in syms) {
 	   while(--i >= 0) if((r=this[i]-a[i]) != 0) return r;
 	   return 0;
 	 }
-	 
+
 	 // returns bit length of the integer x
 	 function nbits(x) {
 	   var r = 1, t;
@@ -19336,13 +19339,13 @@ for (var k in syms) {
 	   if((t=x>>1) != 0) { x = t; r += 1; }
 	   return r;
 	 }
-	 
+
 	 // (public) return the number of bits in "this"
 	 function bnBitLength() {
 	   if(this.t <= 0) return 0;
 	   return this.DB*(this.t-1)+nbits(this[this.t-1]^(this.s&this.DM));
 	 }
-	 
+
 	 // (protected) r = this << n*DB
 	 function bnpDLShiftTo(n,r) {
 	   var i;
@@ -19351,14 +19354,14 @@ for (var k in syms) {
 	   r.t = this.t+n;
 	   r.s = this.s;
 	 }
-	 
+
 	 // (protected) r = this >> n*DB
 	 function bnpDRShiftTo(n,r) {
 	   for(var i = n; i < this.t; ++i) r[i-n] = this[i];
 	   r.t = Math.max(this.t-n,0);
 	   r.s = this.s;
 	 }
-	 
+
 	 // (protected) r = this << n
 	 function bnpLShiftTo(n,r) {
 	   var bs = n%this.DB;
@@ -19375,7 +19378,7 @@ for (var k in syms) {
 	   r.s = this.s;
 	   r.clamp();
 	 }
-	 
+
 	 // (protected) r = this >> n
 	 function bnpRShiftTo(n,r) {
 	   r.s = this.s;
@@ -19393,7 +19396,7 @@ for (var k in syms) {
 	   r.t = this.t-ds;
 	   r.clamp();
 	 }
-	 
+
 	 // (protected) r = this - a
 	 function bnpSubTo(a,r) {
 	   var i = 0, c = 0, m = Math.min(a.t,this.t);
@@ -19426,7 +19429,7 @@ for (var k in syms) {
 	   r.t = i;
 	   r.clamp();
 	 }
-	 
+
 	 // (protected) r = this * a, r != this,a (HAC 14.12)
 	 // "this" should be the larger one if appropriate.
 	 function bnpMultiplyTo(a,r) {
@@ -19439,7 +19442,7 @@ for (var k in syms) {
 	   r.clamp();
 	   if(this.s != a.s) BigInteger.ZERO.subTo(r,r);
 	 }
-	 
+
 	 // (protected) r = this^2, r != this (HAC 14.16)
 	 function bnpSquareTo(r) {
 	   var x = this.abs();
@@ -19456,7 +19459,7 @@ for (var k in syms) {
 	   r.s = 0;
 	   r.clamp();
 	 }
-	 
+
 	 // (protected) divide this by m, quotient and remainder to q, r (HAC 14.20)
 	 // r != q, this != m.  q or r may be null.
 	 function bnpDivRemTo(m,q,r) {
@@ -19505,7 +19508,7 @@ for (var k in syms) {
 	   if(nsh > 0) r.rShiftTo(nsh,r);	// Denormalize remainder
 	   if(ts < 0) BigInteger.ZERO.subTo(r,r);
 	 }
-	 
+
 	 // (public) this mod a
 	 function bnMod(a) {
 	   var r = nbi();
@@ -19513,7 +19516,7 @@ for (var k in syms) {
 	   if(this.s < 0 && r.compareTo(BigInteger.ZERO) > 0) a.subTo(r,r);
 	   return r;
 	 }
-	 
+
 	 // Modular reduction using "classic" algorithm
 	 function Classic(m) { this.m = m; }
 	 function cConvert(x) {
@@ -19524,13 +19527,13 @@ for (var k in syms) {
 	 function cReduce(x) { x.divRemTo(this.m,null,x); }
 	 function cMulTo(x,y,r) { x.multiplyTo(y,r); this.reduce(r); }
 	 function cSqrTo(x,r) { x.squareTo(r); this.reduce(r); }
-	 
+
 	 Classic.prototype.convert = cConvert;
 	 Classic.prototype.revert = cRevert;
 	 Classic.prototype.reduce = cReduce;
 	 Classic.prototype.mulTo = cMulTo;
 	 Classic.prototype.sqrTo = cSqrTo;
-	 
+
 	 // (protected) return "-1/this % 2^DB"; useful for Mont. reduction
 	 // justification:
 	 //         xy == 1 (mod m)
@@ -19555,7 +19558,7 @@ for (var k in syms) {
 	   // we really want the negative inverse, and -DV < y < DV
 	   return (y>0)?this.DV-y:-y;
 	 }
-	 
+
 	 // Montgomery reduction
 	 function Montgomery(m) {
 	   this.m = m;
@@ -19565,7 +19568,7 @@ for (var k in syms) {
 	   this.um = (1<<(m.DB-15))-1;
 	   this.mt2 = 2*m.t;
 	 }
-	 
+
 	 // xR mod m
 	 function montConvert(x) {
 	   var r = nbi();
@@ -19574,7 +19577,7 @@ for (var k in syms) {
 	   if(x.s < 0 && r.compareTo(BigInteger.ZERO) > 0) this.m.subTo(r,r);
 	   return r;
 	 }
-	 
+
 	 // x/R mod m
 	 function montRevert(x) {
 	   var r = nbi();
@@ -19582,7 +19585,7 @@ for (var k in syms) {
 	   this.reduce(r);
 	   return r;
 	 }
-	 
+
 	 // x = x/R mod m (HAC 14.32)
 	 function montReduce(x) {
 	   while(x.t <= this.mt2)	// pad x so am has enough room later
@@ -19601,22 +19604,22 @@ for (var k in syms) {
 	   x.drShiftTo(this.m.t,x);
 	   if(x.compareTo(this.m) >= 0) x.subTo(this.m,x);
 	 }
-	 
+
 	 // r = "x^2/R mod m"; x != r
 	 function montSqrTo(x,r) { x.squareTo(r); this.reduce(r); }
-	 
+
 	 // r = "xy/R mod m"; x,y != r
 	 function montMulTo(x,y,r) { x.multiplyTo(y,r); this.reduce(r); }
-	 
+
 	 Montgomery.prototype.convert = montConvert;
 	 Montgomery.prototype.revert = montRevert;
 	 Montgomery.prototype.reduce = montReduce;
 	 Montgomery.prototype.mulTo = montMulTo;
 	 Montgomery.prototype.sqrTo = montSqrTo;
-	 
+
 	 // (protected) true iff this is even
 	 function bnpIsEven() { return ((this.t>0)?(this[0]&1):this.s) == 0; }
-	 
+
 	 // (protected) this^e, e < 2^32, doing sqr and mul with "r" (HAC 14.79)
 	 function bnpExp(e,z) {
 	   if(e > 0xffffffff || e < 1) return BigInteger.ONE;
@@ -19629,14 +19632,14 @@ for (var k in syms) {
 	   }
 	   return z.revert(r);
 	 }
-	 
+
 	 // (public) this^e % m, 0 <= e < 2^32
 	 function bnModPowInt(e,m) {
 	   var z;
 	   if(e < 256 || m.isEven()) z = new Classic(m); else z = new Montgomery(m);
 	   return this.exp(e,z);
 	 }
-	 
+
 	 // protected
 	 BigInteger.prototype.copyTo = bnpCopyTo;
 	 BigInteger.prototype.fromInt = bnpFromInt;
@@ -19653,7 +19656,7 @@ for (var k in syms) {
 	 BigInteger.prototype.invDigit = bnpInvDigit;
 	 BigInteger.prototype.isEven = bnpIsEven;
 	 BigInteger.prototype.exp = bnpExp;
-	 
+
 	 // public
 	 BigInteger.prototype.toString = bnToString;
 	 BigInteger.prototype.negate = bnNegate;
@@ -19662,13 +19665,13 @@ for (var k in syms) {
 	 BigInteger.prototype.bitLength = bnBitLength;
 	 BigInteger.prototype.mod = bnMod;
 	 BigInteger.prototype.modPowInt = bnModPowInt;
-	 
+
 	 // "constants"
 	 BigInteger.ZERO = nbv(0);
 	 BigInteger.ONE = nbv(1);
-	 
+
 	 /*
-	  * Copyright (c) 2003-2005  Tom Wu (tjw@cs.Stanford.EDU) 
+	  * Copyright (c) 2003-2005  Tom Wu (tjw@cs.Stanford.EDU)
 	  * All Rights Reserved.
 	  *
 	  * Modified by Recurity Labs GmbH
@@ -19684,9 +19687,9 @@ for (var k in syms) {
 	  * The above copyright notice and this permission notice shall be
 	  * included in all copies or substantial portions of the Software.
 	  *
-	  * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND, 
-	  * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY 
-	  * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  
+	  * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
+	  * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
+	  * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 	  *
 	  * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
 	  * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
@@ -19700,13 +19703,13 @@ for (var k in syms) {
 	  * and disclaimer.
 	  */
 	 // Extended JavaScript BN functions, required for RSA private ops.
-	 
+
 	 // Version 1.1: new BigInteger("0", 10) returns "proper" zero
 	 // Version 1.2: square() API, isProbablePrime fix
-	 
+
 	 // (public)
 	 function bnClone() { var r = nbi(); this.copyTo(r); return r; }
-	 
+
 	 // (public) return value as integer
 	 function bnIntValue() {
 	   if(this.s < 0) {
@@ -19718,23 +19721,23 @@ for (var k in syms) {
 	   // assumes 16 < DB < 32
 	   return ((this[1]&((1<<(32-this.DB))-1))<<this.DB)|this[0];
 	 }
-	 
+
 	 // (public) return value as byte
 	 function bnByteValue() { return (this.t==0)?this.s:(this[0]<<24)>>24; }
-	 
+
 	 // (public) return value as short (assumes DB>=16)
 	 function bnShortValue() { return (this.t==0)?this.s:(this[0]<<16)>>16; }
-	 
+
 	 // (protected) return x s.t. r^x < DV
 	 function bnpChunkSize(r) { return Math.floor(Math.LN2*this.DB/Math.log(r)); }
-	 
+
 	 // (public) 0 if this == 0, 1 if this > 0
 	 function bnSigNum() {
 	   if(this.s < 0) return -1;
 	   else if(this.t <= 0 || (this.t == 1 && this[0] <= 0)) return 0;
 	   else return 1;
 	 }
-	 
+
 	 // (protected) convert to radix string
 	 function bnpToRadix(b) {
 	   if(b == null) b = 10;
@@ -19749,7 +19752,7 @@ for (var k in syms) {
 	   }
 	   return z.intValue().toString(b) + r;
 	 }
-	 
+
 	 // (protected) convert from radix string
 	 function bnpFromRadix(s,b) {
 	   this.fromInt(0);
@@ -19776,7 +19779,7 @@ for (var k in syms) {
 	   }
 	   if(mi) BigInteger.ZERO.subTo(this,this);
 	 }
-	 
+
 	 // (protected) alternate constructor
 	 function bnpFromNumber(a,b,c) {
 	   if("number" == typeof b) {
@@ -19802,7 +19805,7 @@ for (var k in syms) {
 	     this.fromString(x,256);
 	   }
 	 }
-	 
+
 	 // (public) convert to bigendian byte array
 	 function bnToByteArray(encode_sign_bit) {
 	   var i = this.t, r = new Array();
@@ -19829,11 +19832,11 @@ for (var k in syms) {
 	   }
 	   return r;
 	 }
-	 
+
 	 function bnEquals(a) { return(this.compareTo(a)==0); }
 	 function bnMin(a) { return(this.compareTo(a)<0)?this:a; }
 	 function bnMax(a) { return(this.compareTo(a)>0)?this:a; }
-	 
+
 	 // (protected) r = this op a (bitwise)
 	 function bnpBitwiseTo(a,op,r) {
 	   var i, f, m = Math.min(a.t,this.t);
@@ -19851,23 +19854,23 @@ for (var k in syms) {
 	   r.s = op(this.s,a.s);
 	   r.clamp();
 	 }
-	 
+
 	 // (public) this & a
 	 function op_and(x,y) { return x&y; }
 	 function bnAnd(a) { var r = nbi(); this.bitwiseTo(a,op_and,r); return r; }
-	 
+
 	 // (public) this | a
 	 function op_or(x,y) { return x|y; }
 	 function bnOr(a) { var r = nbi(); this.bitwiseTo(a,op_or,r); return r; }
-	 
+
 	 // (public) this ^ a
 	 function op_xor(x,y) { return x^y; }
 	 function bnXor(a) { var r = nbi(); this.bitwiseTo(a,op_xor,r); return r; }
-	 
+
 	 // (public) this & ~a
 	 function op_andnot(x,y) { return x&~y; }
 	 function bnAndNot(a) { var r = nbi(); this.bitwiseTo(a,op_andnot,r); return r; }
-	 
+
 	 // (public) ~this
 	 function bnNot() {
 	   var r = nbi();
@@ -19876,21 +19879,21 @@ for (var k in syms) {
 	   r.s = ~this.s;
 	   return r;
 	 }
-	 
+
 	 // (public) this << n
 	 function bnShiftLeft(n) {
 	   var r = nbi();
 	   if(n < 0) this.rShiftTo(-n,r); else this.lShiftTo(n,r);
 	   return r;
 	 }
-	 
+
 	 // (public) this >> n
 	 function bnShiftRight(n) {
 	   var r = nbi();
 	   if(n < 0) this.lShiftTo(-n,r); else this.rShiftTo(n,r);
 	   return r;
 	 }
-	 
+
 	 // return index of lowest 1-bit in x, x < 2^31
 	 function lbit(x) {
 	   if(x == 0) return -1;
@@ -19902,7 +19905,7 @@ for (var k in syms) {
 	   if((x&1) == 0) ++r;
 	   return r;
 	 }
-	 
+
 	 // (public) returns index of lowest 1-bit (or -1 if none)
 	 function bnGetLowestSetBit() {
 	   for(var i = 0; i < this.t; ++i)
@@ -19910,44 +19913,44 @@ for (var k in syms) {
 	   if(this.s < 0) return this.t*this.DB;
 	   return -1;
 	 }
-	 
+
 	 // return number of 1 bits in x
 	 function cbit(x) {
 	   var r = 0;
 	   while(x != 0) { x &= x-1; ++r; }
 	   return r;
 	 }
-	 
+
 	 // (public) return number of set bits
 	 function bnBitCount() {
 	   var r = 0, x = this.s&this.DM;
 	   for(var i = 0; i < this.t; ++i) r += cbit(this[i]^x);
 	   return r;
 	 }
-	 
+
 	 // (public) true iff nth bit is set
 	 function bnTestBit(n) {
 	   var j = Math.floor(n/this.DB);
 	   if(j >= this.t) return(this.s!=0);
 	   return((this[j]&(1<<(n%this.DB)))!=0);
 	 }
-	 
+
 	 // (protected) this op (1<<n)
 	 function bnpChangeBit(n,op) {
 	   var r = BigInteger.ONE.shiftLeft(n);
 	   this.bitwiseTo(r,op,r);
 	   return r;
 	 }
-	 
+
 	 // (public) this | (1<<n)
 	 function bnSetBit(n) { return this.changeBit(n,op_or); }
-	 
+
 	 // (public) this & ~(1<<n)
 	 function bnClearBit(n) { return this.changeBit(n,op_andnot); }
-	 
+
 	 // (public) this ^ (1<<n)
 	 function bnFlipBit(n) { return this.changeBit(n,op_xor); }
-	 
+
 	 // (protected) r = this + a
 	 function bnpAddTo(a,r) {
 	   var i = 0, c = 0, m = Math.min(a.t,this.t);
@@ -19980,39 +19983,39 @@ for (var k in syms) {
 	   r.t = i;
 	   r.clamp();
 	 }
-	 
+
 	 // (public) this + a
 	 function bnAdd(a) { var r = nbi(); this.addTo(a,r); return r; }
-	 
+
 	 // (public) this - a
 	 function bnSubtract(a) { var r = nbi(); this.subTo(a,r); return r; }
-	 
+
 	 // (public) this * a
 	 function bnMultiply(a) { var r = nbi(); this.multiplyTo(a,r); return r; }
-	 
+
 	 // (public) this^2
 	 function bnSquare() { var r = nbi(); this.squareTo(r); return r; }
-	 
+
 	 // (public) this / a
 	 function bnDivide(a) { var r = nbi(); this.divRemTo(a,r,null); return r; }
-	 
+
 	 // (public) this % a
 	 function bnRemainder(a) { var r = nbi(); this.divRemTo(a,null,r); return r; }
-	 
+
 	 // (public) [this/a,this%a]
 	 function bnDivideAndRemainder(a) {
 	   var q = nbi(), r = nbi();
 	   this.divRemTo(a,q,r);
 	   return new Array(q,r);
 	 }
-	 
+
 	 // (protected) this *= n, this >= 0, 1 < n < DV
 	 function bnpDMultiply(n) {
 	   this[this.t] = this.am(0,n-1,this,0,0,this.t);
 	   ++this.t;
 	   this.clamp();
 	 }
-	 
+
 	 // (protected) this += n << w words, this >= 0
 	 function bnpDAddOffset(n,w) {
 	   if(n == 0) return;
@@ -20024,21 +20027,21 @@ for (var k in syms) {
 	     ++this[w];
 	   }
 	 }
-	 
+
 	 // A "null" reducer
 	 function NullExp() {}
 	 function nNop(x) { return x; }
 	 function nMulTo(x,y,r) { x.multiplyTo(y,r); }
 	 function nSqrTo(x,r) { x.squareTo(r); }
-	 
+
 	 NullExp.prototype.convert = nNop;
 	 NullExp.prototype.revert = nNop;
 	 NullExp.prototype.mulTo = nMulTo;
 	 NullExp.prototype.sqrTo = nSqrTo;
-	 
+
 	 // (public) this^e
 	 function bnPow(e) { return this.exp(e,new NullExp()); }
-	 
+
 	 // (protected) r = lower n words of "this * a", a.t <= n
 	 // "this" should be the larger one if appropriate.
 	 function bnpMultiplyLowerTo(a,n,r) {
@@ -20051,7 +20054,7 @@ for (var k in syms) {
 	   for(j = Math.min(a.t,n); i < j; ++i) this.am(0,a[i],r,i,0,n-i);
 	   r.clamp();
 	 }
-	 
+
 	 // (protected) r = "this * a" without lower n words, n > 0
 	 // "this" should be the larger one if appropriate.
 	 function bnpMultiplyUpperTo(a,n,r) {
@@ -20064,7 +20067,7 @@ for (var k in syms) {
 	   r.clamp();
 	   r.drShiftTo(1,r);
 	 }
-	 
+
 	 // Barrett modular reduction
 	 function Barrett(m) {
 	   // setup Barrett
@@ -20074,15 +20077,15 @@ for (var k in syms) {
 	   this.mu = this.r2.divide(m);
 	   this.m = m;
 	 }
-	 
+
 	 function barrettConvert(x) {
 	   if(x.s < 0 || x.t > 2*this.m.t) return x.mod(this.m);
 	   else if(x.compareTo(this.m) < 0) return x;
 	   else { var r = nbi(); x.copyTo(r); this.reduce(r); return r; }
 	 }
-	 
+
 	 function barrettRevert(x) { return x; }
-	 
+
 	 // x = x mod m (HAC 14.42)
 	 function barrettReduce(x) {
 	   x.drShiftTo(this.m.t-1,this.r2);
@@ -20093,19 +20096,19 @@ for (var k in syms) {
 	   x.subTo(this.r2,x);
 	   while(x.compareTo(this.m) >= 0) x.subTo(this.m,x);
 	 }
-	 
+
 	 // r = x^2 mod m; x != r
 	 function barrettSqrTo(x,r) { x.squareTo(r); this.reduce(r); }
-	 
+
 	 // r = x*y mod m; x,y != r
 	 function barrettMulTo(x,y,r) { x.multiplyTo(y,r); this.reduce(r); }
-	 
+
 	 Barrett.prototype.convert = barrettConvert;
 	 Barrett.prototype.revert = barrettRevert;
 	 Barrett.prototype.reduce = barrettReduce;
 	 Barrett.prototype.mulTo = barrettMulTo;
 	 Barrett.prototype.sqrTo = barrettSqrTo;
-	 
+
 	 // (public) this^e % m (HAC 14.85)
 	 function bnModPow(e,m) {
 	   var i = e.bitLength(), k, r = nbv(1), z;
@@ -20121,7 +20124,7 @@ for (var k in syms) {
 	     z = new Barrett(m);
 	   else
 	     z = new Montgomery(m);
-	 
+
 	   // precomputation
 	   var g = new Array(), n = 3, k1 = k-1, km = (1<<k)-1;
 	   g[1] = z.convert(this);
@@ -20134,7 +20137,7 @@ for (var k in syms) {
 	       n += 2;
 	     }
 	   }
-	 
+
 	   var j = e.t-1, w, is1 = true, r2 = nbi(), t;
 	   i = nbits(e[j])-1;
 	   while(j >= 0) {
@@ -20143,7 +20146,7 @@ for (var k in syms) {
 	       w = (e[j]&((1<<(i+1))-1))<<(k1-i);
 	       if(j > 0) w |= e[j-1]>>(this.DB+i-k1);
 	     }
-	 
+
 	     n = k;
 	     while((w&1) == 0) { w >>= 1; --n; }
 	     if((i -= n) < 0) { i += this.DB; --j; }
@@ -20156,7 +20159,7 @@ for (var k in syms) {
 	       if(n > 0) z.sqrTo(r,r2); else { t = r; r = r2; r2 = t; }
 	       z.mulTo(r2,g[w],r);
 	     }
-	 
+
 	     while(j >= 0 && (e[j]&(1<<i)) == 0) {
 	       z.sqrTo(r,r2); t = r; r = r2; r2 = t;
 	       if(--i < 0) { i = this.DB-1; --j; }
@@ -20164,7 +20167,7 @@ for (var k in syms) {
 	   }
 	   return z.revert(r);
 	 }
-	 
+
 	 // (public) gcd(this,a) (HAC 14.54)
 	 function bnGCD(a) {
 	   var x = (this.s<0)?this.negate():this.clone();
@@ -20192,7 +20195,7 @@ for (var k in syms) {
 	   if(g > 0) y.lShiftTo(g,y);
 	   return y;
 	 }
-	 
+
 	 // (protected) this % n, n < 2^26
 	 function bnpModInt(n) {
 	   if(n <= 0) return 0;
@@ -20202,7 +20205,7 @@ for (var k in syms) {
 	     else for(var i = this.t-1; i >= 0; --i) r = (d*r+this[i])%n;
 	   return r;
 	 }
-	 
+
 	 // (public) 1/this % m (HAC 14.61)
 	 function bnModInverse(m) {
 	   var ac = m.isEven();
@@ -20244,10 +20247,10 @@ for (var k in syms) {
 	   if(d.signum() < 0) d.addTo(m,d); else return d;
 	   if(d.signum() < 0) return d.add(m); else return d;
 	 }
-	 
+
 	 var lowprimes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499,503,509,521,523,541,547,557,563,569,571,577,587,593,599,601,607,613,617,619,631,641,643,647,653,659,661,673,677,683,691,701,709,719,727,733,739,743,751,757,761,769,773,787,797,809,811,821,823,827,829,839,853,857,859,863,877,881,883,887,907,911,919,929,937,941,947,953,967,971,977,983,991,997];
 	 var lplim = (1<<26)/lowprimes[lowprimes.length-1];
-	 
+
 	 // (public) test primality with certainty >= 1-.5^t
 	 function bnIsProbablePrime(t) {
 	   var i, x = this.abs();
@@ -20266,9 +20269,9 @@ for (var k in syms) {
 	   }
 	   return x.millerRabin(t);
 	 }
-	 
+
 	 /* added by Recurity Labs */
-	 
+
 	 function nbits(x) {
 	 	var n = 1, t;
 	 	if ((t = x >>> 16) != 0) {
@@ -20293,7 +20296,7 @@ for (var k in syms) {
 	 	}
 	 	return n;
 	 }
-	 
+
 	 function bnToMPI () {
 	 	var ba = this.toByteArray();
 	 	var size = (ba.length-1)*8+nbits(ba[0]);
@@ -20304,7 +20307,7 @@ for (var k in syms) {
 	 	return result;
 	 }
 	 /* END of addition */
-	 
+
 	 // (protected) true if probably prime (HAC 4.24, Miller-Rabin)
 	 function bnpMillerRabin(t) {
 	   var n1 = this.subtract(BigInteger.ONE);
@@ -20329,7 +20332,7 @@ for (var k in syms) {
 	   }
 	   return true;
 	 }
-	 
+
 	 // protected
 	 BigInteger.prototype.chunkSize = bnpChunkSize;
 	 BigInteger.prototype.toRadix = bnpToRadix;
@@ -20344,7 +20347,7 @@ for (var k in syms) {
 	 BigInteger.prototype.multiplyUpperTo = bnpMultiplyUpperTo;
 	 BigInteger.prototype.modInt = bnpModInt;
 	 BigInteger.prototype.millerRabin = bnpMillerRabin;
-	 
+
 	 // public
 	 BigInteger.prototype.clone = bnClone;
 	 BigInteger.prototype.intValue = bnIntValue;
@@ -20380,15 +20383,15 @@ for (var k in syms) {
 	 BigInteger.prototype.gcd = bnGCD;
 	 BigInteger.prototype.isProbablePrime = bnIsProbablePrime;
 	 BigInteger.prototype.toMPI = bnToMPI;
-	 
+
 	 // JSBN-specific extension
 	 BigInteger.prototype.square = bnSquare;
-	 
+
 	 function bigint_or_number (x) {
 	 	if (typeof(x) === 'number') { return nbv(x); }
 	 	else { return x; }
 	 };
-	 
+
 	 function buffer_to_ui8a (b) {
 	 	var l = b.length;
 	 	var ret = new Uint8Array(l);
@@ -20397,42 +20400,42 @@ for (var k in syms) {
 	 	}
 	 	return ret;
 	 };
-	 
+
 	 // Match this function to the bigint/bignum native JS interface
 	 // in node.  Typically we're doing it the other way around.
 	 BigInteger.prototype.fromBuffer = function (buf) {
-	     // the last 'true' is for 'unsigned', our hack to jsbn.js to 
+	     // the last 'true' is for 'unsigned', our hack to jsbn.js to
 	     // shut off DER-integer interpretation
 	 	this.fromString(buffer_to_ui8a(buf), 256, true);
 	 	return this;
 	 };
-	 
+
 	 BigInteger.fromBuffer = function (buf) {
 	 	var ret = nbi();
 	 	ret.fromBuffer(buf);
 	 	return ret;
 	 };
-	 
+
 	 BigInteger.random_nbit = function (nbits, rf) {
 	 	return new BigInteger(nbits, rf);
 	 };
-	 
+
 	 BigInteger.prototype.inspect = function () {
 	 	return "<BigInteger/pure " + this.toString() + ">";
 	 };
-	 
+
 	 // For compatability with the 'bigi' package used by ecurve
 	 BigInteger.fromHex = function (s) {
-	 
+
 	 	if (!s.match(/^[a-fA-F0-9]*$/)) { throw new Error("hex string invalid: "+ s); }
 	 	if (s.length % 2 != 0) { throw new Error("got an odd-length hex-string"); }
 	 	return new BigInteger(s, 16);
 	 };
-	 
+
 	 BigInteger.valueOf = function (x) {
 	 	return bigint_or_number(x);
 	 };
-	 
+
 	 BigInteger.prototype.toBuffer = function (size) {
 	 	var x;
 	 	if (!size) { size = 0; }
@@ -20447,32 +20450,32 @@ for (var k in syms) {
 	 	}
 	 	return ret;
 	 };
-	 
+
 	 BigInteger.prototype.byteLength = function () { return this.t; }
-	 
+
 	 BigInteger.prototype.toDERInteger = function () {
 	 	return this.toByteArray(true);
 	 };
-	 
+
 	 BigInteger.fromDERInteger = function (buf) {
 	 	var x = nbi();
 	 	x.fromString(buf, 256, false);
 	 	return x;
 	 };
-	 
+
 	 BigInteger.prototype.toByteArrayUnsigned = function () {
 	 	return new Uint8Array(this.toBuffer());
 	 };
-	 
+
 	 BigInteger.fromByteArrayUnsigned = function (b) {
 	 	return BigInteger.fromBuffer(new Buffer(b));
 	 };
-	 
+
 	 BigInteger.prototype.toHex = function (size) {
 	 	return this.toBuffer(size).toString('hex');
 	 };
-	 
-	 module.exports = { 
+
+	 module.exports = {
 	 	BigInteger : BigInteger,
 	 	nbi : nbi,
 	 	nbv : nbv,
@@ -21481,7 +21484,7 @@ exports.UNZIP = 7;
 function Zlib(mode) {
   if (mode < exports.DEFLATE || mode > exports.UNZIP)
     throw new TypeError("Bad argument");
-    
+
   this.mode = mode;
   this.init_done = false;
   this.write_in_progress = false;
@@ -21499,18 +21502,18 @@ Zlib.prototype.init = function(windowBits, level, memLevel, strategy, dictionary
   this.memLevel = memLevel;
   this.strategy = strategy;
   // dictionary not supported.
-  
+
   if (this.mode === exports.GZIP || this.mode === exports.GUNZIP)
     this.windowBits += 16;
-    
+
   if (this.mode === exports.UNZIP)
     this.windowBits += 32;
-    
+
   if (this.mode === exports.DEFLATERAW || this.mode === exports.INFLATERAW)
     this.windowBits = -this.windowBits;
-    
+
   this.strm = new zstream();
-  
+
   switch (this.mode) {
     case exports.DEFLATE:
     case exports.GZIP:
@@ -21536,12 +21539,12 @@ Zlib.prototype.init = function(windowBits, level, memLevel, strategy, dictionary
     default:
       throw new Error("Unknown mode " + this.mode);
   }
-  
+
   if (status !== exports.Z_OK) {
     this._error(status);
     return;
   }
-  
+
   this.write_in_progress = false;
   this.init_done = true;
 };
@@ -21553,31 +21556,31 @@ Zlib.prototype.params = function() {
 Zlib.prototype._writeCheck = function() {
   if (!this.init_done)
     throw new Error("write before init");
-    
+
   if (this.mode === exports.NONE)
     throw new Error("already finalized");
-    
+
   if (this.write_in_progress)
     throw new Error("write already in progress");
-    
+
   if (this.pending_close)
     throw new Error("close is pending");
 };
 
-Zlib.prototype.write = function(flush, input, in_off, in_len, out, out_off, out_len) {    
+Zlib.prototype.write = function(flush, input, in_off, in_len, out, out_off, out_len) {
   this._writeCheck();
   this.write_in_progress = true;
-  
+
   var self = this;
   process.nextTick(function() {
     self.write_in_progress = false;
     var res = self._write(flush, input, in_off, in_len, out, out_off, out_len);
     self.callback(res[0], res[1]);
-    
+
     if (self.pending_close)
       self.close();
   });
-  
+
   return this;
 };
 
@@ -21595,7 +21598,7 @@ Zlib.prototype.writeSync = function(flush, input, in_off, in_len, out, out_off, 
 
 Zlib.prototype._write = function(flush, input, in_off, in_len, out, out_off, out_len) {
   this.write_in_progress = true;
-  
+
   if (flush !== exports.Z_NO_FLUSH &&
       flush !== exports.Z_PARTIAL_FLUSH &&
       flush !== exports.Z_SYNC_FLUSH &&
@@ -21604,18 +21607,18 @@ Zlib.prototype._write = function(flush, input, in_off, in_len, out, out_off, out
       flush !== exports.Z_BLOCK) {
     throw new Error("Invalid flush value");
   }
-  
+
   if (input == null) {
     input = new Buffer(0);
     in_len = 0;
     in_off = 0;
   }
-  
+
   if (out._set)
     out.set = out._set;
   else
     out.set = bufferSet;
-  
+
   var strm = this.strm;
   strm.avail_in = in_len;
   strm.input = input;
@@ -21623,7 +21626,7 @@ Zlib.prototype._write = function(flush, input, in_off, in_len, out, out_off, out
   strm.avail_out = out_len;
   strm.output = out;
   strm.next_out = out_off;
-  
+
   switch (this.mode) {
     case exports.DEFLATE:
     case exports.GZIP:
@@ -21639,11 +21642,11 @@ Zlib.prototype._write = function(flush, input, in_off, in_len, out, out_off, out
     default:
       throw new Error("Unknown mode " + this.mode);
   }
-  
+
   if (status !== exports.Z_STREAM_END && status !== exports.Z_OK) {
     this._error(status);
   }
-  
+
   this.write_in_progress = false;
   return [strm.avail_in, strm.avail_out];
 };
@@ -21653,15 +21656,15 @@ Zlib.prototype.close = function() {
     this.pending_close = true;
     return;
   }
-  
+
   this.pending_close = false;
-  
+
   if (this.mode === exports.DEFLATE || this.mode === exports.GZIP || this.mode === exports.DEFLATERAW) {
     zlib_deflate.deflateEnd(this.strm);
   } else {
     zlib_inflate.inflateEnd(this.strm);
   }
-  
+
   this.mode = exports.NONE;
 };
 
@@ -21676,7 +21679,7 @@ Zlib.prototype.reset = function() {
       var status = zlib_inflate.inflateReset(this.strm);
       break;
   }
-  
+
   if (status !== exports.Z_OK) {
     this._error(status);
   }
@@ -21684,7 +21687,7 @@ Zlib.prototype.reset = function() {
 
 Zlib.prototype._error = function(status) {
   this.onerror(msg[status] + ': ' + this.strm.msg, status);
-  
+
   this.write_in_progress = false;
   if (this.pending_close)
     this.close();
@@ -24376,7 +24379,7 @@ module.exports = function (Buffer, Hash) {
     if(!(this instanceof Sha1)) return new Sha1()
     this._w = W
     Hash.call(this, 16*4, 14*4)
-  
+
     this._h = null
     this.init()
   }
