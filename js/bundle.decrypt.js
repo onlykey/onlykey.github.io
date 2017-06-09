@@ -69446,7 +69446,7 @@ class Pgp2go {
 	decryptText(priv, ct) {
 				var keyRing = new kbpgp.keyring.KeyRing;
                 var tmpKeyRing = keyRing;
-                decryptbutton.textContent = "Checking key ...", i.KeyManager.import_from_armored_pgp({
+                decryptbutton.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
                     armored: priv
                 }, (err, user) => {
                     if (err) return void this.showError2(err);
