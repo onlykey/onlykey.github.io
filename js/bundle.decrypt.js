@@ -14669,6 +14669,9 @@ _continue()
       var cipher, err, ret, ___iced_passed_deferral, __iced_deferrals, __iced_k, _ref1;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
+      //I think sesskey or pkcs5 is the symmetric session key, have to test this
+      console.log("sesskey kbpgp line 15026: ", sesskey);
+      console.log("sesskey kbpgp line 15027: ", pkcs5);
       _ref1 = katch(function() {
         return import_key_pgp(sesskey, pkcs5);
       }), err = _ref1[0], cipher = _ref1[1];
