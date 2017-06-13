@@ -11398,6 +11398,7 @@ module.exports = Hash
   exports.eme_pkcs1_decode = function(v) {
     var err, i, ret;
     err = ret = null;
+    console.log("v kbpgp line 16445: ", v);
     if (v.length < 12) {
       err = new Error("Ciphertext too short, needs to be >= 12 bytes");
     } else if (v.readUInt16BE(0) !== 0x0002) {
