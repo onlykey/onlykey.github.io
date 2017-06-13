@@ -11532,6 +11532,7 @@ module.exports = Hash
       pkcs5_padding = false;
     }
     sb = new SlicerBuffer(msg);
+    console.log("sb kbpgp line 18595: ", sb);
     ret = err = null;
     cipher = get_cipher(sb.read_uint8());
     key = sb.read_buffer(cipher.key_size);
