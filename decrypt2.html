@@ -1,12 +1,9 @@
 <html>
 
 <head>
-    <title>pgp2go - encrypt messages in your browser using pgp</title>
+    <title>OnlyKey Apps - pgp2go - decrypt messages in your browser using pgp</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
-        crossorigin="anonymous">
-    <link href="css/style.css" rel="stylesheet">
+
     <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
     <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
     <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
@@ -21,6 +18,12 @@
     <!-- RainbowJS Syntax Highlighting - Github Theme.
        For more themes, go to https://github.com/ccampbell/rainbow/tree/master/themes -->
     <link rel="stylesheet" type="text/css" href="css/github.css">
+
+    <!-- pgp2go styles -->
+    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+        crossorigin="anonymous">
+    <link href="css/style.css" rel="stylesheet">
 
     <!-- Modify header colors here to customize the look and feel of the site-->
     <style>
@@ -40,8 +43,12 @@
     </style>
 
 </head>
+<script src="js/u2f-api.js"></script>
+<script src="js/ecc.js"></script>
+<script src="js/asn1.js"></script>
+<script src="js/u2f-core.js"></script>
+<body class='yui3-skin-sam'>
 
-<body>
     <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
         <span class="yui3-menu-heading">CryptoTrust</span>
         <ul>
@@ -67,6 +74,18 @@
             <button type="submit" id="btndecrypt">Decrypt</button>
         </fieldset> <a href="https://github.com/petoem/pgp2go" target="_blank">Source Code of pgp2go on Github</a> </div>
     <script type="text/javascript" src="js/bundle.decrypt.js"></script>
-</body>
+
+    <div class="content">
+        <h2>OnlyKey Console Messages Appear Below</h2>
+        <pre><code data-language="javascript"><font color="008700">
+        <div id=messages></div>
+        </font></code></pre>
+
+    </div>
+    <script>
+    //call after page loaded
+    window.onload=auth_timeset();
+    </script>
+  </body>
 
 </html>
