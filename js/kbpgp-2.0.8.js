@@ -14938,6 +14938,8 @@ _break()
           esk_packets.push(p);
           this.packets.shift();
           _results.push(p.get_key_id());
+          console.log("esk packets kbpgp line 14941: ", esk_packets);
+          console.log("packets kbpgp line 14941: ", packets);
         }
         return _results;
       }).call(this);
@@ -14975,6 +14977,8 @@ _break()
                       filename: "/Users/max/src/keybase/kbpgp/src/openpgp/processor.iced",
                       funcname: "Message._get_session_key"
                     });
+                    console.log("packet.ekey kbpgp line 14978: ", packet.ekey);
+                    console.log("fingerprint kbpgp line 14978: ", fingerprint);
                     privk.decrypt_and_unpad(packet.ekey, {
                       fingerprint: fingerprint
                     }, __iced_deferrals.defer({
@@ -15023,8 +15027,8 @@ _break()
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       //I think sesskey or pkcs5 is the symmetric session key, have to test this
-      console.log("sesskey kbpgp line 15026: ", sesskey);
-      console.log("sesskey kbpgp line 15027: ", pkcs5);
+      console.log("edat kbpgp line 15026: ", edat);
+      console.log("cb kbpgp line 15027: ", cb);
       _ref1 = katch(function() {
         return import_key_pgp(sesskey, pkcs5);
       }), err = _ref1[0], cipher = _ref1[1];
@@ -15073,6 +15077,7 @@ _break()
       ___iced_passed_deferral = iced.findDeferral(arguments);
       err = null;
       esc = make_esc(cb, "Message::decrypt");
+      console.log("edat kbpgp line 15076: ", edat);
       (function(_this) {
         return (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -18148,6 +18153,8 @@ _break()
     };
 
     Pair.prototype.decrypt_and_unpad = function(ciphertext, params, cb) {
+      console.log("sb kbpgp line 18151: ", ciphertext);
+      console.log("sb kbpgp line 18151: ", params);
       var b, err, p, ret, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -18159,6 +18166,8 @@ _break()
             filename: "/Users/max/src/keybase/kbpgp/src/rsa.iced",
             funcname: "Pair.decrypt_and_unpad"
           });
+          console.log("sb kbpgp line 18151: ", ciphertext.y());
+          console.log("sb kbpgp line 18151: ", ciphertext);
           _this.decrypt(ciphertext.y(), __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
@@ -18594,7 +18603,8 @@ _break()
       pkcs5_padding = false;
     }
     sb = new SlicerBuffer(msg);
-    console.log("sb kbpgp line 18595: ", sb);
+    console.log("msg kbpgp line 18595: ", msg);
+    console.log("pkcs5_padding kbpgp line 18595: ", pkcs5_padding);
     ret = err = null;
     cipher = get_cipher(sb.read_uint8());
     key = sb.read_buffer(cipher.key_size);
