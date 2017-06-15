@@ -252,10 +252,20 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
-function auth_decrypt() { //OnlyKey decrypt request to keyHandle
+function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   simulate_enroll()
+  var padded_ct = ct.slice(12, 524);
+  var keyid = ct.slice(1, 8);
+  padded_ct = padded_ct.match(/.{2}/g);
+  msg("Padded CT Packet bytes " + padded_ct);
+  msg("Key ID bytes " + keyid);
   var message = [255, 255, 255, 255, 240, slotId()]; //Add header, message type, and key to use
 
+  //Just like we do with the Chrome app for loading keys OKSETPRIV
+  //Need to split into 64 byte packets with
+  //[255, 255, 255, 255, 240, slotId(), FF if not last packet or size of last packet, 57 bytes of data 
+
+  /*
   var ciphertext = new Uint8Array(58).fill(0);
   ciphertext[0] = 57;
   Array.prototype.push.apply(message, ciphertext);
@@ -273,6 +283,7 @@ function auth_decrypt() { //OnlyKey decrypt request to keyHandle
     var result = verify_auth_response(response);
     msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
   });
+  */
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
@@ -339,8 +350,6 @@ function process_enroll_response(response) {
   return v;
 }
 
-
-
 //Function to process U2F auth response
 function verify_auth_response(response) {
   var err = response['errorCode'];
@@ -368,84 +377,6 @@ function verify_auth_response(response) {
   msg("User present: " + userPresent);
   msg("Counter: " + counter);
   return true;
-}
-
-/**
- * Encrypt a message using the recipient's public key.
- * @param  {pubkey} String - Encrypted ASCII Armored public key.
- * @param  {message} String - Your message to the recipient.
- * @return {pgpMessage} String - Encrypted ASCII Armored message.
- */
-
-function encrypt_message(pubkey, message) {
-    var openpgp = window.openpgp;
-    var key = pubkey;
-    var publicKey = openpgp.key.readArmored(key);
-    var pgpMessage = openpgp.encryptMessage(publicKey.keys, message);
-    return pgpMessage;
-}
-
-/**
- * Decrypt a message using your private key.
- * @param  {pubkey} String - Your recipient's public key.
- * @param  {privkey} String - Your private key.
- * @param  {passphrase} String - Your ultra-strong password.
- * @param  {encoded_message} String - Your message from the recipient.
- * @return {decrypted} String - Decrypted message.
- */
-
-function decrypt_message(pubkey, privkey, passphrase, encoded_message) {
-    var openpgp = window.openpgp;
-    var privKeys = openpgp.key.readArmored(privkey);
-    var publicKeys = openpgp.key.readArmored(pubkey);
-    var privKey = privKeys.keys[0];
-    var success = privKey.decrypt(passphrase);
-    var message = openpgp.message.readArmored(encoded_message);
-    var decrypted = openpgp.decryptMessage(privKey, message);
-    return decrypted;
-}
-
-/**
- * Sign a message using your private key.
- * @param  {pubkey} String - Your recipient's public key.
- * @param  {privkey} String - Your private key.
- * @param  {passphrase} String - Your ultra-strong password.
- * @param  {message} String - Your message from the recipient.
- * @return {signed} String - Signed message.
- */
-
-function sign_message(pubkey, privkey, passphrase, message){
-	var openpgp = window.openpgp;
-	var priv = openpgp.key.readArmored(privkey);
-	var pub = openpgp.key.readArmored(pubkey);
-	var privKey = priv.keys[0];
-	var success = priv.decrypt(passphrase);
-	var signed = openpgp.signClearMessage(priv.keys, message);
-	return signed;
-	}
-
-/**
- * Sign a message using your private key.
- * @param  {pubkey} String - Your recipient's public key.
- * @param  {privkey} String - Your private key.
- * @param  {passphrase} String - Your ultra-strong password.
- * @param  {signed_message} String - Your signed message from the recipient.
- * @return {signed} Boolean - True (1) is a valid signed message.
- */
-
-function verify_signature(pubkey, privkey, passphrase, signed_message) {
-    var openpgp = window.openpgp;
-    var privKeys = openpgp.key.readArmored(privkey);
-    var publicKeys = openpgp.key.readArmored(pubkey);
-    var privKey = privKeys.keys[0];
-    var success = privKey.decrypt(passphrase);
-    var message = openpgp.cleartext.readArmored(signed_message);
-    var verified = openpgp.verifyClearSignedMessage(publicKeys.keys, message);
-    if (verified.signatures[0].valid === true) {
-        return '1';
-    } else {
-        return '0';
-    }
 }
 
 /**
