@@ -256,14 +256,13 @@ function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   simulate_enroll()
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
-  padded_ct = padded_ct.match(/.{2}/g);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
   var message = [255, 255, 255, 255, 240, slotId()]; //Add header, message type, and key to use
 
   //Just like we do with the Chrome app for loading keys OKSETPRIV
   //Need to split into 64 byte packets with
-  //[255, 255, 255, 255, 240, slotId(), FF if not last packet or size of last packet, 57 bytes of data 
+  //[255, 255, 255, 255, 240, slotId(), FF if not last packet or size of last packet, 57 bytes of data
 
   /*
   var ciphertext = new Uint8Array(58).fill(0);
