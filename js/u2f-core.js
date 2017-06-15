@@ -261,9 +261,11 @@ function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   var message = [255, 255, 255, 255, 240, slotId()]; //Add header, message type, and key to use
 
   //Just like we do with the Chrome app for loading keys OKSETPRIV
-  //Need to split into 64 byte packets with
+  //Need to split padded_ct into 64 byte packets with
   //[255, 255, 255, 255, 240, slotId(), FF if not last packet or size of last packet, 57 bytes of data
-
+  //Just like with the keys padded_ct will be either 128, 256, 384, or 512 bytes.
+  //OnlyKey already knows what size to expect because it knows what key type is loaded in that slot
+  
   /*
   var ciphertext = new Uint8Array(58).fill(0);
   ciphertext[0] = 57;
