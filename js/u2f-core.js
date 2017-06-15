@@ -265,15 +265,15 @@ function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   //[255, 255, 255, 255, 240, slotId(), FF if not last packet or size of last packet, 57 bytes of data
   //Just like with the keys padded_ct will be either 128, 256, 384, or 512 bytes.
   //OnlyKey already knows what size to expect because it knows what key type is loaded in that slot
-  
+
   /*
-  var ciphertext = new Uint8Array(58).fill(0);
-  ciphertext[0] = 57;
-  Array.prototype.push.apply(message, ciphertext);
+  var ciphertext = new Uint8Array(58).fill(0); //buffer to put 57 bytes of data in
+  ciphertext[0] = 57; //Where to put FF if not last packet or size of data
+  Array.prototype.push.apply(message, ciphertext); //Add this to the header, OKSETPRIV, and slotid
 
   msg("Handlekey bytes " + message);
 
-  keyHandle = bytes2b64(message);
+  keyHandle = bytes2b64(message); //Convert to base64 and send it as keyHandle in u2f.sign
 
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
