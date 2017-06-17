@@ -355,7 +355,7 @@ function verify_auth_response(response) {
   return true;
 }
 
-function u2fSignBuffer(ciperText) {
+function u2fSignBuffer(cipherText) {
     // this function should recursively call itself until all bytes are sent in chunks
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
