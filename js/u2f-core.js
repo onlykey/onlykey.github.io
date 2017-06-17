@@ -259,31 +259,8 @@ function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   padded_ct = padded_ct.match(/.{2}/g);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
-  var message = [255, 255, 255, 255, 240, slotId()]; //Add header, message type, and key to use
 
-  //Just like we do with the Chrome app for loading keys OKSETPRIV
-  //Need to split into 64 byte packets with
-  //[255, 255, 255, 255, 240, slotId(), FF if not last packet or size of last packet, 57 bytes of data 
-
-  /*
-  var ciphertext = new Uint8Array(58).fill(0);
-  ciphertext[0] = 57;
-  Array.prototype.push.apply(message, ciphertext);
-
-  msg("Handlekey bytes " + message);
-
-  keyHandle = bytes2b64(message);
-
-  msg("Sending Handlekey " + keyHandle);
-  var challenge = mkchallenge();
-  msg("Sending challenge " + challenge);
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
-    msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
-  });
-  */
+  u2fSignBuffer(padded_ct);
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
@@ -378,6 +355,36 @@ function verify_auth_response(response) {
   msg("Counter: " + counter);
   return true;
 }
+
+function u2fSignBuffer(ciperText) {
+    // this function should recursively call itself until all bytes are sent in chunks
+    var maxPacketSize = 57;
+    var finalPacket = cipherText.length - maxPacketSize <= 0;
+    var message = [255, 255, 255, 255, 240, slotId()];
+    var ctChunk = cipherText.slice(0, maxPacketSize);
+    message.push(finalPacket ? ctChunk.length : 'FF');
+    Array.prototype.push.apply(message, ctChunk);
+
+    var cb = finalPacket ? msg.bind(null, '(all packets sent)') : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
+
+    var keyHandle = bytes2b64(message);
+    var challenge = mkchallenge();
+    var req = { "challenge": challenge, "keyHandle": keyHandle,
+                 "appId": appId, "version": version };
+
+    msg("Handlekey bytes " + message);
+    msg("Sending Handlekey " + keyHandle);
+    msg("Sending challenge " + challenge);
+
+    u2f.sign(appId, challenge, [req], function(response) {
+      var result = verify_auth_response(response);
+      msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
+      if (result) {
+        cb();
+      }
+    });
+}
+
 
 /**
 HTML5 supports offline storage in the browser.
