@@ -259,7 +259,7 @@ function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
 
-  u2fSignBuffer(padded_ct);
+  u2fSignBuffer(padded_ct.match(/.{2}/g));
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
