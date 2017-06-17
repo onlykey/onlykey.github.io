@@ -256,7 +256,6 @@ function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   simulate_enroll()
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
-  padded_ct = padded_ct.match(/.{2}/g);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
 
