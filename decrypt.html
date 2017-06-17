@@ -70,7 +70,7 @@
         <form class="yui3-form">
           <input class="yui3-input-2-3" type="text" placeholder="Enter PGP message to decrypt..." id="dmessage"><br/>
         </form>
-        <button onclick="auth_decrypt()">Decrypt Message</button>
+        <button onclick="auth_decrypt(document.getElementById('dmessage').value)">Decrypt Message</button>
 
         <h2>OnlyKey Console Messages Appear Below</h2>
         <pre><code data-language="javascript"><font color="008700">
