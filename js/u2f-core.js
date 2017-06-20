@@ -25,7 +25,7 @@ function userId() {
     return el && el.value || 'u2ftest';
 }
 
-function slotId() { return id('slotid').value; }
+function slotId() { return id('slotid') ? id('slotid').value : 1; }
 
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
@@ -253,13 +253,14 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
-  simulate_enroll()
+  simulate_enroll();
+
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
 
-  u2fSignBuffer(padded_ct.match(/.{2}/g));
+  u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct);
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
@@ -361,7 +362,7 @@ function u2fSignBuffer(cipherText) {
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var message = [255, 255, 255, 255, 240, slotId()];
     var ctChunk = cipherText.slice(0, maxPacketSize);
-    message.push(finalPacket ? ctChunk.length : 'FF');
+    message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
     var cb = finalPacket ? msg.bind(null, '(all packets sent)') : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
