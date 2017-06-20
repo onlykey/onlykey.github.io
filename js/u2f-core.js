@@ -200,6 +200,12 @@ function enroll_polling(type) {
     } else if (type == 2) {
         var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
         msg("Public Key " + pubkey);
+    } else if (type == 3) {
+        var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+        msg("Session Key " + sessKey);
+    } else if (type == 4) {
+        var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+        msg("Signed by OnlyKey " + oksignature);
     } else  {
       msg("Polling succeeded but no data was received");
     }
@@ -365,7 +371,7 @@ function u2fSignBuffer(cipherText) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? enroll_poll_response : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
+    var cb = finalPacket ? enroll_polling(3) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
