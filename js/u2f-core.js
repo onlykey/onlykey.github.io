@@ -192,10 +192,6 @@ function enroll_polling(type) {
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
     if (result == 0) {
-    } else if (result == 3 && type == 3) {
-        setTimeout(function(){
-        enroll_polling(type);
-      }, 1500);
     } else if (type == 1) {
         msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
         var version = bytes2string(data_blob.slice(40, 51));
@@ -375,7 +371,7 @@ function u2fSignBuffer(cipherText) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? enroll_polling(3) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
+    var cb = finalPacket ? setTimeout(function(){enroll_polling(3);}, 15000) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
