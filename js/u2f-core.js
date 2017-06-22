@@ -191,7 +191,11 @@ function enroll_polling(type) {
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
-    if (result == false) {
+    if (result == 0) {
+    } else if (result == 3) {
+        setTimeout(function(){
+        enroll_polling(type);
+      }, 1500);
     } else if (type == 1) {
         msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
         var version = bytes2string(data_blob.slice(40, 51));
@@ -216,11 +220,11 @@ function enroll_polling(type) {
 function process_custom_response(response) {
   var err = response['errorCode'];
   if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
-    return true;
+    return 3;
   }
   if (err) {
     msg("Failed with error code " + err);
-    return false;
+    return 0;
   }
   var clientData_b64 = response['clientData'];
   var regData_b64 = response['registrationData'];
@@ -229,7 +233,7 @@ function process_custom_response(response) {
   msg("Hardware Generated Random Number " + hw_RNG);
   data_blob = v.slice(67 + v[66]);
   //msg("Data Received " + data_blob);  //Data encoded in cert field
-  return true;
+  return 1;
 }
 
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
