@@ -192,7 +192,7 @@ function enroll_polling(type) {
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
     if (result == 0) {
-    } else if (result == 3) {
+    } else if (result == 3 && type == 3) {
         setTimeout(function(){
         enroll_polling(type);
       }, 1500);
