@@ -258,7 +258,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
-function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
+function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   simulate_enroll();
 
   var padded_ct = ct.slice(12, 524);
@@ -266,7 +266,7 @@ function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
 
-  u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct);
+  u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
@@ -362,7 +362,7 @@ function verify_auth_response(response) {
   return true;
 }
 
-function u2fSignBuffer(cipherText) {
+function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
@@ -387,6 +387,9 @@ function u2fSignBuffer(cipherText) {
       msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
       if (result) {
         cb();
+        if (finalPacket && typeof mainCallback === 'function') {
+          mainCallback(response);
+        }
       }
     });
 }
