@@ -14614,7 +14614,8 @@ _continue()
                 if (err == null) {
                   packet = esk_packets[index];
                   console.log("packet : ", packet.raw);
-                  auth_decrypt(packet.raw);
+                  //ok_sesskey = auth_decrypt(packet.raw);
+                  // Commenting out OnlyKey part for testing and set hard coded value
                   key_material = km.find_pgp_key_material(key_ids[index]);
                   fingerprint = key_material.get_fingerprint();
                   privk = key_material.key;
@@ -14631,6 +14632,9 @@ _continue()
                         return function() {
                           err = arguments[0];
                           sesskey = arguments[1];
+                          //Overwite sesskey with value returned from auth_decrypt
+                          //Simulating this by hard codeing value for test message
+                          sesskey = new Uint8Array([9, 98, 147, 242, 196, 241, 71, 44, 179, 32, 244, 157, 244, 136, 127, 226, 2, 136, 37, 35, 73, 80, 246, 197, 20, 208, 175, 47, 136, 23, 100, 34, 171, 16, 8]);
                           console.log("session key : ", sesskey);
                           return pkcs5 = arguments[2];
                         };
