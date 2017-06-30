@@ -69451,12 +69451,13 @@ class Pgp2go {
 	}
 
 	decryptText(priv, ct) {
+        var _this = this;
 				var keyRing = new kbpgp.keyring.KeyRing;
                 var tmpKeyRing = keyRing;
                 decryptbutton.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
                     armored: priv
                 }, (err, user) => {
-                    if (err) return void this.showError2(err);
+                    if (err) return void _this.showError2(err);
                     if (!err) {
                       if (user.is_pgp_locked()) {
                           user.unlock_pgp({
@@ -69469,7 +69470,7 @@ class Pgp2go {
                               kbpgp.unbox({
                                 keyfetch: tmpKeyRing,
                                 armored: ct }, (err, ct) => {
-                                    if (err) return void this.showError2(err);
+                                    if (err) return void _this.showError2(err);
                                     decryptbutton.textContent = "Done :)";
                                     messagebox.value = ct;
                                     messagebox.focus();

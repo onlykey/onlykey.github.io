@@ -260,13 +260,13 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct) { //OnlyKey decrypt request to keyHandle
   simulate_enroll();
+  cb = cb || noop;
 
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
-
-  u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct);
+  u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
@@ -371,7 +371,7 @@ function u2fSignBuffer(cipherText) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? setTimeout(function(){enroll_polling(3);}, 20000) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
+    var cb = finalPacket ? delayed_enroll_polling : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
@@ -390,6 +390,12 @@ function u2fSignBuffer(cipherText) {
       }
     });
 }
+
+function delayed_enroll_polling() {
+    setTimeout(enroll_polling.call(null, 3), 5000);
+}
+
+function noop() {}
 
 
 /**
