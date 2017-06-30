@@ -14630,9 +14630,9 @@ _continue()
                           sesskey = arguments[1];
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-                              sesskey = authDecryptResponse; // ?????? something from the response?
-                            });
-                          return pkcs5 = arguments[2];
+                            sesskey = authDecryptResponse; // ?????? something from the response?
+                            return pkcs5 = arguments[2];
+                          });
                         };
                       })(),
                       lineno: 177
