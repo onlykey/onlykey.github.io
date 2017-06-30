@@ -14612,41 +14612,35 @@ _continue()
               (function(__iced_k) {
                 if (err == null) {
                   packet = esk_packets[index];
-                  console.log("packet : ", packet.raw);
-                  auth_decrypt(packet.raw, (authDecryptResponse) => {
-                      console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-
-
-                      ok_sesskey = authDecryptResponse; // ?????? something from the response?
-
-
-                      key_material = km.find_pgp_key_material(key_ids[index]);
-                      fingerprint = key_material.get_fingerprint();
-                      privk = key_material.key;
-                      (function(__iced_k) {
-                        __iced_deferrals = new iced.Deferrals(__iced_k, {
-                          parent: ___iced_passed_deferral,
-                          filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
-                          funcname: "Message._get_session_key"
-                        });
-                        privk.decrypt_and_unpad(packet.ekey, {
-                          fingerprint: fingerprint
-                        }, __iced_deferrals.defer({
-                          assign_fn: (function() {
-                            return function() {
-                              err = arguments[0];
-                              sesskey = arguments[1];
-                              console.log("session key : ", sesskey);
-                              return pkcs5 = arguments[2];
-                            };
-                          })(),
-                          lineno: 177
-                        }));
-                        __iced_deferrals._fulfill();
-                      })(function() {
-                        return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
-                      });
+                  key_material = km.find_pgp_key_material(key_ids[index]);
+                  fingerprint = key_material.get_fingerprint();
+                  privk = key_material.key;
+                  (function(__iced_k) {
+                    __iced_deferrals = new iced.Deferrals(__iced_k, {
+                      parent: ___iced_passed_deferral,
+                      filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
+                      funcname: "Message._get_session_key"
                     });
+                    privk.decrypt_and_unpad(packet.ekey, {
+                      fingerprint: fingerprint
+                    }, __iced_deferrals.defer({
+                      assign_fn: (function() {
+                        return function() {
+                          err = arguments[0];
+                          sesskey = arguments[1];
+                          auth_decrypt(packet.raw, (authDecryptResponse) => {
+                            console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
+                              //ok_sesskey = authDecryptResponse; // ?????? something from the response?
+                            });
+                          return pkcs5 = arguments[2];
+                        };
+                      })(),
+                      lineno: 177
+                    }));
+                    __iced_deferrals._fulfill();
+                  })(function() {
+                    return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
+                  });
                 } else {
                   return __iced_k();
                 }
@@ -14658,7 +14652,7 @@ _continue()
         });
       })(this)((function(_this) {
         return function() {
-          return cb(err, enc, ok_sesskey, pkcs5);
+          return cb(err, enc, sesskey, pkcs5);
         };
       })(this));
     };
