@@ -395,7 +395,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
 }
 
 function delayed_enroll_polling() {
-    setTimeout(enroll_polling.call(null, 3), 20000);
+    setTimeout(function(){enroll_polling(3);}, 20000);
 }
 
 function noop() {}
