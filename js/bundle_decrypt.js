@@ -14631,6 +14631,7 @@ _continue()
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
                             sesskey = Object.assign(sesskey, authDecryptResponse); // ?????? something from the response?
+                            console.info("sesskey:", sesskey);
                             return pkcs5 = arguments[2];
                           });
                         };
