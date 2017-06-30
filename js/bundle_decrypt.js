@@ -14617,7 +14617,7 @@ _continue()
                       console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
 
 
-                      ok_sesskey = {}; // ?????? something from the response?
+                      ok_sesskey = authDecryptResponse; // ?????? something from the response?
 
 
                       key_material = km.find_pgp_key_material(key_ids[index]);
