@@ -375,7 +375,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? setTimeout(enroll_polling(3), 20000) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
+    var cb = finalPacket ? delayed_enroll_polling : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
@@ -396,6 +396,14 @@ function u2fSignBuffer(cipherText, mainCallback) {
         }
       }
     });
+}
+
+function delayed_enroll_polling() {
+    msg("Called enroll_polling ");
+    var sessKey;
+    setTimeout(function(){sessKey = enroll_polling(3);}, 20000);
+    msg("Finished enroll_polling ");
+    return sessKey;
 }
 
 function noop() {}
