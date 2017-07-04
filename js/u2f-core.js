@@ -369,7 +369,7 @@ function verify_auth_response(response) {
 
 function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var sessKey;
+    var skey;
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var message = [255, 255, 255, 255, 240, slotId()];
@@ -402,7 +402,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
 
 function delayed_enroll_polling() {
     msg("Called enroll_polling ");
-    setTimeout(function(){sessKey = enroll_polling(3);}, 20000);
+    setTimeout(function(){skey = enroll_polling(3);}, 20000);
     msg("Finished enroll_polling ");
 }
 
