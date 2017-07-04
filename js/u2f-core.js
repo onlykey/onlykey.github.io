@@ -394,7 +394,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
       if (result) {
         cb();
         if (finalPacket) {
-          mainCallback(sessKey);
+          mainCallback(skey);
         }
       }
     });
