@@ -191,23 +191,24 @@ function enroll_polling(type) {
   u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
-    if (result == 0) {
-    } else if (type == 1) {
-        msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
-        var version = bytes2string(data_blob.slice(40, 51));
-        msg("Firmware " + version);
-        headermsg("Firmware " + version);
-    } else if (type == 2) {
-        var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-        msg("Public Key " + pubkey);
-    } else if (type == 3) {
-        var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-        msg("Session Key " + sessKey);
-    } else if (type == 4) {
-        var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-        msg("Signed by OnlyKey " + oksignature);
-    } else  {
-      msg("Polling succeeded but no data was received");
+    if (result == 3) {
+        msg("Polling succeeded but no data was received");
+    } else if (result) {
+      if (type == 1) {
+          msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
+          var version = bytes2string(data_blob.slice(40, 51));
+          msg("Firmware " + version);
+          headermsg("Firmware " + version);
+      } else if (type == 2) {
+          var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+          msg("Public Key " + pubkey);
+      } else if (type == 3) {
+          var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+          msg("Session Key " + sessKey);
+      } else if (type == 4) {
+          var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+          msg("Signed by OnlyKey " + oksignature);
+      }
     }
   });
 }
@@ -396,7 +397,9 @@ function u2fSignBuffer(cipherText, mainCallback) {
 
 function delayed_enroll_polling() {
     msg("Called enroll_polling ");
-    setTimeout(enroll_polling(3), 20000);
+    setTimeout(function(){
+    enroll_polling(3);
+    }, 1000);
 }
 
 function noop() {}
