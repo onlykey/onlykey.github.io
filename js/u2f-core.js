@@ -400,10 +400,20 @@ function u2fSignBuffer(cipherText, mainCallback) {
     });
 }
 
-function delayed_enroll_polling() {
+async function delayed_enroll_polling() {
     msg("Called enroll_polling ");
-    setTimeout(function(){skey = enroll_polling(3);}, 20000);
+    skey = await resolveAfter20Seconds();
     msg("Finished enroll_polling ");
+}
+
+function resolveAfter20Seconds() {
+  var x;
+  return new Promise(resolve => {
+    setTimeout(() => {
+      x = enroll_polling(3);
+      resolve(x);
+    }, 20000);
+  });
 }
 
 function noop() {}
