@@ -202,12 +202,15 @@ function enroll_polling(type) {
       } else if (type == 2) {
           var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
           msg("Public Key " + pubkey);
+          return pubkey;
       } else if (type == 3) {
           var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
           msg("Session Key " + sessKey);
+          return sessKey;
       } else if (type == 4) {
           var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
           msg("Signed by OnlyKey " + oksignature);
+          return oksignature;
       }
     }
   });
@@ -397,9 +400,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
 
 function delayed_enroll_polling() {
     msg("Called enroll_polling ");
-    setTimeout(function(){
-    enroll_polling(3);
-    }, 1000);
+    setTimeout(enroll_polling(3), 20000);
 }
 
 function noop() {}
