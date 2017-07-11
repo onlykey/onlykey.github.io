@@ -262,7 +262,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
-async function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
+function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   simulate_enroll();
   cb = cb || noop;
 
@@ -270,7 +270,7 @@ async function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
-  await return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
@@ -406,7 +406,8 @@ function resolveAfter20Seconds() {
   return new Promise(resolve => {
     setTimeout(() => {
       msg("Executed resolveAfter20Seconds");
-      const skey = enroll_polling(3);
+      const skey_raw = enroll_polling(3);
+      const skey = Object.assign(skey, skey_raw);
       resolve(skey);
     }, 20000);
   });

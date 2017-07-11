@@ -14571,7 +14571,7 @@ _continue()
     }
 
     Message.prototype._get_session_key = function(cb) {
-      var enc, err, esk_packets, fingerprint, index, key_ids, key_material, km, p, packet, pkcs5, privk, sesskey, ok_sesskey, ___iced_passed_deferral, __iced_deferrals, __iced_k;      __iced_k = __iced_k_noop;
+      var enc, err, esk_packets, fingerprint, index, key_ids, key_material, km, p, packet, pkcs5, privk, ___iced_passed_deferral, __iced_deferrals, __iced_k;      __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       key_ids = [];
       esk_packets = [];
@@ -14628,9 +14628,8 @@ _continue()
                         return function() {
                           err = arguments[0];
                           //sesskey = arguments[1];
-                          auth_decrypt(packet.raw, (authDecryptResponse) => {
-                            console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-                            sesskey = Object.assign(sesskey, authDecryptResponse);
+                          auth_decrypt(packet.raw, (sesskey) => {
+                            console.info("Session Key from OnlyKey:", sesskey);
                           });
                           return pkcs5 = arguments[2];
                         };
