@@ -14570,8 +14570,8 @@ _continue()
       this.warnings = new Warnings();
     }
 
-    Message.prototype._get_session_key = async function(cb) {
-      var enc, err, esk_packets, fingerprint, index, key_ids, key_material, km, p, packet, pkcs5, privk, ___iced_passed_deferral, __iced_deferrals, __iced_k;      __iced_k = __iced_k_noop;
+    Message.prototype._get_session_key = function(cb) {
+      var enc, err, esk_packets, fingerprint, index, key_ids, key_material, km, p, packet, pkcs5, privk, sesskey, ___iced_passed_deferral, __iced_deferrals, __iced_k;      __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       key_ids = [];
       esk_packets = [];
@@ -14621,18 +14621,18 @@ _continue()
                       filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                       funcname: "Message._get_session_key"
                     });
-                    privk.decrypt_and_unpad(packet.ekey, {
-                      fingerprint: fingerprint
-                    }, __iced_deferrals.defer({
-                      assign_fn: (function() {
-                        return function() {
-                          err = arguments[0];
-                          //sesskey = arguments[1];
-                          return pkcs5 = arguments[2];
-                        };
-                      })(),
-                      lineno: 177
-                    }));
+                    //privk.decrypt_and_unpad(packet.ekey, {
+                    //  fingerprint: fingerprint
+                    //}, __iced_deferrals.defer({
+                    //  assign_fn: (function() {
+                    //    return function() {
+                    //      err = arguments[0];
+                    //      //sesskey = arguments[1];
+                    //      return pkcs5 = arguments[2];
+                    //    };
+                    //  })(),
+                    //  lineno: 177
+                    //}));
                     __iced_deferrals._fulfill();
                   })(function() {
                     return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
@@ -14650,7 +14650,7 @@ _continue()
         return function() {
           auth_decrypt(packet.raw, (authDecryptResponse) => {
             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-            var sesskey = Object.assign(sesskey, authDecryptResponse);
+            sesskey = Object.assign(sesskey, authDecryptResponse);
             console.info("sesskey:", sesskey);
             return cb(err, enc, sesskey, pkcs5);
           });
