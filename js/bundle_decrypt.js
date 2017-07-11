@@ -14626,12 +14626,16 @@ _continue()
                     }, __iced_deferrals.defer({
                       assign_fn: (function() {
                         return function() {
-                          err = arguments[0];
-                          sesskey = arguments[1];
+                          err = null;
+                          //sesskey = arguments[1];
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-                            sesskey = Object.assign(sesskey, authDecryptResponse);
-                            console.info("sesskey:", sesskey);
+                            //if (authDecryptResponse.length == 35) { Need to add error checking
+                              sesskey = Object.assign(sesskey, authDecryptResponse);
+                              console.info("sesskey:", sesskey);
+                            //} else {
+                            //  err == 1;
+                            //}
                             return cb(err, enc, sesskey, pkcs5);
                           });
                         };
