@@ -14627,11 +14627,11 @@ _continue()
                       assign_fn: (function() {
                         return function() {
                           err = arguments[0];
-                          //sesskey = arguments[1];
-                          decryptbutton.textContent = "Enter challenge code on OnlyKey - 143";
+                          sesskey = arguments[1];
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-                            sesskey = Object.assign(sesskey, authDecryptResponse);
+                            sesskey = Object.assign(sesskey, authDecryptResponse); // ?????? something from the response?
+                            console.info("sesskey:", sesskey);
                             return pkcs5 = arguments[2];
                           });
                         };
@@ -14653,7 +14653,6 @@ _continue()
         });
       })(this)((function(_this) {
         return function() {
-          console.info("sesskey:", sesskey);
           return cb(err, enc, sesskey, pkcs5);
         };
       })(this));
