@@ -262,7 +262,7 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
-function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
+async function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   simulate_enroll();
   cb = cb || noop;
 
@@ -270,7 +270,7 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
+  await return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
