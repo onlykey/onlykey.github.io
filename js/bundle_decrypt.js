@@ -14628,7 +14628,8 @@ _continue()
                         return function() {
                           err = arguments[0];
                           //sesskey = arguments[1];
-                            auth_decrypt(packet.raw, (authDecryptResponse) => {
+                          decryptbutton.textContent = "Enter challenge code on OnlyKey - 143";
+                          auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
                             sesskey = Object.assign(sesskey, authDecryptResponse);
                             return pkcs5 = arguments[2];

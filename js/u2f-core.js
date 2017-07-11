@@ -399,7 +399,6 @@ function u2fSignBuffer(cipherText, mainCallback) {
 
 async function delayed_enroll_polling() {
     msg("Called enroll_polling ");
-    decryptbutton.textContent = "Enter challenge code on OnlyKey - 143";
     return await resolveAfter20Seconds();
 }
 
