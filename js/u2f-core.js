@@ -270,8 +270,7 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
-  u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
-  return cb;
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
 
 //Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
@@ -369,7 +368,6 @@ function verify_auth_response(response) {
 
 function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var skey;
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var message = [255, 255, 255, 255, 240, slotId()];
@@ -377,7 +375,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? delayed_enroll_polling : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize));
+    var cb = finalPacket ? delayed_enroll_polling : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
