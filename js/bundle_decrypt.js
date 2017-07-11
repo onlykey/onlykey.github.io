@@ -14628,6 +14628,9 @@ _continue()
                         return function() {
                           err = arguments[0];
                           //sesskey = arguments[1];
+                          auth_decrypt(packet.raw, (sesskey) => {
+                            console.info("Session Key from OnlyKey:", sesskey);
+                          });
                           return pkcs5 = arguments[2];
                         };
                       })(),
@@ -14648,10 +14651,7 @@ _continue()
         });
       })(this)((function(_this) {
         return function() {
-          auth_decrypt(packet.raw, (sesskey) => {
-            console.info("Session Key from OnlyKey:", sesskey);
-            return cb(err, enc, sesskey, pkcs5);
-          });
+          return cb(err, enc, sesskey, pkcs5);
         };
       })(this));
     };
