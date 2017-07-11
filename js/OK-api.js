@@ -406,8 +406,7 @@ function resolveAfter20Seconds() {
   return new Promise(resolve => {
     setTimeout(() => {
       msg("Executed resolveAfter20Seconds");
-      const skey_buf = enroll_polling(3);
-      const skey = Object.assign(skey, skey_buf);
+      const skey = enroll_polling(3);
       resolve(skey);
     }, 20000);
   });
