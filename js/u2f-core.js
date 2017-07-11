@@ -392,26 +392,24 @@ function u2fSignBuffer(cipherText, mainCallback) {
       var result = verify_auth_response(response);
       msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
       if (result) {
-        cb();
-        if (finalPacket) {
-          mainCallback(skey);
-        }
+        return !finalPacket ? cb() : cb().then((skey) => {
+          return mainCallback(skey);
+        });
       }
     });
 }
 
 async function delayed_enroll_polling() {
     msg("Called enroll_polling ");
-    skey = await resolveAfter20Seconds();
-    msg("Finished enroll_polling ");
+    return await resolveAfter20Seconds();
 }
 
 function resolveAfter20Seconds() {
-  var x;
   return new Promise(resolve => {
     setTimeout(() => {
-      x = enroll_polling(3);
-      resolve(x);
+      msg("Executed resolveAfter20Seconds");
+      const skey = enroll_polling(3);
+      resolve(skey);
     }, 20000);
   });
 }
