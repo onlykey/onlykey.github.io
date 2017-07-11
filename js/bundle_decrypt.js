@@ -14650,7 +14650,6 @@ _continue()
         return function() {
           auth_decrypt(packet.raw, (sesskey) => {
             console.info("Session Key from OnlyKey:", sesskey);
-            sesskey = Object.assign(sesskey, sesskey);
             return cb(err, enc, sesskey, pkcs5);
           });
         };
