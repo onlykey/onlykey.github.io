@@ -14648,9 +14648,10 @@ _continue()
         });
       })(this)((function(_this) {
         return function() {
-          auth_decrypt(packet.raw, (sesskey) => {
-            console.info("Session Key from OnlyKey:", sesskey);
-            sesskey = Object.assign(sesskey, sesskey);
+          auth_decrypt(packet.raw, (authDecryptResponse) => {
+            console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
+            var sesskey = Object.assign(sesskey, authDecryptResponse);
+            console.info("sesskey:", sesskey);
             return cb(err, enc, sesskey, pkcs5);
           });
         };
