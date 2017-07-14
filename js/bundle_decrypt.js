@@ -14571,7 +14571,7 @@ _continue()
     }
 
     Message.prototype._get_session_key = function(cb) {
-      var enc, err, esk_packets, fingerprint, index, key_ids, key_material, km, p, packet, pkcs5, privk, sesskey, ok_sesskey, ___iced_passed_deferral, __iced_deferrals, __iced_k;      __iced_k = __iced_k_noop;
+      var enc, err, esk_packets, fingerprint, index, key_ids, key_material, km, p, packet, pkcs5, privk, sesskey, ___iced_passed_deferral, __iced_deferrals, __iced_k;      __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       key_ids = [];
       esk_packets = [];
