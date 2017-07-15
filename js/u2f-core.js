@@ -406,7 +406,8 @@ function resolveAfter20Seconds() {
   return new Promise(resolve => {
     setTimeout(() => {
       msg("Executed resolveAfter20Seconds");
-      const skey = new Uint8Array([9, 98, 147, 242, 196, 241, 71, 44, 179, 32, 244, 157, 244, 136, 127, 226, 2, 136, 37, 35, 73, 80, 246, 197, 20, 208, 175, 47, 136, 23, 100, 34, 171, 16, 8]);
+      const skey = enroll_polling(3);
+      msg("skey" + skey);
       resolve(skey);
     }, 20000);
   });
