@@ -407,11 +407,11 @@ function resolveAfter22Seconds() {
     setTimeout(() => {
       msg("Executed resolveAfter20Seconds");
       const skey = enroll_polling(3);
-      setTimeout(() => {
-        msg("skey" + skey);
-        resolve(skey);
-      }, 2000); //Delay for polling response
     }, 20000); //Delay for Decryption
+    setTimeout(() => {
+      msg("skey" + skey);
+      resolve(skey);
+    }, 2000); //Delay for polling response
   });
 }
 
