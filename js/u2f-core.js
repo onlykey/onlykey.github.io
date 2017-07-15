@@ -402,14 +402,16 @@ async function delayed_enroll_polling() {
     return await resolveAfter20Seconds();
 }
 
-function resolveAfter20Seconds() {
+function resolveAfter22Seconds() {
   return new Promise(resolve => {
     setTimeout(() => {
       msg("Executed resolveAfter20Seconds");
       const skey = enroll_polling(3);
-      msg("skey" + skey);
-      resolve(skey);
-    }, 20000);
+      setTimeout(() => {
+        msg("skey" + skey);
+        resolve(skey);
+      }, 2000); //Delay for polling response
+    }, 20000); //Delay for Decryption
   });
 }
 
