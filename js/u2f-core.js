@@ -184,11 +184,11 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   }, 1000);
 }
 
-async function enroll_polling(type) {
+function enroll_polling(type) {
   msg("Requesting response from OnlyKey");
   var challenge = mk_polling();
   var req = { "challenge": challenge, "appId": appId, "version": version};
-  await u2f.register(appId, [req], [], function(response) {
+  u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
     if (result == 3) {
@@ -397,15 +397,14 @@ function u2fSignBuffer(cipherText, mainCallback) {
     });
 }
 
-async function resolveAfterDelay(delaySeconds) {
+function resolveAfterDelay(delaySeconds) {
+  delaySeconds = delaySeconds || 5;
   msg(`Delaying ${delaySeconds} seconds...`);
-  return new Promise(resolve => {
-    setTimeout(() => {
+    setTimeout(async () => {
       const skey = await enroll_polling(3);
       msg(`Executed resolveAfterDelay ${delaySeconds} seconds: skey = ${skey}`);
-      resolve(skey);
-    }, (delaySeconds || 5) * 1000); // default to 5 second delay
-  });
+      return skey;
+    }, delaySeconds * 1000); // default to 5 second delay
 }
 
 function noop() {}
