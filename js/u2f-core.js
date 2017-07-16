@@ -400,8 +400,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     });
 }
 
-function resolveAfterDelay(delaySeconds) {
-  delaySeconds = delaySeconds || 5;
+function resolveAfterDelay(delaySeconds = 5) {
   msg(`Delaying ${delaySeconds} seconds...`);
   return new Promise(resolve => {
     setTimeout(() => {
