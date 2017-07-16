@@ -184,12 +184,13 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   }, 1000);
 }
 
-function enroll_polling(type) {
+function enroll_polling(type, cb) {
   msg("Requesting response from OnlyKey");
   var challenge = mk_polling();
   var req = { "challenge": challenge, "appId": appId, "version": version};
   u2f.register(appId, [req], [], function(response) {
-    var result = process_custom_response(response);
+    const result = process_custom_response(response);
+    let data;
     msg("Polling " + (result ? "succeeded" : "failed"));
     if (result == 3) {
         msg("Polling succeeded but no data was received");
@@ -202,17 +203,19 @@ function enroll_polling(type) {
       } else if (type == 2) {
           var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
           msg("Public Key " + pubkey);
-          return pubkey;
+          data = pubkey;
       } else if (type == 3) {
           var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
           msg("Session Key " + sessKey);
-          return sessKey;
+          data = sessKey;
       } else if (type == 4) {
           var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
           msg("Signed by OnlyKey " + oksignature);
-          return oksignature;
+          data = oksignature;
       }
     }
+
+    if (typeof cb === 'function') cb(null, data);
   });
 }
 
@@ -375,7 +378,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? resolveAfterDelay.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? resolveAfterDelay.bind(null, 10) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
@@ -401,10 +404,11 @@ function resolveAfterDelay(delaySeconds) {
   delaySeconds = delaySeconds || 5;
   msg(`Delaying ${delaySeconds} seconds...`);
   return new Promise(resolve => {
-    setTimeout(async () => {
-      const skey = await enroll_polling(3);
-      msg(`Executed resolveAfterDelay ${delaySeconds} seconds: skey = ${skey}`);
-      return skey;
+    setTimeout(() => {
+      enroll_polling(3, (err, data) => {
+        msg(`Executed resolveAfterDelay ${delaySeconds} seconds: skey = ${data}`);
+        resolve(data);
+      });
     }, delaySeconds * 1000); // default to 5 second delay
   });
 }
