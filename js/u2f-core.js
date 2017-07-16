@@ -400,11 +400,13 @@ function u2fSignBuffer(cipherText, mainCallback) {
 function resolveAfterDelay(delaySeconds) {
   delaySeconds = delaySeconds || 5;
   msg(`Delaying ${delaySeconds} seconds...`);
+  return new Promise(resolve => {
     setTimeout(async () => {
       const skey = await enroll_polling(3);
       msg(`Executed resolveAfterDelay ${delaySeconds} seconds: skey = ${skey}`);
       return skey;
     }, delaySeconds * 1000); // default to 5 second delay
+  });
 }
 
 function noop() {}
