@@ -184,11 +184,11 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   }, 1000);
 }
 
-function enroll_polling(type) {
+async function enroll_polling(type) {
   msg("Requesting response from OnlyKey");
   var challenge = mk_polling();
   var req = { "challenge": challenge, "appId": appId, "version": version};
-  u2f.register(appId, [req], [], function(response) {
+  await u2f.register(appId, [req], [], function(response) {
     var result = process_custom_response(response);
     msg("Polling " + (result ? "succeeded" : "failed"));
     if (result == 3) {
@@ -375,7 +375,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? delayed_enroll_polling : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? resolveAfterDelay.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
@@ -390,28 +390,21 @@ function u2fSignBuffer(cipherText, mainCallback) {
       var result = verify_auth_response(response);
       msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
       if (result) {
-        return !finalPacket ? cb() : cb().then((skey) => {
+        return !finalPacket ? cb() : cb().then(skey => {
           return mainCallback(skey);
         });
       }
     });
 }
 
-async function delayed_enroll_polling() {
-    msg("Called enroll_polling ");
-    return await resolveAfter20Seconds();
-}
-
-function resolveAfter22Seconds() {
+async function resolveAfterDelay(delaySeconds) {
+  msg(`Delaying ${delaySeconds} seconds...`);
   return new Promise(resolve => {
     setTimeout(() => {
-      msg("Executed resolveAfter20Seconds");
-      const skey = enroll_polling(3);
-    }, 20000); //Delay for Decryption
-    setTimeout(() => {
-      msg("skey" + skey);
+      const skey = await enroll_polling(3);
+      msg(`Executed resolveAfterDelay ${delaySeconds} seconds: skey = ${skey}`);
       resolve(skey);
-    }, 2000); //Delay for polling response
+    }, (delaySeconds || 5) * 1000); // default to 5 second delay
   });
 }
 
