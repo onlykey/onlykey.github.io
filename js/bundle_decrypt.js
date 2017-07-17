@@ -14631,7 +14631,8 @@ _continue()
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
                             //if (authDecryptResponse.length == 35) { Need to add error checking
-                              sesskey = Object.assign(sesskey, authDecryptResponse);
+                              var temp = authDecryptResponse;
+                              sesskey = Object.assign(sesskey, temp);
                               console.info("sesskey:", sesskey);
                             //} else {
                             //  err == 1;
