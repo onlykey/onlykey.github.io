@@ -394,8 +394,6 @@ function u2fSignBuffer(cipherText, mainCallback) {
       msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
       if (result) {
         return !finalPacket ? cb() : cb().then(skey => {
-          const decryptbutton = document.getElementById('btndecrypt');
-          decryptbutton.textContent = "Enter Challenge Code 523..."
           return mainCallback(skey);
         });
       }
@@ -404,6 +402,14 @@ function u2fSignBuffer(cipherText, mainCallback) {
 
 function resolveAfterDelay(delaySeconds = 20) {
   msg(`Delaying ${delaySeconds} seconds...`);
+  //Need to generate challenge code using SHA256 hash of CT
+  const decryptbutton = document.getElementById('btndecrypt');
+  decryptbutton.textContent = "You have X seconds to enter challenge code XXX on OnlyKey, Click when finished..."
+  //What we want to do here is use setInterval to display message shown above every second and have X decrease so
+  //That it looks like its counting down. We need to know to continue onclick - see bundle_decrypt.js line 69507.
+  //Once this works we wont need the 20 second delay anymore, it will be much less
+  //The delay will actually depend on OnlyKey model and decryption type so once we get there the delay will be
+  //variable.
   return new Promise(resolve => {
     setTimeout(() => {
       enroll_polling(3, (err, data) => {
