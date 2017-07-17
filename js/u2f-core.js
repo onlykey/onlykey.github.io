@@ -404,7 +404,7 @@ function resolveAfterDelay(delaySeconds = 20) {
   msg(`Delaying ${delaySeconds} seconds...`);
   //Need to generate challenge code using SHA256 hash of CT
   const decryptbutton = document.getElementById('btndecrypt');
-  decryptbutton.textContent = "You have X seconds to enter challenge code XXX on OnlyKey, Click when finished..."
+  decryptbutton.textContent = "You have X seconds to enter challenge code XXX on OnlyKey, Click when finished...";
   //What we want to do here is use setInterval to display message shown above every second and have X decrease so
   //That it looks like its counting down. We need to know to continue onclick - see bundle_decrypt.js line 69507.
   //Once this works we wont need the 20 second delay anymore, it will be much less
