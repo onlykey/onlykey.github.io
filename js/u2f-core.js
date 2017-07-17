@@ -400,7 +400,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     });
 }
 
-function resolveAfterDelay(delaySeconds = 5) {
+function resolveAfterDelay(delaySeconds = 20) {
   msg(`Delaying ${delaySeconds} seconds...`);
   return new Promise(resolve => {
     setTimeout(() => {
@@ -408,7 +408,7 @@ function resolveAfterDelay(delaySeconds = 5) {
         msg(`Executed resolveAfterDelay ${delaySeconds} seconds: skey = ${data}`);
         resolve(data);
       });
-    }, delaySeconds * 1000); // default to 5 second delay
+    }, delaySeconds * 1000);
   });
 }
 
