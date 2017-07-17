@@ -394,6 +394,8 @@ function u2fSignBuffer(cipherText, mainCallback) {
       msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
       if (result) {
         return !finalPacket ? cb() : cb().then(skey => {
+          const decryptbutton = document.getElementById('btndecrypt');
+          decryptbutton.textContent = "Enter Challenge Code 523..."
           return mainCallback(skey);
         });
       }
