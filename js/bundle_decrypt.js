@@ -18468,9 +18468,11 @@ function decrypt (data, password) {
     };
 
     Signature.prototype.unbox = function(params, cb) {
+       console.log(`Made it here 1`);
       var err, res, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
+
       (function(_this) {
         return (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -18479,6 +18481,7 @@ function decrypt (data, password) {
             funcname: "Signature.unbox"
           });
           _this.verify(__iced_deferrals.defer({
+            console.log(`Made it here 2`);
             assign_fn: (function() {
               return function() {
                 err = arguments[0];
@@ -20359,6 +20362,7 @@ function decrypt (data, password) {
     };
 
     SignatureEngine.prototype.unbox = function(msg, cb, opts) {
+      console.log(`Made it here 3`);
       var eng, esc, literals, payload, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -20376,6 +20380,7 @@ function decrypt (data, password) {
                 funcname: "SignatureEngine.unbox"
               });
               _this.decode(msg, esc(__iced_deferrals.defer({
+                console.log(`Made it here 4`);
                 assign_fn: (function() {
                   return function() {
                     return msg = arguments[0];
