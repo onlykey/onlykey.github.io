@@ -14627,11 +14627,11 @@ _continue()
                       assign_fn: (function() {
                         return function() {
                           err = null;
-                          //sesskey = arguments[1];
+                          sesskey = arguments[1];
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
                             //if (authDecryptResponse.length == 35) { Need to add error checking
-                              sesskey = authDecryptResponse.slice(0, authDecryptResponse.length);
+                              sesskey = Object.assign(sesskey, authDecryptResponse);
                               console.info("sesskey:", sesskey);
                             //} else {
                             //  err == 1;
