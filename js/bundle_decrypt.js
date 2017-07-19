@@ -14634,7 +14634,7 @@ _continue()
                         return function() {
                           console.info("Made it to privk.decrypt_and_unpad");
                           err = null;
-                          sesskey = 1;
+                          sesskey = new Uint8Array(object);
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
                             //if (authDecryptResponse.length == 35) { Need to add error checking
