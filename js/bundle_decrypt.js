@@ -123,9 +123,7 @@ Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined
 exports.kMaxLength = kMaxLength()
 
 function typedArraySupport () {
-
-    return false
-  }
+  return false
 }
 
 function kMaxLength () {
