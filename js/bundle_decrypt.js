@@ -14618,7 +14618,7 @@ _continue()
               (function(__iced_k) {
                 if (err == null) {
                   packet = esk_packets[0];
-                  //key_material = km.find_pgp_key_material(key_ids[index]);
+                  key_material = km.find_pgp_key_material(key_ids[index]);
                   fingerprint = key_material.get_fingerprint();
                   privk = key_material.key;
                   (function(__iced_k) {
@@ -14632,7 +14632,6 @@ _continue()
                     }, __iced_deferrals.defer({
                       assign_fn: (function() {
                         return function() {
-                          console.info("Made it to privk.decrypt_and_unpad");
                           err = null;
                           sesskey = arguments[1];
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
