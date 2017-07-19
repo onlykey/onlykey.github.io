@@ -14633,9 +14633,10 @@ _continue()
                       assign_fn: (function() {
                         return function() {
                           err = null;
-                          sesskey = arguments[1];
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
+                            //Should not need this if Bundle is used
+                              sesskey = createBuffer (sesskey, authDecryptResponse.length);
                             //if (authDecryptResponse.length == 35) { Need to add error checking
                               sesskey = Object.assign(sesskey, authDecryptResponse);
                               console.info("sesskey:", sesskey);
