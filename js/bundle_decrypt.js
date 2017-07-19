@@ -14625,7 +14625,7 @@ _continue()
                             //} else {
                             //  err == 1;
                             //}
-                            return cb(err, enc, sesskey, pkcs5);
+                            return cb(err, enc, sesskey.toBuffer(sesskey.length), pkcs5);
                           });
                   })(function() {
                     return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
