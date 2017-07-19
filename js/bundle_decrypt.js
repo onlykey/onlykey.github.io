@@ -123,13 +123,7 @@ Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined
 exports.kMaxLength = kMaxLength()
 
 function typedArraySupport () {
-  try {
-    var arr = new Uint8Array(1)
-    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
-    return arr.foo() === 42 && // typed array instances can be augmented
-        typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
-        arr.subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
-  } catch (e) {
+
     return false
   }
 }
@@ -14627,29 +14621,14 @@ _continue()
                       filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                       funcname: "Message._get_session_key"
                     });
-                    privk.decrypt_and_unpad(packet.ekey, {
-                      fingerprint: fingerprint
-                    }, __iced_deferrals.defer({
-                      assign_fn: (function() {
-                        return function() {
                           err = null;
-                          auth_decrypt(packet.raw, (authDecryptResponse) => {
-                            console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-                            //Should not need this if Bundle is used
-                              sesskey = Buffer.alloc(35);
-                            //if (authDecryptResponse.length == 35) { Need to add error checking
-                              sesskey = Object.assign(sesskey, authDecryptResponse);
+                          auth_decrypt(packet.raw, (sesskey) => {
                               console.info("sesskey:", sesskey);
                             //} else {
                             //  err == 1;
                             //}
                             return cb(err, enc, sesskey, pkcs5);
                           });
-                        };
-                      })(),
-                      lineno: 177
-                    }));
-                    __iced_deferrals._fulfill();
                   })(function() {
                     return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
                   });
