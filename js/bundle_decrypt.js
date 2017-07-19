@@ -14597,22 +14597,28 @@ _continue()
                 filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                 funcname: "Message._get_session_key"
               });
+
               _this.keyfetch.fetch(key_ids, konst.ops.decrypt, __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
                     err = arguments[0];
                     km = arguments[1];
+                    console.info("key_ids", key_ids);
+                    console.info("km", km);
+                    console.info("err", err);
+                    console.info("index", arguments[2]);
                     return index = arguments[2];
                   };
                 })(),
                 lineno: 171
               }));
+
               __iced_deferrals._fulfill();
             })(function() {
               (function(__iced_k) {
                 if (err == null) {
-                  packet = esk_packets[index];
-                  key_material = km.find_pgp_key_material(key_ids[index]);
+                  packet = esk_packets[0];
+                  //key_material = km.find_pgp_key_material(key_ids[index]);
                   fingerprint = key_material.get_fingerprint();
                   privk = key_material.key;
                   (function(__iced_k) {
@@ -14626,8 +14632,9 @@ _continue()
                     }, __iced_deferrals.defer({
                       assign_fn: (function() {
                         return function() {
+                          console.info("Made it to privk.decrypt_and_unpad");
                           err = null;
-                          sesskey = arguments[1];
+                          sesskey = 1;
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
                             //if (authDecryptResponse.length == 35) { Need to add error checking
@@ -14674,6 +14681,7 @@ _continue()
     };
 
     Message.prototype._decrypt_with_session_key = function(sesskey, edat, pkcs5, cb) {
+      console.info("Made it to _decrypt_with_session_key");
       var cipher, err, ret, ___iced_passed_deferral, __iced_deferrals, __iced_k, _ref1;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -14720,7 +14728,6 @@ _continue()
     };
 
     Message.prototype._decrypt = function(cb) {
-      console.info("Made it to _decrypt");
       var edat, err, esc, is_enc, packets, pkcs5, plaintext, sesskey, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
