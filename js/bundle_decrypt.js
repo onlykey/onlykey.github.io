@@ -14636,8 +14636,7 @@ _continue()
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
                             //Should not need this if Bundle is used
-                              sesskey = new Uint8Array();
-                              sesskey.__proto__ = Uint8Array.prototype;
+                              sesskey = Buffer.alloc(35);
                             //if (authDecryptResponse.length == 35) { Need to add error checking
                               sesskey = Object.assign(sesskey, authDecryptResponse);
                               console.info("sesskey:", sesskey);
