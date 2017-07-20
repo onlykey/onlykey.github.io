@@ -8029,9 +8029,9 @@ process.umask = function() { return 0; };
     function SlicerBuffer(buf, start) {
       this.buf = buf;
       this.start = start != null ? start : 0;
-      if (!Buffer.isBuffer(this.buf)) {
-        throw new Error('need a Buffer!');
-      }
+      //if (!Buffer.isBuffer(this.buf)) {
+      //  throw new Error('need a Buffer!');
+      //}
       this.i = this.start;
       this._end = null;
     }
@@ -14634,16 +14634,11 @@ _continue()
                         return function() {
                           console.info("Made it to privk.decrypt_and_unpad");
                           err = null;
-                          sesskey = packet.ekey;
+                          sesskey = arguments[1];
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-                            //Should not need this if Bundle is used
-                            //if (authDecryptResponse.length == 35) { Need to add error checking
                               sesskey = Object.assign(sesskey, authDecryptResponse);
                               console.info("sesskey:", sesskey);
-                            //} else {
-                            //  err == 1;
-                            //}
                             return cb(err, enc, sesskey, pkcs5);
                           });
                         };
