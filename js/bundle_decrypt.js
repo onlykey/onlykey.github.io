@@ -8029,9 +8029,9 @@ process.umask = function() { return 0; };
     function SlicerBuffer(buf, start) {
       this.buf = buf;
       this.start = start != null ? start : 0;
-      //if (!Buffer.isBuffer(this.buf)) {
-      //  throw new Error('need a Buffer!');
-      //}
+      if (!Buffer.isBuffer(this.buf)) {
+        throw new Error('need a Buffer!');
+      }
       this.i = this.start;
       this._end = null;
     }
@@ -14597,7 +14597,7 @@ _continue()
                 filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                 funcname: "Message._get_session_key"
               });
-
+              /*
               _this.keyfetch.fetch(key_ids, konst.ops.decrypt, __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
@@ -14614,13 +14614,14 @@ _continue()
               }));
 
               __iced_deferrals._fulfill();
+              */
             })(function() {
               (function(__iced_k) {
                 if (err == null) {
                   packet = esk_packets[0];
-                  key_material = km.find_pgp_key_material(key_ids[index]);
-                  fingerprint = key_material.get_fingerprint();
-                  privk = key_material.key;
+                  //key_material = km.find_pgp_key_material(key_ids[index]);
+                  //fingerprint = key_material.get_fingerprint();
+                  privk = null;
                   (function(__iced_k) {
                     __iced_deferrals = new iced.Deferrals(__iced_k, {
                       parent: ___iced_passed_deferral,
@@ -14634,7 +14635,7 @@ _continue()
                         return function() {
                           console.info("Made it to privk.decrypt_and_unpad");
                           err = null;
-                          //sesskey = arguments[1];
+                          sesskey = arguments[1];
                           auth_decrypt(packet.raw, (sesskey) => {
                               console.info("sesskey:", sesskey);
                             return cb(err, enc, sesskey, pkcs5);
