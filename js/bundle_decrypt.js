@@ -14628,7 +14628,7 @@ _continue()
                       filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                       funcname: "Message._get_session_key"
                     });
-                    privk.decrypt_and_unpad(packet.ekey, __iced_deferrals.defer({
+                    privk.decrypt_and_unpad(packet.ekey, null, __iced_deferrals.defer({
                       assign_fn: (function() {
                         return function() {
                           err = null;
