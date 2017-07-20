@@ -14591,6 +14591,7 @@ _continue()
         return (function(__iced_k) {
           if (key_ids.length) {
             enc = true;
+            /*
             (function(__iced_k) {
               __iced_deferrals = new iced.Deferrals(__iced_k, {
                 parent: ___iced_passed_deferral,
@@ -14601,13 +14602,9 @@ _continue()
               _this.keyfetch.fetch(key_ids, konst.ops.decrypt, __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
-                    err = arguments[0];
-                    km = arguments[1];
-                    console.info("key_ids", key_ids);
-                    console.info("km", km);
-                    console.info("err", err);
-                    console.info("index", arguments[2]);
-                    return index = arguments[2];
+                    //err = arguments[0];
+                    //km = arguments[1];
+                    return index = 0;
                   };
                 })(),
                 lineno: 171
@@ -14615,40 +14612,22 @@ _continue()
 
               __iced_deferrals._fulfill();
 
-            })(function() {
+            })
+            */
+            (function() {
               (function(__iced_k) {
                 if (err == null) {
                   packet = esk_packets[0];
                   console.info("paclet:", packet);
-                  key_material = km.find_pgp_key_material(key_ids[index]);
-                  fingerprint = key_material.get_fingerprint();
-                  privk = key_material.key;
-                  (function(__iced_k) {
-                    __iced_deferrals = new iced.Deferrals(__iced_k, {
-                      parent: ___iced_passed_deferral,
-                      filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
-                      funcname: "Message._get_session_key"
-                    });
-                    privk.decrypt_and_unpad(packet.ekey, {
-                      fingerprint: fingerprint
-                    }, __iced_deferrals.defer({
-                      assign_fn: (function() {
-                        return function() {
-                          err = null;
-                          auth_decrypt(packet.raw, (ok_sesskey) => {
-                              console.info("sesskey from OnlyKey:", ok_sesskey);
-                              sesskey = packet.raw.slice(0, ok_sesskey.length);
-                              sesskey = Object.assign(sesskey, ok_sesskey);
-                              console.info("sesskey:", sesskey);
-                            return cb(err, enc, sesskey, pkcs5);
-                          });
-                        };
-                      })(),
-                      lineno: 177
-                    }));
-                    __iced_deferrals._fulfill();
-                  })(function() {
-                    return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
+                  //key_material = km.find_pgp_key_material(key_ids[index]);
+                  //fingerprint = key_material.get_fingerprint();
+                  //privk = key_material.key;
+                  err = null;
+                  auth_decrypt(packet.raw, (ok_sesskey) => {
+                      sesskey = packet.raw.slice(0, ok_sesskey.length);
+                      sesskey = Object.assign(sesskey, ok_sesskey);
+                      console.info("sesskey from OnlyKey:", sesskey);
+                    return cb(err, enc, sesskey, pkcs5);
                   });
                 } else {
                   return __iced_k();
