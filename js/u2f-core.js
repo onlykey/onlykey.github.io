@@ -11,6 +11,8 @@ var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
+var _status;
+
 //var ECDH = require('elliptic').ec;
 //var ec = new ECDH('curve25519');
 
@@ -161,6 +163,7 @@ function simulate_enroll() {
 function auth_timeset() { //OnlyKey settime to keyHandle
   simulate_enroll();
   const start = document.getElementById('onlykey_start');
+  _status = document.getElementById('onlykey_start').value;
   var rad = document.action.select_one;
       var prev = null;
       for(var i = 0; i < rad.length; i++) {
@@ -169,6 +172,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                   prev = this;
               }
               start.textContent = this.value;
+              _status = this.value;
           };
       }
   //msg("Sending Set Time to OnlyKey");

@@ -69483,16 +69483,22 @@ class Pgp2go {
 let p2g = new Pgp2go();
 
 start.onclick = function () {
-    if (!priv_key_op) {
-      priv_key_op = document.getElementById('btn-onlykey').value;
-      if (priv_key_op == 'sign') {
+      console.log("status:", _status);
+      if (_status == 'Sign and Encrypt') {
         p2g.startSignature();
-      } else if (priv_key_op == 'decrypt') {
+      } else if (_status == 'Encrypt Only') {
+        p2g.startSignature();
+      } else if (_status == 'Sign Only') {
+        p2g.startSignature();
+      } else if (_status == 'Decrypt and Verify') {
         p2g.startDecryption();
+      } else if (_status == 'Decrypt Only') {
+        p2g.startDecryption();
+      } else if (_status == 'Verify Only') {
+        p2g.startDecryption();
+      } else if (_status == 'done_pin') {
+        //something
       }
-    } else {
-
-    }
     return false;
 };
 
