@@ -14621,18 +14621,20 @@ _continue()
                   packet = esk_packets[0];
                   key_material = km.find_pgp_key_material(key_ids[index]);
                   fingerprint = key_material.get_fingerprint();
-                  privk = null;
+                  privk = key_material.key;
                   (function(__iced_k) {
                     __iced_deferrals = new iced.Deferrals(__iced_k, {
                       parent: ___iced_passed_deferral,
                       filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                       funcname: "Message._get_session_key"
                     });
-                    privk.decrypt_and_unpad(packet.ekey, null, __iced_deferrals.defer({
+                    privk.decrypt_and_unpad(packet.ekey, {
+                      fingerprint: fingerprint
+                    }, __iced_deferrals.defer({
                       assign_fn: (function() {
                         return function() {
                           err = null;
-                          sesskey = arguments[1];
+                          sesskey = key_ids[0];
                           auth_decrypt(packet.raw, (ok_sesskey) => {
                               console.info("sesskey from OnlyKey:", ok_sesskey);
                               sesskey = Object.assign(sesskey, ok_sesskey);
