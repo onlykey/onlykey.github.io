@@ -14591,14 +14591,15 @@ _continue()
         return (function(__iced_k) {
           if (key_ids.length) {
             enc = true;
-            /*
+            console.info("Key ID", key_ids[0]);
+            
             (function(__iced_k) {
               __iced_deferrals = new iced.Deferrals(__iced_k, {
                 parent: ___iced_passed_deferral,
                 filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                 funcname: "Message._get_session_key"
               });
-
+            /*
               _this.keyfetch.fetch(key_ids, konst.ops.decrypt, __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
@@ -14614,11 +14615,11 @@ _continue()
 
             })
             */
+
             (function() {
               (function(__iced_k) {
                 if (err == null) {
                   packet = esk_packets[0];
-                  console.info("paclet:", packet);
                   //key_material = km.find_pgp_key_material(key_ids[index]);
                   //fingerprint = key_material.get_fingerprint();
                   //privk = key_material.key;
