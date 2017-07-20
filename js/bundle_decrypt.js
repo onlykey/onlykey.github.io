@@ -14592,14 +14592,14 @@ _continue()
           if (key_ids.length) {
             enc = true;
             console.info("Key ID", key_ids[0]);
-            
+/*
             (function(__iced_k) {
               __iced_deferrals = new iced.Deferrals(__iced_k, {
                 parent: ___iced_passed_deferral,
                 filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                 funcname: "Message._get_session_key"
               });
-            /*
+
               _this.keyfetch.fetch(key_ids, konst.ops.decrypt, __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
@@ -14614,27 +14614,21 @@ _continue()
               __iced_deferrals._fulfill();
 
             })
-            */
 
-            (function() {
-              (function(__iced_k) {
-                if (err == null) {
-                  packet = esk_packets[0];
-                  //key_material = km.find_pgp_key_material(key_ids[index]);
-                  //fingerprint = key_material.get_fingerprint();
-                  //privk = key_material.key;
-                  err = null;
-                  auth_decrypt(packet.raw, (ok_sesskey) => {
-                      sesskey = packet.raw.slice(0, ok_sesskey.length);
-                      sesskey = Object.assign(sesskey, ok_sesskey);
-                      console.info("sesskey from OnlyKey:", sesskey);
-                    return cb(err, enc, sesskey, pkcs5);
-                  });
-                } else {
-                  return __iced_k();
-                }
-              })(__iced_k);
-            });
+*/
+            if (err == null) {
+              packet = esk_packets[0];
+              //key_material = km.find_pgp_key_material(key_ids[index]);
+              //fingerprint = key_material.get_fingerprint();
+              //privk = key_material.key;
+              err = null;
+              auth_decrypt(packet.raw, (ok_sesskey) => {
+                  sesskey = packet.raw.slice(0, ok_sesskey.length);
+                  sesskey = Object.assign(sesskey, ok_sesskey);
+                  console.info("sesskey from OnlyKey:", sesskey);
+                return cb(err, enc, sesskey, pkcs5);
+              });
+            }
           } else {
             return __iced_k(enc = false);
           }
