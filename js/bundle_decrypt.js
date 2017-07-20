@@ -14597,7 +14597,7 @@ _continue()
                 filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                 funcname: "Message._get_session_key"
               });
-              /*
+
               _this.keyfetch.fetch(key_ids, konst.ops.decrypt, __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
@@ -14614,13 +14614,13 @@ _continue()
               }));
 
               __iced_deferrals._fulfill();
-              */
+
             })(function() {
               (function(__iced_k) {
                 if (err == null) {
                   packet = esk_packets[0];
-                  //key_material = km.find_pgp_key_material(key_ids[index]);
-                  //fingerprint = key_material.get_fingerprint();
+                  key_material = km.find_pgp_key_material(key_ids[index]);
+                  fingerprint = key_material.get_fingerprint();
                   privk = null;
                   (function(__iced_k) {
                     __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -14644,10 +14644,9 @@ _continue()
                       lineno: 177
                     }));
                     __iced_deferrals._fulfill();
-                  })
-                  //(function() {
-                  //  return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
-                  //});
+                  })(function() {
+                    return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
+                  });
                 } else {
                   return __iced_k();
                 }
