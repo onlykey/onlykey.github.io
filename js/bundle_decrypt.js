@@ -14628,12 +14628,9 @@ _continue()
                       filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
                       funcname: "Message._get_session_key"
                     });
-                    privk.decrypt_and_unpad(packet.ekey, {
-                      fingerprint: fingerprint
-                    }, __iced_deferrals.defer({
+                    privk.decrypt_and_unpad(packet.ekey, __iced_deferrals.defer({
                       assign_fn: (function() {
                         return function() {
-                          console.info("Made it to privk.decrypt_and_unpad");
                           err = null;
                           sesskey = arguments[1];
                           auth_decrypt(packet.raw, (sesskey) => {
@@ -14645,9 +14642,10 @@ _continue()
                       lineno: 177
                     }));
                     __iced_deferrals._fulfill();
-                  })(function() {
-                    return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
-                  });
+                  })
+                  //(function() {
+                  //  return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
+                  //});
                 } else {
                   return __iced_k();
                 }
