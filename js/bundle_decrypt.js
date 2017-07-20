@@ -14638,6 +14638,7 @@ _continue()
                           sesskey = key_ids[0];
                           auth_decrypt(packet.raw, (ok_sesskey) => {
                               console.info("sesskey from OnlyKey:", ok_sesskey);
+                              sesskey.length = ok_sesskey.length;
                               sesskey = Object.assign(sesskey, ok_sesskey);
                               console.info("sesskey:", sesskey);
                             return cb(err, enc, sesskey, pkcs5);
