@@ -14634,10 +14634,8 @@ _continue()
                         return function() {
                           console.info("Made it to privk.decrypt_and_unpad");
                           err = null;
-                          sesskey = arguments[1];
-                          auth_decrypt(packet.raw, (authDecryptResponse) => {
-                            console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
-                              sesskey = Object.assign(sesskey, authDecryptResponse);
+                          //sesskey = arguments[1];
+                          auth_decrypt(packet.raw, (sesskey) => {
                               console.info("sesskey:", sesskey);
                             return cb(err, enc, sesskey, pkcs5);
                           });
