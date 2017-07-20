@@ -160,6 +160,17 @@ function simulate_enroll() {
 //Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
 function auth_timeset() { //OnlyKey settime to keyHandle
   simulate_enroll();
+  const start = document.getElementById('onlykey_start');
+  var rad = document.action.select_one;
+      var prev = null;
+      for(var i = 0; i < rad.length; i++) {
+          rad[i].onclick = function() {
+              if(this !== prev) {
+                  prev = this;
+              }
+              start.textContent = this.value;
+          };
+      }
   //msg("Sending Set Time to OnlyKey");
   var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
@@ -266,38 +277,28 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
-  simulate_enroll();
+  //simulate_enroll();
   cb = cb || noop;
 
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
+  var message = [255, 255, 255, 255, 240, slotId()];
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, message, cb);
 }
 
-//Function to send hash to be signed on OnlyKey via U2F auth message Keyhandle
-function auth_sign_request() { //OnlyKey sign request to keyHandle
-  simulate_enroll()
+//Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
+function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
+  //simulate_enroll();
+  cb = cb || noop;
+
+  var padded_ct = ct.slice(12, 524);
+  var keyid = ct.slice(1, 8);
+  msg("Signature Packet bytes " + padded_ct);
+  msg("Key ID bytes " + keyid);
   var message = [255, 255, 255, 255, 237, slotId()]; //Add header, message type, and key to use
-
-  var ciphertext = new Uint8Array(58).fill(0);
-  ciphertext[0] = 57;
-  Array.prototype.push.apply(message, ciphertext);
-
-  msg("Handlekey bytes " + message);
-
-  keyHandle = bytes2b64(message);
-
-  msg("Sending Handlekey " + keyHandle);
-  var challenge = mkchallenge();
-  msg("Sending challenge " + challenge);
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
-    msg("Sign Request Sent " + (result ? "Successfully" : "Error"));
-  });
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, message, cb);
 }
 
 //Function to process U2F registration response
@@ -369,11 +370,10 @@ function verify_auth_response(response) {
   return true;
 }
 
-function u2fSignBuffer(cipherText, mainCallback) {
+function u2fSignBuffer(cipherText, message, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
-    var message = [255, 255, 255, 255, 240, slotId()];
     var ctChunk = cipherText.slice(0, maxPacketSize);
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
@@ -403,8 +403,8 @@ function u2fSignBuffer(cipherText, mainCallback) {
 function resolveAfterDelay(delaySeconds = 20) {
   msg(`Delaying ${delaySeconds} seconds...`);
   //Need to generate challenge code using SHA256 hash of CT
-  const decryptbutton = document.getElementById('btndecrypt');
-  decryptbutton.textContent = "You have X seconds to enter challenge code XXX on OnlyKey, Click when finished...";
+
+  start.textContent = "You have X seconds to enter challenge code XXX on OnlyKey, Click when finished...";
   //What we want to do here is use setInterval to display message shown above every second and have X decrease so
   //That it looks like its counting down. We need to know to continue onclick - see bundle_decrypt.js line 69507.
   //Once this works we wont need the 20 second delay anymore, it will be much less

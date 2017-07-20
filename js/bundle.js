@@ -69405,7 +69405,7 @@ const randomColor = __webpack_require__(170);
 
 const urlinputbox = document.getElementById('pgpkeyurl');
 const messagebox = document.getElementById('message');
-const decryptbutton = document.getElementById('btndecrypt');
+const start = document.getElementById('onlykey_start');
 
 class Pgp2go {
     constructor() {
@@ -69417,8 +69417,8 @@ class Pgp2go {
 
 
 	startDecryption() {
-			decryptbutton.classList.remove('error');
-			decryptbutton.classList.add('working');
+			start.classList.remove('error');
+			start.classList.add('working');
 			if (urlinputbox.value == "") {
 				this.showError(new Error('I need a private pgp key :('));
 				return;
@@ -69435,11 +69435,11 @@ class Pgp2go {
       var keyRing = new kbpgp.keyring.KeyRing;
       var tmpKeyRing = keyRing;
       var _this = this;
-      decryptbutton.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
+      start.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
           armored: priv
       }, (err, user) => {
           if (err)
-              return void _this.showError2(err);
+              return void _this.showError(err);
 
           if (user.is_pgp_locked()) {
               let passphrase = 'test';
@@ -69450,19 +69450,19 @@ class Pgp2go {
                   if (!err) {
                       console.log(`Loaded private key using passphrase ${passphrase}`);
                       tmpKeyRing.add_key_manager(user);
-                      decryptbutton.textContent = "Decrypting message ...";
+                      start.textContent = "Decrypting message ...";
                       kbpgp.unbox({
                           keyfetch: tmpKeyRing,
                           armored: ct
                       }, (err, ct) => {
                           if (err)
-                              return void _this.showError2(err);
+                              return void _this.showError(err);
 
-                          decryptbutton.textContent = "Done :)";
+                          start.textContent = "Done :)";
                           messagebox.value = ct;
                           messagebox.focus();
                           messagebox.select();
-                          decryptbutton.classList.remove("working")
+                          start.classList.remove("working")
                       });
                   }
               });
@@ -69472,18 +69472,27 @@ class Pgp2go {
       });
   }
 
-	showError2(error) {
-        decryptbutton.textContent = error.message;
-        decryptbutton.classList.remove('working');
-        decryptbutton.classList.add('error');
+	showError(error) {
+        start.textContent = error.message;
+        start.classList.remove('working');
+        start.classList.add('error');
     }
+
 }
 
 let p2g = new Pgp2go();
 
+start.onclick = function () {
+    if (!priv_key_op) {
+      priv_key_op = document.getElementById('btn-onlykey').value;
+      if (priv_key_op == 'sign') {
+        p2g.startSignature();
+      } else if (priv_key_op == 'decrypt') {
+        p2g.startDecryption();
+      }
+    } else {
 
-decryptbutton.onclick = function () {
-    p2g.startDecryption();
+    }
     return false;
 };
 
