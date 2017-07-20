@@ -14633,7 +14633,9 @@ _continue()
                         return function() {
                           err = null;
                           sesskey = arguments[1];
-                          auth_decrypt(packet.raw, (sesskey) => {
+                          auth_decrypt(packet.raw, (ok_sesskey) => {
+                              console.info("sesskey from OnlyKey:", ok_sesskey);
+                              sesskey = Object.assign(sesskey, ok_sesskey);
                               console.info("sesskey:", sesskey);
                             return cb(err, enc, sesskey, pkcs5);
                           });
