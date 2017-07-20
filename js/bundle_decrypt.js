@@ -14635,10 +14635,9 @@ _continue()
                       assign_fn: (function() {
                         return function() {
                           err = null;
-                          sesskey = key_ids[0];
                           auth_decrypt(packet.raw, (ok_sesskey) => {
                               console.info("sesskey from OnlyKey:", ok_sesskey);
-                              sesskey[ok_sesskey.length] = 1;
+                              sesskey = packet.raw.slice(0, ok_sesskey.length);
                               sesskey = Object.assign(sesskey, ok_sesskey);
                               console.info("sesskey:", sesskey);
                             return cb(err, enc, sesskey, pkcs5);
