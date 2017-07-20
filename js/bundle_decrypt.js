@@ -123,7 +123,9 @@ Buffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined
 exports.kMaxLength = kMaxLength()
 
 function typedArraySupport () {
-  return false
+
+    return false
+  }
 }
 
 function kMaxLength () {
@@ -14620,12 +14622,17 @@ _continue()
                       funcname: "Message._get_session_key"
                     });
                           err = null;
-                          auth_decrypt(packet.raw, (sesskey) => {
+                          auth_decrypt(packet.raw, (authDecryptResponse) => {
+                            console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
+                            //Should not need this if Bundle is used
+                              sesskey = new Buffer(35);
+                            //if (authDecryptResponse.length == 35) { Need to add error checking
+                              sesskey = Object.assign(sesskey, authDecryptResponse);
                               console.info("sesskey:", sesskey);
                             //} else {
                             //  err == 1;
                             //}
-                            return cb(err, enc, sesskey.toBuffer(sesskey.length), pkcs5);
+                            return cb(err, enc, sesskey, pkcs5);
                           });
                   })(function() {
                     return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
