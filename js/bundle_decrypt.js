@@ -14634,7 +14634,7 @@ _continue()
                         return function() {
                           console.info("Made it to privk.decrypt_and_unpad");
                           err = null;
-                          sesskey = arguments[1];
+                          sesskey = packet.ekey;
                           auth_decrypt(packet.raw, (authDecryptResponse) => {
                             console.info("AUTH_DECRYPT RESPONSE:", authDecryptResponse);
                             //Should not need this if Bundle is used
