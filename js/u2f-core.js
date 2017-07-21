@@ -287,7 +287,6 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
-  var header = [255, 255, 255, 255, 240, slotId()];
   return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, header, cb);
 }
 
@@ -299,7 +298,6 @@ function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   var keyid = ct.slice(1, 8);
   msg("Signature Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
-  var header = [255, 255, 255, 255, 237, slotId()]; //Add header, message type, and key to use
   return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, header, cb);
 }
 
@@ -372,9 +370,9 @@ function verify_auth_response(response) {
   return true;
 }
 
-function u2fSignBuffer(cipherText, header, mainCallback) {
+function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = header;
+    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Sign and Encrypt' ? 237 : 240, slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var ctChunk = cipherText.slice(0, maxPacketSize);
