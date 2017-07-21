@@ -12,7 +12,7 @@ var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
 var _status;
-const start = document.getElementById('onlykey_start');
+const button = document.getElementById('onlykey_start');
 
 //var ECDH = require('elliptic').ec;
 //var ec = new ECDH('curve25519');
