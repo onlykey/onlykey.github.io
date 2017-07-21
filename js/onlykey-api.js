@@ -12,6 +12,7 @@ var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
 var _status;
+const start = document.getElementById('onlykey_start');
 
 //var ECDH = require('elliptic').ec;
 //var ec = new ECDH('curve25519');
@@ -162,7 +163,6 @@ function simulate_enroll() {
 //Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
 function auth_timeset() { //OnlyKey settime to keyHandle
   simulate_enroll();
-  const start = document.getElementById('onlykey_start');
   _status = document.getElementById('onlykey_start').value;
   var rad = document.action.select_one;
       var prev = null;
@@ -171,7 +171,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
               if(this !== prev) {
                   prev = this;
               }
-              start.textContent = this.value;
+              button.textContent = this.value;
               _status = this.value;
           };
       }
@@ -404,8 +404,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
 function resolveAfterDelay(delaySeconds = 20) {
   msg(`Delaying ${delaySeconds} seconds...`);
   //Need to generate challenge code using SHA256 hash of CT
-
-  start.textContent = "You have X seconds to enter challenge code XXX on OnlyKey, Click when finished...";
+  button.textContent = "You have X seconds to enter challenge code XXX on OnlyKey, Click when finished...";
   //What we want to do here is use setInterval to display message shown above every second and have X decrease so
   //That it looks like its counting down. We need to know to continue onclick - see bundle_decrypt.js line 69507.
   //Once this works we wont need the 20 second delay anymore, it will be much less
