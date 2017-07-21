@@ -277,8 +277,6 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
   }, 1000);
 }
 
-
-
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   //simulate_enroll();
