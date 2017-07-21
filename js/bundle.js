@@ -69472,6 +69472,62 @@ class Pgp2go {
       });
   }
 
+  startEncryption() {
+      button.classList.remove('error');
+      button.classList.add('working');
+      if (urlinputbox.value == "") {
+          this.showError(new Error('I need a public pgp key :('));
+          return;
+      }
+      let keyurl = url.parse(urlinputbox.value);
+      if (keyurl.hostname) { // Check if its a url
+          this.downloadPublicKey();
+      } else {
+          this.encryptText(urlinputbox.value, messagebox.value);
+      }
+  }
+
+  downloadPublicKey() {
+    button.textContent = 'Downloading public key ...';
+    request
+        .get(urlinputbox.value)
+        .end((err, key) => {
+            if (err) {
+                err.message += ' Try to directly paste the public PGP key in.';
+                this.showError(err);
+                return;
+            }
+            this.encryptText(key.text, messagebox.value);
+        });
+}
+
+  encryptText(key, msg) {
+      button.textContent = 'Checking key ...';
+      kbpgp.KeyManager.import_from_armored_pgp({
+          armored: key
+      }, (error, recipient) => {
+          if (error) {
+              this.showError(error);
+              return;
+          }
+          button.textContent = 'Encrypting message ...';
+          kbpgp.box({
+              msg: msg,
+              encrypt_for: recipient
+          }, (err, armored_string) => {
+              if (err) {
+                  this.showError(err);
+                  return;
+              }
+              button.textContent = 'Done :)';
+              messagebox.value = armored_string;
+              messagebox.focus();
+              messagebox.select();
+              button.classList.remove('working');
+          });
+      });
+  }
+
 	showError(error) {
         button.textContent = error.message;
         button.classList.remove('working');
@@ -69485,11 +69541,11 @@ let p2g = new Pgp2go();
 button.onclick = function () {
       console.log("status:", _status);
       if (_status == 'Sign and Encrypt') {
-        p2g.startSignature();
+        p2g.startEncryption();
       } else if (_status == 'Encrypt Only') {
-        p2g.startSignature();
+        p2g.startEncryption();
       } else if (_status == 'Sign Only') {
-        p2g.startSignature();
+        p2g.startEncryption();
       } else if (_status == 'Decrypt and Verify') {
         p2g.startDecryption();
       } else if (_status == 'Decrypt Only') {

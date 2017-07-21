@@ -1,10 +1,8 @@
-<!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
 
-    <title>OnlyKey Apps</title>
-    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;">
+<head>
+    <title>OnlyKey Apps - decrypt messages in your browser using pgp</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
     <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
@@ -18,31 +16,33 @@
     <link rel="stylesheet" type="text/css" href="css/ui.css">
 
     <!-- RainbowJS Syntax Highlighting - Github Theme.
-         For more themes, go to https://github.com/ccampbell/rainbow/tree/master/themes -->
+       For more themes, go to https://github.com/ccampbell/rainbow/tree/master/themes -->
     <link rel="stylesheet" type="text/css" href="css/github.css">
+
+    <!-- pgp2go styles -->
+    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+        crossorigin="anonymous">
+    <link href="css/style.css" rel="stylesheet">
 
     <!-- Modify header colors here to customize the look and feel of the site-->
     <style>
-
         .header {
             background: white;
-         }
-            .header h1 {
-                color: rgb(164, 6, 1);
-            }
-             .header h2 {
-                 font-weight:300;
-                 margin:0;
-                 color: rgb(137, 137, 137);
-             }
+        }
+
+        .header h1 {
+            color: rgb(164, 6, 1);
+        }
+
+        .header h2 {
+            font-weight: 300;
+            margin: 0;
+            color: rgb(137, 137, 137);
+        }
     </style>
 
 </head>
-<script src="js/u2f-api.js"></script>
-<script src="js/ecc.js"></script>
-<script src="js/asn1.js"></script>
-<script src="js/u2f-core.js"></script>
-
 <body class='yui3-skin-sam'>
 
     <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
@@ -57,29 +57,43 @@
         <p><img src="ok.jpg" alt="logo" align="middle"></p>
         <h2 class="yui3-u">OnlyKey Web Access Apps</h2>
         <pre><code data-language="javascript">
-        <div id=header_messages></div>
-        </code></pre></center>
+      <div id=header_messages></div>
+      </code></pre>
+        </center>
 
     </div>
-    <div class="content">
-        <h2>OnlyKey Decryption Tool</h2>
-        <br><br>
-        Key Slot to Use:
-        <input id=slotid value=1></input>
-        <br><br>
-        <form class="yui3-form">
-          <input class="yui3-input-2-3" type="text" placeholder="Enter PGP message to decrypt..." id="dmessage"><br/>
-        </form>
-        <button onclick="auth_decrypt(document.getElementById('dmessage').value)">Decrypt Message</button>
+    <h5>Decrypt messages in your browser using <a href="https://keybase.io/kbpgp" target="_blank">kbpgp.js</a></h5>
+    <div id="container">
+        <fieldset>
+            <textarea placeholder="Paste a private key in here ..." rows="1" id="pgpkeyurl"></textarea>
+            <textarea placeholder="PGP message to decrypt ..." id="message"></textarea>
+            <button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button>
+        </fieldset>
+        <center><form name="action">
+          <input type="radio" name='select_one' id="decrypt_and_verify" value="Decrypt and Verify" checked="checked"> Decrypt and Verify
+          <input type="radio" name='select_one' id="decrypt_only" value="Decrypt Only"> Decrypt Only
+          <input type="radio" name='select_one' id="verify_only" value="Verify Only"> Verify Only
+        </form></center>
+        </div>
+        </fieldset>
+      </div>
+      <script src="js/u2f-api.js"></script>
+      <script src="js/ecc.js"></script>
+      <script src="js/asn1.js"></script>
+      <script src="js/onlykey-api.js"></script>
+      <script type="text/javascript" src="js/bundle.js"></script>
 
+    <div class="content">
         <h2>OnlyKey Console Messages Appear Below</h2>
         <pre><code data-language="javascript"><font color="008700">
         <div id=messages></div>
         </font></code></pre>
+
     </div>
     <script>
     //call after page loaded
     window.onload=auth_timeset();
     </script>
   </body>
+
 </html>
