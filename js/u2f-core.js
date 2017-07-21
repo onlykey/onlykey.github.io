@@ -283,26 +283,24 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   //simulate_enroll();
   cb = cb || noop;
-
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
   var header = [255, 255, 255, 255, 240, slotId()];
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, message, cb);
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, header, cb);
 }
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   //simulate_enroll();
   cb = cb || noop;
-
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
   msg("Signature Packet bytes " + padded_ct);
   msg("Key ID bytes " + keyid);
   var header = [255, 255, 255, 255, 237, slotId()]; //Add header, message type, and key to use
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, message, cb);
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, header, cb);
 }
 
 //Function to process U2F registration response
