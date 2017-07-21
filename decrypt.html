@@ -65,14 +65,13 @@
     <h5>Decrypt messages in your browser using <a href="https://keybase.io/kbpgp" target="_blank">kbpgp.js</a></h5>
     <div id="container">
         <fieldset>
-            <textarea placeholder="Paste a private key in here ..." rows="1" id="pgpkeyurl"></textarea>
+            <textarea placeholder="Url to recipient's pgp key or paste a key in here to verify ..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="PGP message to decrypt ..." id="message"></textarea>
             <button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button>
         </fieldset>
         <center><form name="action">
           <input type="radio" name='select_one' id="decrypt_and_verify" value="Decrypt and Verify" checked="checked"> Decrypt and Verify
           <input type="radio" name='select_one' id="decrypt_only" value="Decrypt Only"> Decrypt Only
-          <input type="radio" name='select_one' id="verify_only" value="Verify Only"> Verify Only
         </form></center>
         </div>
         </fieldset>

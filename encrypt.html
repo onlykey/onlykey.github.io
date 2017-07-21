@@ -69,12 +69,12 @@
     <h5>Encrypt and sign messages in your browser using <a href="https://keybase.io/kbpgp" target="_blank">kbpgp.js</a></h5>
     <div id="container">
         <fieldset>
-            <textarea placeholder="Url to a pgp key or paste a key in here ..." rows="1" id="pgpkeyurl"></textarea>
+            <textarea placeholder="Url to recipient's pgp key or paste a key in here to encrypt..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Hey, i am sending you a super secret message ..." id="message"></textarea>
-            <button type="submit" id="onlykey_start" value="Sign and Encrypt">Sign and Encrypt</button>
+            <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
         </fieldset>
         <center><form name="action">
-          <input type="radio" name='select_one' id="sign_and_encrypt" value="Sign and Encrypt" checked="checked"> Sign and Encrypt
+          <input type="radio" name='select_one' id="sign_and_encrypt" value="Encrypt and Sign" checked="checked"> Encrypt and Sign
           <input type="radio" name='select_one' id="encrypt_only" value="Encrypt Only"> Encrypt Only
           <input type="radio" name='select_one' id="sign_only" value="Sign Only"> Sign Only
         </form></center>

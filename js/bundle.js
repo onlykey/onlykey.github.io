@@ -69407,6 +69407,119 @@ const urlinputbox = document.getElementById('pgpkeyurl');
 const messagebox = document.getElementById('message');
 const button = document.getElementById('onlykey_start');
 
+const test_pgp_key = '-----BEGIN PGP PRIVATE KEY BLOCK-----' +
+'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' +
+'VreB9/CxcAmTUw==' +
+'=VBSV' +
+'-----END PGP PRIVATE KEY BLOCK-----';
+
 class Pgp2go {
     constructor() {
         document.getElementsByTagName('fieldset')[0].style.backgroundColor = randomColor({
@@ -69415,14 +69528,9 @@ class Pgp2go {
         });
     }
 
-
 	startDecryption() {
 			button.classList.remove('error');
 			button.classList.add('working');
-			if (urlinputbox.value == "") {
-				this.showError(new Error('I need a private pgp key :('));
-				return;
-			}
         let keyurl = url.parse(urlinputbox.value);
         if (keyurl.hostname) { // Check if its a url
             this.downloadPublicKey();
@@ -69431,44 +69539,31 @@ class Pgp2go {
         }
 	}
 
-	decryptText(priv, ct) {
-      var keyRing = new kbpgp.keyring.KeyRing;
-      var tmpKeyRing = keyRing;
-      var _this = this;
-      button.textContent = "Checking key ...", kbpgp.KeyManager.import_from_armored_pgp({
-          armored: priv
-      }, (err, user) => {
+	decryptText(key, ct) {
+      switch (_status) {
+        case 'Decrypt and Verify':
+          this.loadPublic(key);
+          button.textContent = 'Decrypting and verifying message ...';
+          break;
+        case 'Decrypt Only':
+          button.textContent = 'Decrypting message ...';
+          break;
+        default:
+      }
+      var tmpKeyRing = this.loadPrivate();
+      button.textContent = "Decrypting message ...";
+      kbpgp.unbox({
+              keyfetch: tmpKeyRing,
+              armored: ct
+          }, (err, ct) => {
           if (err)
               return void _this.showError(err);
 
-          if (user.is_pgp_locked()) {
-              let passphrase = 'test';
-
-              user.unlock_pgp({
-                  passphrase: passphrase
-              }, err => {
-                  if (!err) {
-                      console.log(`Loaded private key using passphrase ${passphrase}`);
-                      tmpKeyRing.add_key_manager(user);
-                      button.textContent = "Decrypting message ...";
-                      kbpgp.unbox({
-                          keyfetch: tmpKeyRing,
-                          armored: ct
-                      }, (err, ct) => {
-                          if (err)
-                              return void _this.showError(err);
-
-                          button.textContent = "Done :)";
-                          messagebox.value = ct;
-                          messagebox.focus();
-                          messagebox.select();
-                          button.classList.remove("working")
-                      });
-                  }
-              });
-          } else {
-              console.log("Loaded private key w/o passphrase");
-          }
+          button.textContent = "Done :)";
+          messagebox.value = ct;
+          messagebox.focus();
+          messagebox.select();
+          button.classList.remove("working")
       });
   }
 
@@ -69502,31 +69597,91 @@ class Pgp2go {
 }
 
   encryptText(key, msg) {
-      button.textContent = 'Checking key ...';
-      kbpgp.KeyManager.import_from_armored_pgp({
-          armored: key
-      }, (error, recipient) => {
-          if (error) {
-              this.showError(error);
+      switch (_status) {
+        case 'Encrypt and Sign':
+          this.loadPublic(key);
+          var tmpKeyRing = this.loadPrivate();
+          var params = {
+            msg: msg,
+            encrypt_for: recipient,
+            sign_with: sender
+          };
+          button.textContent = 'Encrypting and signing message ...';
+          break;
+        case 'Encrypt Only':
+          this.loadPublic(key);
+          var params = {
+            msg: msg,
+            encrypt_for: recipient
+          };
+          button.textContent = 'Encrypting message ...';
+          break;
+        case 'Sign Only':
+          var tmpKeyRing = this.loadPrivate();
+          var params = {
+            msg: msg,
+            sign_with: sender
+          };
+          button.textContent = 'Signing message ...';
+          break;
+        default:
+      }
+      kbpgp.box(params, (err, results) => {
+          if (err) {
+              this.showError(err);
               return;
           }
-          button.textContent = 'Encrypting message ...';
-          kbpgp.box({
-              msg: msg,
-              encrypt_for: recipient
-          }, (err, armored_string) => {
-              if (err) {
-                  this.showError(err);
-                  return;
-              }
-              button.textContent = 'Done :)';
-              messagebox.value = armored_string;
-              messagebox.focus();
-              messagebox.select();
-              button.classList.remove('working');
-          });
+          button.textContent = 'Done :)';
+          messagebox.value = results;
+          messagebox.focus();
+          messagebox.select();
+          button.classList.remove('working');
       });
   }
+
+loadPublic(key) {
+  button.textContent = "Checking recipient's key...";
+  if (key == "") {
+    this.showError(new Error('I need a private pgp key :('));
+    return;
+  }
+  kbpgp.KeyManager.import_from_armored_pgp({
+      armored: key
+  }, (error, recipient) => {
+      if (error) {
+          this.showError(error);
+          return;
+      }
+  });
+}
+
+loadPrivate() {
+  var keyRing = new kbpgp.keyring.KeyRing;
+  var tmpKeyRing = keyRing;
+  var _this = this;
+  kbpgp.KeyManager.import_from_armored_pgp({
+      armored: test_pgp_key
+  }, (err, sender) => {
+      if (err)
+          return void _this.showError(err);
+
+      if (sender.is_pgp_locked()) {
+          let passphrase = 'test';
+
+          sender.unlock_pgp({
+              passphrase: passphrase
+          }, err => {
+              if (!err) {
+                  console.log(`Loaded test private key using passphrase ${passphrase}`);
+                  tmpKeyRing.add_key_manager(sender);
+                  return tmpKeyRing;
+              }
+          });
+      } else {
+          console.log("Loaded private key w/o passphrase");
+      }
+  });
+}
 
 	showError(error) {
         button.textContent = error.message;
@@ -69540,7 +69695,7 @@ let p2g = new Pgp2go();
 
 button.onclick = function () {
       console.log("status:", _status);
-      if (_status == 'Sign and Encrypt') {
+      if (_status == 'Encrypt and Sign') {
         p2g.startEncryption();
       } else if (_status == 'Encrypt Only') {
         p2g.startEncryption();
