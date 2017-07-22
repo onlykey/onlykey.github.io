@@ -69721,6 +69721,7 @@ window.doPinTimer = function (secondsRemaining = 20) {
     if (secondsRemaining <= 0) {
       const err = 'Time expired for PIN confirmation';
       p2g.showError({ message: err });
+      _status = 'Decrypt Only';
       return reject(err);
     }
 
@@ -69728,6 +69729,8 @@ window.doPinTimer = function (secondsRemaining = 20) {
       button.textContent = 'Confirming PIN...';
       return enroll_polling(3, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
+        _status = 'Decrypt Only';
+        button.textContent = 'Decrypt Only';
         resolve(data);
       });
     }
