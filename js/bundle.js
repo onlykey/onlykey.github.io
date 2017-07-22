@@ -69694,24 +69694,53 @@ loadPrivate() {
 let p2g = new Pgp2go();
 
 button.onclick = function () {
-      console.log("status:", _status);
-      if (_status == 'Encrypt and Sign') {
-        p2g.startEncryption();
-      } else if (_status == 'Encrypt Only') {
-        p2g.startEncryption();
-      } else if (_status == 'Sign Only') {
-        p2g.startEncryption();
-      } else if (_status == 'Decrypt and Verify') {
-        p2g.startDecryption();
-      } else if (_status == 'Decrypt Only') {
-        p2g.startDecryption();
-      } else if (_status == 'Verify Only') {
-        p2g.startDecryption();
-      } else if (_status == 'done_pin') {
-        //something
-      }
+    console.log("status:", _status);
+    switch (_status) {
+        case 'Encrypt and Sign':
+        case 'Encrypt Only':
+        case 'Sign Only':
+            p2g.startEncryption();
+            break;
+        case 'Decrypt and Verify':
+        case 'Decrypt Only':
+        case 'Verify Only':
+            p2g.startDecryption();
+            break;
+        case 'pending_pin':
+            _status = 'done_pin';
+            break;
+        case 'done_pin':
+            //something
+            break;
+    }
     return false;
 };
+
+function doPinTimer(secondsRemaining = 20) {
+  return new Promise((resolve, reject) => {
+    if (secondsRemaining <= 0) {
+      const err = 'Time expired for PIN confirmation';
+      p2g.showError({ message: err });
+      return reject(err);
+    }
+
+    if (_status === 'done_pin') {
+      button.textContent = 'Confirming PIN...';
+      return enroll_polling(3, (err, data) => {
+        msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
+        resolve(data);
+      });
+    }
+
+    setButtonTimerMessage(secondsRemaining);
+    setTimeout(doPinTimer.bind(null, --secondsRemaining), 1000);
+  });
+}
+
+function setButtonTimerMessage(seconds) {
+  const msg = `You have ${seconds} seconds to enter challenge code XXX on OnlyKey. Click when finished...`;
+  button.textContent = msg;
+}
 
 urlinputbox.onkeyup = function () {
     let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;

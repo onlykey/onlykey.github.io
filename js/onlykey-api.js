@@ -377,7 +377,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? resolveAfterDelay.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
@@ -392,9 +392,12 @@ function u2fSignBuffer(cipherText, mainCallback) {
       var result = verify_auth_response(response);
       msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
       if (result) {
-        return !finalPacket ? cb() : cb().then(skey => {
-          return mainCallback(skey);
-        });
+        return !finalPacket ? cb() : () => {
+          _status = 'pending_pin';
+          cb().then(skey => {
+            mainCallback(skey);
+          });
+        }
       }
     });
 }
