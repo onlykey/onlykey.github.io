@@ -69716,7 +69716,7 @@ button.onclick = function () {
     return false;
 };
 
-function doPinTimer(secondsRemaining = 20) {
+window.doPinTimer = function (secondsRemaining = 20) {
   return new Promise((resolve, reject) => {
     if (secondsRemaining <= 0) {
       const err = 'Time expired for PIN confirmation';
@@ -69735,7 +69735,7 @@ function doPinTimer(secondsRemaining = 20) {
     setButtonTimerMessage(secondsRemaining);
     setTimeout(doPinTimer.bind(null, --secondsRemaining), 1000);
   });
-}
+};
 
 function setButtonTimerMessage(seconds) {
   const msg = `You have ${seconds} seconds to enter challenge code XXX on OnlyKey. Click when finished...`;
