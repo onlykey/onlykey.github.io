@@ -392,11 +392,13 @@ function u2fSignBuffer(cipherText, mainCallback) {
       var result = verify_auth_response(response);
       msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
       if (result) {
-        return !finalPacket ? cb() : () => {
+        if (finalPacket) {
           _status = 'pending_pin';
           cb().then(skey => {
             mainCallback(skey);
           });
+        } else {
+          cb();
         }
       }
     });
