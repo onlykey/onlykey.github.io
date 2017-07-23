@@ -69727,7 +69727,7 @@ window.doPinTimer = function (secondsRemaining = 20) {
 
     if (_status === 'done_pin') {
       button.textContent = 'Confirming PIN...';
-      return enroll_polling(3, (err, data) => {
+      return enroll_polling({ type: 3, delay: 5 }, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
         _status = 'Decrypt Only';
         button.textContent = 'Decrypt Only';
@@ -69741,7 +69741,7 @@ window.doPinTimer = function (secondsRemaining = 20) {
 };
 
 function setButtonTimerMessage(seconds) {
-  const msg = `You have ${seconds} seconds to enter challenge code XXX on OnlyKey. Click when finished...`;
+  const msg = `You have ${seconds} seconds to enter challenge code 143 on OnlyKey.`;
   button.textContent = msg;
 }
 

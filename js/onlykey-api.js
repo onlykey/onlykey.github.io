@@ -192,46 +192,48 @@ function auth_timeset() { //OnlyKey settime to keyHandle
     var result = verify_auth_response(response);
     msg("OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
     headermsg("OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
+    return result && enroll_polling({ type: 1, delay: 1 });
   });
-
-  setTimeout(function(){
-  enroll_polling(1);
-  }, 1000);
 }
 
-function enroll_polling(type, cb) {
-  msg("Requesting response from OnlyKey");
-  var challenge = mk_polling();
-  var req = { "challenge": challenge, "appId": appId, "version": version};
-  u2f.register(appId, [req], [], function(response) {
-    const result = process_custom_response(response);
-    let data;
-    msg("Polling " + (result ? "succeeded" : "failed"));
-    if (result == 3) {
-        msg("Polling succeeded but no data was received");
-    } else if (result) {
-      if (type == 1) {
-          msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
-          var version = bytes2string(data_blob.slice(40, 51));
-          msg("Firmware " + version);
-          headermsg("Firmware " + version);
-      } else if (type == 2) {
-          var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-          msg("Public Key " + pubkey);
-          data = pubkey;
-      } else if (type == 3) {
-          var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-          msg("Session Key " + sessKey);
-          data = sessKey;
-      } else if (type == 4) {
-          var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-          msg("Signed by OnlyKey " + oksignature);
-          data = oksignature;
-      }
-    }
+function enroll_polling(params = {}, cb) {
+  const delay = params.delay || 0; // no delay by default
+  const type = params.type || 1; // default type to 1
 
-    if (typeof cb === 'function') cb(null, data);
-  });
+  setTimeout(() => {
+    msg("Requesting response from OnlyKey");
+    var challenge = mk_polling();
+    var req = { "challenge": challenge, "appId": appId, "version": version};
+    u2f.register(appId, [req], [], function(response) {
+      const result = process_custom_response(response);
+      let data;
+      msg("Polling " + (result ? "succeeded" : "failed"));
+      if (result == 3) {
+          msg("Polling succeeded but no data was received");
+      } else if (result) {
+        if (type == 1) {
+            msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
+            var version = bytes2string(data_blob.slice(40, 51));
+            msg("Firmware " + version);
+            headermsg("Firmware " + version);
+        } else if (type == 2) {
+            var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+            msg("Public Key " + pubkey);
+            data = pubkey;
+        } else if (type == 3) {
+            var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+            msg("Session Key " + sessKey);
+            data = sessKey;
+        } else if (type == 4) {
+            var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
+            msg("Signed by OnlyKey " + oksignature);
+            data = oksignature;
+        }
+      }
+
+      if (typeof cb === 'function') cb(null, data);
+    });
+  }, delay * 1000);
 }
 
 //Function to process custom U2F registration response
@@ -270,11 +272,8 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
     msg("Get Public Request Sent " + (result ? "Successfully" : "Error"));
+    return result && enroll_polling({ type: 2, delay: 1 });
   });
-
-  setTimeout(function(){
-  enroll_polling(2);
-  }, 1000);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -402,25 +401,6 @@ function u2fSignBuffer(cipherText, mainCallback) {
         }
       }
     });
-}
-
-function resolveAfterDelay(delaySeconds = 20) {
-  msg(`Delaying ${delaySeconds} seconds...`);
-  //Need to generate challenge code using SHA256 hash of CT
-  button.textContent = "You have X seconds to enter challenge code XXX on OnlyKey, Click when finished...";
-  //What we want to do here is use setInterval to display message shown above every second and have X decrease so
-  //That it looks like its counting down. We need to know to continue onclick - see bundle_decrypt.js line 69507.
-  //Once this works we wont need the 20 second delay anymore, it will be much less
-  //The delay will actually depend on OnlyKey model and decryption type so once we get there the delay will be
-  //variable.
-  return new Promise(resolve => {
-    setTimeout(() => {
-      enroll_polling(3, (err, data) => {
-        msg(`Executed resolveAfterDelay ${delaySeconds} seconds: skey = ${data}`);
-        resolve(data);
-      });
-    }, delaySeconds * 1000);
-  });
 }
 
 function noop() {}
