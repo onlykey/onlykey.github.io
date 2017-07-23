@@ -69727,7 +69727,7 @@ window.doPinTimer = function (secondsRemaining = 20) {
 
     if (_status === 'done_pin') {
       button.textContent = 'Confirming PIN...';
-      return enroll_polling({ type: 3, delay: 5 }, (err, data) => {
+      return enroll_polling({ type: 3, delay: 10 }, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
         _status = 'Decrypt Only';
         button.textContent = 'Decrypt Only';
