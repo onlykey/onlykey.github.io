@@ -14,6 +14,19 @@ var BN = p256.n.constructor;  // BN = BigNumber
 var _status;
 const button = document.getElementById('onlykey_start');
 
+function init() {
+  auth_timeset();
+  updateStatusFromSelection();
+
+  document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
+}
+
+function updateStatusFromSelection(skipBtn) {
+  const val = document.action.select_one.value;
+  _status = val;
+  if (!skipBtn) button.textContent = val;
+}
+
 //var ECDH = require('elliptic').ec;
 //var ec = new ECDH('curve25519');
 
@@ -163,18 +176,6 @@ function simulate_enroll() {
 //Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
 function auth_timeset() { //OnlyKey settime to keyHandle
   simulate_enroll();
-  _status = document.getElementById('onlykey_start').value;
-  var rad = document.action.select_one;
-      var prev = null;
-      for(var i = 0; i < rad.length; i++) {
-          rad[i].onclick = function() {
-              if(this !== prev) {
-                  prev = this;
-              }
-              button.textContent = this.value;
-              _status = this.value;
-          };
-      }
   //msg("Sending Set Time to OnlyKey");
   var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
   var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
