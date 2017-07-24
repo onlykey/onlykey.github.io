@@ -69642,7 +69642,7 @@ class Pgp2go {
 loadPublic(key) {
   button.textContent = "Checking recipient's key...";
   if (key == "") {
-    this.showError(new Error('I need a private pgp key :('));
+    this.showError(new Error('I need a public pgp key :('));
     return;
   }
   kbpgp.KeyManager.import_from_armored_pgp({
@@ -69684,6 +69684,7 @@ loadPrivate() {
 }
 
 	showError(error) {
+        console.log("error:", err);
         button.textContent = error.message;
         button.classList.remove('working');
         button.classList.add('error');
@@ -69703,7 +69704,6 @@ button.onclick = function () {
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
-        case 'Verify Only':
             p2g.startDecryption();
             break;
         case 'pending_pin':
