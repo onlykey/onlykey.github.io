@@ -69563,6 +69563,7 @@ class Pgp2go {
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
+          console.log("decrypted message:", ct);
           button.classList.remove("working")
       });
   }
