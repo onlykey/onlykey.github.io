@@ -14616,7 +14616,6 @@ _continue()
             })
 
 */
-            if (err == null) {
               packet = esk_packets[0];
               //key_material = km.find_pgp_key_material(key_ids[index]);
               //fingerprint = key_material.get_fingerprint();
@@ -14628,7 +14627,7 @@ _continue()
                   console.info("sesskey from OnlyKey:", sesskey);
                 return cb(err, enc, sesskey, pkcs5);
               });
-            }
+
           } else {
             return __iced_k(enc = false);
           }
