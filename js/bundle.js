@@ -14616,11 +14616,11 @@ _continue()
             })
 
 */
+            if (err == null) {
               packet = esk_packets[0];
               //key_material = km.find_pgp_key_material(key_ids[index]);
               //fingerprint = key_material.get_fingerprint();
               //privk = key_material.key;
-              console.info("err", err);
               err = null;
               auth_decrypt(packet.raw, (ok_sesskey) => {
                   sesskey = packet.raw.slice(0, ok_sesskey.length);
@@ -14628,7 +14628,7 @@ _continue()
                   console.info("sesskey from OnlyKey:", sesskey);
                 return cb(err, enc, sesskey, pkcs5);
               });
-
+            }
           } else {
             return __iced_k(enc = false);
           }
@@ -69553,7 +69553,7 @@ class Pgp2go {
           break;
         default:
       }
-      var tmpKeyRing = this.loadPrivate();
+      var tmpKeyRing = this.loadPrivate(key);
       button.textContent = "Decrypting message ...";
       kbpgp.unbox({
               keyfetch: tmpKeyRing,
@@ -69659,12 +69659,12 @@ loadPublic(key) {
   });
 }
 
-loadPrivate() {
+loadPrivate(key) {
   var keyRing = new kbpgp.keyring.KeyRing;
   var tmpKeyRing = keyRing;
   var _this = this;
   kbpgp.KeyManager.import_from_armored_pgp({
-      armored: test_pgp_key
+      armored: key
   }, (err, sender) => {
       if (err)
           return void _this.showError(err);
