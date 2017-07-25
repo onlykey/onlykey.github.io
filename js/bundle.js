@@ -14620,6 +14620,7 @@ _continue()
               //key_material = km.find_pgp_key_material(key_ids[index]);
               //fingerprint = key_material.get_fingerprint();
               //privk = key_material.key;
+              console.info("err", err);
               err = null;
               auth_decrypt(packet.raw, (ok_sesskey) => {
                   sesskey = packet.raw.slice(0, ok_sesskey.length);
