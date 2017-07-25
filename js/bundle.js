@@ -69685,7 +69685,7 @@ loadPrivate() {
 }
 
 	showError(error) {
-        console.log("error:", err);
+        console.log("error:", error);
         button.textContent = error.message;
         button.classList.remove('working');
         button.classList.add('error');
