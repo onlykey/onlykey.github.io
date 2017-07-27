@@ -395,6 +395,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
         if (finalPacket) {
           _status = 'pending_pin';
           cb().then(skey => {
+            msg("skey " + skey);
             mainCallback(skey);
           });
         } else {
