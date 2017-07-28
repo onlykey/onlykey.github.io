@@ -43,10 +43,6 @@
     </style>
 
 </head>
-<script src="js/u2f-api.js"></script>
-<script src="js/ecc.js"></script>
-<script src="js/asn1.js"></script>
-<script src="js/onlykey-api.js"></script>
 <body class='yui3-skin-sam'>
 
     <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
@@ -74,12 +70,16 @@
             <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
         </fieldset>
         <center><form name="action">
-          <input type="radio" name='select_one' id="sign_and_encrypt" value="Encrypt and Sign" checked="checked"> Encrypt and Sign
+          <input type="radio" name='select_one' id="encrypt_and_sign" value="Encrypt and Sign" checked="checked"> Encrypt and Sign
           <input type="radio" name='select_one' id="encrypt_only" value="Encrypt Only"> Encrypt Only
           <input type="radio" name='select_one' id="sign_only" value="Sign Only"> Sign Only
         </form></center>
         </div>
-    <script type="text/javascript" src="js/bundle.js"></script>
+        <script src="js/u2f-api.js"></script>
+        <script src="js/ecc.js"></script>
+        <script src="js/asn1.js"></script>
+        <script src="js/onlykey-api.js"></script>
+        <script type="text/javascript" src="js/bundle.js"></script>
 
     <div class="content">
         <h2>OnlyKey Console Messages Appear Below</h2>
@@ -90,7 +90,7 @@
     </div>
     <script>
     //call after page loaded
-    window.onload=auth_timeset();
+    window.onload=init();
     </script>
   </body>
 

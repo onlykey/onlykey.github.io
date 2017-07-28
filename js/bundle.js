@@ -69406,6 +69406,9 @@ const randomColor = __webpack_require__(170);
 const urlinputbox = document.getElementById('pgpkeyurl');
 const messagebox = document.getElementById('message');
 const button = document.getElementById('onlykey_start');
+var ring = new kbpgp.keyring.KeyRing;
+var sender_key;
+var recipient_key;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: Mailvelope v1.8.0
@@ -69553,10 +69556,10 @@ class Pgp2go {
           break;
         default:
       }
-      var tmpKeyRing = this.loadPrivate();
+      this.loadPrivate();
       button.textContent = "Decrypting message ...";
       kbpgp.unbox({
-              keyfetch: tmpKeyRing,
+              keyfetch: ring,
               armored: ct
           }, (err, ct) => {
           if (err)
@@ -69574,7 +69577,7 @@ class Pgp2go {
   startEncryption() {
       button.classList.remove('error');
       button.classList.add('working');
-      if (urlinputbox.value == "") {
+      if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
           this.showError(new Error('I need a public pgp key :('));
           return;
       }
@@ -69604,27 +69607,30 @@ class Pgp2go {
       switch (_status) {
         case 'Encrypt and Sign':
           this.loadPublic(key);
-          var tmpKeyRing = this.loadPrivate();
+          this.loadPrivate();
           var params = {
+            keyfetch: ring,
             msg: msg,
-            encrypt_for: recipient,
-            sign_with: sender
+            encrypt_for: recipient_key,
+            sign_with: sender_key
           };
           button.textContent = 'Encrypting and signing message ...';
           break;
         case 'Encrypt Only':
           this.loadPublic(key);
           var params = {
+            keyfetch: ring,
             msg: msg,
-            encrypt_for: recipient
+            encrypt_for: recipient_key
           };
           button.textContent = 'Encrypting message ...';
           break;
         case 'Sign Only':
-          var tmpKeyRing = this.loadPrivate();
+          this.loadPrivate();
           var params = {
+            keyfetch: ring,
             msg: msg,
-            sign_with: sender
+            sign_with: sender_key
           };
           button.textContent = 'Signing message ...';
           break;
@@ -69655,13 +69661,14 @@ loadPublic(key) {
       if (error) {
           this.showError(error);
           return;
+      } else {
+          recipient_key = recipient;
+          ring.add_key_manager(recipient);
       }
   });
 }
 
 loadPrivate() {
-  var keyRing = new kbpgp.keyring.KeyRing;
-  var tmpKeyRing = keyRing;
   var _this = this;
   kbpgp.KeyManager.import_from_armored_pgp({
       armored: test_pgp_key
@@ -69677,8 +69684,8 @@ loadPrivate() {
           }, err => {
               if (!err) {
                   console.log(`Loaded test private key using passphrase ${passphrase}`);
-                  tmpKeyRing.add_key_manager(sender);
-                  return tmpKeyRing;
+                  sender_key = sender;
+                  ring.add_key_manager(sender);
               }
           });
       } else {
