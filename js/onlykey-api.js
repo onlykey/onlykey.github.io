@@ -397,7 +397,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
           cb().then(skey => {
             msg("skey " + skey);
             mainCallback(skey);
-          });
+          }).catch(err => msg(err));
         } else {
           cb();
         }
