@@ -292,11 +292,8 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   //simulate_enroll();
   cb = cb || noop;
-  var padded_ct = ct.slice(12, 524);
-  var keyid = ct.slice(1, 8);
-  msg("Signature Packet bytes " + padded_ct);
-  msg("Key ID bytes " + keyid);
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
+  msg("Signature Packet bytes " + ct);
+  return u2fSignBuffer(typeof ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
 
 //Function to process U2F registration response
