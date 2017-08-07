@@ -293,7 +293,7 @@ function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   //simulate_enroll();
   cb = cb || noop;
   msg("Signature Packet bytes " + ct);
-  return u2fSignBuffer(typeof ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
+  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
 }
 
 //Function to process U2F registration response
