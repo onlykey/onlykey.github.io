@@ -16013,6 +16013,11 @@ _continue()
           _this.sign(m, __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
+                auth_sign(hashed_data, (ok_sig) => {
+                    console.info("signature from OnlyKey:", ok_sig);
+                    //return cb(null, ok_sig);
+                });
+                console.info("signature from app:", arguments[0].to_mpi_buffer());
                 return sig = arguments[0];
               };
             })(),
