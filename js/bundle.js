@@ -16019,7 +16019,7 @@ _continue()
                     console.info("signature from app:", sig);
                     sig_header = sig.slice(0, 2);
                     sig = Object.assign(sig, ok_sig);
-                    sig.unshift(sig_header);
+                    sig.unshift(sig_header[0], sig_header[1]);
                     console.info("sig:", sig);
                     return cb(null, sig);
                 });
