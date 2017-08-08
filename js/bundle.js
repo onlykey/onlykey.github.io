@@ -69415,6 +69415,7 @@ const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_key;
 var recipient_key;
+var t, d;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: Mailvelope v1.8.0
@@ -69734,7 +69735,6 @@ button.onclick = function () {
 };
 
 window.doPinTimer = function (secondsRemaining = 20) {
-  var t, d;
   return new Promise((resolve, reject) => {
     if (secondsRemaining <= 0) {
       const err = 'Time expired for PIN confirmation';
@@ -69750,6 +69750,7 @@ window.doPinTimer = function (secondsRemaining = 20) {
       d = 10;
     } else if (_status === 'done_pin') {
       button.textContent = 'Confirming PIN...';
+      msg(`Delay ${t} seconds`);
       return enroll_polling({ type: t, delay: d }, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
         updateStatusFromSelection();
