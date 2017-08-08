@@ -69415,7 +69415,7 @@ const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_key;
 var recipient_key;
-var t, d;
+var poll_type, poll_delay;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: Mailvelope v1.8.0
@@ -69718,10 +69718,14 @@ button.onclick = function () {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
+            poll_type = 4;
+            poll_delay = 12;
             p2g.startEncryption();
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
+            poll_type = 3;
+            poll_delay = 10;
             p2g.startDecryption();
             break;
         case 'pending_pin':
@@ -69742,16 +69746,10 @@ window.doPinTimer = function (secondsRemaining = 20) {
       updateStatusFromSelection(true);
       return reject(err);
     }
-    if (_status === 'Encrypt and Sign' || _status === 'Sign Only') {
-      t = 4;
-      d = 12;
-    } else if (_status === 'Decrypt and Verify' || _status === 'Decrypt Only') {
-      t = 3;
-      d = 10;
-    } else if (_status === 'done_pin') {
+ else if (_status === 'done_pin') {
       button.textContent = 'Confirming PIN...';
-      msg(`Delay ${t} seconds`);
-      return enroll_polling({ type: t, delay: d }, (err, data) => {
+      msg(`Delay ${poll_delay} seconds`);
+      return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
         updateStatusFromSelection();
         resolve(data);
