@@ -69738,8 +69738,9 @@ button.onclick = function () {
     return false;
 };
 
-window.doPinTimer = function (secondsRemaining = 20) {
-  return new Promise((resolve, reject) => {
+window.doPinTimer = function (seconds) {
+  return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
+    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
     if (secondsRemaining <= 0) {
       const err = 'Time expired for PIN confirmation';
       p2g.showError({ message: err });
@@ -69757,7 +69758,7 @@ window.doPinTimer = function (secondsRemaining = 20) {
     }
 
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(doPinTimer.bind(null, --secondsRemaining), 1000);
+    setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
   });
 };
 

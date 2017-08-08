@@ -387,7 +387,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
 
     u2f.sign(appId, challenge, [req], function(response) {
       var result = verify_auth_response(response);
-      msg("Decrypt Request Sent " + (result ? "Successfully" : "Error"));
+      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
           _status = 'pending_pin';
