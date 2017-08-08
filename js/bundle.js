@@ -69734,6 +69734,7 @@ button.onclick = function () {
 };
 
 window.doPinTimer = function (secondsRemaining = 20) {
+  var t, d;
   return new Promise((resolve, reject) => {
     if (secondsRemaining <= 0) {
       const err = 'Time expired for PIN confirmation';
@@ -69741,10 +69742,15 @@ window.doPinTimer = function (secondsRemaining = 20) {
       updateStatusFromSelection(true);
       return reject(err);
     }
-
-    if (_status === 'done_pin') {
+    if (_status === 'Encrypt and Sign' || _status === 'Sign Only') {
+      t = 4;
+      d = 12;
+    } else if (_status === 'Decrypt and Verify' || _status === 'Decrypt Only') {
+      t = 3;
+      d = 10;
+    } else if (_status === 'done_pin') {
       button.textContent = 'Confirming PIN...';
-      return enroll_polling({ type: 3, delay: 10 }, (err, data) => {
+      return enroll_polling({ type: t, delay: d }, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
         updateStatusFromSelection();
         resolve(data);
