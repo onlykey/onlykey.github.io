@@ -16015,10 +16015,11 @@ _continue()
               return function() {
                 auth_sign(hashed_data, (ok_sig) => {
                     console.info("signature from OnlyKey:", ok_sig);
-                    //return cb(null, ok_sig);
+                    sig = arguments[0].to_mpi_buffer();
+                    console.info("signature from app:", sig);
+                    sig = sig.slice(0, 2) + ok_sig;
+                    return cb(null, sig);
                 });
-                console.info("signature from app:", arguments[0].to_mpi_buffer());
-                return sig = arguments[0];
               };
             })(),
             lineno: 330
@@ -16027,7 +16028,7 @@ _continue()
         });
       })(this)((function(_this) {
         return function() {
-          return cb(null, sig.to_mpi_buffer());
+          //return cb(null, sig.to_mpi_buffer());
         };
       })(this));
     };
@@ -69732,9 +69733,8 @@ button.onclick = function () {
     return false;
 };
 
-window.doPinTimer = function (seconds) {
-  return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
-    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
+window.doPinTimer = function (secondsRemaining = 20) {
+  return new Promise((resolve, reject) => {
     if (secondsRemaining <= 0) {
       const err = 'Time expired for PIN confirmation';
       p2g.showError({ message: err });
@@ -69752,7 +69752,7 @@ window.doPinTimer = function (seconds) {
     }
 
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
+    setTimeout(doPinTimer.bind(null, --secondsRemaining), 1000);
   });
 };
 
