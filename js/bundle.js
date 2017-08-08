@@ -69747,7 +69747,7 @@ window.doPinTimer = function (seconds) {
       updateStatusFromSelection(true);
       return reject(err);
     }
- else if (_status === 'done_pin') {
+    if (_status === 'done_pin') {
       button.textContent = 'Confirming PIN...';
       msg(`Delay ${poll_delay} seconds`);
       return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
