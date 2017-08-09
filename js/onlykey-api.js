@@ -375,7 +375,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? doPinTimer.bind(null, 20, sha256().update(Array.from(cipherText)).digest()) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? doPinTimer.bind(null, 20, this.sha256().update(Array.from(cipherText)).digest()) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
