@@ -283,21 +283,21 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   cb = cb || noop;
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
-  var ct_hash = sha256(Array.from(padded_ct));
+  var pin_hash = sha256(Array.from(padded_ct));
   msg("Padded CT Packet bytes " + Array.from(padded_ct));
   msg("Key ID bytes " + Array.from(keyid));
-  msg("ct_hash " + ct_hash);
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, ct_hash, cb);
+  msg("PIN Hash " + pin_hash);
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, pin_hash, cb);
 }
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   //simulate_enroll();
-  var ct_hash = sha256(Array.from(ct));
+  var pin_hash = sha256(Array.from(ct));
   cb = cb || noop;
   msg("Signature Packet bytes " + Array.from(ct));
-  msg("ct_hash " + ct_hash);
-  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, ct_hash, cb);
+  msg("PIN Hash " + pin_hash);
+  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, pin_hash, cb);
 }
 
 //Function to process U2F registration response
@@ -369,7 +369,7 @@ function verify_auth_response(response) {
   return true;
 }
 
-function u2fSignBuffer(cipherText, ct_hash, mainCallback) {
+function u2fSignBuffer(cipherText, pin_hash, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
     var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 237 : 240, slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
@@ -378,7 +378,7 @@ function u2fSignBuffer(cipherText, ct_hash, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? doPinTimer.bind(null, 20, ct_hash) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? doPinTimer.bind(null, 20, pin_hash) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
