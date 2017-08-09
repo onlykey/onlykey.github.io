@@ -69739,7 +69739,9 @@ button.onclick = function () {
     return false;
 };
 
-window.doPinTimer = function (seconds) {
+window.doPinTimer = function (seconds, ct) {
+   var challenge_hash = sha256(ct);
+   var challenge_code  = [ get_pin(challenge_hash[0]), get_pin(challenge_hash[15]), get_pin(challenge_hash[31]) ];
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
     if (secondsRemaining <= 0) {
@@ -69758,13 +69760,13 @@ window.doPinTimer = function (seconds) {
       });
     }
 
-    setButtonTimerMessage(secondsRemaining);
+    setButtonTimerMessage(secondsRemaining, challenge_code);
     setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
   });
 };
 
-function setButtonTimerMessage(seconds) {
-  const msg = `You have ${seconds} seconds to enter challenge code 143 on OnlyKey.`;
+function setButtonTimerMessage(seconds, code) {
+  const msg = `You have ${seconds} seconds to enter challenge code ${code} on OnlyKey.`;
   button.textContent = msg;
 }
 
