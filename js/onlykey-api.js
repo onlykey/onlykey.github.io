@@ -283,17 +283,21 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   cb = cb || noop;
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
+  var ct_hash = sha256(Array.from(padded_ct));
   msg("Padded CT Packet bytes " + Array.from(padded_ct));
   msg("Key ID bytes " + Array.from(keyid));
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
+  msg("ct_hash " + ct_hash);
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, ct_hash, cb);
 }
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   //simulate_enroll();
+  var ct_hash = sha256(Array.from(ct));
   cb = cb || noop;
   msg("Signature Packet bytes " + Array.from(ct));
-  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
+  msg("ct_hash " + ct_hash);
+  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, ct_hash, cb);
 }
 
 //Function to process U2F registration response
@@ -365,10 +369,8 @@ function verify_auth_response(response) {
   return true;
 }
 
-function u2fSignBuffer(cipherText, mainCallback) {
+function u2fSignBuffer(cipherText, ct_hash, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var ct_hash = sha256(Array.from(cipherText));
-    msg("ct_hash " + ct_hash);
     var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 237 : 240, slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
