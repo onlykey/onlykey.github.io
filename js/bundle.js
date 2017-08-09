@@ -69740,6 +69740,7 @@ button.onclick = function () {
 };
 
 window.doPinTimer = function (seconds, code_hash) {
+   msg(`Challenge Code Hash ${code_hash}`);
    var challenge_code  = [ get_pin(code_hash[0]), get_pin(code_hash[15]), get_pin(code_hash[31]) ];
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
