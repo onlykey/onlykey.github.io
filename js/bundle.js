@@ -69770,6 +69770,13 @@ function setButtonTimerMessage(seconds, code) {
   button.textContent = msg;
 }
 
+function get_pin (byte) {
+  if (byte < 6) return 1;
+  else {
+    return (byte % 5) + 1;
+  }
+}
+
 urlinputbox.onkeyup = function () {
     let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;

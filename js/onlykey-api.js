@@ -284,15 +284,6 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
   msg("Padded CT Packet bytes " + padded_ct);
-  var challenge_button;
-  var challenge_hash = sha256(padded_ct);
-  if (challenge_hash[0] < 6) challenge_button = 1;
-  else {
-    challenge_button = (challenge_hash[0] % 5) + 1;
-  }
-
-//Do this for buttons 2 and 3 and add to challenge_button should be a 3 digit number
-//Then we need this variable to be available to setButtonTimerMessage to display to user
   msg("Key ID bytes " + keyid);
   return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
@@ -383,7 +374,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? doPinTimer.bind(null, 20, ct) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
