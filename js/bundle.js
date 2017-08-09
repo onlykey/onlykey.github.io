@@ -69759,7 +69759,7 @@ window.doPinTimer = function (seconds, pin_hash) {
       });
     }
 
-    setButtonTimerMessage(secondsRemaining, challenge_code);
+    setButtonTimerMessage(secondsRemaining, pin);
     setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
   });
 };
