@@ -283,7 +283,7 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   cb = cb || noop;
   var padded_ct = ct.slice(12, 524);
   var keyid = ct.slice(1, 8);
-  var pin_hash = sha256(Array.from(padded_ct));
+  var pin_hash = sha256(padded_ct);
   msg("Padded CT Packet bytes " + Array.from(padded_ct));
   msg("Key ID bytes " + Array.from(keyid));
   return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, pin_hash, cb);
