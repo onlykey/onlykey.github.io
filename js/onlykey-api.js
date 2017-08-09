@@ -367,7 +367,7 @@ function verify_auth_response(response) {
 
 function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var ct_hash = this.sha256().update(Array.from(cipherText)).digest();
+    var ct_hash = sha256(Array.from(cipherText));
     msg("ct_hash " + ct_hash);
     var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 237 : 240, slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
