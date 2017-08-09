@@ -292,7 +292,7 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   //simulate_enroll();
-  var pin_hash = sha256(Array.from(ct));
+  var pin_hash = sha256(ct);
   cb = cb || noop;
   msg("Signature Packet bytes " + Array.from(ct));
   return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, pin_hash, cb);
