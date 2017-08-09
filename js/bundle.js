@@ -69740,6 +69740,7 @@ button.onclick = function () {
 };
 
 window.doPinTimer = function (seconds, pin_hash) {
+  msg("PIN Hash " + pin_hash);
   var pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
