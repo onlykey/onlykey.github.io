@@ -69739,9 +69739,8 @@ button.onclick = function () {
     return false;
 };
 
-window.doPinTimer = function (seconds, ct) {
-   var challenge_hash = sha256(ct);
-   var challenge_code  = [ get_pin(challenge_hash[0]), get_pin(challenge_hash[15]), get_pin(challenge_hash[31]) ];
+window.doPinTimer = function (seconds, code_hash) {
+   var challenge_code  = [ get_pin(code_hash[0]), get_pin(code_hash[15]), get_pin(code_hash[31]) ];
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
     if (secondsRemaining <= 0) {
