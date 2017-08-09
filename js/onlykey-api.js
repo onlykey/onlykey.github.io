@@ -367,6 +367,7 @@ function verify_auth_response(response) {
 
 function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
+    msg("cipherText " + cipherText);
     var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 237 : 240, slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
@@ -374,7 +375,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? doPinTimer.bind(null, 20, sha256(cipherText)) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? doPinTimer.bind(null, 20, hash.sha256().update(cipherText).digest()) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
