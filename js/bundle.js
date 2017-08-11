@@ -31885,8 +31885,8 @@ _continue()
         }
         return _results;
       })();
-      var hardcodedkeyid = [93, 127, 35, 109, 145, 226, 5, 53];
-      this.key_id.set(hardcodedkeyid, 0);
+      //var hardcodedkeyid = [93, 127, 35, 109, 145, 226, 5, 53];
+      //this.key_id.set(hardcodedkeyid, 0);
       bufs.push(this.key_id);
       bufs.push(uint_to_buffer(8, this.is_final));
       console.info("buffs final", bufs);
