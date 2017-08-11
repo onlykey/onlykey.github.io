@@ -69416,7 +69416,7 @@ const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_key;
 var recipient_key;
-var poll_type, poll_delay;
+var poll_type, poll_delay, pin;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: Mailvelope v1.8.0
@@ -69739,9 +69739,7 @@ button.onclick = function () {
     return false;
 };
 
-window.doPinTimer = function (seconds, pin_hash) {
-  msg("PIN Hash " + pin_hash);
-  var pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
+window.doPinTimer = function (seconds) {
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
     if (secondsRemaining <= 0) {
@@ -69760,21 +69758,14 @@ window.doPinTimer = function (seconds, pin_hash) {
       });
     }
 
-    setButtonTimerMessage(secondsRemaining, pin);
+    setButtonTimerMessage(secondsRemaining);
     setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
   });
 };
 
-function setButtonTimerMessage(seconds, pin) {
+function setButtonTimerMessage(seconds) {
   const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
   button.textContent = msg;
-}
-
-function get_pin (byte) {
-  if (byte < 6) return 1;
-  else {
-    return (byte % 5) + 1;
-  }
 }
 
 urlinputbox.onkeyup = function () {

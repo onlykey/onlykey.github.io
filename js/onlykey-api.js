@@ -286,6 +286,8 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   var pin_hash = sha256(padded_ct);
   msg("Padded CT Packet bytes " + Array.from(padded_ct));
   msg("Key ID bytes " + Array.from(keyid));
+  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
+  msg("Generated PIN" + pin);
   return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, pin_hash, cb);
 }
 
@@ -295,6 +297,8 @@ function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   var pin_hash = sha256(ct);
   cb = cb || noop;
   msg("Signature Packet bytes " + Array.from(ct));
+  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
+  msg("Generated PIN" + pin);
   return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, pin_hash, cb);
 }
 
@@ -402,6 +406,13 @@ function u2fSignBuffer(cipherText, pin_hash, mainCallback) {
         }
       }
     });
+}
+
+function get_pin (byte) {
+  if (byte < 6) return 1;
+  else {
+    return (byte % 5) + 1;
+  }
 }
 
 function noop() {}
