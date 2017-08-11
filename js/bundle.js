@@ -69416,7 +69416,7 @@ const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_key;
 var recipient_key;
-var poll_type, poll_delay, pin;
+var poll_type, poll_delay;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: Mailvelope v1.8.0
