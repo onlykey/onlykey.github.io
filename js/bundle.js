@@ -69638,7 +69638,6 @@ class Pgp2go {
           this.loadPublic(key);
           this.loadPrivate();
           var params = {
-            keyfetch: ring,
             msg: msg,
             encrypt_for: recipient_key,
             sign_with: sender_key
@@ -69648,7 +69647,6 @@ class Pgp2go {
         case 'Encrypt Only':
           this.loadPublic(key);
           var params = {
-            keyfetch: ring,
             msg: msg,
             encrypt_for: recipient_key
           };
@@ -69657,7 +69655,6 @@ class Pgp2go {
         case 'Sign Only':
           this.loadPrivate();
           var params = {
-            keyfetch: ring,
             msg: msg,
             sign_with: sender_key
           };
