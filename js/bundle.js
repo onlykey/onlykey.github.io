@@ -16017,7 +16017,7 @@ _continue()
                     console.info("signature from OnlyKey:", ok_sig);
                     sig = arguments[0].to_mpi_buffer();
                     console.info("signature from app:", sig);
-                    //sig.set(ok_sig, 2);
+                    sig.set(ok_sig, 2);
                     console.info("sig:", sig);
                     return cb(null, sig);
                 });
