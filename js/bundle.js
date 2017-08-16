@@ -6837,6 +6837,7 @@ elliptic.eddsa = __webpack_require__(262);
     size = (ba.length - 1) * 8 + nbits(ba[0]);
     hdr = new Buffer(2);
     hdr.writeUInt16BE(size, 0);
+    console.info("hdr" + hdr);
     return Buffer.concat([hdr, new Buffer(ba)]);
   };
 
