@@ -13676,7 +13676,6 @@ function randomBytes (size, cb) {
 
     Priv.prototype.sign = function(_arg, cb) {
       var detached, naclw, payload, sig;
-      console.info("payload" + payload);
       payload = _arg.payload, detached = _arg.detached;
       naclw = kbnacl.alloc({
         secretKey: this.key
@@ -15480,7 +15479,6 @@ _continue()
     };
 
     Priv.prototype.sign = function(m, cb) {
-      console.info("here");
       return this.mod_pow_d_crt(m, cb);
     };
 
@@ -15611,6 +15609,7 @@ _continue()
           SRF().random_zn(n, __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
+                console.info("arguments[0]" + arguments[0]);
                 return r = arguments[0];
               };
             })(),
@@ -15630,6 +15629,7 @@ _continue()
           }
           y_0 = xp.subtract(xq).multiply(_this.qInv).mod(_this.p).multiply(_this.q).add(xq);
           y = y_0.multiply(r_inv).mod(n);
+          console.info("y" + y);
           return cb(y);
         };
       })(this));
@@ -15896,7 +15896,6 @@ _continue()
     };
 
     Pair.prototype.sign = function(m, cb) {
-            console.info("here2");
       return this.priv.sign(m, cb);
     };
 
@@ -16466,7 +16465,6 @@ _continue()
 
     Concat.sign = function(_arg) {
       var input, key;
-            console.info("here3");
       key = _arg.key, input = _arg.input;
       return (new Concat(key)).finalize(input);
     };
@@ -17794,7 +17792,6 @@ function decrypt (data, password) {
     };
 
     Priv.prototype.sign = function(h, cb) {
-            console.info("here4");
       var len, nacl, ret;
       nacl = kbnacl.alloc({
         secretKey: this.key
@@ -24652,7 +24649,6 @@ exports.engine = engine;
     Priv.prototype.sign = function(h, cb) {
       var err, g, hi, k, p, q, r, s, ___iced_passed_deferral, __iced_deferrals, __iced_k, _ref4;
       __iced_k = __iced_k_noop;
-            console.info("here5");
       ___iced_passed_deferral = iced.findDeferral(arguments);
       err = null;
       _ref4 = this.pub, p = _ref4.p, q = _ref4.q, g = _ref4.g;
@@ -27604,7 +27600,6 @@ _break()
   exports.sign = function(_arg, cb) {
     var b, encoded, err, msg, signature, signing_key, ___iced_passed_deferral, __iced_deferrals, __iced_k;
     __iced_k = __iced_k_noop;
-          console.info("here6");
     ___iced_passed_deferral = iced.findDeferral(arguments);
     msg = _arg.msg, signing_key = _arg.signing_key;
     b = new ClearSigner({
@@ -28050,7 +28045,6 @@ _break()
   exports.sign = function(_arg, cb) {
     var data, encoded, err, hash_streamer, s, signature, signing_key, ___iced_passed_deferral, __iced_deferrals, __iced_k;
     __iced_k = __iced_k_noop;
-          console.info("here7");
     ___iced_passed_deferral = iced.findDeferral(arguments);
     data = _arg.data, hash_streamer = _arg.hash_streamer, signing_key = _arg.signing_key;
     s = new Signer({
@@ -28350,7 +28344,6 @@ _break()
     Engine.prototype.sign = function(_arg, cb) {
       var asp, err, time, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
-            console.info("here8");
       ___iced_passed_deferral = iced.findDeferral(arguments);
       asp = _arg.asp, time = _arg.time;
       (function(_this) {
@@ -34094,7 +34087,6 @@ module.exports = Point
     Base.prototype.sign = function(_arg, cb) {
       var input, key, out, progress_hook, salt, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
-            console.info("here8");
       ___iced_passed_deferral = iced.findDeferral(arguments);
       input = _arg.input, key = _arg.key, salt = _arg.salt, progress_hook = _arg.progress_hook;
       (function(_this) {
@@ -49167,7 +49159,6 @@ webpackEmptyContext.id = 201;
     Sodium.prototype.sign = function(_arg) {
       var detached, payload, sig;
       detached = _arg.detached, payload = _arg.payload;
-      console.info("detached", detached);
       sig = this.lib.c.crypto_sign(payload, this.secretKey);
       if (detached) {
         return this._detach(sig).sig;
@@ -53965,7 +53956,6 @@ Sign.prototype.update = function update (data, enc) {
 Sign.prototype.sign = function signMethod (key, enc) {
   this.end()
   var hash = this._hash.digest()
-  console.info("hash" + hash);
   var sig = sign(hash, key, this._hashType, this._signType, this._tag)
 
   return enc ? sig.toString(enc) : sig
