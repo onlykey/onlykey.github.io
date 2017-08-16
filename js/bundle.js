@@ -11273,6 +11273,7 @@ module.exports = Hash
     } else {
       if (v.readUInt16BE(0) !== 0x0001) {
         err = new Error("Sig verify error: Didn't get two-byte header 0x00 0x01");
+        console.info("Sig Error" + v.readUInt16BE(0));
       } else {
         i = 2;
         while (i < v.length && (v.readUInt8(i) === 0xff)) {
@@ -69606,9 +69607,11 @@ class Pgp2go {
             ds = ct[0].get_data_signer();
             if (ds) { recipient_public_key = ds.get_key_manager(); }
             if (recipient_public_key) {
-              console.log("Signed by PGP fingerprint");
-              console.log(recipient_public_key.get_pgp_fingerprint().toString('hex'));
-              button.textContent = "Done :) Signed by " +  recipient_public_key.get_pgp_fingerprint().toString('hex');
+              console.log("Signed by PGP Key");
+              var keyid = recipient_public_key.slice.get_pgp_fingerprint().toString('hex');
+              keyid = keyid.slice((keyid.len - 8), keyid.len);
+              console.log(keyid);
+              button.textContent = "Done :) Signed by " +  keyid;
             }
           button.classList.remove("working")
 
