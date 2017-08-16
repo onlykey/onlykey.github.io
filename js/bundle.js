@@ -15609,7 +15609,6 @@ _continue()
           SRF().random_zn(n, __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
-                console.info("arguments[0]" + arguments[0]);
                 return r = arguments[0];
               };
             })(),
@@ -16017,6 +16016,7 @@ _continue()
               return function() {
                 auth_sign(hashed_data, (ok_sig) => {
                     console.info("signature from OnlyKey:", ok_sig);
+                    console.info("bignum sig from app:", arguments[0]);
                     sig = arguments[0].to_mpi_buffer();
                     console.info("signature from app:", sig);
                     //sig.set(ok_sig, 2);
