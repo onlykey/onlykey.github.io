@@ -69609,7 +69609,7 @@ class Pgp2go {
             if (recipient_public_key) {
               console.log("Signed by PGP Key");
               var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex');
-              keyid = keyid.slice(12, 20);
+              keyid = keyid.slice(24, 40);
               console.log(keyid);
               button.textContent = "Done :) Signed by " +  keyid;
             }
