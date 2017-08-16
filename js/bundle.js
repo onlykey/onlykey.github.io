@@ -29981,8 +29981,11 @@ _break()
       var asp, err, time, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
+      console.info("_arg.asp", _arg.asp);
+      console.info("_arg.time", _arg.time);
       asp = _arg.asp, time = _arg.time;
       asp = ASP.make(asp);
+      console.info("asp", asp);
       asp.section("sign");
       asp.progress({
         what: "sign PGP",
