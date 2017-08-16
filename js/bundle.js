@@ -69753,13 +69753,13 @@ button.onclick = function () {
         case 'Encrypt Only':
         case 'Sign Only':
             poll_type = 4;
-            poll_delay = 12;
+            poll_delay = 3;
             p2g.startEncryption();
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
             poll_type = 3;
-            poll_delay = 10;
+            poll_delay = 3;
             p2g.startDecryption();
             break;
         case 'pending_pin':
