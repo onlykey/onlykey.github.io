@@ -69606,12 +69606,12 @@ class Pgp2go {
           messagebox.focus();
           messagebox.select();
           console.log("decrypted message:", ct);
-          var ds = km = null;
+          var ds = recipient = null;
             ds = ct[0].get_data_signer();
-            if (ds) { km = ds.get_key_manager(); }
-            if (km) {
+            if (ds) { recipient = ds.get_key_manager(); }
+            if (recipient) {
               console.log("Signed by PGP fingerprint");
-              console.log(km.get_pgp_fingerprint().toString('hex'));
+              console.log(recipient.get_pgp_fingerprint().toString('hex'));
             }
           button.classList.remove("working")
 
