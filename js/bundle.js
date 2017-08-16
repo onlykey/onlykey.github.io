@@ -69424,8 +69424,8 @@ const urlinputbox = document.getElementById('pgpkeyurl');
 const messagebox = document.getElementById('message');
 const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
-var sender_key;
-var recipient_key;
+var sender_private_key;
+var recipient_public_key;
 var poll_type, poll_delay;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
@@ -69605,13 +69605,13 @@ class Pgp2go {
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
-          console.log("decrypted message:", ct);
-          var ds = recipient_key = null;
+          var ds = recipient_public_key = null;
             ds = ct[0].get_data_signer();
-            if (ds) { recipient_key = ds.get_key_manager(); }
-            if (recipient_key) {
+            if (ds) { recipient_public_key = ds.get_key_manager(); }
+            if (recipient_public_key) {
               console.log("Signed by PGP fingerprint");
-              console.log(recipient_key.get_pgp_fingerprint().toString('hex'));
+              console.log(recipient_public_key.get_pgp_fingerprint().toString('hex'));
+              button.textContent = "Done :) Signed by " +  km.get_pgp_fingerprint().toString('hex');
             }
           button.classList.remove("working")
 
@@ -69654,8 +69654,8 @@ class Pgp2go {
           this.loadPrivate();
           var params = {
             msg: msg,
-            encrypt_for: recipient_key,
-            sign_with: sender_key
+            encrypt_for: recipient_public_key,
+            sign_with: sender_private_key
           };
           button.textContent = 'Encrypting and signing message ...';
           break;
@@ -69663,7 +69663,7 @@ class Pgp2go {
           this.loadPublic(key);
           var params = {
             msg: msg,
-            encrypt_for: recipient_key
+            encrypt_for: recipient_public_key
           };
           button.textContent = 'Encrypting message ...';
           break;
@@ -69671,7 +69671,7 @@ class Pgp2go {
           this.loadPrivate();
           var params = {
             msg: msg,
-            sign_with: sender_key
+            sign_with: sender_private_key
           };
           button.textContent = 'Signing message ...';
           break;
@@ -69703,7 +69703,7 @@ loadPublic(key) {
           this.showError(error);
           return;
       } else {
-          recipient_key = recipient;
+          recipient_public_key = recipient;
           ring.add_key_manager(recipient);
       }
   });
@@ -69725,7 +69725,7 @@ loadPrivate() {
           }, err => {
               if (!err) {
                   console.log(`Loaded test private key using passphrase ${passphrase}`);
-                  sender_key = sender;
+                  sender_private_key = sender;
                   ring.add_key_manager(sender);
               }
           });
