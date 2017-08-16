@@ -16021,6 +16021,10 @@ _continue()
                     console.info("bignum sig from app:", arguments[0]);
                     sig = arguments[0].to_mpi_buffer();
                     console.info("signature from app:", sig);
+                    size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
+                    hdr = new Buffer(2);
+                    hdr.writeUInt16BE(size, 0);
+                    sig = Buffer.concat([hdr, new Buffer(ok_sig)]);
                     //sig.set(ok_sig, 2);
                     console.info("sig:", sig);
                     return cb(null, sig);
