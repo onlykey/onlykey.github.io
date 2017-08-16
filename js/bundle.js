@@ -6834,10 +6834,8 @@ elliptic.eddsa = __webpack_require__(262);
   toMPI = function(bn) {
     var ba, hdr, size;
     ba = bn.toByteArray();
-    console.info("ba" + ba);
     size = (ba.length - 1) * 8 + nbits(ba[0]);
     hdr = new Buffer(2);
-    console.info("hdr" + hdr);
     hdr.writeUInt16BE(size, 0);
     return Buffer.concat([hdr, new Buffer(ba)]);
   };
@@ -14654,7 +14652,6 @@ _continue()
     };
 
     Message.prototype._decrypt_with_session_key = function(sesskey, edat, pkcs5, cb) {
-      console.info("Made it to _decrypt_with_session_key");
       var cipher, err, ret, ___iced_passed_deferral, __iced_deferrals, __iced_k, _ref1;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -69611,7 +69608,7 @@ class Pgp2go {
             if (recipient_public_key) {
               console.log("Signed by PGP fingerprint");
               console.log(recipient_public_key.get_pgp_fingerprint().toString('hex'));
-              button.textContent = "Done :) Signed by " +  km.get_pgp_fingerprint().toString('hex');
+              button.textContent = "Done :) Signed by " +  recipient_public_key.get_pgp_fingerprint().toString('hex');
             }
           button.classList.remove("working")
 
