@@ -16018,7 +16018,6 @@ _continue()
               return function() {
                 auth_sign(hashed_data, (ok_sig) => {
                     console.info("signature from OnlyKey:", ok_sig);
-                    console.info("bignum sig from app:", arguments[0]);
                     sig = arguments[0].to_mpi_buffer();
                     console.info("signature from app:", sig);
                     size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
@@ -69608,7 +69607,7 @@ class Pgp2go {
           messagebox.select();
           console.log("decrypted message:", ct);
           var ds = km = null;
-            ds = literals[0].get_data_signer();
+            ds = ct[0].get_data_signer();
             if (ds) { km = ds.get_key_manager(); }
             if (km) {
               console.log("Signed by PGP fingerprint");
