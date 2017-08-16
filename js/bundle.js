@@ -6837,7 +6837,7 @@ elliptic.eddsa = __webpack_require__(262);
     size = (ba.length - 1) * 8 + nbits(ba[0]);
     hdr = new Buffer(2);
     hdr.writeUInt16BE(size, 0);
-    console.info("Buffer.concat([hdr, new Buffer(ba)])" + Buffer.concat([hdr, new Buffer(ba)]));
+    console.info(hd)
     return Buffer.concat([hdr, new Buffer(ba)]);
   };
 
@@ -6924,6 +6924,7 @@ elliptic.eddsa = __webpack_require__(262);
   exports.bn_from_left_n_bits = bn_from_left_n_bits;
 
   BigInteger.prototype.to_mpi_buffer = function() {
+    console.info("toMPI(this)" + toMPI(this));
     return toMPI(this);
   };
 
