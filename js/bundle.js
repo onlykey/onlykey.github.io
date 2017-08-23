@@ -69597,7 +69597,7 @@ class Pgp2go {
               armored: ct
           }, (err, ct) => {
           if (err)
-              return void _this.showError(err);
+              return void this.showError(err);
 
           button.textContent = "Done :)";
           messagebox.value = ct;
@@ -69715,7 +69715,7 @@ loadPrivate() {
       armored: test_pgp_key
   }, (err, sender) => {
       if (err)
-          return void _this.showError(err);
+          return void this.showError(err);
 
       if (sender.is_pgp_locked()) {
           let passphrase = 'test123';
