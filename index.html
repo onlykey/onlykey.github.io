@@ -28,7 +28,7 @@
             background: white;
          }
             .header h1 {
-                color: rgb(164, 6, 1);
+                color: rgb(97, 97, 97);
             }
              .header h2 {
                  font-weight:300;
@@ -45,20 +45,22 @@
 
 <body class='yui3-skin-sam'>
 
-    <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
-        <span class="yui3-menu-heading">CryptoTrust</span>
-        <ul>
-            <li class="yui3-menu-active"><a href="https://apps.crp.to">Apps</a></li>
-            <li><a href="https://docs.crp.to">Documentation</a></li>
-            <li><a href="https://crp.to">Home</a></li>
-        </ul>
-    </div>
-    <div class="header yui3-u-1">
+  <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
+      <span class="yui3-menu-heading">OnlyKey</span>
+      <ul>
+          <li><a href="https://apps.crp.to/decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a></li>
+          <li><a href="https://apps.crp.to/encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a></li>
+          <li class="yui3-menu-active"><a href="https://apps.crp.to">More Apps</a></li>
+          <li><a href="https://docs.crp.to">Documentation</a></li>
+          <li><a href="https://crp.to">CryptoTrust Home</a></li>
+      </ul>
+  </div>
+  <div class="header yui3-u-1">
       <p><img src="ok.jpg" alt="logo" align="middle"></p>
-      <h2 class="yui3-u">OnlyKey Web Access Apps</h2>
-      <pre><code data-language="javascript">
-      <div id=header_messages></div>
-      </code></pre>
+      <h1><i class="fa fa-cog fa-spin fa-fw"></i> ONLYKEY Web Access Apps</h1>
+      <code data-language="javascript">
+    <div id=header_messages></div>
+    </code>
 
     </div>
 
@@ -67,23 +69,25 @@
     <p><a href="https://apps.crp.to/u2f.html"><center><img src="u2f.png" alt="u2f"></center></a></p>
     <p><center>Test OnlyKey U2F feature here</center></p><a href="https://apps.crp.to/u2f.html" class="yui3-button primary-button">Test U2F</a>
 
-    <center><h2>OnlyKey Decryption Tool</h2></center>
-    <p><a href="https://apps.crp.to/decrypt.html"></a></p>
-    <p><center>Use OnlyKey to decrypt emails and files</center></p><a href="https://apps.crp.to/decrypt.html" class="yui3-button primary-button">OnlyKey Decryption Tool</a>
+    <center><h2><i class="fa fa-unlock" aria-hidden="true"></i> OnlyKey Decryption</h2></center>
+    <p><a href="https://apps.crp.to/decrypt"></a></p>
+    <p><center>Use OnlyKey to decrypt/verify emails and files</center></p><a href="https://apps.crp.to/decrypt.html" class="yui3-button primary-button">OnlyKey Decryption Tool</a>
 
-    <center><h2>OnlyKey Signing Tool</h2></center>
-    <p><a href="https://apps.crp.to/sign.html"></a></p>
-    <p><center>Use OnlyKey to sign emails and files</center></p><a href="https://apps.crp.to/sign.html" class="yui3-button primary-button">OnlyKey Signing Tool</a>
+    <center><h2><i class="fa fa-lock" aria-hidden="true"></i> OnlyKey Encryption</h2></center>
+    <p><a href="https://apps.crp.to/encrypt"></a></p>
+    <p><center>Use OnlyKey to encrypt/sign emails and files</center></p><a href="https://apps.crp.to/sign.html" class="yui3-button primary-button">OnlyKey Signing Tool</a>
 
-    <h2>OnlyKey Console Messages Appear Below</h2>
-    <pre><code data-language="javascript"><font color="008700">
-    <div id=messages></div>
-    </font></code></pre>
+    <div class="content">
+        <h2>OnlyKey Console Messages Appear Below</h2>
+        <pre><code data-language="javascript"><font color="008700">
+        <div id=messages></div>
+        </font></code></pre>
 
     </div>
-<script>
-//call after page loaded
-window.onload=auth_timeset();
-</script>
-</body>
-</html>
+    <script>
+    //call after page loaded
+    window.onload=init();
+    </script>
+  </body>
+
+  </html>
