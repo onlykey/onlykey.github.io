@@ -6,6 +6,7 @@ var hw_RNG = {};
 
 var appId = window.location.origin;
 var version = "U2F_V2";
+var OKversion;
 
 var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
@@ -42,7 +43,7 @@ function userId() {
     return el && el.value || 'u2ftest';
 }
 
-function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 1 : 2; }
+function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
 
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
@@ -192,8 +193,8 @@ function auth_timeset() { //OnlyKey settime to keyHandle
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
-    msg("OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
-    headermsg("OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
+    msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
+    headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
     return result && enroll_polling({ type: 1, delay: .5 });
   });
 }
@@ -215,9 +216,10 @@ function enroll_polling(params = {}, cb) {
       } else if (result) {
         if (type == 1) {
             msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
-            var version = bytes2string(data_blob.slice(40, 51));
-            msg("Firmware " + version);
-            headermsg("Firmware " + version);
+            OKversion = data_blob[52] == 'c' ? 'Color' : 'Original';
+            var FWversion = bytes2string(data_blob.slice(40, 52));
+            msg("OnlyKey " + OKversion + " " + FWversion);
+            headermsg("OnlyKey " + OKversion + " " + FWversion);
         } else if (type == 2) {
             var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
             msg("Public Key " + pubkey);
