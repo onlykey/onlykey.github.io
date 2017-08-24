@@ -194,7 +194,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
     var result = verify_auth_response(response);
     msg("OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
     headermsg("OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
-    return result && enroll_polling({ type: 1, delay: 1 });
+    return result && enroll_polling({ type: 1, delay: .5 });
   });
 }
 

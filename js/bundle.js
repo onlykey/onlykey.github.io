@@ -16022,7 +16022,6 @@ _continue()
                     hdr = new Buffer(2);
                     hdr.writeUInt16BE(size, 0);
                     sig = Buffer.concat([hdr, new Buffer(ok_sig)]);
-                    //sig.set(ok_sig, 2);
                     console.info("sig:", sig);
                     return cb(null, sig);
                 });
@@ -69613,7 +69612,7 @@ class Pgp2go {
               var userid = recipient_public_key.userids[0].components.email.split("@")[0];
               console.log(keyid);
               console.log(userid);
-              button.textContent = "Done :)    Signed by " + userid "(Key ID " + keyid ")";
+              button.textContent = "Done :)    Signed by " + userid + "(Key ID " + keyid + ")";
             }
           button.classList.remove("working")
 
