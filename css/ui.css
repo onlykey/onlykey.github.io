@@ -1,26 +1,3 @@
-body {
-    font-family: sans-serif;
-    color: #777;
-    
-}
-
-
-h1,h2,h3,h4,h5,h6 {
-    font-family: sans-serif;
-    font-weight: 300;
-}
-h3 {
-    font-weight: bold;
-}
-
-h4 {
-    text-transform: uppercase;
-}
-
-a {
-    text-decoration: none;
-}
-
 .header {
      min-height: 80px;
      margin: 0;
@@ -75,8 +52,8 @@ a {
 }
 
     #headerMenu a:hover {
-        background: #222;
-        border-color: #222;
+        background: #333;
+        border-color: #333;
     }
     #headerMenu a {
         color: #fff;
@@ -84,7 +61,7 @@ a {
     }
 
     #headerMenu .yui3-menu-active {
-        background: #222;
+        background: #333;
     }
 
     .content code {
@@ -103,7 +80,7 @@ a {
 .gist::before {
     content: "Code:";
     margin-bottom: 10px;
-    display: block; 
+    display: block;
     font-family: sans-serif;
     font-weight: 300;
 }

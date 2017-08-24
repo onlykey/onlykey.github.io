@@ -1,20 +1,25 @@
 body {
     margin: 0, 0, 0, 0;
     background: #FFFAFA;
+    color: #777;
     font-family: 'Share Tech Mono', monospace;
 }
 
-h1,
+h1,h2,h3,h4,h5,h6 {
+    font-family: 'Share Tech Mono', monospace;
+    font-weight: 300;
+}
+
 h5 {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 35px;
+    font-size: 45px;
     text-align: center;
 }
 
 h5,
 a {
     color: #3C3C3C;
-    font-size: 12px;
+    font-size: 15px;
     text-decoration: none;
 }
 
@@ -47,7 +52,7 @@ textarea.focus {
 }
 
 button {
-    font-size: 15px;
+    font-size: 18px;
     padding: 12px;
     border: none;
     border: solid 2px #c9c9c9;
