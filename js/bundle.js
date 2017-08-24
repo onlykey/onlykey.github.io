@@ -69610,8 +69610,10 @@ class Pgp2go {
               console.log("Signed by PGP Key");
               var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex');
               keyid = keyid.slice(24, 40);
+              var userid = recipient_public_key.userids[0].components.email.split("@")[0];
               console.log(keyid);
-              button.textContent = "Done :) Signed by " +  keyid;
+              console.log(userid);
+              button.textContent = "Done :)    Signed by " + userid "(Key ID " + keyid ")";
             }
           button.classList.remove("working")
 
