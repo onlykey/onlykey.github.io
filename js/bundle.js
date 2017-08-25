@@ -69591,6 +69591,9 @@ class Pgp2go {
       }
       this.loadPrivate();
       button.textContent = "Decrypting message ...";
+      var ds = recipient_public_key = null;
+        ds = ct[0].get_data_signer();
+        console.log(ds);
       kbpgp.unbox({
               keyfetch: ring,
               armored: ct
@@ -69602,8 +69605,6 @@ class Pgp2go {
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
-          var ds = recipient_public_key = null;
-            ds = ct[0].get_data_signer();
             if (ds) { recipient_public_key = ds.get_key_manager(); }
             if (recipient_public_key) {
               console.log("Signed by PGP Key");
@@ -69612,7 +69613,7 @@ class Pgp2go {
               var userid = recipient_public_key.userids[0].components.email.split("@")[0];
               console.log(keyid);
               console.log(userid);
-              button.textContent = "Done :)    Signed by " + userid + "(Key ID " + keyid + ")";
+              button.textContent = "Done :)    Signed by " + userid + " - Keybase Key ID " + keyid;
             }
           button.classList.remove("working")
 
