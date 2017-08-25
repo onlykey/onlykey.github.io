@@ -31889,8 +31889,8 @@ _continue()
         }
         return _results;
       })();
-      //var hardcodedkeyid = [93, 127, 35, 109, 145, 226, 5, 53];
-      //this.key_id.set(hardcodedkeyid, 0);
+      var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
+      this.key_id.set(hardcodedkeyid, 0);
       bufs.push(this.key_id);
       bufs.push(uint_to_buffer(8, this.is_final));
       console.info("buffs final", bufs);
@@ -69591,9 +69591,6 @@ class Pgp2go {
       }
       this.loadPrivate();
       button.textContent = "Decrypting message ...";
-      var ds = recipient_public_key = null;
-        ds = ct[0].get_data_signer();
-        console.log(ds);
       kbpgp.unbox({
               keyfetch: ring,
               armored: ct
@@ -69605,6 +69602,9 @@ class Pgp2go {
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
+          var ds = recipient_public_key = null;
+            ds = ct[0].get_data_signer();
+            console.log(ds);
             if (ds) { recipient_public_key = ds.get_key_manager(); }
             if (recipient_public_key) {
               console.log("Signed by PGP Key");
