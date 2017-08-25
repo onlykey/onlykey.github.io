@@ -10713,7 +10713,10 @@ function hasOwnProperty(obj, prop) {
       o.type = this.slice.read_uint8();
       o.time = this.slice.read_uint32();
       o.sig_data = this.slice.peek_rest_to_buffer();
-      o.key_id = this.slice.read_buffer(8);
+      var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
+      o.key_id.set(hardcodedkeyid, 0);
+      console.info("o.key_id" + o.key_id);
+      //o.key_id = this.slice.read_buffer(8);
       o.public_key_class = asymmetric.get_class(this.slice.read_uint8());
       o.hasher = alloc_or_throw(this.slice.read_uint8());
       o.signed_hash_value_hash = this.slice.read_uint16();
