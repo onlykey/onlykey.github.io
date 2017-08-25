@@ -9364,6 +9364,7 @@ function hasOwnProperty(obj, prop) {
     Signature_v2_or_v3.prototype.get_key_id = function() {
       var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
       this.key_id.set(hardcodedkeyid, 0);
+      console.info("this.key_id" + this.key_id);
       return this.key_id;
     };
 
@@ -9526,6 +9527,9 @@ function hasOwnProperty(obj, prop) {
     Signature.prototype.get_key_id = function() {
       var _ref3;
       if (this.key_id) {
+        var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
+        this.key_id.set(hardcodedkeyid, 0);
+        console.info("this.key_id" + this.key_id);
         return this.key_id;
       } else {
         return (_ref3 = this.subpacket_index.all[S.issuer]) != null ? _ref3.id : void 0;
