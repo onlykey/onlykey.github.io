@@ -216,8 +216,7 @@ function enroll_polling(params = {}, cb) {
       } else if (result) {
         if (type == 1) {
             msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
-            OKversion = data_blob[51] == 'c' ? 'Color' : 'Original';
-            msg(data_blob[51]);
+            OKversion = data_blob[51] == 99 ? 'Color' : 'Original';
             var FWversion = bytes2string(data_blob.slice(40, 52));
             msg("OnlyKey " + OKversion + " " + FWversion);
             headermsg("OnlyKey " + OKversion + " " + FWversion);
