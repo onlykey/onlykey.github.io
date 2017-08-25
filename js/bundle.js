@@ -14902,9 +14902,9 @@ _continue()
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       err = null;
-      //if (!bufeq_secure((a = sig.open.key_id), (b = sig.close.get_key_id()))) {
-      //  err = new Error("signature mismatch open v close: " + (a != null ? a.toString('hex') : void 0) + " != " + (b != null ? b.toString('hex') : void 0));
-      //}
+      if (!bufeq_secure((a = sig.open.key_id), (b = sig.close.get_key_id()))) {
+        //err = new Error("signature mismatch open v close: " + (a != null ? a.toString('hex') : void 0) + " != " + (b != null ? b.toString('hex') : void 0));
+      }
       (function(_this) {
         return (function(__iced_k) {
           if (err == null) {
