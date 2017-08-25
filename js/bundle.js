@@ -9618,9 +9618,13 @@ function hasOwnProperty(obj, prop) {
         });
       })(this)((function(_this) {
         return function() {
+          console.info("uint_to_buffer(16, uhsp.length)" + uint_to_buffer(16, uhsp.length));
+          console.info("uhsp" + uhsp);
+          console.info("new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)])" + new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]));
+          console.info("sig" + sig);
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
-          console.info("results" + results.toString('hex'));
+
           return cb(null, results);
         };
       })(this));
