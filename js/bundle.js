@@ -9362,6 +9362,8 @@ function hasOwnProperty(obj, prop) {
     };
 
     Signature_v2_or_v3.prototype.get_key_id = function() {
+      var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
+      this.key_id.set(hardcodedkeyid, 0);
       return this.key_id;
     };
 
@@ -9614,6 +9616,7 @@ function hasOwnProperty(obj, prop) {
         return function() {
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
+          console.info("results" + results);
           return cb(null, results);
         };
       })(this));
