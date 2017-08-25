@@ -23,6 +23,7 @@
     .content p {
         line-height: 1.6em;
         font-size: 115%;
+        font-family: sans-serif;
     }
 
     .content h1 {
