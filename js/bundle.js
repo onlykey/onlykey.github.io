@@ -16008,6 +16008,7 @@ _continue()
       ___iced_passed_deferral = iced.findDeferral(arguments);
       hasher = _arg.hasher;
       hasher || (hasher = SHA512);
+      console.info("data to hash:", data.toString('hex'));
       hashed_data = hasher(data);
       m = emsa_pkcs1_encode(hashed_data, this.pub.n.mpi_byte_length(), {
         hasher: hasher
