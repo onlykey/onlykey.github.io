@@ -9591,6 +9591,9 @@ function hasOwnProperty(obj, prop) {
         return _results;
       }).call(this));
       _ref3 = this.prepare_payload(data), prefix = _ref3.prefix, payload = _ref3.payload, hvalue = _ref3.hvalue;
+console.info("prefix" + prefix.toString('hex'));
+console.info("payload" + payload.toString('hex'));
+console.info("hvalue" + hvalue.toString('hex'));
       (function(_this) {
         return (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -9612,8 +9615,10 @@ function hasOwnProperty(obj, prop) {
         });
       })(this)((function(_this) {
         return function() {
+          console.info("uhsp" + uhsp.toString('hex'));
           var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
           uhsp.set(hardcodedkeyid, 2);
+          console.info("uhsp" + uhsp.toString('hex'));
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
           console.info("results" + results.toString('hex'));
