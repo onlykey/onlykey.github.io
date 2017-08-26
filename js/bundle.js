@@ -9613,7 +9613,7 @@ function hasOwnProperty(obj, prop) {
       })(this)((function(_this) {
         return function() {
           var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
-          //hardcodedkeyid = buffer_to_ui8a(hardcodedkeyid);
+          hardcodedkeyid = buffer_to_ui8a(hardcodedkeyid);
           result2 = Buffer.concat([hardcodedkeyid, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
           console.info("results" + results.toString('hex'));
