@@ -9362,9 +9362,6 @@ function hasOwnProperty(obj, prop) {
     };
 
     Signature_v2_or_v3.prototype.get_key_id = function() {
-      var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
-      this.key_id.set(hardcodedkeyid, 0);
-      console.info("this.key_id" + this.key_id);
       return this.key_id;
     };
 
@@ -9527,9 +9524,6 @@ function hasOwnProperty(obj, prop) {
     Signature.prototype.get_key_id = function() {
       var _ref3;
       if (this.key_id) {
-        var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
-        this.key_id.set(hardcodedkeyid, 0);
-        console.info("this.key_id" + this.key_id);
         return this.key_id;
       } else {
         return (_ref3 = this.subpacket_index.all[S.issuer]) != null ? _ref3.id : void 0;
@@ -9618,12 +9612,11 @@ function hasOwnProperty(obj, prop) {
         });
       })(this)((function(_this) {
         return function() {
-          console.info("uhsp" + uhsp.toString('hex'));
-          console.info("hvalue" + hvalue.toString('hex'));
-          console.info("sig" + sig.toString('hex'));
-          result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
+          var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
+          //hardcodedkeyid = buffer_to_ui8a(hardcodedkeyid);
+          result2 = Buffer.concat([hardcodedkeyid, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
-
+          console.info("results" + results.toString('hex'));
           return cb(null, results);
         };
       })(this));
@@ -10716,10 +10709,7 @@ function hasOwnProperty(obj, prop) {
       o.type = this.slice.read_uint8();
       o.time = this.slice.read_uint32();
       o.sig_data = this.slice.peek_rest_to_buffer();
-      var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
-      o.key_id.set(hardcodedkeyid, 0);
-      console.info("o.key_id" + o.key_id);
-      //o.key_id = this.slice.read_buffer(8);
+      o.key_id = this.slice.read_buffer(8);
       o.public_key_class = asymmetric.get_class(this.slice.read_uint8());
       o.hasher = alloc_or_throw(this.slice.read_uint8());
       o.signed_hash_value_hash = this.slice.read_uint16();
@@ -14916,7 +14906,7 @@ _continue()
       ___iced_passed_deferral = iced.findDeferral(arguments);
       err = null;
       if (!bufeq_secure((a = sig.open.key_id), (b = sig.close.get_key_id()))) {
-        //err = new Error("signature mismatch open v close: " + (a != null ? a.toString('hex') : void 0) + " != " + (b != null ? b.toString('hex') : void 0));
+        err = new Error("signature mismatch open v close: " + (a != null ? a.toString('hex') : void 0) + " != " + (b != null ? b.toString('hex') : void 0));
       }
       (function(_this) {
         return (function(__iced_k) {
