@@ -16008,7 +16008,6 @@ _continue()
       ___iced_passed_deferral = iced.findDeferral(arguments);
       hasher = _arg.hasher;
       hasher || (hasher = SHA512);
-      console.info("data to hash:", data.toString('hex'));
       hashed_data = hasher(data);
       m = emsa_pkcs1_encode(hashed_data, this.pub.n.mpi_byte_length(), {
         hasher: hasher
@@ -19456,6 +19455,7 @@ function decrypt (data, password) {
       payload = export_key_pgp(this._cipher_algo, this._session_key);
       pub_k = encryption_key.key;
       fingerprint = encryption_key.get_fingerprint();
+      console.info("fingerprint from public" + fingerprint);
       (function(_this) {
         return (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
