@@ -69716,9 +69716,9 @@ loadPublic(key) {
       } else {
           recipient_public_key = recipient;
           ring.add_key_manager(recipient);
-          var fingerprint = recipient_public_key.get_fingerprint().toString('hex');
+          //var fingerprint = recipient_public_key.get_fingerprint().toString('hex');
           var fingerprint2 = recipient_public_key.get_pgp_fingerprint().toString('hex');
-          console.info("fingerprint from public" + fingerprint);
+          //console.info("fingerprint from public" + fingerprint);
           console.info("PGP fingerprint from public" + fingerprint2);
       }
   });
