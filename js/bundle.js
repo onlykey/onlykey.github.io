@@ -69719,7 +69719,6 @@ loadPublic(key) {
           var fingerprint2 = recipient_public_key.get_pgp_fingerprint().toString('hex');
           console.info("all fingerprints from public" + recipient_public_key.get_all_pgp_key_ids());
           console.info("all fingerprints from public" + recipient_public_key.get_all_pgp_key_ids().toString('hex'));
-          console.info("sign fingerprint from public" + recipient_public_key.find_signing_pgp_key().toString('hex'));
           console.info("sign fingerprint from public" + recipient_public_key.find_signing_pgp_key());
           console.info("PGP fingerprint from public" + fingerprint2);
       }
