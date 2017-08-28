@@ -69617,7 +69617,7 @@ class Pgp2go {
             if (ds) { recipient_public_key = ds.get_key_manager(); }
             if (recipient_public_key) {
               console.log("Signed by PGP Key");
-              var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex');
+              var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex').toUpperCase();
               keyid = keyid.slice(24, 40);
               var userid = recipient_public_key.userids[0].components.email.split("@")[0];
               console.log(keyid);
@@ -69716,9 +69716,11 @@ loadPublic(key) {
       } else {
           recipient_public_key = recipient;
           ring.add_key_manager(recipient);
-          var fingerprint = recipient_public_key.get_all_pgp_key_ids();
           var fingerprint2 = recipient_public_key.get_pgp_fingerprint().toString('hex');
-          console.info("all fingerprints from public" + fingerprint);
+          console.info("all fingerprints from public" + recipient_public_key.get_all_pgp_key_ids());
+          console.info("all fingerprints from public" + recipient_public_key.get_all_pgp_key_ids().toString('hex'));
+          console.info("all fingerprints from public" + recipient_public_key.get_all_key_ids().toString('hex'));
+          console.info("all fingerprints from public" + recipient_public_key.get_all_key_ids());
           console.info("PGP fingerprint from public" + fingerprint2);
       }
   });
