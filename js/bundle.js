@@ -9591,9 +9591,6 @@ function hasOwnProperty(obj, prop) {
         return _results;
       }).call(this));
       _ref3 = this.prepare_payload(data), prefix = _ref3.prefix, payload = _ref3.payload, hvalue = _ref3.hvalue;
-console.info("prefix" + prefix.toString('hex'));
-console.info("payload" + payload.toString('hex'));
-console.info("hvalue" + hvalue.toString('hex'));
       (function(_this) {
         return (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -9616,8 +9613,7 @@ console.info("hvalue" + hvalue.toString('hex'));
       })(this)((function(_this) {
         return function() {
           console.info("uhsp" + uhsp.toString('hex'));
-          var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
-          uhsp.set(hardcodedkeyid, 2);
+          uhsp.set(custom_keyid, 2);
           console.info("uhsp" + uhsp.toString('hex'));
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
@@ -15636,7 +15632,6 @@ _continue()
           }
           y_0 = xp.subtract(xq).multiply(_this.qInv).mod(_this.p).multiply(_this.q).add(xq);
           y = y_0.multiply(r_inv).mod(n);
-          console.info("y" + y);
           return cb(y);
         };
       })(this));
@@ -19455,7 +19450,6 @@ function decrypt (data, password) {
       payload = export_key_pgp(this._cipher_algo, this._session_key);
       pub_k = encryption_key.key;
       fingerprint = encryption_key.get_fingerprint();
-      console.info("fingerprint from public" + fingerprint);
       (function(_this) {
         return (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -31898,8 +31892,9 @@ _continue()
         }
         return _results;
       })();
-      var hardcodedkeyid = [15, 242, 108, 5, 134, 86, 81, 71];
-      this.key_id.set(hardcodedkeyid, 0);
+      if (custom_keyid) {
+        this.key_id.set(custom_keyid, 0);
+      }
       bufs.push(this.key_id);
       bufs.push(uint_to_buffer(8, this.is_final));
       console.info("buffs final", bufs);
@@ -69716,11 +69711,9 @@ loadPublic(key) {
       } else {
           recipient_public_key = recipient;
           ring.add_key_manager(recipient);
-          var fingerprint2 = recipient_public_key.get_pgp_fingerprint().toString('hex');
-          console.info("all fingerprints from public" + recipient_public_key.get_all_pgp_key_ids());
-          console.info("all fingerprints from public" + recipient_public_key.get_all_pgp_key_ids().toString('hex'));
-          console.info("sign fingerprint from public" + recipient_public_key.find_signing_pgp_key());
-          console.info("PGP fingerprint from public" + fingerprint2);
+          var keyids = recipient_public_key.get_all_pgp_key_ids();
+          keyids[2].toString('hex').toUpperCase();
+
       }
   });
 }

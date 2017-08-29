@@ -16,6 +16,8 @@ var _status;
 var pin;
 const button = document.getElementById('onlykey_start');
 
+var custom_keyid;
+
 function init() {
   auth_timeset();
   updateStatusFromSelection();
