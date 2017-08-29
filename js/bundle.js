@@ -9613,8 +9613,10 @@ function hasOwnProperty(obj, prop) {
       })(this)((function(_this) {
         return function() {
           console.info("uhsp" + uhsp.toString('hex'));
-          uhsp.set(custom_keyid, 2);
-          console.info("uhsp" + uhsp.toString('hex'));
+          if (custom_keyid) {
+            uhsp.set(custom_keyid, 2);
+            console.info("custom uhsp" + uhsp.toString('hex'));
+          }
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
           console.info("results" + results.toString('hex'));
@@ -69422,10 +69424,12 @@ const request = __webpack_require__(171);
 const randomColor = __webpack_require__(170);
 
 const urlinputbox = document.getElementById('pgpkeyurl');
+const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
 const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key;
+var sender_public_key;
 var recipient_public_key;
 var poll_type, poll_delay;
 
@@ -69628,14 +69632,21 @@ class Pgp2go {
       button.classList.remove('error');
       button.classList.add('working');
       if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
-          this.showError(new Error('I need a public pgp key :('));
+          this.showError(new Error("I need recipient's public pgp key :("));
+          return;
+      }
+      if (urlinputbox2.value == "" && (_status=='Encrypt and Sign' || _status=='Sign Only')) {
+          this.showError(new Error("I need sender's public pgp key :("));
           return;
       }
       let keyurl = url.parse(urlinputbox.value);
+      let keyurl2 = url.parse(urlinputbox2.value);
       if (keyurl.hostname) { // Check if its a url
           this.downloadPublicKey();
+      } if (keyurl2.hostname) { // Check if its a url
+          this.downloadPublicKey();
       } else {
-          this.encryptText(urlinputbox.value, messagebox.value);
+          this.encryptText(urlinputbox.value, urlinputbox2.value, messagebox.value);
       }
   }
 
@@ -69653,10 +69664,11 @@ class Pgp2go {
         });
 }
 
-  encryptText(key, msg) {
+  encryptText(key1, key2, msg) {
       switch (_status) {
         case 'Encrypt and Sign':
-          this.loadPublic(key);
+          this.loadPublic(key1);
+          this.loadPublicSignerID(key2);
           this.loadPrivate();
           var params = {
             msg: msg,
@@ -69674,6 +69686,7 @@ class Pgp2go {
           button.textContent = 'Encrypting message ...';
           break;
         case 'Sign Only':
+          this.loadPublicSignerID(key2);
           this.loadPrivate();
           var params = {
             msg: msg,
@@ -69697,9 +69710,9 @@ class Pgp2go {
   }
 
 loadPublic(key) {
-  button.textContent = "Checking recipient's key...";
+  button.textContent = "Checking recipient's public key...";
   if (key == "") {
-    this.showError(new Error('I need a public pgp key :('));
+    this.showError(new Error("I need recipient's public pgp key :("));
     return;
   }
   kbpgp.KeyManager.import_from_armored_pgp({
@@ -69711,9 +69724,28 @@ loadPublic(key) {
       } else {
           recipient_public_key = recipient;
           ring.add_key_manager(recipient);
-          var keyids = recipient_public_key.get_all_pgp_key_ids();
-          keyids[2].toString('hex').toUpperCase();
+      }
+  });
+}
 
+loadPublicSignerID(key) {
+  button.textContent = "Checking sender's public key...";
+  if (key == "") {
+    this.showError(new Error("I need sender's public pgp key :("));
+    return;
+  }
+  kbpgp.KeyManager.import_from_armored_pgp({
+      armored: key
+  }, (error, sender) => {
+      if (error) {
+          this.showError(error);
+          return;
+      } else {
+          sender_public_key = sender;
+          var keyids = sender_public_key.get_all_pgp_key_ids();
+          custom_keyid = keyids[2].toString('hex').toUpperCase();
+          custom_keyid = custom_keyid.match(/.{2}/g).map(hexStrToDec);
+          console.info("custom_keyid" + custom_keyid);
       }
   });
 }
