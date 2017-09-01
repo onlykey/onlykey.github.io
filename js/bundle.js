@@ -69696,9 +69696,6 @@ class Pgp2go {
           break;
         default:
       }
-      var textarea = document.getElementById("message");
-      var answer  = document.getElementById("copyAnswer");
-      var copy    = document.getElementById("onlykey_start");
       kbpgp.box(params, (err, results) => {
           if (err) {
               this.showError(err);
@@ -69708,20 +69705,7 @@ class Pgp2go {
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
-          copy.addEventListener('click', function(e) {
-
-             // Use try & catch for unsupported browser
-             try {
-
-                 // The important part (copy selected text)
-                 var ok = document.execCommand('copy');
-
-                 if (ok) answer.innerHTML = 'Copied!';
-                 else    answer.innerHTML = 'Unable to copy!';
-             } catch (err) {
-                 answer.innerHTML = 'Unsupported Browser!';
-             }
-          });
+          document.execCommand('copy');
           button.classList.remove('working');
       });
   }
