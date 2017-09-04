@@ -287,7 +287,10 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   //simulate_enroll();
   cb = cb || noop;
-  var padded_ct = ct.slice(12, 524);
+  if (ct.length > 268) {
+    poll_delay = 9;
+  }
+  var padded_ct = ct.slice(12, ct.length);
   var keyid = ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
   msg("Padded CT Packet bytes " + Array.from(padded_ct));

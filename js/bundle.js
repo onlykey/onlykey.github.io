@@ -69579,9 +69579,6 @@ class Pgp2go {
         default:
       }
       this.loadPrivate();
-      var data_packet = ct[0].to_enc_data_packet();
-      console.log("encryped packet" + data_packet);
-      console.log("encryped packet len" + data_packet.length);
       button.textContent = "Decrypting message ...";
       kbpgp.unbox({
               keyfetch: ring,
