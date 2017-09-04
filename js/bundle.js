@@ -69744,7 +69744,14 @@ loadPublicSignerID(key) {
       } else {
           sender_public_key = sender;
           var keyids = sender_public_key.get_all_pgp_key_ids();
-          custom_keyid = keyids[typeof keyids[2] !== "undefined" ? 2 : 1].toString('hex').toUpperCase();
+          if (typeof keyids[2] !== "undefined") {
+            poll_delay = 3;  //Assuming RSA 2048
+            var subkey = 2;
+          } else {
+            poll_delay = 8;  //Assuming RSA 4096
+            var subkey = 1;
+          }
+          custom_keyid = keyids[subkey].toString('hex').toUpperCase();
           custom_keyid = custom_keyid.match(/.{2}/g).map(hexStrToDec);
           console.info("custom_keyid" + custom_keyid);
       }
@@ -69795,7 +69802,6 @@ button.onclick = function () {
         case 'Encrypt Only':
         case 'Sign Only':
             poll_type = 4;
-            poll_delay = 3;
             p2g.startEncryption();
             break;
         case 'Decrypt and Verify':
