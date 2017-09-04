@@ -69749,8 +69749,8 @@ loadPublicSignerID(key) {
             poll_delay = 3;  //Assuming RSA 2048
             var subkey = 2;
           } else {
-            poll_delay = 10;  //Assuming RSA 4096
-            var subkey = 1;
+            poll_delay = 11;  //Assuming RSA 4096
+            var subkey = 0;
           }
           custom_keyid = keyids[subkey].toString('hex').toUpperCase();
           custom_keyid = custom_keyid.match(/.{2}/g).map(hexStrToDec);
