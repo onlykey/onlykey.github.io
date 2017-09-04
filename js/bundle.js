@@ -69431,7 +69431,6 @@ var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key;
 var sender_public_key;
 var recipient_public_key;
-var poll_type, poll_delay;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: Keybase OpenPGP v2.0.73
@@ -69598,6 +69597,8 @@ class Pgp2go {
         default:
       }
       this.loadPrivate();
+      var keysize = ct[0].get_data_signer();
+      console.log("keysize" + keysize);
       button.textContent = "Decrypting message ...";
       kbpgp.unbox({
               keyfetch: ring,
