@@ -69744,7 +69744,7 @@ loadPublicSignerID(key) {
       } else {
           sender_public_key = sender;
           var keyids = sender_public_key.get_all_pgp_key_ids();
-          custom_keyid = keyids[2].toString('hex').toUpperCase();
+          custom_keyid = keyids[typeof keyids[2] !== "undefined" ? 2 : 1].toString('hex').toUpperCase();
           custom_keyid = custom_keyid.match(/.{2}/g).map(hexStrToDec);
           console.info("custom_keyid" + custom_keyid);
       }
