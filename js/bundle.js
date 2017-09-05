@@ -69602,7 +69602,7 @@ class Pgp2go {
               var userid = recipient_public_key.userids[0].components.email.split("@")[0];
               console.log(keyid);
               console.log(userid);
-              button.textContent = "Done :)    Signed by " + userid + "(Key ID: " + keyid + ")";
+              button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
             }
           button.classList.remove("working")
 
@@ -69682,11 +69682,11 @@ class Pgp2go {
               this.showError(err);
               return;
           }
-          button.textContent = 'Done :)';
+          button.textContent = 'Done :)  You can paste the message into an email, IM, whatever.';
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
-          document.execCommand('copy');
+          messagebox.execCommand('copy');
           button.classList.remove('working');
       });
   }
