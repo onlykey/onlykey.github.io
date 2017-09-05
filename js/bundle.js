@@ -69682,11 +69682,12 @@ class Pgp2go {
               this.showError(err);
               return;
           }
-          button.textContent = 'Done :)  You can paste the message into an email, IM, whatever.';
+          button.textContent = 'Done :)  Encrypted message copied to clipboard you can paste into an email, IM, whatever.';
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
-          messagebox.execCommand('copy');
+          document.execCommand('SelectAll');
+          document.execCommand("Copy", false, null);
           button.classList.remove('working');
       });
   }
