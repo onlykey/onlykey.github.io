@@ -69635,7 +69635,7 @@ class Pgp2go {
       this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
   }
 
-  downloadPublicKey() {
+  async downloadPublicKey() {
       button.textContent = 'Downloading public key ...';
       request
           .get(urlinputbox.value)
@@ -69645,11 +69645,11 @@ class Pgp2go {
                   this.showError(err);
                   return;
               }
-              sender_public_key = key.text;
+              sender_public_key = await key.text;
           });
   }
 
-  downloadPublicKey2() {
+  async downloadPublicKey2() {
       button.textContent = 'Downloading public key ...';
       request
           .get(urlinputbox2.value)
@@ -69659,7 +69659,7 @@ class Pgp2go {
                   this.showError(err);
                   return;
               }
-              recipient_public_key = key.text;
+              recipient_public_key = await key.text;
           });
   }
 
