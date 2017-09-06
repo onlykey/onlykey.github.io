@@ -289,9 +289,9 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   cb = cb || noop;
   if (ct.length == 396) {
     poll_delay = 6; //6 Second delay for RSA 3072
-  } else if (ct.length == 524)
+  } else if (ct.length == 524) {
     poll_delay = 9; //9 Second delay for RSA 4096
-  )
+  }
   var padded_ct = ct.slice(12, ct.length);
   var keyid = ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
