@@ -69625,10 +69625,12 @@ class Pgp2go {
       let keyurl2 = url.parse(urlinputbox2.value);
       if (keyurl.hostname) { // Check if its a url
         sender_public_key = this.downloadPublicKey(urlinputbox.value);
+                  console.info("sender_public_key" + sender_public_key);
           } else {
             sender_public_key = urlinputbox.value;
       } if (keyurl2.hostname) { // Check if its a url
         recipient_public_key = this.downloadPublicKey(urlinputbox2.value);
+                          console.info("recipient_public_key" + recipient_public_key);
           } else {
             recipient_public_key = urlinputbox2.value;
       }
