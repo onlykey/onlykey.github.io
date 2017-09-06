@@ -69624,15 +69624,15 @@ class Pgp2go {
       let keyurl = url.parse(urlinputbox.value);
       let keyurl2 = url.parse(urlinputbox2.value);
       if (keyurl.hostname) { // Check if its a url
-        this.downloadUrl(keyurl.hostname)
-            .then(data => console.log(data))
-            .catch(reason => console.log(reason.message))
+        this.downloadUrl(urlinputbox.value)
+            .then(data => sender_public_key = data)
+            .catch(reason => this.showError(reason))
           } else {
             sender_public_key = urlinputbox.value;
       } if (keyurl2.hostname) { // Check if its a url
-        this.downloadUrl(keyurl2.hostname)
-            .then(data => console.log(data))
-            .catch(reason => console.log(reason.message))
+        this.downloadUrl(urlinputbox2.value)
+            .then(data => recipient_public_key = data)
+            .catch(reason => this.showError(reason))
           } else {
             recipient_public_key = urlinputbox.value;
       }
@@ -69641,7 +69641,7 @@ class Pgp2go {
 
 async downloadUrl(url) {
   // await response of fetch call
-  let data = await fetch(url.value);
+  let data = await fetch(url);
   // only proceed once promise is resolved
   return data;
 }
