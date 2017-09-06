@@ -69625,14 +69625,16 @@ class Pgp2go {
       let keyurl2 = url.parse(urlinputbox2.value);
       if (keyurl.hostname) { // Check if its a url
         sender_public_key = this.downloadPublicKey(urlinputbox.value);
+
           } else {
             sender_public_key = urlinputbox.value;
       } if (keyurl2.hostname) { // Check if its a url
         recipient_public_key = this.downloadPublicKey(urlinputbox2.value);
+
           } else {
             recipient_public_key = urlinputbox2.value;
       }
-      this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
+      this.encryptText(this.downloadPublicKey(urlinputbox.value), this.downloadPublicKey(urlinputbox2.value), messagebox.value);
   }
 
   async downloadPublicKey(url) {
