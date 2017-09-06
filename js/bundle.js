@@ -69624,7 +69624,7 @@ class Pgp2go {
       let keyurl = url.parse(urlinputbox.value);
       let keyurl2 = url.parse(urlinputbox2.value);
       if (keyurl.hostname || keyurl2.hostname) { // Check if its a url
-          this.encryptText(sender_public_key = keyurl.hostname ? this.downloadUrl(keyurl.hostname) : urlinputbox.value, recipient_public_key = keyurl2.hostname ? this.downloadUrl(keyurl2.hostname) : urlinputbox2.value, messagebox.value);
+          this.encryptText(sender_public_key = keyurl.hostname === true ? this.downloadUrl(keyurl.hostname) : urlinputbox.value, recipient_public_key = keyurl2.hostname === true ? this.downloadUrl(keyurl2.hostname) : urlinputbox2.value, messagebox.value);
       } else {
           this.encryptText(urlinputbox.value, urlinputbox2.value, messagebox.value);
       }
@@ -69632,7 +69632,7 @@ class Pgp2go {
   }
 
   downloadUrl(url) {
-    button.textContent = 'Downloading public key ...';
+    button.textContent = 'Downloading url ...';
     request
         .get(url.value)
         .end((err, result) => {
