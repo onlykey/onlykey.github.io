@@ -69624,45 +69624,21 @@ class Pgp2go {
       let keyurl = url.parse(urlinputbox.value);
       let keyurl2 = url.parse(urlinputbox2.value);
       if (keyurl.hostname) { // Check if its a url
-        sender_public_key = this.downloadPublicKey();
+        sender_public_key = this.downloadPublicKey(urlinputbox.value);
           } else {
             sender_public_key = urlinputbox.value;
       } if (keyurl2.hostname) { // Check if its a url
-        recipient_public_key = this.downloadPublicKey2();
+        recipient_public_key = this.downloadPublicKey(urlinputbox2.value);
           } else {
             recipient_public_key = urlinputbox2.value;
       }
       this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
   }
 
-  async downloadPublicKey() {
+  async downloadPublicKey(url) {
       button.textContent = 'Downloading public key ...';
-      request
-          .get(urlinputbox.value)
-          .end((err, key) => {
-              if (err) {
-                  err.message += ' Try to directly paste the public PGP key in.';
-                  this.showError(err);
-                  return;
-              }
-              const result = await key.text;
-              return result;
-          });
-  }
-
-  async downloadPublicKey2() {
-      button.textContent = 'Downloading public key ...';
-      request
-          .get(urlinputbox2.value)
-          .end((err, key) => {
-              if (err) {
-                  err.message += ' Try to directly paste the public PGP key in.';
-                  this.showError(err);
-                  return;
-              }
-              const result = await key.text;
-              return result;
-          });
+      let response = await fetch(urlinputbox.value);
+      return response;
   }
 
   encryptText(key1, key2, msg) {
