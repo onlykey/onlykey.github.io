@@ -69659,7 +69659,7 @@ class Pgp2go {
           button.textContent = 'Encrypting and signing message ...';
           break;
         case 'Encrypt Only':
-          this.loadPublic(key);
+          this.loadPublic(key1);
           var params = {
             msg: msg,
             encrypt_for: recipient_public_key
@@ -69730,7 +69730,7 @@ loadPublicSignerID(key) {
             poll_delay = 3;  //Assuming RSA 2048
             var subkey = 2;
           } else {
-            poll_delay = 11;  //Assuming RSA 4096
+            poll_delay = 11;  //Assuming RSA 4096 or 3072
             var subkey = 0;
           }
           custom_keyid = keyids[subkey].toString('hex').toUpperCase();
