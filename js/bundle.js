@@ -69635,7 +69635,7 @@ class Pgp2go {
     button.textContent = 'Downloading public key ...';
     request
         .get(url.value)
-        .end((err, key) => {
+        .end((err, result) => {
             if (err) {
                 err.message += ' Try to directly paste the public PGP key in.';
                 this.showError(err);
