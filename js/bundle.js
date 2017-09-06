@@ -69623,19 +69623,20 @@ class Pgp2go {
       }
       let keyurl = url.parse(urlinputbox.value);
       let keyurl2 = url.parse(urlinputbox2.value);
-      if (keyurl.hostname || keyurl2.hostname) { // Check if its a url
+      if (keyurl.hostname) { // Check if its a url
         this.downloadUrl(keyurl.hostname)
             .then(data => console.log(data))
             .catch(reason => console.log(reason.message))
-
-            this.downloadUrl(keyurl.hostname)
-                .then(data => console.log(data))
-                .catch(reason => console.log(reason.message))
-
-      } else {
-          this.encryptText(urlinputbox.value, urlinputbox2.value, messagebox.value);
+          } else {
+            sender_public_key = urlinputbox.value;
+      } if (keyurl2.hostname) { // Check if its a url
+        this.downloadUrl(keyurl2.hostname)
+            .then(data => console.log(data))
+            .catch(reason => console.log(reason.message))
+          } else {
+            recipient_public_key = urlinputbox.value;
       }
-
+      this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
   }
 
 async downloadUrl(url) {
