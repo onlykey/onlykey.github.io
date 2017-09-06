@@ -69636,7 +69636,7 @@ class Pgp2go {
       }
       setTimeout(() => {
         this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
-        }, 1000);
+      }, 3000);
   }
 
   downloadPublicKey(url) {
