@@ -69561,7 +69561,8 @@ class Pgp2go {
 			button.classList.add('working');
         let keyurl = url.parse(urlinputbox.value);
         if (keyurl.hostname) { // Check if its a url
-            this.downloadPublicKey();
+            sender_public_key = this.downloadUrl();
+            this.decryptText(sender_public_key, messagebox.value);
         } else {
             this.decryptText(urlinputbox.value, messagebox.value);
         }
@@ -69622,29 +69623,26 @@ class Pgp2go {
       }
       let keyurl = url.parse(urlinputbox.value);
       let keyurl2 = url.parse(urlinputbox2.value);
-      sender_public_key = urlinputbox.value;
-      recipient_public_key = urlinputbox2.value;
-      if (keyurl.hostname) { // Check if its a url
-          sender_public_key = this.downloadPublicKey();
+      if (keyurl.hostname || keyurl2.hostname) { // Check if its a url
+          this.encryptText(sender_public_key = keyurl.hostname ? this.downloadUrl(keyurl.hostname) : urlinputbox.value, recipient_public_key = keyurl2.hostname ? this.downloadUrl(keyurl2.hostname) : urlinputbox2.value, messagebox.value);
+      } else {
+          this.encryptText(urlinputbox.value, urlinputbox2.value, messagebox.value);
       }
-      if (keyurl2.hostname) { // Check if its a url
-          recipient_public_key = this.downloadPublicKey();
-      }
-      this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
+
   }
 
-  downloadPublicKey() {
+  downloadUrl(url) {
     button.textContent = 'Downloading public key ...';
     request
-        .get(urlinputbox.value)
+        .get(url.value)
         .end((err, key) => {
             if (err) {
                 err.message += ' Try to directly paste the public PGP key in.';
                 this.showError(err);
                 return;
             }
-            console.info("key.text" + key.text);
-            return key.text;
+            console.info("result.text" + result.text);
+            return result.text;
         });
 }
 
