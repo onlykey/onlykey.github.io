@@ -69624,11 +69624,11 @@ class Pgp2go {
       let keyurl = url.parse(urlinputbox.value);
       let keyurl2 = url.parse(urlinputbox2.value);
       if (keyurl.hostname) { // Check if its a url
-        this.downloadPublicKey();
+        sender_public_key = this.downloadPublicKey();
           } else {
             sender_public_key = urlinputbox.value;
       } if (keyurl2.hostname) { // Check if its a url
-        this.downloadPublicKey2();
+        recipient_public_key = this.downloadPublicKey2();
           } else {
             recipient_public_key = urlinputbox2.value;
       }
@@ -69645,7 +69645,8 @@ class Pgp2go {
                   this.showError(err);
                   return;
               }
-              sender_public_key = await key.text;
+              const result = await key.text;
+              return result;
           });
   }
 
@@ -69659,7 +69660,8 @@ class Pgp2go {
                   this.showError(err);
                   return;
               }
-              recipient_public_key = await key.text;
+              const result = await key.text;
+              return result;
           });
   }
 
