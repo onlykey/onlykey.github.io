@@ -69624,27 +69624,44 @@ class Pgp2go {
       let keyurl = url.parse(urlinputbox.value);
       let keyurl2 = url.parse(urlinputbox2.value);
       if (keyurl.hostname) { // Check if its a url
-        this.downloadUrl(urlinputbox.value)
-            .then(data => sender_public_key = data)
-            .catch(reason => this.showError(reason))
+        this.downloadPublicKey();
           } else {
             sender_public_key = urlinputbox.value;
       } if (keyurl2.hostname) { // Check if its a url
-        this.downloadUrl(urlinputbox2.value)
-            .then(data => recipient_public_key = data)
-            .catch(reason => this.showError(reason))
+        this.downloadPublicKey2();
           } else {
-            recipient_public_key = urlinputbox.value;
+            recipient_public_key = urlinputbox2.value;
       }
       this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
   }
 
-async downloadUrl(url) {
-  // await response of fetch call
-  let data = await fetch(url);
-  // only proceed once promise is resolved
-  return data;
-}
+  downloadPublicKey() {
+      button.textContent = 'Downloading public key ...';
+      request
+          .get(urlinputbox.value)
+          .end((err, key) => {
+              if (err) {
+                  err.message += ' Try to directly paste the public PGP key in.';
+                  this.showError(err);
+                  return;
+              }
+              sender_public_key = key.text;
+          });
+  }
+
+  downloadPublicKey2() {
+      button.textContent = 'Downloading public key ...';
+      request
+          .get(urlinputbox2.value)
+          .end((err, key) => {
+              if (err) {
+                  err.message += ' Try to directly paste the public PGP key in.';
+                  this.showError(err);
+                  return;
+              }
+              recipient_public_key = key.text;
+          });
+  }
 
   encryptText(key1, key2, msg) {
       switch (_status) {
