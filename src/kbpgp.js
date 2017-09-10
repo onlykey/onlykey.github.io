@@ -3086,6 +3086,11 @@ _break()
       return true;
     };
 
+    KeyManager.prototype.can_sign = function() {
+      var _ref1;
+      return (_ref1 = this.key) != null ? _ref1.can_sign() : void 0;
+    };
+
     KeyManager.prototype.eq = function(km2) {
       return this.key.eq(km2.key);
     };
@@ -3118,7 +3123,7 @@ _break()
                     return ret = arguments[1];
                   };
                 })(),
-                lineno: 66
+                lineno: 67
               }));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -3202,6 +3207,15 @@ _break()
       return false;
     };
 
+    EncKeyManager.prototype.can_encrypt = function() {
+      return true;
+    };
+
+    EncKeyManager.prototype.can_decrypt = function() {
+      var _ref1;
+      return ((_ref1 = this.key) != null ? _ref1.priv : void 0) != null;
+    };
+
     EncKeyManager.prototype.get_mask = function() {
       return C.key_flags.encrypt_comm | C.key_flags.encrypt_storage;
     };
@@ -3241,7 +3255,7 @@ _break()
               filename: "/Users/max/src/keybase/kbpgp/src/keybase/hilev.iced"
             });
             athrow(new Error("need either 'armored' or 'binary' or 'rawobj'"), esc(__iced_deferrals.defer({
-              lineno: 134
+              lineno: 137
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -3269,7 +3283,7 @@ _break()
                     return rawobj = arguments[0];
                   };
                 })(),
-                lineno: 139
+                lineno: 142
               })));
               __iced_deferrals._fulfill();
             })(__iced_k);
@@ -3288,7 +3302,7 @@ _break()
                   return packet = arguments[0];
                 };
               })(),
-              lineno: 141
+              lineno: 144
             })));
             __iced_deferrals._fulfill();
           })(function() {
@@ -3305,7 +3319,7 @@ _break()
                     return res = arguments[0];
                   };
                 })(),
-                lineno: 142
+                lineno: 145
               })));
               __iced_deferrals._fulfill();
             })(function() {
@@ -3357,7 +3371,7 @@ _break()
                   return packet = arguments[0];
                 };
               })(),
-              lineno: 158
+              lineno: 161
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -3376,7 +3390,7 @@ _break()
                   return packet = arguments[0];
                 };
               })(),
-              lineno: 160
+              lineno: 163
             })));
             __iced_deferrals._fulfill();
           })(__iced_k);
@@ -3426,7 +3440,7 @@ _break()
                 return raw = arguments[1];
               };
             })(),
-            lineno: 179
+            lineno: 182
           })));
           __iced_deferrals._fulfill();
         });
@@ -3468,7 +3482,7 @@ _break()
                 return binary = arguments[1];
               };
             })(),
-            lineno: 190
+            lineno: 193
           })));
           __iced_deferrals._fulfill();
         });
@@ -4664,6 +4678,18 @@ _break()
     };
 
     KeyManagerInterface.prototype.can_verify = function() {
+      return false;
+    };
+
+    KeyManagerInterface.prototype.can_sign = function() {
+      return false;
+    };
+
+    KeyManagerInterface.prototype.can_encrypt = function() {
+      return false;
+    };
+
+    KeyManagerInterface.prototype.can_decrypt = function() {
       return false;
     };
 
@@ -8829,7 +8855,7 @@ _break()
       if (key == null) {
         err = new Error("No keys match the given fingerprint");
       } else if (!this.key(key).fulfills_flags(flags)) {
-        err = new Error("We don't have a key for the requested PGP ops");
+        err = new Error("We don't have a key for the requested PGP ops (flags = " + flags + ")");
       } else {
         ret = this.key(key);
       }
@@ -9072,7 +9098,7 @@ _break()
       };
       subkeys = [
         {
-          flags: F.encrypt_data | F.encrypt_comm,
+          flags: F.encrypt_storage | F.encrypt_comm,
           nbits: 2048
         }, {
           flags: F.sign_data | F.auth,
@@ -9099,7 +9125,7 @@ _break()
       };
       subkeys = [
         {
-          flags: F.encrypt_data | F.encrypt_comm,
+          flags: F.encrypt_storage | F.encrypt_comm,
           nbits: 256
         }, {
           flags: F.sign_data | F.auth,
@@ -9953,6 +9979,18 @@ _break()
       return this.find_verifying_pgp_key() != null;
     };
 
+    KeyManager.prototype.can_sign = function() {
+      return this.find_signing_pgp_key() != null;
+    };
+
+    KeyManager.prototype.can_encrypt = function() {
+      return this.find_crypt_pgp_key(false) != null;
+    };
+
+    KeyManager.prototype.can_decrypt = function() {
+      return this.find_crypt_pgp_key(true) != null;
+    };
+
     KeyManager.prototype.get_primary_keypair = function() {
       return this.primary.key;
     };
@@ -10067,7 +10105,7 @@ _break()
                         return err = arguments[0];
                       };
                     })(),
-                    lineno: 803
+                    lineno: 806
                   }));
                   __iced_deferrals._fulfill();
                 })(_next);
@@ -12146,8 +12184,12 @@ _break()
         }
         return _results;
       })();
+      if (custom_keyid) {
+        this.key_id.set(custom_keyid, 0);
+      }
       bufs.push(this.key_id);
       bufs.push(uint_to_buffer(8, this.is_final));
+      console.info("buffs final", bufs);
       unframed = Buffer.concat(bufs);
       return cb(null, unframed);
     };
@@ -13154,8 +13196,14 @@ _break()
         });
       })(this)((function(_this) {
         return function() {
+          console.info("uhsp" + uhsp.toString('hex'));
+          if (custom_keyid) {
+            uhsp.set(custom_keyid, 2);
+            console.info("custom uhsp" + uhsp.toString('hex'));
+          }
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
+          console.info("results" + results.toString('hex'));
           return cb(null, results);
         };
       })(this));
@@ -13216,7 +13264,7 @@ _break()
       return _results;
     };
 
-    Signature.prototype.verify = function(data_packets, cb) {
+    Signature.prototype.verify = function(data_packets, cb, opts) {
       var err, p, s, subkey, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -13234,7 +13282,7 @@ _break()
               };
             })(),
             lineno: 196
-          }));
+          }), opts);
           __iced_deferrals._fulfill();
         });
       })(this)((function(_this) {
@@ -13289,7 +13337,7 @@ _break()
                                 };
                               })(),
                               lineno: 206
-                            }));
+                            }), opts);
                             __iced_deferrals._fulfill();
                           })(__iced_k);
                         }
@@ -13309,7 +13357,7 @@ _break()
       })(this));
     };
 
-    Signature.prototype._verify = function(data_packets, cb) {
+    Signature.prototype._verify = function(data_packets, cb, opts) {
       var SKB, T, buffers, d, data, dp, err, hvalue, n, packets, payload, ps, sig, subkey, user_attribute, userid, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -13397,7 +13445,7 @@ _break()
         return function() {
           var _i, _len, _ref3;
           if (err == null) {
-            err = _this._check_key_sig_expiration();
+            err = _this._check_key_sig_expiration(opts);
           }
           sig = _this;
           if (err == null) {
@@ -13479,14 +13527,14 @@ _break()
       }
     };
 
-    Signature.prototype._check_key_sig_expiration = function() {
-      var T, creation, err, expiration, now, _ref3;
+    Signature.prototype._check_key_sig_expiration = function(opts) {
+      var T, creation, err, expiration, n, now, _ref3;
       err = null;
       T = C.sig_types;
       if ((_ref3 = this.type) === T.issuer || _ref3 === T.personal || _ref3 === T.casual || _ref3 === T.positive || _ref3 === T.subkey_binding || _ref3 === T.primary_binding) {
         creation = this.subpacket_index.hashed[S.creation_time];
         expiration = this.subpacket_index.hashed[S.key_expiration_time];
-        now = unix_time();
+        now = (n = opts != null ? opts.now : void 0) != null ? n : unix_time();
         if ((creation != null) && (expiration != null)) {
           expiration = creation.time + expiration.time;
           if ((now > expiration) && expiration !== 0) {
@@ -14888,7 +14936,7 @@ _break()
                               };
                             })(),
                             lineno: 110
-                          }));
+                          }), _this.opts);
                           __iced_deferrals._fulfill();
                         })(function() {
                           return __iced_k(typeof tmp !== "undefined" && tmp !== null ? (msg = "Signature failure in packet " + i + ": " + tmp.message, _this.warnings.push(msg)) : _this.verified_signatures.push(p));
@@ -14938,8 +14986,6 @@ _break()
           esk_packets.push(p);
           this.packets.shift();
           _results.push(p.get_key_id());
-          console.log("esk packets kbpgp line 14941: ", esk_packets);
-          console.log("packets kbpgp line 14941: ", packets);
         }
         return _results;
       }).call(this);
@@ -14947,6 +14993,8 @@ _break()
         return (function(__iced_k) {
           if (key_ids.length) {
             enc = true;
+            console.info("Key ID", key_ids[0]);
+/*
             (function(__iced_k) {
               __iced_deferrals = new iced.Deferrals(__iced_k, {
                 parent: ___iced_passed_deferral,
@@ -14964,6 +15012,21 @@ _break()
                 lineno: 151
               }));
               __iced_deferrals._fulfill();
+            })
+
+*/
+           packet = esk_packets[0];
+           //key_material = km.find_pgp_key_material(key_ids[index]);
+           //fingerprint = key_material.get_fingerprint();
+           //privk = key_material.key;
+           console.info("err", err);
+           err = null;
+           auth_decrypt(packet.raw, (ok_sesskey) => {
+               sesskey = packet.raw.slice(0, ok_sesskey.length);
+               sesskey = Object.assign(sesskey, ok_sesskey);
+               console.info("sesskey from OnlyKey:", sesskey);
+             return cb(err, enc, sesskey, pkcs5);
+           });
             })(function() {
               (function(__iced_k) {
                 if (err == null) {
@@ -14977,8 +15040,6 @@ _break()
                       filename: "/Users/max/src/keybase/kbpgp/src/openpgp/processor.iced",
                       funcname: "Message._get_session_key"
                     });
-                    console.log("packet.ekey kbpgp line 14978: ", packet.ekey);
-                    console.log("fingerprint kbpgp line 14978: ", fingerprint);
                     privk.decrypt_and_unpad(packet.ekey, {
                       fingerprint: fingerprint
                     }, __iced_deferrals.defer({
@@ -15006,7 +15067,7 @@ _break()
         });
       })(this)((function(_this) {
         return function() {
-          return cb(err, enc, sesskey, pkcs5);
+          //return cb(err, enc, sesskey, pkcs5);
         };
       })(this));
     };
@@ -15026,9 +15087,6 @@ _break()
       var cipher, err, ret, ___iced_passed_deferral, __iced_deferrals, __iced_k, _ref1;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
-      //I think sesskey or pkcs5 is the symmetric session key, have to test this
-      console.log("edat kbpgp line 15026: ", edat);
-      console.log("cb kbpgp line 15027: ", cb);
       _ref1 = katch(function() {
         return import_key_pgp(sesskey, pkcs5);
       }), err = _ref1[0], cipher = _ref1[1];
@@ -15077,7 +15135,6 @@ _break()
       ___iced_passed_deferral = iced.findDeferral(arguments);
       err = null;
       esc = make_esc(cb, "Message::decrypt");
-      console.log("edat kbpgp line 15076: ", edat);
       (function(_this) {
         return (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -16447,7 +16504,6 @@ _break()
   exports.eme_pkcs1_decode = function(v) {
     var err, i, ret;
     err = ret = null;
-    console.log("v kbpgp line 16445: ", v);
     if (v.length < 12) {
       err = new Error("Ciphertext too short, needs to be >= 12 bytes");
     } else if (v.readUInt16BE(0) !== 0x0002) {
@@ -18153,8 +18209,6 @@ _break()
     };
 
     Pair.prototype.decrypt_and_unpad = function(ciphertext, params, cb) {
-      console.log("sb kbpgp line 18151: ", ciphertext);
-      console.log("sb kbpgp line 18151: ", params);
       var b, err, p, ret, ___iced_passed_deferral, __iced_deferrals, __iced_k;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -18166,8 +18220,6 @@ _break()
             filename: "/Users/max/src/keybase/kbpgp/src/rsa.iced",
             funcname: "Pair.decrypt_and_unpad"
           });
-          console.log("sb kbpgp line 18151: ", ciphertext.y());
-          console.log("sb kbpgp line 18151: ", ciphertext);
           _this.decrypt(ciphertext.y(), __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
@@ -18211,7 +18263,17 @@ _break()
           _this.sign(m, __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
-                return sig = arguments[0];
+                auth_sign(hashed_data, (ok_sig) => {
+                    console.info("signature from OnlyKey:", ok_sig);
+                    sig = arguments[0].to_mpi_buffer();
+                    console.info("signature from app:", sig);
+                    size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
+                    hdr = new Buffer(2);
+                    hdr.writeUInt16BE(size, 0);
+                    sig = Buffer.concat([hdr, new Buffer(ok_sig)]);
+                    console.info("sig:", sig);
+                    return cb(null, sig);
+                });
               };
             })(),
             lineno: 330
@@ -18220,7 +18282,7 @@ _break()
         });
       })(this)((function(_this) {
         return function() {
-          return cb(null, sig.to_mpi_buffer());
+          //return cb(null, sig.to_mpi_buffer());
         };
       })(this));
     };
@@ -18603,8 +18665,6 @@ _break()
       pkcs5_padding = false;
     }
     sb = new SlicerBuffer(msg);
-    console.log("msg kbpgp line 18595: ", msg);
-    console.log("pkcs5_padding kbpgp line 18595: ", pkcs5_padding);
     ret = err = null;
     cipher = get_cipher(sb.read_uint8());
     key = sb.read_buffer(cipher.key_size);
@@ -51426,7 +51486,7 @@ module.exports={
     "keybase"
   ],
   "author": "Maxwell Krohn",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "license": "BSD-3-Clause",
   "main": "./lib/main.js",
   "directories": {
