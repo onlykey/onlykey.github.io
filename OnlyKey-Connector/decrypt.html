@@ -1,0 +1,52 @@
+<html>
+
+<head>
+    <title>OnlyKey Connector - Decrypt using OnlyKey Offline</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+</head>
+<body>
+
+      <code data-language="javascript">
+      <div id=header_messages></div>
+      </code>
+
+    </div>
+    <div id="container">
+      <div id="container">
+          <fieldset>
+              <textarea placeholder="Sender's Keybase username or URL to thier public pgp key or paste thier key..." rows="1" id="pgpkeyurl"></textarea>
+              <textarea placeholder="PGP message to decrypt ..." id="message"></textarea>
+              <button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button>
+          </fieldset>
+          <center><form name="action">
+            <label>
+              <input type="radio" name='select_one' id="decrypt_and_verify" value="Decrypt and Verify" checked="checked"> Decrypt and Verify
+            </label>
+            <label>
+              <input type="radio" name='select_one' id="decrypt_only" value="Decrypt Only"> Decrypt Only
+            </label>
+          </form></center>
+          </div>
+          </fieldset>
+        </div>
+        <script src="js/u2f-api.js"></script>
+        <script src="js/ecc.js"></script>
+        <script src="js/asn1.js"></script>
+        <script src="js/onlykey-api.js"></script>
+        <script src="js/app.js"></script>
+
+    <div class="content">
+        <h2>OnlyKey Console Messages Appear Below</h2>
+        <pre><code data-language="javascript"><font color="008700">
+        <div id=messages></div>
+        </font></code></pre>
+
+    </div>
+    <script>
+    //call after page loaded
+    window.onload=init();
+    </script>
+  </body>
+
+</html>
