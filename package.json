@@ -1,0 +1,39 @@
+{
+  "name": "OnlyKey-Web-apps",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Securely encrypt, sign, decrypt and verify messages in your browser using Keybase PGP and OnlyKey",
+  "main": "src/app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/onlykey/onlykey.github.io.git"
+  },
+  "author": "CryptoTrust <a@crp.to>",
+  "license": "MIT",
+  "scripts": {
+    "gh-deploy": "cross-env NODE_ENV=production OUT_DIR=./docs webpack -p --config webpack.config.js",
+    "build": "cross-env NODE_ENV=production OUT_DIR=./build webpack -p --config webpack.config.js",
+    "dev": "cross-env NODE_ENV=development OUT_DIR=./build webpack --watch --devtool source-map --config webpack.config.js"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.0.1",
+    "cross-env": "^4.0.0",
+    "html-webpack-include-assets-plugin": "0.0.5",
+    "html-webpack-plugin": "^2.30.1",
+    "uglifyjs-webpack-plugin": "^0.4.6",
+    "webpack": "^2.7.0",
+    "webpack-subresource-integrity": "^0.9.0"
+  },
+  "dependencies": {
+    "install": "^0.10.1",
+    "kbpgp": "file:../kbpgp",
+    "npm": "^5.4.1",
+    "randomcolor": "^0.5.3",
+    "superagent": "^3.6.0",
+    "uglify-js": "^3.1.0"
+  },
+  "bugs": {
+    "url": "https://github.com/onlykey/onlykey.github.io/issues"
+  },
+  "homepage": "https://github.com/onlykey/onlykey.github.io#readme"
+}
