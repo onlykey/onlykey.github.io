@@ -15015,62 +15015,29 @@ _break()
             })
 
 */
-           packet = esk_packets[0];
-           //key_material = km.find_pgp_key_material(key_ids[index]);
-           //fingerprint = key_material.get_fingerprint();
-           //privk = key_material.key;
-           console.info("err", err);
-           err = null;
-           auth_decrypt(packet.raw, (ok_sesskey) => {
-               sesskey = packet.raw.slice(0, ok_sesskey.length);
-               sesskey = Object.assign(sesskey, ok_sesskey);
-               console.info("sesskey from OnlyKey:", sesskey);
-             return cb(err, enc, sesskey, pkcs5);
-           });
-            })(function() {
-              (function(__iced_k) {
-                if (err == null) {
-                  packet = esk_packets[index];
-                  key_material = km.find_pgp_key_material(key_ids[index]);
-                  fingerprint = key_material.get_fingerprint();
-                  privk = key_material.key;
-                  (function(__iced_k) {
-                    __iced_deferrals = new iced.Deferrals(__iced_k, {
-                      parent: ___iced_passed_deferral,
-                      filename: "/Users/max/src/keybase/kbpgp/src/openpgp/processor.iced",
-                      funcname: "Message._get_session_key"
-                    });
-                    privk.decrypt_and_unpad(packet.ekey, {
-                      fingerprint: fingerprint
-                    }, __iced_deferrals.defer({
-                      assign_fn: (function() {
-                        return function() {
-                          err = arguments[0];
-                          sesskey = arguments[1];
-                          return pkcs5 = arguments[2];
-                        };
-                      })(),
-                      lineno: 157
-                    }));
-                    __iced_deferrals._fulfill();
-                  })(function() {
-                    return __iced_k(err == null ? _this.encryption_subkey = key_material : void 0);
-                  });
-                } else {
-                  return __iced_k();
-                }
-              })(__iced_k);
-            });
-          } else {
-            return __iced_k(enc = false);
-          }
-        });
-      })(this)((function(_this) {
-        return function() {
-          //return cb(err, enc, sesskey, pkcs5);
-        };
-      })(this));
+          packet = esk_packets[0];
+          //key_material = km.find_pgp_key_material(key_ids[index]);
+          //fingerprint = key_material.get_fingerprint();
+          //privk = key_material.key;
+          console.info("err", err);
+          err = null;
+          auth_decrypt(packet.raw, (ok_sesskey) => {
+              sesskey = packet.raw.slice(0, ok_sesskey.length);
+              sesskey = Object.assign(sesskey, ok_sesskey);
+              console.info("sesskey from OnlyKey:", sesskey);
+            return cb(err, enc, sesskey, pkcs5);
+          });
+
+      } else {
+        return __iced_k(enc = false);
+      }
+    });
+  })(this)((function(_this) {
+    return function() {
+      //return cb(err, enc, sesskey, pkcs5);
     };
+  })(this));
+};
 
     Message.prototype._find_encrypted_data = function(cb) {
       var err, ret;
