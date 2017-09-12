@@ -1,11 +1,9 @@
 <html>
 
 <head>
-    <title>OnlyKey Web Apps - Test Search for Social Media Accounts</title>
+    <title>OnlyKey Web Apps - Encrypt & sign messages in your browser using PGP</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/jqueryui-editable/css/jqueryui-editable.css" rel="stylesheet"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/jqueryui-editable/js/jqueryui-editable.min.js"></script>
+
     <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
     <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
     <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
@@ -23,7 +21,6 @@
         crossorigin="anonymous">
     <link href="css/style.css" rel="stylesheet">
 
-
     <!-- Modify header colors here to customize the look and feel of the site-->
     <style>
         .header {
@@ -40,40 +37,6 @@
             color: rgb(137, 137, 137);
         }
     </style>
-    <script>
-    function searchKeybase(sites, user) {
-    $.ajax({
-        url: 'https://keybase.io/_/api/1.0/user/discover.json?' + 'twitter' + '=' + 'cr7pt0',
-        async: true,
-        dataType: 'json',
-        success: function(data) {
-            console.info(data);
-            //$("#searchresults").append("<img src='"+data.status.name+"' />");
-            //data = data.matches.twitter[0];
-            //console.info(data);
-            $("#searchresults").append("Found a Match");
-            $("#searchresults").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='200' height='200'/>");
-            $("#searchresults").append("Keybase User "+data.matches.twitter[0][0].username);
-            //data = JSON.stringify(data);
-        }
-    });
-}
-
-$(document).ready(function() {
-    $('#submit').click(function() {
-        var sites = {
-            q: $('#site').val(),
-            rpp: 5
-        };
-        var users = {
-            q: $('#user').val(),
-            rpp: 5
-        };
-        // alert(jQuery.param(params));
-        searchKeybase(sites, users);
-    });
-});
-</script>
 
 </head>
 <body class='yui3-skin-sam'>
@@ -97,19 +60,13 @@ $(document).ready(function() {
         </center>
 
     </div>
-        <div id="container">
+    <h5>Securely encrypt and sign messages in your browser using <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a> and OnlyKey</h5>
+    <div id="container">
         <fieldset>
             <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
-
-               <div>
-                    <input id="user" type="text" value="cr7pt0" />
-                    <input id="site" type="text" value="twitter" />
-                    <input id="submit" type="button" value="Search" />
-                </div>
-                <div id="searchresults">
-                    Results go here
-                </div>
-            </div>
+            <textarea placeholder="Recipient's Keybase username or URL to thier public PGP key or paste thier key..." rows="1" id="pgpkeyurl"></textarea>
+            <textarea placeholder="Hey, i am sending you a super secret message..." id="message"></textarea>
+            <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
         </fieldset>
         <center><form name="action">
           <input type="radio" name='select_one' id="encrypt_and_sign" value="Encrypt and Sign" checked="checked"> Encrypt and Sign
@@ -120,6 +77,7 @@ $(document).ready(function() {
         <script src="js/u2f-api.js"></script>
         <script src="js/ecc.js"></script>
         <script src="js/asn1.js"></script>
+        <script src="js/onlykey-api.js"></script>
 
     <div class="content">
         <h2>OnlyKey Console Messages Appear Below</h2>
@@ -128,6 +86,10 @@ $(document).ready(function() {
         </font></code></pre>
 
     </div>
+    <script>
+    //call after page loaded
+    window.onload=init();
+    </script>
   </body>
 
 </html>

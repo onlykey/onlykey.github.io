@@ -1,4 +1,3 @@
-
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var data_blob = {};
