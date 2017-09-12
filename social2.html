@@ -39,89 +39,38 @@
         }
     </style>
     <script>
-    $('#username').editable({
-      type: 'select2',
-      url: '/post',
-      pk: 1,
-      onblur: 'submit',
-      emptytext: 'None',
-         select2: {
-                    placeholder: 'Select a Requester',
-                    allowClear: true,
-                    width: '230px',
-                    minimumInputLength: 3,
-                    id: function (e) {
-                        return e.EmployeeId;
-                    },
-                    ajax: {
-                        url: '/EmployeeSearch',
-                        dataType: 'json',
-                        data: function (term, page) {
-                            return { query: term };
-                        },
-                        results: function (data, page) {
-                            return { results: data };
-                        }
-                    },
-                    formatResult: function (employee) {
-                        return employee.EmployeeName;
-                    },
-                    formatSelection: function (employee) {
-                        return employee.EmployeeName;
-                    },
-                    initSelection: function (element, callback) {
-                        return $.get('/EmployeeLookupById', { query: element.val() }, function (data) {
-                            callback(data);
-                        }, 'json'); //added dataType
-                    }
-                }
-        /* suucess not needed
-         ,
-               success: function(response) {
-                    $('#RequestUser').text(response.newVal);
-                }
-                */
-    });
-
-
-    $.mockjax({
-        url: '/EmployeeLookupById',
-        responseTime: 100,
-        responseText: {
-                EmployeeId: 1,
-                EmployeeName: 'Search for user'
-            }
-    });
-
-    $.mockjax({
-        url: '/EmployeeSearch',
-        responseTime: 400,
-        response: function(settings) {
-            var res = [];
-            for(var i=1; i<5;i++) {
-                res.push({
-                    EmployeeId: i, 
-                    EmployeeName: settings.data.query+'_'+i
-                });
-            }
-            this.responseText = res;
+    function searchKeybase(sites, user) {
+    $.ajax({
+        url: 'https://keybase.io/_/api/1.0/user/discover.json?' + 'twitter' + '=' + 'cr7pt0',
+        async: true,
+        dataType: 'json',
+        success: function(data) {
+            console.info(data);
+            //$("#searchresults").append("<img src='"+data.status.name+"' />");
+            //data = data.matches.twitter[0];
+            //console.info(data);
+            $("#searchresults").append("Found a Match");
+            $("#searchresults").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' />");
+            $("#searchresults").append("Keybase User "+data.matches.twitter[0][0].username);
+            //data = JSON.stringify(data);
         }
     });
+}
 
-    //ajax emulation. Type "err" to see error message
-    $.mockjax({
-        url: '/post',
-        responseTime: 400,
-        response: function(settings) {
-            if(settings.data.value == 'err') {
-               this.status = 500;
-               this.responseText = 'Validation error!';
-            } else {
-               this.responseText = '';
-            }
-        }
+$(document).ready(function() {
+    $('#submit').click(function() {
+        var sites = {
+            q: $('#site').val(),
+            rpp: 5
+        };
+        var users = {
+            q: $('#user').val(),
+            rpp: 5
+        };
+        // alert(jQuery.param(params));
+        searchKeybase(sites, users);
     });
-
+});
 </script>
 
 </head>
@@ -157,10 +106,6 @@
                 </div>
                 <div id="searchresults" style="padding: 20px;">
                     Results go here
-                </div>
-                <p>X-editable (dev)</p>
-                <div style="margin: 150px">
-                    <a href="#" id="username" data-value="2">Search for user</a>
                 </div>
             </div>
         </fieldset>
