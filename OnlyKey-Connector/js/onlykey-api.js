@@ -419,6 +419,36 @@ function u2fSignBuffer(cipherText, mainCallback) {
     });
 }
 
+window.doPinTimer = function (seconds) {
+  return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
+    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
+    if (secondsRemaining <= 0) {
+      const err = 'Time expired for PIN confirmation';
+      p2g.showError({ message: err });
+      updateStatusFromSelection(true);
+      return reject(err);
+    }
+    if (_status === 'done_pin') {
+      //button.textContent = 'Confirming PIN...';
+      msg(`Delay ${poll_delay} seconds`);
+      return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+        msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
+        updateStatusFromSelection();
+        resolve(data);
+      });
+    }
+
+    setButtonTimerMessage(secondsRemaining);
+    setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
+  });
+};
+
+function setButtonTimerMessage(seconds) {
+  //const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
+  //button.textContent = msg;
+  msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
+}
+
 function get_pin (byte) {
   if (byte < 6) return 1;
   else {
