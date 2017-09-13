@@ -1,19 +1,26 @@
-window.addEventListener('message', function (e) {
-	console.dir(e);
+window.addEventListener('message', function (event) {
+	console.dir(event);
 	// if (originWhitelist.includes(e.origin)) {
 	if (e.origin) {
-		switch(e && e.data && e.data.action) {
-			case "GET_CONNECTOR":
-				return new OnlyKeyConnector();
-				break;
-			default:
-				//swallow
-		}
+		const type = event && event.data && event.data.action;
+		return handleMessage({ event, type, connector: new OnlyKeyConnector() });
 	}
 });
 
-function handleEncryptMessage(e) {
-	e.source.postMessage({ result: 'ENCRYPTED', data: e.data }, e.origin);	
+function handleMessage(params = {}) {
+	const { event, type, connector } = params;
+	if (!(event && type && connector)) {
+		throw new ReferenceError(`params event, type, and connector are required.`);
+	}
+
+	switch(type) {
+		case 'GET_CONNECTOR':
+			e.source.postMessage({ data: event.data, connector, type }, e.origin);
+			break;
+		default:
+			// unhandled type
+			break;
+	}
 }
 
 const originWhitelist = [
