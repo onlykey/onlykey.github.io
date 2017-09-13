@@ -1,7 +1,7 @@
 window.addEventListener('message', function (event) {
 	console.dir(event);
-	// if (originWhitelist.includes(e.origin)) {
-	if (e.origin) {
+	// if (originWhitelist.includes(event.origin)) {
+	if (event.origin) {
 		const type = event && event.data && event.data.action;
 		return handleMessage({ event, type, connector: new OnlyKeyConnector() });
 	}
