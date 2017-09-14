@@ -15,7 +15,7 @@ function handleMessage(params = {}) {
 
 	switch(type) {
 		case 'GET_CONNECTOR':
-			e.source.postMessage({ data: event.data, connector, type }, e.origin);
+			event.source.postMessage({ data: event.data, connector, type }, event.origin);
 			break;
 		default:
 			// unhandled type
