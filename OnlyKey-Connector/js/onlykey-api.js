@@ -15,21 +15,11 @@ var BN = p256.n.constructor;  // BN = BigNumber
 var _status;
 var pin;
 var poll_type, poll_delay;
-const button = document.getElementById('onlykey_start');
 
 var custom_keyid;
 
 function init() {
   auth_timeset();
-  updateStatusFromSelection();
-
-  document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
-}
-
-function updateStatusFromSelection(skipBtn) {
-  const val = document.action.select_one.value;
-  _status = val;
-  if (!skipBtn) button.textContent = val;
 }
 
 //var ECDH = require('elliptic').ec;
@@ -429,7 +419,6 @@ window.doPinTimer = function (seconds) {
       return reject(err);
     }
     if (_status === 'done_pin') {
-      //button.textContent = 'Confirming PIN...';
       msg(`Delay ${poll_delay} seconds`);
       return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
@@ -444,8 +433,6 @@ window.doPinTimer = function (seconds) {
 };
 
 function setButtonTimerMessage(seconds) {
-  //const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
-  //button.textContent = msg;
   msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
 }
 
