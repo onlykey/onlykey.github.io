@@ -15,7 +15,7 @@ window.addEventListener('message', function (event) {
 
 function handleMessage(params = {}) {
 	msg(`handleMessage params:`);
-	msgObjectProps(params);
+	//msgObjectProps(params);
 
 	const { event, type, connector } = params;
 
@@ -26,11 +26,10 @@ function handleMessage(params = {}) {
 	}
 
 	msg(`handling message type ${type}`);
-	msg(`handleMessage event:`);
-	msgObjectProps(event);
-
+	msg(`event.source: ${event.source}`);
 	switch(type) {
 		case 'GET_CONNECTOR':
+
 			event.source.postMessage({ data: event.data, connector, type }, event.origin);
 			break;
 		default:
