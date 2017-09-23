@@ -10,10 +10,16 @@ window.addEventListener('message', function (event) {
 
 function handleMessage(params = {}) {
 	const { event, type, connector } = params;
+
 	if (!(event && type && connector)) {
-		throw new ReferenceError(`params event, type, and connector are required.`);
+		let err = `params event, type, and connector are required.`;
+		msg(`handleMessage error: ${err}`)
+		throw new ReferenceError(err);
 	}
 
+	msg(`handling message type ${type}`);
+	msg(JSON.stringify(event));
+	
 	switch(type) {
 		case 'GET_CONNECTOR':
 			event.source.postMessage({ data: event.data, connector, type }, event.origin);
