@@ -1,7 +1,7 @@
 window.addEventListener('message', function (event) {
 	// if (originWhitelist.includes(event.origin)) {
 	msg(`onMessage event:`);
-	msgObjectProps(event);
+	//msgObjectProps(event);
 	msg(`FINISHED enumerating event props`);
 
 	if (event.origin) {
