@@ -3,6 +3,7 @@ window.addEventListener('message', function (event) {
 	// if (originWhitelist.includes(event.origin)) {
 	if (event.origin) {
 		const type = event && event.data && event.data.action;
+		msg(`postMessage received: ${type}`);
 		return handleMessage({ event, type, connector: new OnlyKeyConnector() });
 	}
 });
