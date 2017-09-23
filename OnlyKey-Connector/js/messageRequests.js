@@ -1,9 +1,5 @@
 window.addEventListener('message', function (event) {
 	// if (originWhitelist.includes(event.origin)) {
-	msg(`onMessage event:`);
-	//msgObjectProps(event);
-	msg(`FINISHED enumerating event props`);
-
 	if (event.origin) {
 		const type = event && event.data && event.data.action;
 		msg(`postMessage received: ${type}`);
@@ -15,7 +11,7 @@ window.addEventListener('message', function (event) {
 
 function handleMessage(params = {}) {
 	msg(`handleMessage params:`);
-	//msgObjectProps(params);
+	msgObjectProps(params);
 
 	const { event, type, connector } = params;
 
@@ -26,11 +22,17 @@ function handleMessage(params = {}) {
 	}
 
 	msg(`handling message type ${type}`);
-	msg(`event.source: ${typeof event.source}`);
+
+	let msgParams = {
+		connector,
+		type,
+		data: event.data
+	};
+
 	switch(type) {
 		case 'GET_CONNECTOR':
-
-			event.source.postMessage({ data: event.data, connector, type }, event.origin);
+			event.source.postMessage(msgParams, event.origin);
+			msg(`Sent message to ${event.origin}`);
 			break;
 		default:
 			// unhandled type
