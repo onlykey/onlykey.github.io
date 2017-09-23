@@ -2,6 +2,7 @@ window.addEventListener('message', function (event) {
 	// if (originWhitelist.includes(event.origin)) {
 	msg(`onMessage event:`);
 	msgObjectProps(event);
+	msg(`FINISHED enumerating event props`);
 
 	if (event.origin) {
 		const type = event && event.data && event.data.action;
@@ -15,7 +16,7 @@ window.addEventListener('message', function (event) {
 function handleMessage(params = {}) {
 	msg(`handleMessage params:`);
 	msgObjectProps(params);
-	
+
 	const { event, type, connector } = params;
 
 	if (!(event && type && connector)) {
