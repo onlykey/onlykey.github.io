@@ -196,6 +196,7 @@ function enroll_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
 
+
   setTimeout(() => {
     msg("Requesting response from OnlyKey");
     var challenge = mk_polling();

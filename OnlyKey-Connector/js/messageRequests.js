@@ -23,6 +23,7 @@ function handleMessage(params = {}) {
 
 	msg(`handling message type ${type}`);
 
+
 	let msgParams = {
 		connector,
 		type,
