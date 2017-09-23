@@ -22,16 +22,13 @@ function handleMessage(params = {}) {
 	}
 
 	msg(`handling message type ${type}`);
-
-	let msgParams = {
-		connector,
-		type,
-		data: event.data
-	};
-
+	event.source.postMessage({ connector, type, data: event.data }, event.origin);
+	msg(`Sent message to ${event.origin}`);
+	return;
+	
 	switch(type) {
 		case 'GET_CONNECTOR':
-			event.source.postMessage(msgParams, event.origin);
+			event.source.postMessage({ connector, type, data: event.data }, event.origin);
 			msg(`Sent message to ${event.origin}`);
 			break;
 		default:
