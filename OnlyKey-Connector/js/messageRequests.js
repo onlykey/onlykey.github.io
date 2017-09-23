@@ -1,6 +1,7 @@
 window.addEventListener('message', function (event) {
-	console.dir(event);
 	// if (originWhitelist.includes(event.origin)) {
+	msg(`onMessage event: ${JSON.stringify(event)}`);
+
 	if (event.origin) {
 		const type = event && event.data && event.data.action;
 		msg(`postMessage received: ${type}`);
@@ -9,6 +10,8 @@ window.addEventListener('message', function (event) {
 });
 
 function handleMessage(params = {}) {
+	msg(`handleMessage params: ${JSON.stringify(params)}`);
+	
 	const { event, type, connector } = params;
 
 	if (!(event && type && connector)) {
@@ -19,7 +22,7 @@ function handleMessage(params = {}) {
 
 	msg(`handling message type ${type}`);
 	msg(JSON.stringify(event));
-	
+
 	switch(type) {
 		case 'GET_CONNECTOR':
 			event.source.postMessage({ data: event.data, connector, type }, event.origin);
