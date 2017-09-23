@@ -26,7 +26,7 @@ function handleMessage(params = {}) {
 	}
 
 	msg(`handling message type ${type}`);
-	msg(`event.source: ${event.source}`);
+	msg(`event.source: ${typeof event.source}`);
 	switch(type) {
 		case 'GET_CONNECTOR':
 
