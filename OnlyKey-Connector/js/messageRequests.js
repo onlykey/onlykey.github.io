@@ -21,7 +21,8 @@ function handleMessage(params = {}) {
 		throw new ReferenceError(err);
 	}
 
-	const extensionId = "ljojjcicillaenepikahehbgjialiabi";
+	const extensionId = event.origin.split("//")[1];
+	msg(`Attempting sendMessage to extensionId ${extensionId}`);
 
 	// Make a simple request:
 	chrome.runtime.sendMessage(extensionId, { connector, type, data: event.data },
@@ -29,6 +30,8 @@ function handleMessage(params = {}) {
 	    if (!response.success) {
 	    	msg(`sendMessage response failed:`);
 	    	msg(JSON.stringify(response));
+	    } else {
+	    	msg(`SUCCESS`);
 	    }
 	  });
   return;
