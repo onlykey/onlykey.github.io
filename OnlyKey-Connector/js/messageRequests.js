@@ -21,11 +21,18 @@ function handleMessage(params = {}) {
 		throw new ReferenceError(err);
 	}
 
-	msg(`handling message type ${type}`);
-	event.source.postMessage({ connector, type, data: event.data }, event.origin);
-	msg(`Sent message to ${event.origin}`);
-	return;
-	
+	const extensionId = "ljojjcicillaenepikahehbgjialiabi";
+
+	// Make a simple request:
+	chrome.runtime.sendMessage(extensionId, { connector, type, data: event.data },
+	  function(response) {
+	    if (!response.success) {
+	    	msg(`sendMessage response failed:`);
+	    	msg(JSON.stringify(response));
+	    }
+	  });
+  return;
+
 	switch(type) {
 		case 'GET_CONNECTOR':
 			event.source.postMessage({ connector, type, data: event.data }, event.origin);
