@@ -1,6 +1,9 @@
 window.addEventListener('message', function (event) {
 	// if (originWhitelist.includes(event.origin)) {
-	msg(`onMessage event: ${JSON.stringify(event)}`);
+	msg(`onMessage event:`);
+	for (var k in event) {
+		msg(`${k}: ${JSON.stringify(event[k])}`);
+	}
 
 	if (event.origin) {
 		const type = event && event.data && event.data.action;
@@ -11,7 +14,7 @@ window.addEventListener('message', function (event) {
 
 function handleMessage(params = {}) {
 	msg(`handleMessage params: ${JSON.stringify(params)}`);
-	
+
 	const { event, type, connector } = params;
 
 	if (!(event && type && connector)) {
