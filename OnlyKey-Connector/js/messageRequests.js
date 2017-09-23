@@ -1,20 +1,21 @@
 window.addEventListener('message', function (event) {
 	// if (originWhitelist.includes(event.origin)) {
 	msg(`onMessage event:`);
-	for (var k in event) {
-		msg(`${k}: ${JSON.stringify(event[k])}`);
-	}
+	msgObjectProps(event);
 
 	if (event.origin) {
 		const type = event && event.data && event.data.action;
 		msg(`postMessage received: ${type}`);
 		return handleMessage({ event, type, connector: new OnlyKeyConnector() });
+	} else {
+		msg(`[ERROR: postMessage missing event.origin]`);
 	}
 });
 
 function handleMessage(params = {}) {
-	msg(`handleMessage params: ${JSON.stringify(params)}`);
-
+	msg(`handleMessage params:`);
+	msgObjectProps(params);
+	
 	const { event, type, connector } = params;
 
 	if (!(event && type && connector)) {
@@ -24,7 +25,8 @@ function handleMessage(params = {}) {
 	}
 
 	msg(`handling message type ${type}`);
-	msg(JSON.stringify(event));
+	msg(`handleMessage event:`);
+	msgObjectProps(event);
 
 	switch(type) {
 		case 'GET_CONNECTOR':
@@ -44,5 +46,15 @@ class OnlyKeyConnector {
 	constructor(params) {
 		this.Sign = auth_sign;
 		this.Decrypt = auth_decrypt;
+	}
+}
+
+function msgObjectProps(obj) {
+	if (typeof obj === 'object') {
+		for (var k in obj) {
+			msg(`> ${k}: ${JSON.stringify(obj[k])}`);
+		}
+	} else {
+		msg(`[value]: ${obj}`);
 	}
 }
