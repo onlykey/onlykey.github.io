@@ -69815,7 +69815,7 @@ window.doPinTimer = function (seconds) {
       updateStatusFromSelection(true);
       return reject(err);
     }
-    if (_status === 'done_pin') { //PIN has been entered
+    if (_status === 'done_pin') {
       button.textContent = 'Confirming PIN...';
       msg(`Delay ${poll_delay} seconds`);
       return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
@@ -69824,6 +69824,7 @@ window.doPinTimer = function (seconds) {
         resolve(data);
       });
     }
+
     setButtonTimerMessage(secondsRemaining);
     setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
   });
@@ -69832,7 +69833,7 @@ window.doPinTimer = function (seconds) {
 function setButtonTimerMessage(seconds) {
   const pinmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
   button.textContent = pinmsg;
-  if (!auth_ping()) _status == 'done_pin';
+  if (!auth_ping()) _status = 'done_pin';
 }
 
 urlinputbox.onkeyup = function () {
