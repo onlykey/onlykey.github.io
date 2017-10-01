@@ -262,6 +262,28 @@ function process_custom_response(response) {
   return 1;
 }
 
+//Function to get see if OnlyKey responds via U2F auth message Keyhandle
+function auth_ping() { //OnlyKey get public key to keyHandle
+  simulate_enroll();
+  var message = [255, 255, 255, 255]; //Add header and message type
+  msg("Sending Ping Request to OnlyKey Slot ");
+  var ciphertext = new Uint8Array(60).fill(0);
+  Array.prototype.push.apply(message, ciphertext);
+  msg("Handlekey bytes " + message);
+  var keyHandle = bytes2b64(message);
+  msg("Sending Handlekey " + keyHandle);
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "keyHandle": keyHandle,
+               "appId": appId, "version": version };
+  var result;
+  u2f.sign(appId, challenge, [req], function(response) {
+    result = verify_auth_response(response);
+    msg("Ping " + (result ? "Successfull" : "Error"));
+  }, 1);
+  return result;
+}
+
+
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
 function auth_getpub() { //OnlyKey get public key to keyHandle
   simulate_enroll();
