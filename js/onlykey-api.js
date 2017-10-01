@@ -278,9 +278,8 @@ function auth_ping() {
   var result;
   u2f.sign(appId, challenge, [req], function(response) {
     result = verify_auth_response(response);
-    msg("Ping " + (result ? "Successful" : "Error"));
-    msg("result " + result);
-    return result;
+    msg("Ping " + (result ? "Successful" : "Failed"));
+    _status = result ? _status : 'done_pin';
   }, 2);
 }
 

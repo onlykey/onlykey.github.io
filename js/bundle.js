@@ -69833,7 +69833,6 @@ window.doPinTimer = function (seconds) {
 function setButtonTimerMessage(seconds) {
   const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
   button.textContent = msg;
-  _status = auth_ping() ? _status : 'done_pin';
 }
 
 urlinputbox.onkeyup = function () {
