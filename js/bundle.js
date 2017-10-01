@@ -69821,9 +69821,9 @@ window.doPinTimer = function (seconds) {
 };
 
 function setButtonTimerMessage(seconds) {
-  const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
-  button.textContent = msg;
-  if (!auth_ping()) { //PIN has been entered
+  const pinmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
+  button.textContent = pinmsg;
+  if (auth_ping()==0) { //PIN has been entered
     button.textContent = 'Confirming PIN...';
     msg(`Delay ${poll_delay} seconds`);
     return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {

@@ -279,7 +279,7 @@ function auth_ping() { //OnlyKey get public key to keyHandle
   u2f.sign(appId, challenge, [req], function(response) {
     result = verify_auth_response(response);
     msg("Ping " + (result ? "Successfull" : "Error"));
-  }, 1);
+  }, 2);
   return result;
 }
 
