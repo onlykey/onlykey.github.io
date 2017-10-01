@@ -263,7 +263,7 @@ function process_custom_response(response) {
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
-function auth_ping() { 
+function auth_ping() {
   simulate_enroll();
   var message = [255, 255, 255, 255]; //Add header and message type
   msg("Sending Ping Request to OnlyKey Slot ");
@@ -278,10 +278,10 @@ function auth_ping() {
   var result;
   u2f.sign(appId, challenge, [req], function(response) {
     result = verify_auth_response(response);
-    msg("Ping " + (result ? "Successfull" : "Error"));
+    msg("Ping " + (result ? "Successful" : "Error"));
+    msg("result " + result);
+    return result;
   }, 2);
-  msg("result " + result);
-  return result;
 }
 
 
