@@ -1,9 +1,9 @@
 window.addEventListener('message', function (event) {
 	// if (originWhitelist.includes(event.origin)) {
 	if (event.origin) {
-		const type = event && event.data && event.data.action;
-		msg(`postMessage received: ${type}`);
-		return handleMessage({ event, type, connector: new OnlyKeyConnector() });
+		const action = event && event.data && event.data.action;
+		msg(`HTML5 message received: ${action}`);
+		return handleMessage({ event, action });
 	} else {
 		msg(`[ERROR: postMessage missing event.origin]`);
 	}
@@ -13,49 +13,57 @@ function handleMessage(params = {}) {
 	msg(`handleMessage params:`);
 	msgObjectProps(params);
 
-	const { event, type, connector } = params;
+	const { event, action } = params;
 
-	if (!(event && type && connector)) {
-		let err = `params event, type, and connector are required.`;
+	if (!(event && action)) {
+		let err = `params event and action are required.`;
 		msg(`handleMessage error: ${err}`)
-		throw new ReferenceError(err);
+		console.error(ReferenceError(err));
+		return false;
 	}
 
 	const extensionId = event.origin.split("//")[1];
-	msg(`Attempting sendMessage to extensionId ${extensionId}`);
+	if (!validExtensionId(extensionId)) {
+		// don't respond to unexpected origins
+		return false;
+	}
 
-	// Make a simple request:
-	chrome.runtime.sendMessage(extensionId, { connector, type, data: event.data },
-	  function(response) {
-	    if (!response.success) {
-	    	msg(`sendMessage response failed:`);
-	    	msg(JSON.stringify(response));
-	    } else {
-	    	msg(`SUCCESS`);
-	    }
-	  });
-  return;
+	msg(`Confirmed message from valid extension ${extensionId}`);
 
-	switch(type) {
-		case 'GET_CONNECTOR':
-			event.source.postMessage({ connector, type, data: event.data }, event.origin);
-			msg(`Sent message to ${event.origin}`);
+	switch(action) {
+		case 'ENCRYPT':
+			auth_sign(event.data.data, respondToAction);
+			break;
+		case 'DECRYPT':
+			// perform auth_decrypt()
 			break;
 		default:
-			// unhandled type
+			// unhandled action
 			break;
 	}
+
+}
+
+function respondToAction(data) {
+	chrome.runtime.sendMessage(extensionId, { ok_sig: data },
+		response => {
+			if (!response.success) {
+				msg(`sendMessage response failed:`);
+				msg(JSON.stringify(response));
+			} else {
+				msg(`SUCCESS`);
+			}
+		});
 }
 
 const originWhitelist = [
 	'https://'
 ];
 
-class OnlyKeyConnector {
-	constructor(params) {
-		this.Sign = auth_sign;
-		this.Decrypt = auth_decrypt;
-	}
+function validExtensionId(str) {
+	const re = /^[A-Za-z]{32}$/;
+	const matchArr = str.match(re);
+	return (matchArr && matchArr.length);
 }
 
 function msgObjectProps(obj) {
