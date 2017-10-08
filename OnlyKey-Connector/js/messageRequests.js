@@ -32,7 +32,10 @@ function handleMessage(params = {}) {
 
 	switch(action) {
 		case 'ENCRYPT':
-			auth_sign(event.data.data, respondToAction);
+			auth_sign(event.data.data, data => respondToAction({
+				extensionId
+				ok_sig: data
+			}));
 			break;
 		case 'DECRYPT':
 			// perform auth_decrypt()
@@ -44,8 +47,12 @@ function handleMessage(params = {}) {
 
 }
 
-function respondToAction(data) {
-	chrome.runtime.sendMessage(extensionId, { ok_sig: data },
+function respondToAction(params = {}) {
+	msg(`Responding to extension`);
+	msgObjectProps(params);
+
+	const { extensionId, ok_sig } = params;
+	chrome.runtime.sendMessage(extensionId, { ok_sig },
 		response => {
 			if (!response.success) {
 				msg(`sendMessage response failed:`);
