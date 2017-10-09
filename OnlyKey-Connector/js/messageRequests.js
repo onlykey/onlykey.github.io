@@ -33,7 +33,7 @@ function handleMessage(params = {}) {
 	switch(action) {
 		case 'ENCRYPT':
 			auth_sign(event.data.data, data => respondToAction({
-				extensionId
+				extensionId,
 				ok_sig: data
 			}));
 			break;
