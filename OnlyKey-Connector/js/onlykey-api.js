@@ -36,7 +36,7 @@ function userId() {
     return el && el.value || 'u2ftest';
 }
 
-function slotId() { return id('slotid') ? id('slotid').value }
+function slotId() { return id('slotid') ? id('slotid').value : 1; }
 
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
