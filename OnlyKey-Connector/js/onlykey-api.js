@@ -13,10 +13,10 @@ var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
 var _status;
-var pin;
 var poll_type, poll_delay;
-
 var custom_keyid;
+var msgType;
+var keySlot;
 
 function init() {
   auth_timeset();
@@ -36,10 +36,7 @@ function userId() {
     return el && el.value || 'u2ftest';
 }
 
-function slotId() {
-  var msgType = document.getElementById('onlykey_start') && document.getElementById('onlykey_start').value === 'Encrypt and Sign' ? 2 : 1;
-  return id('slotid') ? id('slotid').value : msgType;
-}
+function slotId() { return id('slotid') ? id('slotid').value }
 
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
@@ -261,7 +258,7 @@ function process_custom_response(response) {
 function auth_ping() {
   simulate_enroll();
   var message = [255, 255, 255, 255]; //Add header and message type
-  msg("Sending Ping Request to OnlyKey Slot ");
+  msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
@@ -300,7 +297,9 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
-  //simulate_enroll();
+  msgType = 240;
+  keySlot = 1;
+  poll_type = 3; //2048
   cb = cb || noop;
   if (ct.length == 396) {
     poll_delay = 6; //6 Second delay for RSA 3072
@@ -319,7 +318,9 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
-  //simulate_enroll();
+  msgType = 237;
+  keySlot = 2;
+  poll_type = 4;
   var pin_hash = sha256(ct);
   cb = cb || noop;
   msg("Signature Packet bytes " + Array.from(ct));
@@ -399,8 +400,7 @@ function verify_auth_response(response) {
 
 function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var msgType = document.getElementById('onlykey_start') && document.getElementById('onlykey_start').value === 'Encrypt and Sign' ? 237 : 240;
-    var message = [255, 255, 255, 255, 237, 2]; //Add header, message type, and key to use
+    var message = [255, 255, 255, 255, msgType, keySlot]; //Add header, message type, and key to use
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var ctChunk = cipherText.slice(0, maxPacketSize);
