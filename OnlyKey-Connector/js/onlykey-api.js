@@ -331,10 +331,10 @@ function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
     ct: params.ct
   };
 
-  var pin_hash = sha256(ct);
+  var pin_hash = sha256(params.ct);
   cb = cb || noop;
   msg("Signature Packet bytes " + Array.from(params.ct));
-  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
+  pin = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   msg("Generated PIN" + pin);
   params.ct = typeof params.ct === 'string' ? params.ct.match(/.{2}/g) : params.ct;
   return u2fSignBuffer(params, cb);
