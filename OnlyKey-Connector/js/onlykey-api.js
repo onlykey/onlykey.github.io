@@ -206,6 +206,7 @@ function enroll_polling(params = {}, cb) {
       const result = process_custom_response(response);
       let data;
       msg("Polling " + (result ? "succeeded" : "failed"));
+      _status = 'done_polling'
       if (result == 3) {
           msg("Polling succeeded but no data was received");
       } else if (result) {
@@ -269,11 +270,11 @@ function auth_ping() {
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   var result;
-  u2f.sign(appId, challenge, [req], function(response) {
-    result = verify_auth_response(response);
-    msg("Ping " + (result ? "Successful" : "Failed"));
-    _status = result ? _status : 'done_pin';
-  }, 2);
+    u2f.sign(appId, challenge, [req], function(response) {
+      result = verify_auth_response(response);
+      msg("Ping " + (result ? "Successful" : "Failed"));
+      _status = result ? _status : 'done_pin';
+    }, 2);
 }
 
 //Function to get public key on OnlyKey via U2F auth message Keyhandle
@@ -468,13 +469,15 @@ window.doPinTimer = function (seconds, params) {
     }
 
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=2), 2000);
   });
 };
 
 function setButtonTimerMessage(seconds) {
-  msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
-  auth_ping();
+  if (_status !== 'done_pin') {
+    msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
+    auth_ping();
+  }
 }
 
 function get_pin (byte) {
