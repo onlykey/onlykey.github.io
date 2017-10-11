@@ -296,37 +296,48 @@ function auth_getpub() { //OnlyKey get public key to keyHandle
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
-function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
-  msgType = 240;
-  keySlot = 1;
-  poll_type = 3; //2048
+function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
+  params = {
+    msgType: params.msgType || 240,
+    keySlot: params.keySlot || 1,
+    poll_type: params.poll_type || 3,
+    ct: params.ct
+  };
+
   cb = cb || noop;
-  if (ct.length == 396) {
-    poll_delay = 6; //6 Second delay for RSA 3072
-  } else if (ct.length == 524) {
-    poll_delay = 9; //9 Second delay for RSA 4096
+  if (params.ct.length == 396) {
+    params.poll_delay = 6; //6 Second delay for RSA 3072
+  } else if (params.ct.length == 524) {
+    params.poll_delay = 9; //9 Second delay for RSA 4096
   }
-  var padded_ct = ct.slice(12, ct.length);
-  var keyid = ct.slice(1, 8);
+  var padded_ct = params.ct.slice(12, params.ct.length);
+  var keyid = params.ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
   msg("Padded CT Packet bytes " + Array.from(padded_ct));
   msg("Key ID bytes " + Array.from(keyid));
   pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   msg("Generated PIN" + pin);
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
+  params.ct = typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct;
+  return u2fSignBuffer(params, cb);
 }
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
-function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
-  msgType = 237;
-  keySlot = 2;
-  poll_type = 4;
+function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
+  params = {
+    msgType: params.msgType || 237,
+    keySlot: params.keySlot || 2,
+    poll_type: params.poll_type || 4,
+    poll_delay: params.poll_delay,
+    ct: params.ct
+  };
+
   var pin_hash = sha256(ct);
   cb = cb || noop;
-  msg("Signature Packet bytes " + Array.from(ct));
+  msg("Signature Packet bytes " + Array.from(params.ct));
   pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   msg("Generated PIN" + pin);
-  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
+  params.ct = typeof params.ct === 'string' ? params.ct.match(/.{2}/g) : params.ct;
+  return u2fSignBuffer(params, cb);
 }
 
 //Function to process U2F registration response
@@ -398,16 +409,17 @@ function verify_auth_response(response) {
   return true;
 }
 
-function u2fSignBuffer(cipherText, mainCallback) {
+function u2fSignBuffer(params, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255, msgType, keySlot]; //Add header, message type, and key to use
+    var message = [255, 255, 255, 255, params.msgType, params.keySlot]; //Add header, message type, and key to use
     var maxPacketSize = 57;
-    var finalPacket = cipherText.length - maxPacketSize <= 0;
-    var ctChunk = cipherText.slice(0, maxPacketSize);
+    var finalPacket = params.ct.length - maxPacketSize <= 0;
+    var ctChunk = params.ct.slice(0, maxPacketSize);
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    params.ct = params.ct.slice(maxPacketSize);
+    var cb = finalPacket ? doPinTimer.bind(null, 20, params) : u2fSignBuffer.bind(null, params, mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
@@ -435,20 +447,21 @@ function u2fSignBuffer(cipherText, mainCallback) {
     });
 }
 
-window.doPinTimer = function (seconds) {
+window.doPinTimer = function (seconds, params) {
+  const { poll_type, poll_delay } = params;
+
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
+
     if (secondsRemaining <= 0) {
       const err = 'Time expired for PIN confirmation';
-      p2g.showError({ message: err });
-      updateStatusFromSelection(true);
       return reject(err);
     }
+
     if (_status === 'done_pin') {
       msg(`Delay ${poll_delay} seconds`);
       return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
-        updateStatusFromSelection();
         resolve(data);
       });
     }

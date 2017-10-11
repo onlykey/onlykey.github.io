@@ -3,7 +3,7 @@ window.addEventListener('message', function (event) {
 	if (event.origin) {
 		const action = event && event.data && event.data.action;
 		msg(`HTML5 message received: ${action}`);
-		return handleMessage({ event, action });
+		return handleMessage({ event });
 	} else {
 		msg(`[ERROR: postMessage missing event.origin]`);
 	}
@@ -13,10 +13,10 @@ function handleMessage(params = {}) {
 	msg(`handleMessage params:`);
 	msgObjectProps(params);
 
-	const { event, action } = params;
+	const { event } = params;
 
-	if (!(event && action)) {
-		let err = `params event and action are required.`;
+	if (!event) {
+		let err = `param 'event' is required.`;
 		msg(`handleMessage error: ${err}`)
 		console.error(ReferenceError(err));
 		return false;
@@ -30,9 +30,13 @@ function handleMessage(params = {}) {
 
 	msg(`Confirmed message from valid extension ${extensionId}`);
 
-	switch(action) {
+	const options = {};
+
+	switch(event.data.action) {
 		case 'ENCRYPT':
-			auth_sign(event.data.data, data => respondToAction({
+			options.ct = event.data.cipherText;
+			options.poll_delay = event.data.poll_delay;
+			auth_sign(options, data => respondToAction({
 				extensionId,
 				ok_sig: data
 			}));
