@@ -13,6 +13,7 @@ var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
 var _status;
+var pin;
 var poll_type, poll_delay;
 var custom_keyid;
 var msgType;
