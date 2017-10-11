@@ -474,7 +474,7 @@ window.doPinTimer = function (seconds, params) {
 
 function setButtonTimerMessage(seconds) {
   msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
-  auth_ping();
+  setTimeout(auth_ping(), 500);
 }
 
 function get_pin (byte) {
