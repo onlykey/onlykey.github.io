@@ -199,7 +199,7 @@ function enroll_polling(params = {}, cb) {
   const type = params.type || 1; // default type to 1
 
 
-  setTimeout(() => {
+  // setTimeout(() => {
     msg("Requesting response from OnlyKey");
     var challenge = mk_polling();
     var req = { "challenge": challenge, "appId": appId, "version": version};
@@ -234,7 +234,7 @@ function enroll_polling(params = {}, cb) {
 
       if (typeof cb === 'function') cb(null, data);
     });
-  }, delay * 1000);
+  // }, delay * 1000);
 }
 
 //Function to process custom U2F registration response
