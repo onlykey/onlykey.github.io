@@ -194,11 +194,8 @@ function auth_timeset() { //OnlyKey settime to keyHandle
   });
 }
 
-function enroll_polling(params = {}, cb) {
-  const delay = params.delay || 0; // no delay by default
-  const type = params.type || 1; // default type to 1
+function enroll_polling() {
 
-  setTimeout(() => {
     msg("Requesting response from OnlyKey");
     var challenge = mk_polling();
     var req = { "challenge": challenge, "appId": appId, "version": version};
@@ -230,9 +227,8 @@ function enroll_polling(params = {}, cb) {
         }
       }
 
-      if (typeof cb === 'function') cb(null, data);
     });
-  }, delay * 1000);
+
 }
 
 //Function to process custom U2F registration response
