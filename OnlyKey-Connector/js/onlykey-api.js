@@ -207,7 +207,7 @@ function enroll_polling(params = {}, cb) {
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
     u2f.sign(appId, challenge, [req], function(response) {
-      var result = verify_auth_response(response);
+      var result = process_custom_response(response);
       msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
       headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
       return result;
