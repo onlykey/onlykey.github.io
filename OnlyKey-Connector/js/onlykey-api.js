@@ -205,7 +205,7 @@ function enroll_polling(params = {}, cb) {
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
     u2f.sign(appId, challenge, [req], function(response) {
-      var result = verify_auth_response(response);
+      var result = custom_auth_response(response);
       msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
       headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
       return result;
@@ -384,6 +384,29 @@ function verify_auth_response(response) {
   var userPresent = sigData[0];
   var counter = new BN(sigData.slice(1,5)).toNumber();
   msg("User present: " + userPresent);
+  msg("Counter: " + counter);
+  return true;
+}
+
+//Function to process U2F auth response and parse out data
+function custom_auth_response(response) {
+  var err = response['errorCode'];
+  if (err==1) { //OnlyKey uses err 1 from auth as ACK
+    return true;
+  } else if (err) {
+    msg("Auth failed with error code " + err);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  msg("Client Data: " + clientData_b64);
+  var clientData_str = u2f_unb64(clientData_b64);
+  var clientData_bytes = string2bytes(clientData_str);
+  var clientData = JSON.parse(clientData_str);
+  var origin = clientData['origin'];
+  var kh = response['keyHandle'];
+  msg("Key Handle: " + kh);
+  var sigData = string2bytes(u2f_unb64(response['signatureData']));
+  msg("Data Received: " + sigData);
   msg("Counter: " + counter);
   return true;
 }
