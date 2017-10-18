@@ -21,6 +21,7 @@ var keySlot;
 
 function init() {
   auth_timeset();
+  auth_timeset();
 }
 
 //var ECDH = require('elliptic').ec;
