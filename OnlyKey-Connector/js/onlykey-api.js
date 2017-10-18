@@ -20,7 +20,8 @@ var msgType;
 var keySlot;
 
 function init() {
-  auth_timeset();
+  //auth_timeset();
+  enroll_polling({ type: 1, delay: .5 });
 }
 
 //var ECDH = require('elliptic').ec;
