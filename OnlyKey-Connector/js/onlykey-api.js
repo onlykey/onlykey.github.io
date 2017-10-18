@@ -186,14 +186,14 @@ function enroll_polling(params = {}, cb) {
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
     u2f.sign(appId, challenge, [req], function(response) {
-      const result = custom_auth_response(response);
+      var result = custom_auth_response(response);
       let data;
       msg("Polling " + (result ? "succeeded" : "failed"));
       if (result == 3) {
           msg("Polling succeeded but no data was received");
       } else if (result) {
         if (type == 1) {
-            msg("ECDH Public Key from OnlyKey " + result.slice(0, 32));
+            msg("ECDH Public Key from OnlyKey " + result.slice(0, 32) );
             OKversion = result[51] == 99 ? 'Color' : 'Original';
             msg("version" + result[51]);
             var FWversion = bytes2string(result.slice(40, 52));
