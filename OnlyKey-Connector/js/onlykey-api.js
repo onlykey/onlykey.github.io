@@ -202,7 +202,7 @@ function enroll_polling(params = {}, cb) {
   // setTimeout(() => {
     msg("Requesting response from OnlyKey");
     var challenge = mk_polling();
-    var req = { "challenge": challenge, "appId": appId, "version": version};
+    var req = { "challenge": challenge, "appId": appId};
     u2f.register(appId, [req], [], function(response) {
       const result = process_custom_response(response);
       let data;
