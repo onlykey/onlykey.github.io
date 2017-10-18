@@ -21,7 +21,6 @@ var keySlot;
 
 function init() {
   auth_timeset();
-  enroll_polling({ type: 1, delay: .5 });
 }
 
 //var ECDH = require('elliptic').ec;
@@ -190,45 +189,28 @@ function auth_timeset() { //OnlyKey settime to keyHandle
     var result = verify_auth_response(response);
     msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
     headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
-    return result;
+    return result && enroll_polling({ type: 1, delay: .5 });
   });
 }
 
-function enroll_polling() {
+function enroll_polling(params = {}, cb) {
+  const delay = params.delay || 0; // no delay by default
+  const type = params.type || 1; // default type to 1
 
+   setTimeout(() => {
     msg("Requesting response from OnlyKey");
-    var challenge = mk_polling();
-    var req = { "challenge": challenge, "appId": appId, "version": version};
-    u2f.register(appId, [req], [], function(response) {
-      const result = process_custom_response(response);
-      let data;
-      msg("Polling " + (result ? "succeeded" : "failed"));
-      if (result == 3) {
-          msg("Polling succeeded but no data was received");
-      } else if (result) {
-        if (type == 1) {
-            msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
-            OKversion = data_blob[51] == 99 ? 'Color' : 'Original';
-            var FWversion = bytes2string(data_blob.slice(40, 52));
-            msg("OnlyKey " + OKversion + " " + FWversion);
-            headermsg("OnlyKey " + OKversion + " " + FWversion);
-        } else if (type == 2) {
-            var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-            msg("Public Key " + pubkey);
-            data = pubkey;
-        } else if (type == 3) {
-            var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-            msg("Session Key " + sessKey);
-            data = sessKey;
-        } else if (type == 4) {
-            var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-            msg("Signed by OnlyKey " + oksignature);
-            data = oksignature;
-        }
-      }
-
+    var keyHandle = bytes2b64(new Array(64).fill(255);
+    //msg("Sending Handlekey " + keyHandle);
+    var challenge = mkchallenge();
+    var req = { "challenge": challenge, "keyHandle": keyHandle,
+                 "appId": appId, "version": version };
+    u2f.sign(appId, challenge, [req], function(response) {
+      var result = process_custom_response(response);
+      msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
+      headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
+      return result;
     });
-
+   }, delay * 1000);
 }
 
 //Function to process custom U2F registration response
