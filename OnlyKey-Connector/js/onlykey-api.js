@@ -203,37 +203,12 @@ function enroll_polling(params = {}, cb) {
     var challenge = mk_polling();
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
-    u2f.sign(appId, challenge, [req], function(response) {
-      const result = process_custom_response(response);
-      let data;
-      msg("Polling " + (result ? "succeeded" : "failed"));
-      _status = 'done_polling'
-      if (result == 3) {
-          msg("Polling succeeded but no data was received");
-      } else if (result) {
-        if (type == 1) {
-            msg("ECDH Public Key from OnlyKey " + data_blob.slice(0, 32));
-            OKversion = data_blob[51] == 99 ? 'Color' : 'Original';
-            var FWversion = bytes2string(data_blob.slice(40, 52));
-            msg("OnlyKey " + OKversion + " " + FWversion);
-            headermsg("OnlyKey " + OKversion + " " + FWversion);
-        } else if (type == 2) {
-            var pubkey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-            msg("Public Key " + pubkey);
-            data = pubkey;
-        } else if (type == 3) {
-            var sessKey = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-            msg("Session Key " + sessKey);
-            data = sessKey;
-        } else if (type == 4) {
-            var oksignature = data_blob.slice(0, ((data_blob.length)-0x46)); //4+32+2+32
-            msg("Signed by OnlyKey " + oksignature);
-            data = oksignature;
-        }
-      }
-
-      if (typeof cb === 'function') cb(null, data);
-    });
+                 u2f.sign(appId, challenge, [req], function(response) {
+                   var result = verify_auth_response(response);
+                   msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
+                   headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
+                   return result && enroll_polling({ type: 1, delay: .5 });
+                 });
    }, delay * 1000);
 }
 
