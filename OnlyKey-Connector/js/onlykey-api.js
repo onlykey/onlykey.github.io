@@ -201,7 +201,7 @@ function enroll_polling(params = {}, cb) {
 
    setTimeout(() => {
     msg("Requesting response from OnlyKey");
-    var keyHandle = bytes2b64(new Array(64).fill(255);
+    var keyHandle = bytes2b64(new Array(64).fill(255));
     //msg("Sending Handlekey " + keyHandle);
     var challenge = mkchallenge();
     var req = { "challenge": challenge, "keyHandle": keyHandle,
