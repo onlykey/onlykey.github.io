@@ -659,6 +659,8 @@ u2f.sendSignRequest = function(appId, challenge, registeredKeys, callback, opt_t
     var timeoutSeconds = (typeof opt_timeoutSeconds !== 'undefined' ?
         opt_timeoutSeconds : u2f.EXTENSION_TIMEOUT_SEC);
     var req = u2f.formatSignRequest_(appId, challenge, registeredKeys, timeoutSeconds, reqId);
+    console.log("req: ", req);
+    console.log("port: ", port);
     port.postMessage(req);
   });
 };
