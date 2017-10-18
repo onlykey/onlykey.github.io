@@ -709,6 +709,8 @@ u2f.sendRegisterRequest = function(appId, registerRequests, registeredKeys, call
         opt_timeoutSeconds : u2f.EXTENSION_TIMEOUT_SEC);
     var req = u2f.formatRegisterRequest_(
         appId, registeredKeys, registerRequests, timeoutSeconds, reqId);
+        console.log("req: ", req);
+        console.log("port: ", port);
     port.postMessage(req);
   });
 };
