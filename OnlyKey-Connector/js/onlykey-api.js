@@ -196,12 +196,13 @@ function auth_timeset() { //OnlyKey settime to keyHandle
 function enroll_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
-
+  var keyHandle = new Array(64).fill(0)
 
    setTimeout(() => {
     msg("Requesting response from OnlyKey");
     var challenge = mk_polling();
-    var req = { "challenge": challenge, "appId": appId};
+    var req = { "challenge": challenge, "keyHandle": keyHandle,
+                 "appId": appId, "version": version };
     u2f.register(appId, [req], [], function(response) {
       const result = process_custom_response(response);
       let data;
