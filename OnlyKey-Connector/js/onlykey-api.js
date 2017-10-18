@@ -195,6 +195,7 @@ function enroll_polling(params = {}, cb) {
         if (type == 1) {
             msg("ECDH Public Key from OnlyKey " + result.slice(0, 32));
             OKversion = result[51] == 99 ? 'Color' : 'Original';
+            msg("version" + result[51]);
             var FWversion = bytes2string(result.slice(40, 52));
             msg("OnlyKey " + OKversion + " " + FWversion);
             headermsg("OnlyKey " + OKversion + " " + FWversion);
@@ -377,10 +378,8 @@ function custom_auth_response(response) {
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   msg("Data Received: " + sigData);
   var parsedLen = sigData[5];
-  var parsedData = sigData.slice(8,(sigData[7]+8)) + sigData.slice((sigData[7]+8+2),(sigData[(sigData[7]+8+1)]+(sigData[7]+8+2)));
+  var parsedData = sigData.slice(8,(sigData[7]+8)).concat(sigData.slice((sigData[7]+8+2),(sigData[(sigData[7]+8+1)]+(sigData[7]+8+2))));
   msg("Parsed Data: " + parsedData);
-  var counter = new BN(sigData.slice(1,5)).toNumber();
-  msg("Counter: " + counter);
   return parsedData;
 }
 
