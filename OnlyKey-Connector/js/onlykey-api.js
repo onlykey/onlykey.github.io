@@ -21,7 +21,7 @@ var keySlot;
 
 function init() {
   auth_timeset();
-  auth_timeset();
+  enroll_polling({ type: 1, delay: .5 })
 }
 
 //var ECDH = require('elliptic').ec;
@@ -190,7 +190,7 @@ function auth_timeset() { //OnlyKey settime to keyHandle
     var result = verify_auth_response(response);
     msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
     headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
-    return result && enroll_polling({ type: 1, delay: .5 });
+    return result;
   });
 }
 
