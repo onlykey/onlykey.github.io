@@ -201,14 +201,7 @@ function enroll_polling(params = {}, cb) {
 
    setTimeout(() => {
     msg("Requesting response from OnlyKey");
-    var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
-    var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-    msg("Setting current time on OnlyKey to " + new Date());
-    var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-    var empty = new Array(55).fill(0);
-    Array.prototype.push.apply(message, timeParts);
-    Array.prototype.push.apply(message, empty);
-    var keyHandle = bytes2b64(message);
+    var keyHandle = bytes2b64(new Array(64).fill(255););
     //msg("Sending Handlekey " + keyHandle);
     var challenge = mkchallenge();
     var req = { "challenge": challenge, "keyHandle": keyHandle,
