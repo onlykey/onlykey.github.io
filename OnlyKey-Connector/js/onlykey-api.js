@@ -203,7 +203,7 @@ function enroll_polling(params = {}, cb) {
     var challenge = mk_polling();
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
-    u2f.register(appId, [req], [], function(response) {
+    u2f.sign(appId, [req], [], function(response) {
       const result = process_custom_response(response);
       let data;
       msg("Polling " + (result ? "succeeded" : "failed"));
