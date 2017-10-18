@@ -193,7 +193,7 @@ function enroll_polling(params = {}, cb) {
           msg("Polling succeeded but no data was received");
       } else if (result) {
         if (type == 1) {
-            var okPub = result.slice(0, 32);
+            var okPub = result.slice(0, 16);
             msg("ECDH Public Key from OnlyKey " + okPub );
             OKversion = result[51] == 99 ? 'Color' : 'Original';
             msg("version" + result[51]);
