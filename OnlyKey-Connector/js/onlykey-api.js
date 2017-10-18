@@ -1,7 +1,6 @@
 
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
-var data_blob = {};
 var hw_RNG = {};
 
 var appId = window.location.origin;
@@ -20,7 +19,7 @@ var msgType;
 var keySlot;
 
 function init() {
-  auth_timeset();
+  enroll_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 }
 
 //var ECDH = require('elliptic').ec;
@@ -127,17 +126,6 @@ function enroll_local() {
   });
 }
 
-//Poll OnlyKey for response to previous request
-function enroll_poll_response() {
-  msg("Enrolling user " + userId());
-  var challenge = mk_polling();
-  var req = { "challenge": challenge, "appId": appId, "version": version};
-  u2f.register(appId, [req], [], function(response) {
-    var result = process_poll_response(response);
-    msg("Poll Response" + (result ? "succeeded" : "failed"));
-  });
-}
-
 //Basic U2F auth test
 function auth_local() {
   msg("Authorizing user " + userId());
@@ -168,69 +156,69 @@ function simulate_enroll() {
   //Simulate Registration
 }
 
-
-//Function to set time on OnlyKey via U2F enroll message Keyhandle, returned are OnlyKey version and public key for ECDH
-function auth_timeset() { //OnlyKey settime to keyHandle
-  simulate_enroll();
-  //msg("Sending Set Time to OnlyKey");
-  var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
-  var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-  msg("Setting current time on OnlyKey to " + new Date());
-  var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-  var empty = new Array(55).fill(0);
-  Array.prototype.push.apply(message, timeParts);
-  Array.prototype.push.apply(message, empty);
-  var keyHandle = bytes2b64(message);
-  //msg("Sending Handlekey " + keyHandle);
-  var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
-    msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
-    headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
-    return result && enroll_polling({ type: 1, delay: .5 });
-  });
-}
-
+//Function to send and retrive custom U2F messages
 function enroll_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
 
-   setTimeout(() => {
+  setTimeout(() => {
     msg("Requesting response from OnlyKey");
-    var keyHandle = bytes2b64(new Array(64).fill(255));
-    //msg("Sending Handlekey " + keyHandle);
+    if (type == 1) { //OKSETTIME
+      var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
+      var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+      msg("Setting current time on OnlyKey to " + new Date());
+      var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+      var empty = new Array(55).fill(0);
+      Array.prototype.push.apply(message, timeParts);
+      Array.prototype.push.apply(message, empty);
+      var keyHandle = bytes2b64(message);
+    } else if (type == 2) { //OKGETPUB
+        var message = [255, 255, 255, 255, 236]; //Add header and message type
+        msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
+        var empty = new Array(50).fill(0);
+        Array.prototype.push.apply(message, custom_keyid);
+        Array.prototype.push.apply(message, empty);
+        var keyHandle = bytes2b64(message);
+    } else { //OKSIGN or OKDECRYPT
+        var keyHandle = bytes2b64(new Array(64).fill(255));
+    }
     var challenge = mkchallenge();
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
     u2f.sign(appId, challenge, [req], function(response) {
-      var result = custom_auth_response(response);
-      msg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
-      headermsg("Your OnlyKey is " + (result ? "Connected" : "Not Connected, Connect Unlocked OnlyKey and Refresh Page"));
-      return result;
-    });
-   }, delay * 1000);
-}
+      const result = custom_auth_response(response);
+      let data;
+      msg("Polling " + (result ? "succeeded" : "failed"));
+      if (result == 3) {
+          msg("Polling succeeded but no data was received");
+      } else if (result) {
+        if (type == 1) {
+            msg("ECDH Public Key from OnlyKey " + result.slice(0, 32));
+            OKversion = result[51] == 99 ? 'Color' : 'Original';
+            var FWversion = bytes2string(result.slice(40, 52));
+            msg("OnlyKey " + OKversion + " " + FWversion);
+            headermsg("OnlyKey " + OKversion + " " + FWversion);
+            var entropy = result.slice(53, result.length);
+            msg("HW generated entropy" + entropy);
+        } else if (type == 2) {
+            var pubkey = result.slice(0, 1); //slot number containing matching key
+            msg("Public Key found in slot" + pubkey);
+            var entropy = result.slice(2, result.length);
+            msg("HW generated entropy" + entropy);
+        } else if (type == 3) {
+            var sessKey = result.slice(0, result.length);
+            msg("Session Key " + sessKey);
+            data = sessKey;
+        } else if (type == 4) {
+            var oksignature = result.slice(0, result.length); //4+32+2+32
+            msg("Signed by OnlyKey " + oksignature);
+            data = oksignature;
+        }
+      }
 
-//Function to process custom U2F registration response
-function process_custom_response(response) {
-  var err = response['errorCode'];
-  if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
-    return 3;
-  }
-  if (err) {
-    msg("Failed with error code " + err);
-    return 0;
-  }
-  var clientData_b64 = response['clientData'];
-  var regData_b64 = response['registrationData'];
-  var v = string2bytes(u2f_unb64(regData_b64));
-  hw_RNG = v.slice(67, 67 + v[66]);     // Hardware Generated Random number stored in KH = Key Handle
-  msg("Hardware Generated Random Number " + hw_RNG);
-  data_blob = v.slice(67 + v[66]);
-  //msg("Data Received " + data_blob);  //Data encoded in cert field
-  return 1;
+      if (typeof cb === 'function') cb(null, data);
+    });
+  }, delay * 1000);
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
@@ -252,26 +240,6 @@ function auth_ping() {
       msg("Ping " + (result ? "Successful" : "Failed"));
       _status = result ? _status : 'done_pin';
     }, 2);
-}
-
-//Function to get public key on OnlyKey via U2F auth message Keyhandle
-function auth_getpub() { //OnlyKey get public key to keyHandle
-  simulate_enroll();
-  var message = [255, 255, 255, 255, 236, slotId()]; //Add header and message type
-  msg("Sending Get Public Request to OnlyKey Slot " + slotId());
-  var ciphertext = new Uint8Array(58).fill(0);
-  Array.prototype.push.apply(message, ciphertext);
-  msg("Handlekey bytes " + message);
-  var keyHandle = bytes2b64(message);
-  msg("Sending Handlekey " + keyHandle);
-  var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
-    msg("Get Public Request Sent " + (result ? "Successfully" : "Error"));
-    return result && enroll_polling({ type: 2, delay: 1 });
-  });
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -388,27 +356,31 @@ function verify_auth_response(response) {
   return true;
 }
 
-//Function to process U2F auth response and parse out data
+//Function to parse custom U2F auth response
 function custom_auth_response(response) {
   var err = response['errorCode'];
-  if (err==1) { //OnlyKey uses err 1 from auth as ACK
-    return true;
-  } else if (err) {
-    msg("Auth failed with error code " + err);
-    return false;
+  if (err==1) { //OnlyKey uses err 1 as no message ready to send
+    return 3;
+  }
+  if (err) {
+    msg("Failed with error code " + err);
+    return 0;
   }
   var clientData_b64 = response['clientData'];
-  msg("Client Data: " + clientData_b64);
   var clientData_str = u2f_unb64(clientData_b64);
   var clientData_bytes = string2bytes(clientData_str);
   var clientData = JSON.parse(clientData_str);
   var origin = clientData['origin'];
+  msg("Origin: " + origin);
   var kh = response['keyHandle'];
   msg("Key Handle: " + kh);
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   msg("Data Received: " + sigData);
+  var parsedData = sigData.slice(9,(sigData[8]+9)) + sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2)));
+  msg("Parsed Data: " + sigData);
+  var counter = new BN(sigData.slice(1,5)).toNumber();
   msg("Counter: " + counter);
-  return true;
+  return parsedData;
 }
 
 function u2fSignBuffer(params, mainCallback) {
