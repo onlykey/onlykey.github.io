@@ -233,7 +233,7 @@ function enroll_polling(params = {}, cb) {
       }
 
       if (typeof cb === 'function') cb(null, data);
-    }, 3);
+    });
    }, delay * 1000);
 }
 
