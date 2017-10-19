@@ -174,11 +174,10 @@ function enroll_polling(params = {}, cb) {
       var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
       msg("Setting current time on OnlyKey to " + new Date());
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-      msg("Application ECDH Public Key: " + appPub);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
       var appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
-      console.info("Application ECDH Public Key: ", appPubPart);
+      msg("Application ECDH Public Key: " + appPubPart);
       Array.prototype.push.apply(message, appPubPart);
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
@@ -206,8 +205,6 @@ function enroll_polling(params = {}, cb) {
             okPub = result.slice(0, 32);
             msg("ECDH Public Key from OnlyKey: " + okPub );
             okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
-            msg("ECDH Public Key from OnlyKey: " + okPub.toDER() );
-            console.info("ECDH Public Key from OnlyKey: ", okPub);
             OKversion = result[51] == 99 ? 'Color' : 'Original';
             var FWversion = bytes2string(result.slice(40, 52));
             msg("OnlyKey " + OKversion + " " + FWversion);
@@ -215,6 +212,7 @@ function enroll_polling(params = {}, cb) {
             hw_RNG.entropy = result.slice(53, result.length);
             msg("HW generated entropy: " + hw_RNG.entropy);
             shared = okPub.derive(appPub);
+            console.info("shared", shared);
             msg("ECDH shared: " + shared );
         } else if (type == 2) {
             var pubkey = result.slice(0, 1); //slot number containing matching key
