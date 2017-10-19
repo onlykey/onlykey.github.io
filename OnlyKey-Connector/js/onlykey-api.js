@@ -174,9 +174,9 @@ function enroll_polling(params = {}, cb) {
       var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
       msg("Setting current time on OnlyKey to " + new Date());
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-      var appPubBN = appPub.toString(16);
-      var appPubPart = appPubBN.match(/.{2}/g).map(hexStrToDec);
-      msg("Application ECC Public Key: " + appPubPart);
+      var appPubPart = appPub.match(/.{2}/g).map(hexStrToDec);
+            msg("Application ECDH Public Key: " + appPub);
+      msg("Application ECDH Public Key: " + appPubPart);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
       Array.prototype.push.apply(message, appPubPart);
@@ -213,7 +213,7 @@ function enroll_polling(params = {}, cb) {
             headermsg("OnlyKey " + OKversion + " " + FWversion);
             hw_RNG.entropy = result.slice(53, result.length);
             msg("HW generated entropy: " + hw_RNG.entropy);
-            shared = okPub.derive(appPub.getPublic());
+            shared = okPub.derive(appPub);
             msg("ECDH shared: " + shared );
         } else if (type == 2) {
             var pubkey = result.slice(0, 1); //slot number containing matching key
