@@ -203,7 +203,7 @@ function enroll_polling(params = {}, cb) {
       } else if (result) {
         if (type == 1) {
             okPub = result.slice(0, 32);
-            msg("ECDH Public Key from OnlyKey: " + okPub );
+            msg("OnlyKey ECDH Public Key: " + okPub );
             okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
             OKversion = result[51] == 99 ? 'Color' : 'Original';
             var FWversion = bytes2string(result.slice(40, 52));
@@ -211,7 +211,7 @@ function enroll_polling(params = {}, cb) {
             headermsg("OnlyKey " + OKversion + " " + FWversion);
             hw_RNG.entropy = result.slice(53, result.length);
             msg("HW generated entropy: " + hw_RNG.entropy);
-            shared = okPub.derive(appPub);
+            shared = appKey.derive(okPub);
             console.info("shared", shared);
             msg("ECDH shared: " + shared );
         } else if (type == 2) {
