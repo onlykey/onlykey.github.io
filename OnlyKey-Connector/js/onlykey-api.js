@@ -1,4 +1,3 @@
-
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};
@@ -27,9 +26,6 @@ var keySlot;
 function init() {
   enroll_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 }
-
-//var ECDH = require('elliptic').ec;
-//var ec = new ECDH('curve25519');
 
 function id(s) { return document.getElementById(s); }
 
