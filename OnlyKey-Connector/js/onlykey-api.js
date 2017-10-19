@@ -193,35 +193,54 @@ function enroll_polling(params = {}, cb) {
     u2f.sign(appId, challenge, [req], function(response) {
       var result = custom_auth_response(response);
       let data;
-      msg("Polling " + (result ? "succeeded" : "failed"));
       if (result == 3) {
           msg("Polling succeeded but no data was received");
-      } else if (result) {
-        if (type == 1) {
-            okPub = result.slice(0, 32);
-            msg("OnlyKey ECDH Public Key: " + okPub );
-            okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
-            OKversion = result[51] == 99 ? 'Color' : 'Original';
-            var FWversion = bytes2string(result.slice(40, 52));
-            msg("OnlyKey " + OKversion + " " + FWversion);
-            headermsg("OnlyKey " + OKversion + " " + FWversion);
-            hw_RNG.entropy = result.slice(53, result.length);
-            msg("HW generated entropy: " + hw_RNG.entropy);
-            shared = appKey.derive(okPub.getPublic());
-            msg("ECDH shared: " + shared);
-        } else if (type == 2) {
-            var pubkey = result.slice(0, 1); //slot number containing matching key
-            msg("Public Key found in slot" + pubkey);
-            var entropy = result.slice(2, result.length);
-            msg("HW generated entropy" + entropy);
-        } else if (type == 3) {
-            var sessKey = result.slice(0, result.length);
-            msg("Session Key " + sessKey);
-            data = sessKey;
-        } else if (type == 4) {
-            var oksignature = result.slice(0, result.length); //4+32+2+32
-            msg("Signed by OnlyKey " + oksignature);
-            data = oksignature;
+          return;
+      }
+      if (type == 1) {
+        if (result) {
+          okPub = result.slice(0, 32);
+          msg("OnlyKey ECDH Public Key: " + okPub );
+          okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
+          OKversion = result[51] == 99 ? 'Color' : 'Original';
+          var FWversion = bytes2string(result.slice(40, 52));
+          msg("OnlyKey " + OKversion + " " + FWversion);
+          headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
+          hw_RNG.entropy = result.slice(53, result.length);
+          msg("HW generated entropy: " + hw_RNG.entropy);
+          shared = appKey.derive(okPub.getPublic());
+          msg("ECDH shared: " + shared);
+        } else {
+          msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+          headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        }
+      } else if (type == 2) {
+        if (result) {
+          var pubkey = result.slice(0, 1); //slot number containing matching key
+          msg("Public Key found in slot" + pubkey);
+          var entropy = result.slice(2, result.length);
+          msg("HW generated entropy" + entropy);
+        } else {
+          msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+          headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        }
+      } else if (type == 3) {
+        if (result) {
+          var sessKey = result.slice(0, result.length);
+          msg("Session Key " + sessKey);
+          data = sessKey;
+        } else {
+          msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+          headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        }
+      } else if (type == 4) {
+        if (result) {
+          var oksignature = result.slice(0, result.length); //4+32+2+32
+          msg("Signed by OnlyKey " + oksignature);
+          data = oksignature;
+        } else {
+          msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+          headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         }
       }
 
