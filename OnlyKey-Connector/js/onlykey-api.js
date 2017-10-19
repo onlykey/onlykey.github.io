@@ -12,6 +12,10 @@ var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
 var curve25519 = new ECC('curve25519');
+var appKey = curve25519.genKeyPair();
+var appPub = appKey.getPublic();
+var okPub;
+var shared;
 
 var _status;
 var pin;
@@ -169,9 +173,12 @@ function enroll_polling(params = {}, cb) {
       var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
       var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
       msg("Setting current time on OnlyKey to " + new Date());
-      var timeParts = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-      var empty = new Array(55).fill(0);
-      Array.prototype.push.apply(message, timeParts);
+      var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+      var appPubPart = appPub.toString(16);
+      msg("Application ECC Public Key: " + appPubPart);
+      var empty = new Array(23).fill(0);
+      Array.prototype.push.apply(message, timePart);
+      Array.prototype.push.apply(message, appPubPart);
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
     } else if (type == 2) { //OKGETPUB
@@ -195,9 +202,9 @@ function enroll_polling(params = {}, cb) {
           msg("Polling succeeded but no data was received");
       } else if (result) {
         if (type == 1) {
-            var okPub = result.slice(0, 32);
+            okPub = result.slice(0, 32);
             msg("ECDH Public Key from OnlyKey: " + okPub );
-            var okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
+            okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
             msg("ECDH Public Key from OnlyKey: " + okPub );
             OKversion = result[51] == 99 ? 'Color' : 'Original';
             var FWversion = bytes2string(result.slice(40, 52));
@@ -205,6 +212,8 @@ function enroll_polling(params = {}, cb) {
             headermsg("OnlyKey " + OKversion + " " + FWversion);
             hw_RNG.entropy = result.slice(53, result.length);
             msg("HW generated entropy: " + hw_RNG.entropy);
+            shared = okPub.derive(appPub.getPublic());
+            msg("ECDH shared: " + shared );
         } else if (type == 2) {
             var pubkey = result.slice(0, 1); //slot number containing matching key
             msg("Public Key found in slot" + pubkey);
