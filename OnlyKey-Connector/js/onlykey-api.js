@@ -177,8 +177,8 @@ function enroll_polling(params = {}, cb) {
       msg("Application ECDH Public Key: " + appPub);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
-      console.info("Application ECDH Public Key: ", appPub);
-      Array.prototype.push.apply(message, appPub);
+      console.info("Application ECDH Public Key: ", appPub.encode('hex'));
+      Array.prototype.push.apply(message, appPub.encode('hex'));
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
     } else if (type == 2) { //OKGETPUB
@@ -205,7 +205,7 @@ function enroll_polling(params = {}, cb) {
             okPub = result.slice(0, 32);
             msg("ECDH Public Key from OnlyKey: " + okPub );
             okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
-            msg("ECDH Public Key from OnlyKey: " + okPub );
+            msg("ECDH Public Key from OnlyKey: " + okPub.toDER() );
             console.info("ECDH Public Key from OnlyKey: ", okPub);
             OKversion = result[51] == 99 ? 'Color' : 'Original';
             var FWversion = bytes2string(result.slice(40, 52));
