@@ -216,7 +216,7 @@ function enroll_polling(params = {}, cb) {
           OKversion = result[51] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(result.slice(40, 52));
           msg("OnlyKey " + OKversion + " " + FWversion);
-          headermsg("OnlyKey Connected\n" + OKversion + " " + FWversion);
+          headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
           hw_RNG.entropy = result.slice(53, result.length);
           msg("HW generated entropy: " + hw_RNG.entropy);
           shared = appKey.derive(okPub.getPublic());
