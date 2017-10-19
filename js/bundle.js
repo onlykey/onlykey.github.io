@@ -69806,36 +69806,6 @@ button.onclick = function () {
     return false;
 };
 
-window.doPinTimer = function (seconds) {
-  return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
-    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
-    if (secondsRemaining <= 0) {
-      const err = 'Time expired for PIN confirmation';
-      p2g.showError({ message: err });
-      updateStatusFromSelection(true);
-      return reject(err);
-    }
-    if (_status === 'done_pin') {
-      button.textContent = 'Confirming PIN...';
-      msg(`Delay ${poll_delay} seconds`);
-      return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-        msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
-        updateStatusFromSelection();
-        resolve(data);
-      });
-    }
-
-    setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
-  });
-};
-
-function setButtonTimerMessage(seconds) {
-  const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
-  button.textContent = msg;
-  auth_ping();
-}
-
 urlinputbox.onkeyup = function () {
     let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
