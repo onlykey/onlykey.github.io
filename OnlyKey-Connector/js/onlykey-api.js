@@ -211,7 +211,7 @@ function enroll_polling(params = {}, cb) {
             headermsg("OnlyKey " + OKversion + " " + FWversion);
             hw_RNG.entropy = result.slice(53, result.length);
             msg("HW generated entropy: " + hw_RNG.entropy);
-            shared = appKey.derive(okPub);
+            shared = appKey.derive(okPub.getPublic());
             console.info("shared", shared);
             msg("ECDH shared: " + shared );
         } else if (type == 2) {
