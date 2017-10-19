@@ -11,6 +11,8 @@ var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
+var curve25519 = new ECC('curve25519');
+
 var _status;
 var pin;
 var poll_type, poll_delay;
@@ -194,14 +196,15 @@ function enroll_polling(params = {}, cb) {
       } else if (result) {
         if (type == 1) {
             var okPub = result.slice(0, 32);
-            msg("ECDH Public Key from OnlyKey " + okPub );
+            msg("ECDH Public Key from OnlyKey: " + okPub );
+            var okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
+            msg("ECDH Public Key from OnlyKey: " + okPub );
             OKversion = result[51] == 99 ? 'Color' : 'Original';
-            msg("version" + result[51]);
             var FWversion = bytes2string(result.slice(40, 52));
             msg("OnlyKey " + OKversion + " " + FWversion);
             headermsg("OnlyKey " + OKversion + " " + FWversion);
-            var entropy = result.slice(53, result.length);
-            msg("HW generated entropy" + entropy);
+            hw_RNG.entropy = result.slice(53, result.length);
+            msg("HW generated entropy: " + hw_RNG.entropy);
         } else if (type == 2) {
             var pubkey = result.slice(0, 1); //slot number containing matching key
             msg("Public Key found in slot" + pubkey);
