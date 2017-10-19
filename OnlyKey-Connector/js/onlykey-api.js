@@ -174,7 +174,8 @@ function enroll_polling(params = {}, cb) {
       var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
       msg("Setting current time on OnlyKey to " + new Date());
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-      var appPubPart = appPub.toString(16);
+      var appPubBN = appPub.toString(16);
+      var appPubPart = appPubBN.match(/.{2}/g).map(hexStrToDec);
       msg("Application ECC Public Key: " + appPubPart);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
