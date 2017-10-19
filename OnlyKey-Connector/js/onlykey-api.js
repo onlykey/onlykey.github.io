@@ -212,8 +212,7 @@ function enroll_polling(params = {}, cb) {
             hw_RNG.entropy = result.slice(53, result.length);
             msg("HW generated entropy: " + hw_RNG.entropy);
             shared = appKey.derive(okPub.getPublic());
-            console.info("shared", shared);
-            msg("ECDH shared: " + shared );
+            msg("ECDH shared: " + shared.toString(16));
         } else if (type == 2) {
             var pubkey = result.slice(0, 1); //slot number containing matching key
             msg("Public Key found in slot" + pubkey);
