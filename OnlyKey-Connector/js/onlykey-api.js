@@ -177,8 +177,9 @@ function enroll_polling(params = {}, cb) {
       msg("Application ECDH Public Key: " + appPub);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
-      console.info("Application ECDH Public Key: ", appPub.encode('hex'));
-      Array.prototype.push.apply(message, appPub.encode('hex'));
+      var appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
+      console.info("Application ECDH Public Key: ", appPubPart);
+      Array.prototype.push.apply(message, appPubPart);
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
     } else if (type == 2) { //OKGETPUB
