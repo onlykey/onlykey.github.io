@@ -174,12 +174,10 @@ function enroll_polling(params = {}, cb) {
       var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
       msg("Setting current time on OnlyKey to " + new Date());
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-      var appPubPart = appPub.match(/.{2}/g).map(hexStrToDec);
-            msg("Application ECDH Public Key: " + appPub);
-      msg("Application ECDH Public Key: " + appPubPart);
+      msg("Application ECDH Public Key: " + appPub);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
-      Array.prototype.push.apply(message, appPubPart);
+      Array.prototype.push.apply(message, appPub);
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
     } else if (type == 2) { //OKGETPUB
