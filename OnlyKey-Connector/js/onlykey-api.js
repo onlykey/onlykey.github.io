@@ -360,7 +360,7 @@ function process_enroll_response(response) {
 //Function to process U2F auth response
 function verify_auth_response(response) {
   var err = response['errorCode'];
-  console("Response code ", err);
+  console.info("Response code ", err);
   if (err==1) { //OnlyKey uses err 1 from auth as ACK
     return true;
   } else if (err) {
@@ -390,7 +390,7 @@ function verify_auth_response(response) {
 //Function to parse custom U2F auth response
 function custom_auth_response(response) {
   var err = response['errorCode'];
-  console("Response code ", err);
+  console.info("Response code ", err);
   if (err==1) { //OnlyKey uses err 1 as no message ready to send
     return 3;
   }
