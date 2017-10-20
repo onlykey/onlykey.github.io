@@ -265,7 +265,7 @@ function auth_ping() {
     u2f.sign(appId, challenge, [req], function(response) {
       result = process_ping_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
-      if(result == 1) {
+      if(result == 0) {
         _status = 'done_pin';
       } else if (result == -1) {
         _status = 'wrong_pin';
