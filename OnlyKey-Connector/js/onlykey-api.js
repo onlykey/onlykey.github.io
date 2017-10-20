@@ -476,6 +476,7 @@ window.doPinTimer = function (seconds, params) {
 function setButtonTimerMessage(seconds) {
   if (_status !== 'done_pin') {
     msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
+    console.info("enter challenge code", pin);
     auth_ping();
   }
 }
