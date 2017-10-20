@@ -24,7 +24,7 @@ var msgType;
 var keySlot;
 
 function init() {
-  enroll_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+  //enroll_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 }
 
 function id(s) { return document.getElementById(s); }
