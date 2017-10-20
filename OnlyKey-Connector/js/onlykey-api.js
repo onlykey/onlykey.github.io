@@ -265,10 +265,11 @@ function auth_ping() {
     u2f.sign(appId, challenge, [req], function(response) {
       result = process_ping_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
-      if (!result) {
-        console.info("Ping Failed");
+      if(result == 1) {
+        _status = 'done_pin';
+      } else if (result == -1) {
+        _status = 'wrong_pin';
       }
-      _status = result ? _status : 'done_pin';
     }, 2.5);
 }
 
@@ -357,25 +358,11 @@ function process_enroll_response(response) {
   return v;
 }
 
-function process_ping_response(response) {
-  console.info("Response", response);
-  var err = response['errorCode'];
-  console.info("Response code ", err);
-  if (err==1) { //OnlyKey uses err 1 from auth as ACK
-    return true;
-  } else if (err) {
-    msg("Auth failed with error code " + err);
-    return false;
-  }
-}
-
 //Function to process U2F auth response
 function process_auth_response(response) {
+  console.info("Response", response);
   var err = response['errorCode'];
-  console.info("Response code ", err);
-  if (err==1) { //OnlyKey uses err 1 from auth as ACK
-    return true;
-  } else if (err) {
+  if (err) {
     msg("Auth failed with error code " + err);
     return false;
   }
@@ -399,11 +386,27 @@ function process_auth_response(response) {
   return true;
 }
 
+function process_ping_response(response) {
+  console.info("Response", response);
+  var err = response['errorCode'];
+  var errMes = response['errorMessage'];
+  console.info("Response code ", err);
+  if (errMes=="device status code: -7f") { //Ack
+    return 1;
+  } else if (err==1) {
+    console.info("Incorrect Challenge PIN Entered");
+    return -1;
+  } else if (err==5) {
+    console.info("Ping Timeout");
+    return 0;
+  }
+}
+
 //Function to parse custom U2F auth response
 function custom_auth_response(response) {
   var err = response['errorCode'];
   console.info("Response code ", err);
-  if (err==1) { //OnlyKey uses err 1 as no message ready to send
+  if (err==1) { //OnlyKey uses err 1 as no message ready to send or ACK that message was received
     return 3;
   }
   if (err) {
@@ -449,7 +452,7 @@ function u2fSignBuffer(params, mainCallback) {
     msg("Sending challenge " + challenge);
 
     u2f.sign(appId, challenge, [req], function(response) {
-      var result = process_auth_response(response);
+      var result = custom_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
@@ -490,7 +493,7 @@ window.doPinTimer = function (seconds, params) {
 };
 
 function setButtonTimerMessage(seconds) {
-  if (_status !== 'done_pin') {
+  if (_status !== 'done_pin' && _status !== 'wrong_pin') {
     msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
     console.info("enter challenge code", pin);
     auth_ping();
