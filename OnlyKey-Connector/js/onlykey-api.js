@@ -144,7 +144,7 @@ function auth_local() {
   u2f.sign(appId, challenge, [req], function(response) {
     var result = verify_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
-  });
+  }, 3);
     msg("Finsihed");
 }
 
@@ -245,7 +245,7 @@ function enroll_polling(params = {}, cb) {
       }
 
       if (typeof cb === 'function') cb(null, data);
-    });
+    }, 3);
   }, delay * 1000);
 }
 
@@ -449,7 +449,7 @@ function u2fSignBuffer(params, mainCallback) {
           cb();
         }
       }
-    });
+    }, 3);
 }
 
 window.doPinTimer = function (seconds, params) {
