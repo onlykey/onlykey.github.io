@@ -251,7 +251,6 @@ function enroll_polling(params = {}, cb) {
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
 function auth_ping() {
-  simulate_enroll();
   var message = [255, 255, 255, 255]; //Add header and message type
   msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
@@ -267,7 +266,7 @@ function auth_ping() {
       result = verify_auth_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
       _status = result ? _status : 'done_pin';
-    }, 2);
+    }, 3);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
