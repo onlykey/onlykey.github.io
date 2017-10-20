@@ -283,9 +283,9 @@ function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
 
   cb = cb || noop;
   if (params.ct.length == 396) {
-    params.poll_delay = 6; //6 Second delay for RSA 3072
+    params.poll_delay = 4; //6 Second delay for RSA 3072
   } else if (params.ct.length == 524) {
-    params.poll_delay = 9; //9 Second delay for RSA 4096
+    params.poll_delay = 7; //9 Second delay for RSA 4096
   }
   var padded_ct = params.ct.slice(12, params.ct.length);
   var keyid = params.ct.slice(1, 8);
@@ -360,7 +360,7 @@ function process_enroll_response(response) {
 //Function to process U2F auth response
 function verify_auth_response(response) {
   var err = response['errorCode'];
-  msg("Response code " + err);
+  console("Response code ", err);
   if (err==1) { //OnlyKey uses err 1 from auth as ACK
     return true;
   } else if (err) {
@@ -390,6 +390,7 @@ function verify_auth_response(response) {
 //Function to parse custom U2F auth response
 function custom_auth_response(response) {
   var err = response['errorCode'];
+  console("Response code ", err);
   if (err==1) { //OnlyKey uses err 1 as no message ready to send
     return 3;
   }
