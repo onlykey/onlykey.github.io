@@ -367,6 +367,7 @@ function process_ping_response(response) {
     msg("Auth failed with error code " + err);
     return false;
   }
+}
 
 //Function to process U2F auth response
 function process_auth_response(response) {
