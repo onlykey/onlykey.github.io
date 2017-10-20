@@ -142,7 +142,7 @@ function auth_local() {
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
+    var result = process_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
   }, 3);
     msg("Finsihed");
@@ -263,7 +263,7 @@ function auth_ping() {
                "appId": appId, "version": version };
   var result;
     u2f.sign(appId, challenge, [req], function(response) {
-      result = verify_auth_response(response);
+      result = process_ping_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
       if (!result) {
         console.info("Ping Failed");
@@ -357,8 +357,19 @@ function process_enroll_response(response) {
   return v;
 }
 
+function process_ping_response(response) {
+  console.info("Response", response);
+  var err = response['errorCode'];
+  console.info("Response code ", err);
+  if (err==1) { //OnlyKey uses err 1 from auth as ACK
+    return true;
+  } else if (err) {
+    msg("Auth failed with error code " + err);
+    return false;
+  }
+
 //Function to process U2F auth response
-function verify_auth_response(response) {
+function process_auth_response(response) {
   var err = response['errorCode'];
   console.info("Response code ", err);
   if (err==1) { //OnlyKey uses err 1 from auth as ACK
@@ -437,7 +448,7 @@ function u2fSignBuffer(params, mainCallback) {
     msg("Sending challenge " + challenge);
 
     u2f.sign(appId, challenge, [req], function(response) {
-      var result = verify_auth_response(response);
+      var result = process_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
