@@ -391,15 +391,15 @@ function process_ping_response(response) {
   var err = response['errorCode'];
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
-  if (errMes=="device status code: -7f") { //Ack
+  if (err==5 || _status === 'done_pin') {
+    console.info("Ping Timeout");
+    return 0;
+  } else if (errMes === "device status code: -7f") { //Ack
     console.info("Ping Success");
     return 1;
   } else if (err==1) {
     console.info("Incorrect Challenge PIN Entered");
     return -1;
-  } else if (err==5) {
-    console.info("Ping Timeout");
-    return 0;
   }
 }
 
