@@ -489,7 +489,7 @@ window.doPinTimer = function (seconds, params) {
     }
 
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=1), 1000);
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
   });
 };
 
