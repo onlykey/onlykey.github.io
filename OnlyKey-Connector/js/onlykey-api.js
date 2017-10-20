@@ -266,7 +266,7 @@ function auth_ping() {
       result = verify_auth_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
       _status = result ? _status : 'done_pin';
-    }, 3);
+    }, 2.5);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -469,7 +469,7 @@ window.doPinTimer = function (seconds, params) {
     }
 
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=2), 2000);
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
   });
 };
 
