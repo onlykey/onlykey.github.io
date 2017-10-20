@@ -357,6 +357,7 @@ function process_enroll_response(response) {
 //Function to process U2F auth response
 function verify_auth_response(response) {
   var err = response['errorCode'];
+  msg("Response code " + err);
   if (err==1) { //OnlyKey uses err 1 from auth as ACK
     return true;
   } else if (err) {
