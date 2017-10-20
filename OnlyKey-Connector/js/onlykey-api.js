@@ -392,6 +392,7 @@ function process_ping_response(response) {
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
   if (errMes=="device status code: -7f") { //Ack
+    console.info("Ping Success");
     return 1;
   } else if (err==1) {
     console.info("Incorrect Challenge PIN Entered");
