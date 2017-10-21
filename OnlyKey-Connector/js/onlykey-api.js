@@ -29,7 +29,10 @@ function init() {
 
 function id(s) { return document.getElementById(s); }
 
-function msg(s) { id('messages').innerHTML += "<br>" + s; }
+function msg(s) {
+  id('messages').innerHTML += "<br>" + s;
+  console.info(s);
+}
 
 function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
 
