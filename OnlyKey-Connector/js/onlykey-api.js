@@ -16,7 +16,6 @@ var appPub = appKey.getPublic();
 var okPub;
 var shared;
 
-var _status;
 var pin;
 var poll_type, poll_delay;
 var custom_keyid;
@@ -32,6 +31,13 @@ function id(s) { return document.getElementById(s); }
 function msg(s) {
   id('messages').innerHTML += "<br>" + s;
   console.info(s);
+}
+
+
+var _status;
+function _setStatus(newStatus) {
+  _status = newStatus;
+  msg(`Changed _status to ${newStatus}`);
 }
 
 function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
@@ -269,9 +275,9 @@ function auth_ping() {
       result = process_ping_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
       if(result == 0) {
-        _status = 'done_pin';
+        _setStatus('done_pin');
       } else if (result == -1) {
-        _status = 'wrong_pin';
+        _setStatus('wrong_pin');
       }
     }, 2.5);
 }
@@ -460,7 +466,7 @@ function u2fSignBuffer(params, mainCallback) {
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
-          _status = 'pending_pin';
+          _setStatus('pending_pin');
           cb().then(skey => {
             msg("skey " + skey);
             mainCallback(skey);
