@@ -36,12 +36,17 @@ function handleMessage(params = {}) {
 		case 'ENCRYPT':
 			options.ct = event.data.cipherText;
 			options.poll_delay = event.data.poll_delay;
-			auth_sign(options, data => respondToAction({
+			auth_sign(options, data => respondToEncrypt({
 				extensionId,
 				ok_sig: data
 			}));
 			break;
 		case 'DECRYPT':
+			options.ct = event.data.packetRaw;
+			auth_decrypt(options, data => respondToDecrypt({
+				extensionId,
+				ok_sesskey: data
+			}));
 			// perform auth_decrypt()
 			break;
 		default:
@@ -51,7 +56,23 @@ function handleMessage(params = {}) {
 
 }
 
-function respondToAction(params = {}) {
+function respondToEncrypt(params = {}) {
+	msg(`Responding to extension`);
+	msgObjectProps(params);
+
+	const { extensionId, ok_sig } = params;
+	chrome.runtime.sendMessage(extensionId, { ok_sig },
+		response => {
+			if (!response.success) {
+				msg(`sendMessage response failed:`);
+				msg(JSON.stringify(response));
+			} else {
+				msg(`SUCCESS`);
+			}
+		});
+}
+
+function respondToDecrypt(params = {}) {
 	msg(`Responding to extension`);
 	msgObjectProps(params);
 
