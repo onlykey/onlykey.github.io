@@ -76,8 +76,8 @@ function respondToDecrypt(params = {}) {
 	msg(`Responding to extension`);
 	msgObjectProps(params);
 
-	const { extensionId, ok_sig } = params;
-	chrome.runtime.sendMessage(extensionId, { ok_sig },
+	const { extensionId, ok_sesskey } = params;
+	chrome.runtime.sendMessage(extensionId, { ok_sesskey },
 		response => {
 			if (!response.success) {
 				msg(`sendMessage response failed:`);
