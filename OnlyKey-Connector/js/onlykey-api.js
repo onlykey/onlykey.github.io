@@ -23,7 +23,7 @@ var msgType;
 var keySlot;
 
 function init() {
-  //enroll_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+  //msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 }
 
 function id(s) { return document.getElementById(s); }
@@ -168,7 +168,7 @@ function simulate_enroll() {
 }
 
 //Function to send and retrive custom U2F messages
-function enroll_polling(params = {}, cb) {
+function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
 
@@ -235,7 +235,13 @@ function enroll_polling(params = {}, cb) {
         }
       } else if (type == 3) {
         if (result) {
-          var sessKey = result.slice(0, result.length);
+          if (result.length == 64) {
+            var sessKey = result.slice(0, 35);
+            var entropy = result.slice(36, 64);
+            msg("HW generated entropy" + entropy);
+          } else {
+            var sessKey = result.slice(0, result.length);
+          }
           msg("Session Key " + sessKey);
           data = sessKey;
         } else {
@@ -491,8 +497,8 @@ window.doPinTimer = function (seconds, params) {
 
     if (_status === 'done_pin') {
       msg(`Delay ${poll_delay} seconds`);
-      return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-        msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
+      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
         resolve(data);
       });
     }
