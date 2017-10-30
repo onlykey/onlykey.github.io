@@ -108,24 +108,6 @@ function mkchallenge() {
   return u2f_b64(s.join());
 }
 
-//Generate a polling request
-function mk_polling() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(0);
-  return u2f_b64(s.join());
-}
-
-//Function to create new key to be sent via U2F auth message challenge
-function mk_key() {
-  var ecdh = new elliptic.ec(curve25519);
-  var Key = ec.genKeyPair();
-  var pubKey = Key.getPublic('hex');
-  //pubKey.toString(16);
-  //ec.keyFromPublic(publicKey).getPublic()
-  msg("Creating Curve25519 Public" + pubKey);
-  return u2f_b64(pubKey.join());
-}
-
 //Basic U2F enroll test
 function enroll_local() {
   msg("Enrolling user " + userId());
