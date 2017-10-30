@@ -38,7 +38,7 @@ information is available on U2F protocol [here](https://fidoalliance.org/specs/f
 
 U2F utilizes registration and authentication message types. To send data to the OnlyKey, messages are encoded in the Key Handle of the authentication message type. To receive data back, messages are encoded in the signature of the authentication response. This method provides a reliable form of communication that is supported anywhere U2F is supported including Chrome, Chromium, Opera, and Firefox (Quantum or w/plugin).
 
-The outline below visualizes the use of onlykey-api.js and u2f-api.js to communicate via Browser to OnlyKey over USB.
+The outline below visualizes the use of onlykey-api.js and u2f-api.js to communicate via browser to OnlyKey over USB.
 
 ```
 ┌──────────────┐                                                   ┌─────────┐
