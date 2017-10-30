@@ -1,4 +1,4 @@
-![OnlyKey WebCrypt](images/logo-with-text.png)
+![OnlyKey WebCrypt](logo-with-text.png)
 ========
 
 **Still in early development.**
