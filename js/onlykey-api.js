@@ -281,48 +281,33 @@ function auth_ping() {
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
-function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
-  params = {
-    msgType: params.msgType || 240,
-    keySlot: params.keySlot || 1,
-    poll_type: params.poll_type || 3,
-    ct: params.ct
-  };
-
+function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
+  //simulate_enroll();
   cb = cb || noop;
-  if (params.ct.length == 396) {
-    params.poll_delay = 4; //6 Second delay for RSA 3072
-  } else if (params.ct.length == 524) {
-    params.poll_delay = 7; //9 Second delay for RSA 4096
+  if (ct.length == 396) {
+    poll_delay = 6; //6 Second delay for RSA 3072
+  } else if (ct.length == 524) {
+    poll_delay = 9; //9 Second delay for RSA 4096
   }
-  var padded_ct = params.ct.slice(12, params.ct.length);
-  var keyid = params.ct.slice(1, 8);
+  var padded_ct = ct.slice(12, ct.length);
+  var keyid = ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
   msg("Padded CT Packet bytes " + Array.from(padded_ct));
   msg("Key ID bytes " + Array.from(keyid));
   pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   msg("Generated PIN" + pin);
-  params.ct = typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct;
-  return u2fSignBuffer(params, cb);
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
-function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
-  params = {
-    msgType: params.msgType || 237,
-    keySlot: params.keySlot || 2,
-    poll_type: params.poll_type || 4,
-    poll_delay: params.poll_delay,
-    ct: params.ct
-  };
-
-  var pin_hash = sha256(params.ct);
+function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
+  //simulate_enroll();
+  var pin_hash = sha256(ct);
   cb = cb || noop;
-  msg("Signature Packet bytes " + Array.from(params.ct));
-  pin = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
+  msg("Signature Packet bytes " + Array.from(ct));
+  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   msg("Generated PIN" + pin);
-  params.ct = typeof params.ct === 'string' ? params.ct.match(/.{2}/g) : params.ct;
-  return u2fSignBuffer(params, cb);
+  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
 }
 
 //Function to process U2F registration response
