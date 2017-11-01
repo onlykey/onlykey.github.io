@@ -121,8 +121,8 @@ Encode a *packet in U2F Key Handle field that contains a ping request.
 process_ping_response(response)
 
 Decode error code from response - 
-Error type 1 (OTHER_ERROR) device status code: -7f, waiting for code entry
-Error type 1 (OTHER_ERROR) device status code: -80, incorrect challenge entered
+Error type 1 (OTHER_ERROR) device status code: -7f, waiting for challenge code
+Error type 1 (OTHER_ERROR) device status code: -80, incorrect challenge code entered
 Error type 1 (OTHER_ERROR) device status code: -81, key type not set as signature/decrypt
 Error type 1 (OTHER_ERROR) device status code: -82, no key set in this slot
 Error type 5 (TIMEOUT) Correct challenge entered
