@@ -57,7 +57,7 @@ function userId() {
     return el && el.value || 'u2ftest';
 }
 
-function slotId() { return id('slotid') ? id('slotid').value : 1; }
+function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
 
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
