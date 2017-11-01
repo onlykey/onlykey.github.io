@@ -15,19 +15,21 @@ var appKey = curve25519.genKeyPair();
 var appPub = appKey.getPublic();
 var okPub;
 var shared;
-
 var _status;
 var pin;
 var poll_type, poll_delay;
+var custom_keyid;
+var msgType;
+var keySlot;
+
 const button = document.getElementById('onlykey_start');
 
-var custom_keyid;
-
 function init() {
-  enroll_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+  msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
   updateStatusFromSelection();
 
   document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
+
 }
 
 function updateStatusFromSelection(skipBtn) {
@@ -36,12 +38,17 @@ function updateStatusFromSelection(skipBtn) {
   if (!skipBtn) button.textContent = val;
 }
 
-//var ECDH = require('elliptic').ec;
-//var ec = new ECDH('curve25519');
-
 function id(s) { return document.getElementById(s); }
 
-function msg(s) { id('messages').innerHTML += "<br>" + s; }
+function msg(s) {
+  id('messages').innerHTML += "<br>" + s;
+  console.info(s);
+}
+
+function _setStatus(newStatus) {
+  _status = newStatus;
+  msg(`Changed _status to ${newStatus}`);
+}
 
 function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
 
@@ -50,7 +57,7 @@ function userId() {
     return el && el.value || 'u2ftest';
 }
 
-function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
+function slotId() { return id('slotid') ? id('slotid').value : 1; }
 
 function b64EncodeUnicode(str) {
     // first we use encodeURIComponent to get percent-encoded UTF-8,
@@ -111,24 +118,6 @@ function mkchallenge() {
   return u2f_b64(s.join());
 }
 
-//Generate a polling request
-function mk_polling() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(0);
-  return u2f_b64(s.join());
-}
-
-//Function to create new key to be sent via U2F auth message challenge
-function mk_key() {
-  var ecdh = new elliptic.ec(curve25519);
-  var Key = ec.genKeyPair();
-  var pubKey = Key.getPublic('hex');
-  //pubKey.toString(16);
-  //ec.keyFromPublic(publicKey).getPublic()
-  msg("Creating Curve25519 Public" + pubKey);
-  return u2f_b64(pubKey.join());
-}
-
 //Basic U2F enroll test
 function enroll_local() {
   msg("Enrolling user " + userId());
@@ -154,9 +143,9 @@ function auth_local() {
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
-    var result = verify_auth_response(response);
+    var result = process_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
-  });
+  }, 3);
     msg("Finsihed");
 }
 
@@ -169,8 +158,9 @@ function simulate_enroll() {
   keyHandleDict[kh_b64] = u2f_pk;
   //Simulate Registration
 }
+
 //Function to send and retrive custom U2F messages
-function enroll_polling(params = {}, cb) {
+function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
 
@@ -237,7 +227,13 @@ function enroll_polling(params = {}, cb) {
         }
       } else if (type == 3) {
         if (result) {
-          var sessKey = result.slice(0, result.length);
+          if (result.length == 64) {
+            var sessKey = result.slice(0, 35);
+            var entropy = result.slice(36, 64);
+            msg("HW generated entropy" + entropy);
+          } else {
+            var sessKey = result.slice(0, result.length);
+          }
           msg("Session Key " + sessKey);
           data = sessKey;
         } else {
@@ -256,13 +252,12 @@ function enroll_polling(params = {}, cb) {
       }
 
       if (typeof cb === 'function') cb(null, data);
-    });
+    }, 3);
   }, delay * 1000);
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
 function auth_ping() {
-  simulate_enroll();
   var message = [255, 255, 255, 255]; //Add header and message type
   msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
@@ -275,10 +270,14 @@ function auth_ping() {
                "appId": appId, "version": version };
   var result;
     u2f.sign(appId, challenge, [req], function(response) {
-      result = verify_auth_response(response);
+      result = process_ping_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
-      _status = result ? _status : 'done_pin';
-    }, 2);
+      if(result == 0) {
+        _setStatus('done_pin');
+      } else if (result == -1) {
+        _setStatus('wrong_pin');
+      }
+    }, 2.5);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -292,9 +291,9 @@ function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
 
   cb = cb || noop;
   if (params.ct.length == 396) {
-    params.poll_delay = 6; //6 Second delay for RSA 3072
+    params.poll_delay = 4; //6 Second delay for RSA 3072
   } else if (params.ct.length == 524) {
-    params.poll_delay = 9; //9 Second delay for RSA 4096
+    params.poll_delay = 7; //9 Second delay for RSA 4096
   }
   var padded_ct = params.ct.slice(12, params.ct.length);
   var keyid = params.ct.slice(1, 8);
@@ -325,6 +324,7 @@ function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
   params.ct = typeof params.ct === 'string' ? params.ct.match(/.{2}/g) : params.ct;
   return u2fSignBuffer(params, cb);
 }
+
 //Function to process U2F registration response
 function process_enroll_response(response) {
   var err = response['errorCode'];
@@ -366,11 +366,10 @@ function process_enroll_response(response) {
 }
 
 //Function to process U2F auth response
-function verify_auth_response(response) {
+function process_auth_response(response) {
+  console.info("Response", response);
   var err = response['errorCode'];
-  if (err==1) { //OnlyKey uses err 1 from auth as ACK
-    return true;
-  } else if (err) {
+  if (err) {
     msg("Auth failed with error code " + err);
     return false;
   }
@@ -394,10 +393,28 @@ function verify_auth_response(response) {
   return true;
 }
 
+function process_ping_response(response) {
+  console.info("Response", response);
+  var err = response['errorCode'];
+  var errMes = response['errorMessage'];
+  console.info("Response code ", err);
+  if (err==5 || _status === 'done_pin') {
+    console.info("Ping Timeout");
+    return 0;
+  } else if (errMes === "device status code: -7f") { //Ack
+    console.info("Ping Success");
+    return 1;
+  } else if (err==1) {
+    console.info("Incorrect Challenge PIN Entered");
+    return -1;
+  }
+}
+
 //Function to parse custom U2F auth response
 function custom_auth_response(response) {
   var err = response['errorCode'];
-  if (err==1) { //OnlyKey uses err 1 as no message ready to send
+  console.info("Response code ", err);
+  if (err==1) { //OnlyKey uses err 1 as no message ready to send or ACK that message was received
     return 3;
   }
   if (err) {
@@ -443,11 +460,11 @@ function u2fSignBuffer(params, mainCallback) {
     msg("Sending challenge " + challenge);
 
     u2f.sign(appId, challenge, [req], function(response) {
-      var result = verify_auth_response(response);
+      var result = custom_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
-          _status = 'pending_pin';
+          _setStatus('pending_pin');
           cb().then(skey => {
             msg("skey " + skey);
             mainCallback(skey);
@@ -456,7 +473,7 @@ function u2fSignBuffer(params, mainCallback) {
           cb();
         }
       }
-    });
+    }, 3);
 }
 
 window.doPinTimer = function (seconds, params) {
@@ -472,20 +489,21 @@ window.doPinTimer = function (seconds, params) {
 
     if (_status === 'done_pin') {
       msg(`Delay ${poll_delay} seconds`);
-      return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-        msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
+      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
         resolve(data);
       });
     }
 
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=2), 2000);
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
   });
 };
 
 function setButtonTimerMessage(seconds) {
-  if (_status !== 'done_pin') {
+  if (_status !== 'done_pin' && _status !== 'wrong_pin') {
     msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
+    console.info("enter challenge code", pin);
     auth_ping();
   }
 }
