@@ -444,7 +444,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     msg("Sending challenge " + challenge);
 
     u2f.sign(appId, challenge, [req], function(response) {
-      var result = verify_auth_response(response);
+      var result = custom_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
