@@ -460,8 +460,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     }, 3);
 }
 
-window.doPinTimer = function (seconds, params) {
-  const { poll_type, poll_delay } = params;
+window.doPinTimer = function (seconds) {
 
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
