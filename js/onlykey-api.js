@@ -423,17 +423,16 @@ function custom_auth_response(response) {
   return parsedData;
 }
 
-function u2fSignBuffer(params, mainCallback) {
+function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255, params.msgType, params.keySlot]; //Add header, message type, and key to use
+    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 237 : 240, slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
-    var finalPacket = params.ct.length - maxPacketSize <= 0;
-    var ctChunk = params.ct.slice(0, maxPacketSize);
+    var finalPacket = cipherText.length - maxPacketSize <= 0;
+    var ctChunk = cipherText.slice(0, maxPacketSize);
     message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
-    params.ct = params.ct.slice(maxPacketSize);
-    var cb = finalPacket ? doPinTimer.bind(null, 20, params) : u2fSignBuffer.bind(null, params, mainCallback);
+    var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
@@ -445,11 +444,11 @@ function u2fSignBuffer(params, mainCallback) {
     msg("Sending challenge " + challenge);
 
     u2f.sign(appId, challenge, [req], function(response) {
-      var result = custom_auth_response(response);
+      var result = verify_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
-          _setStatus('pending_pin');
+          _status = 'pending_pin';
           cb().then(skey => {
             msg("skey " + skey);
             mainCallback(skey);
