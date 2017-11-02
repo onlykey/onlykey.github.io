@@ -482,8 +482,8 @@ window.doPinTimer = function (seconds) {
 
 function setButtonTimerMessage(seconds) {
   if (_status !== 'done_pin' && _status !== 'wrong_pin') {
-    const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
-    button.textContent = msg;msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
+    const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
+    button.textContent = btmsg;
     console.info("enter challenge code", pin);
     auth_ping();
   }
