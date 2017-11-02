@@ -127,10 +127,6 @@ Error type 1 (OTHER_ERROR) device status code: -81, key type not set as signatur
 Error type 1 (OTHER_ERROR) device status code: -82, no key set in this slot
 Error type 1 (OTHER_ERROR) device status code: -83, invalid key, key check failed
 Error type 1 (OTHER_ERROR) device status code: -84, invalid data, or data does not match key
-Error type 1 (OTHER_ERROR) device status code: -91, key type 1024 
-Error type 1 (OTHER_ERROR) device status code: -92, key type 2048
-Error type 1 (OTHER_ERROR) device status code: -93, key type 3072
-Error type 1 (OTHER_ERROR) device status code: -94, key type 4096
 
 ┌─────────────────┐
 │  Error Message  │      
