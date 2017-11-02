@@ -69735,7 +69735,7 @@ loadPublicSignerID(key) {
           sender_public_key = sender;
           var keyids = sender_public_key.get_all_pgp_key_ids();
           if (typeof keyids[2] !== "undefined") {
-            poll_delay = 1;  //Assuming RSA 2048
+            poll_delay = 2;  //Assuming RSA 2048
             var subkey = 2;
           } else {
             poll_delay = 9;  //Assuming RSA 4096 or 3072

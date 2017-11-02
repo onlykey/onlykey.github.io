@@ -184,7 +184,7 @@ function msg_polling(params = {}, cb) {
     u2f.sign(appId, challenge, [req], function(response) {
       var result = custom_auth_response(response);
       let data;
-      if (result == 3) {
+      if (result == 1) {
           msg("Polling succeeded but no data was received");
           return;
       }
@@ -259,15 +259,36 @@ function auth_ping() {
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   var result;
-    u2f.sign(appId, challenge, [req], function(response) {
-      result = process_ping_response(response);
-      msg("Ping " + (result ? "Successful" : "Failed"));
-      if(result == 0) {
-        _setStatus('done_pin');
-      } else if (result == -1) {
-        _setStatus('wrong_pin');
-      }
-    }, 2.5);
+  u2f.sign(appId, challenge, [req], function(response) {
+    result = custom_auth_response(response);
+    msg("Ping " + (result ? "Successful" : "Failed"));
+    if(result == 1) {
+      console.info("Ping Success");
+    } else if (result == 0) {
+      console.info("Challenge code entered");
+      _setStatus('done_code');
+    } else if (result == 2) {
+      console.info("Incorrect challenge code entered");
+      button.textContent = "Incorrect challenge code entered";
+      _setStatus('wrong_code');
+    } else if (result == 3) {
+      console.info("key type not set as signature/decrypt");
+      button.textContent = "key type not set as signature/decrypt";
+      _setStatus('wrong_type');
+    } else if (result == 4) {
+      console.info("no key set in this slot");
+      button.textContent = "no key set in this slot";
+      _setStatus('no_key');
+    } else if (result == 5) {
+      console.info("invalid key, key check failed");
+      button.textContent = "invalid key, key check failed";
+      _setStatus('bad_key');
+    } else if (result == 6) {
+      console.info("invalid data, or data does not match key");
+      button.textContent = "invalid data, or data does not match key";
+      _setStatus('bad_data');
+    }
+  }, 2.5);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -388,7 +409,7 @@ function process_ping_response(response) {
   var err = response['errorCode'];
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
-  if (err==5 || _status === 'done_pin') {
+  if (err==5 || _status === 'done_code') {
     console.info("Ping Timeout");
     return 0;
   } else if (errMes === "device status code: -7f") { //Ack
@@ -402,13 +423,24 @@ function process_ping_response(response) {
 
 //Function to parse custom U2F auth response
 function custom_auth_response(response) {
+  console.info("Response", response);
   var err = response['errorCode'];
+  var errMes = response['errorMessage'];
   console.info("Response code ", err);
-  if (err==1) { //OnlyKey uses err 1 as no message ready to send or ACK that message was received
+  if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as no message ready to send or ACK that message was received
+    return 1;
+  } else if (errMes === "device status code: -80") { //incorrect challenge code entered
+    return 2;
+  } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
     return 3;
-  }
-  if (err) {
-    msg("Failed with error code " + err);
+  } else if (errMes === "device status code: -82") { //no key set in this slot
+    return 4;
+  } else if (errMes === "device status code: -83") { //invalid key, key check failed
+    return 5;
+  } else if (errMes === "device status code: -84") { //invalid data, or data does not match key
+    return 6;
+  } else if (err) { //Ping failed meaning correct challenge entered or other error
+    console.info("Failed with error code ", err);
     return 0;
   }
   var clientData_b64 = response['clientData'];
@@ -477,7 +509,7 @@ window.doPinTimer = function (seconds, params) {
       return reject(err);
     }
 
-    if (_status === 'done_pin') {
+    if (_status === 'done_code') {
       msg(`Delay ${poll_delay} seconds`);
       return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
@@ -491,7 +523,7 @@ window.doPinTimer = function (seconds, params) {
 };
 
 function setButtonTimerMessage(seconds) {
-  if (_status !== 'done_pin' && _status !== 'wrong_pin') {
+  if (_status !== 'done_code' && _status !== 'wrong_code' && _status !== 'wrong_type' && _status !== 'no_key' && _status !== 'bad_key' && _status !== 'bad_data') {
     msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
     console.info("enter challenge code", pin);
     auth_ping();
