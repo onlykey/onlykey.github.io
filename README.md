@@ -125,6 +125,8 @@ Error type 1 (OTHER_ERROR) device status code: -7f, waiting for challenge code
 Error type 1 (OTHER_ERROR) device status code: -80, incorrect challenge code entered
 Error type 1 (OTHER_ERROR) device status code: -81, key type not set as signature/decrypt
 Error type 1 (OTHER_ERROR) device status code: -82, no key set in this slot
+Error type 1 (OTHER_ERROR) device status code: -83, invalid key, key check failed
+Error type 1 (OTHER_ERROR) device status code: -84, invalid data, or data does not match key
 Error type 5 (TIMEOUT) Correct challenge entered
 
 ┌─────────────────┐
