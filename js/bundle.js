@@ -69735,10 +69735,10 @@ loadPublicSignerID(key) {
           sender_public_key = sender;
           var keyids = sender_public_key.get_all_pgp_key_ids();
           if (typeof keyids[2] !== "undefined") {
-            poll_delay = 3;  //Assuming RSA 2048
+            poll_delay = 1;  //Assuming RSA 2048
             var subkey = 2;
           } else {
-            poll_delay = 11;  //Assuming RSA 4096 or 3072
+            poll_delay = 9;  //Assuming RSA 4096 or 3072
             var subkey = 0;
           }
           custom_keyid = keyids[subkey].toString('hex').toUpperCase();
@@ -69797,7 +69797,7 @@ button.onclick = function () {
         case 'Decrypt and Verify':
         case 'Decrypt Only':
             poll_type = 3;
-            poll_delay = 3;
+            poll_delay = 1;
             p2g.startDecryption();
             break;
         case 'pending_pin':
