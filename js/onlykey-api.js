@@ -40,17 +40,14 @@ function updateStatusFromSelection(skipBtn) {
 
 function id(s) { return document.getElementById(s); }
 
-function msg(s) {
-  id('messages').innerHTML += "<br>" + s;
-  console.info(s);
-}
+function msg(s) { id('messages').innerHTML += "<br>" + s; }
+
+function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
 
 function _setStatus(newStatus) {
   _status = newStatus;
   msg(`Changed _status to ${newStatus}`);
 }
-
-function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
 
 function userId() {
     var el = id('userid');
