@@ -10,8 +10,9 @@ var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
+//var curve25519 = new CTX("C25519");
 var curve25519 = new ECC('curve25519');
-var appKey = curve25519.genKeyPair();
+var appKey = ctx.ECDH.KEY_PAIR_GENERATE(...);
 var appPub = appKey.getPublic();
 var okPub;
 var shared;

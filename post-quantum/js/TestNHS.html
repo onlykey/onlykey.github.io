@@ -22,14 +22,14 @@
 
 <script>
 
-// Test NewHope Simple 
+// Test NewHope Simple
 // See https://eprint.iacr.org/2016/1157 (Alkim, Ducas, Popplemann and Schwabe)
 
 	var ctx = new CTX();
 
 	var RAW=[];
 	var srng=new ctx.RAND(); srng.clean();
-								var crng=new ctx.RAND(); crng.clean(); 
+								var crng=new ctx.RAND(); crng.clean();
 
 	for (i=0;i<100;i++) RAW[i]=i+1;
 	srng.seed(100,RAW);
@@ -49,7 +49,7 @@
 	ctx.NHS.SERVER_2(S,UC,KEYA);
 
 	window.document.write("Alice Key= 0x"+ctx.NHS.bytestostring(KEYA)+ "<br>");
-	window.document.write("Bob's Key= 0x"+ctx.NHS.bytestostring(KEYA)+ "<br>");
+	window.document.write("Bob's Key= 0x"+ctx.NHS.bytestostring(KEYB)+ "<br>");
 
 
 </script>

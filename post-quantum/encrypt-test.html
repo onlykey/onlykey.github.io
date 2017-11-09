@@ -13,4 +13,15 @@
         } </style> </head> <body class="yui3-skin-sam"> <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed"> <span class="yui3-menu-heading">OnlyKey</span> <ul> <li><a href="https://apps.crp.to/decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a></li> <li class="yui3-menu-active"><a href="https://apps.crp.to/encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a></li> <li><a href="https://apps.crp.to/u2f">U2F</a></li> <li><a href="https://docs.crp.to">Docs</a></li> <li><a href="https://apps.crp.to"><i class="fa fa-home" aria-hidden="true"></i></a></li> </ul> </div> <div class="header yui3-u-1"> <p><img src="ok.jpg" alt="logo" align="middle"></p> <h1><i class="fa fa-lock" aria-hidden="true"></i> Encrypt & Sign</h1> <code data-language="javascript"> <div id="header_messages"></div> </code>  </div> <h5>Securely encrypt and sign messages in your browser using <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a> and OnlyKey</h5> <div id="container"> <fieldset> <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea> <textarea placeholder="Recipient's Keybase username or URL to thier public PGP key or paste thier key..." rows="1" id="pgpkeyurl"></textarea> <textarea placeholder="Hey, i am sending you a super secret message..." id="message"></textarea> <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button> </fieldset> <center><form name="action"> <input type="radio" name="select_one" id="encrypt_and_sign" value="Encrypt and Sign" checked="checked"> Encrypt and Sign <input type="radio" name="select_one" id="encrypt_only" value="Encrypt Only"> Encrypt Only <input type="radio" name="select_one" id="sign_only" value="Sign Only"> Sign Only </form></center> </div> <script src="js/u2f-api.js"></script> <script src="js/ecc.js"></script> <script src="js/asn1.js"></script> <script src="js/onlykey-api.js"></script> <div class="content"> <h2>OnlyKey Console Messages Appear Below</h2> <pre><code data-language="javascript"><font color="008700">
         <div id="messages"></div>
         </font></code></pre> </div> <script> //call after page loaded
-    window.onload=init(); </script> <script type="text/javascript" src="js/bundle.js"></script></body> </html>
+    window.onload=init(); </script> <script type="text/javascript" src="js/bundle.js"></script><script type="text/javascript"src=./rand.js></script>
+    <script type="text/javascript"src=js/uint64.js></script>
+    <script type="text/javascript"src=js/aes.js></script>
+    <script type="text/javascript"src=js/big.js></script>
+    <script type="text/javascript"src=js/gcm.js></script>
+    <script type="text/javascript"src=js/hash256.js></script>
+    <script type="text/javascript"src=js/hash384.js></script>
+    <script type="text/javascript"src=js/hash512.js></script>
+    <script type="text/javascript"src=js/sha3.js></script>
+    <script type="text/javascript"src=js/newhope.js></script>
+    <script type="text/javascript"src=js/nhs.js></script>
+    <script type="text/javascript"src=js/ctx.js></script></body> </html>
