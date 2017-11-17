@@ -340,12 +340,19 @@ function process_enroll_response(response) {
   var kh_b64 = bytes2b64(kh_bytes);
   msg("Handlekey b64 " + kh_b64);
   var cert_der = v.slice(67 + v[66], v[67 + v[66]]);
+  msg("cert_der " + cert_der);
   var cert_asn1 = ASN1.decode(cert_der);
+  msg("cert_asn1 " + cert_asn1);
   var cert_pk_asn1 = cert_asn1.sub[0].sub[6].sub[1];
+  msg("cert_pk_asn1 " + cert_pk_asn1);
   var cert_pk_bytes = asn1bytes(cert_pk_asn1);
+  msg("cert_pk_bytes " + cert_pk_bytes);
   var cert_key = p256.keyFromPublic(cert_pk_bytes.slice(3), 'der');
+  msg("cert_key " + cert_key);
   var sig = cert_der.slice(cert_asn1.length + cert_asn1.header);
+  msg("sig " + sig);
   var l = [[0], sha256(appId), sha256(clientData_str), kh_bytes, u2f_pk];
+  msg("l" + l;
   var v = cert_key.verify(sha256(bcat(l)), sig);
   if (v) {
     userDict[userId()] = kh_b64;
