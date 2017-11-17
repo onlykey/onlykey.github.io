@@ -146,16 +146,6 @@ function auth_local() {
     msg("Finsihed");
 }
 
-//Function to simulate U2F registration so we can send U2F auth
-function simulate_enroll() {
-  var u2f_pk = new Uint8Array(64).fill(0);
-  var kh_bytes = new Uint8Array(64).fill(0);
-  var kh_b64 = bytes2b64(kh_bytes);
-  userDict[userId()] = kh_b64;
-  keyHandleDict[kh_b64] = u2f_pk;
-  //Simulate Registration
-}
-
 //Function to send and retrive custom U2F messages
 function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
@@ -300,7 +290,6 @@ function auth_ping() {
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
-  //simulate_enroll();
   cb = cb || noop;
   if (ct.length == 396) {
     poll_delay = 5; //5 Second delay for RSA 3072
@@ -308,6 +297,7 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
     poll_delay = 7; //7 Second delay for RSA 4096
   }
   var padded_ct = ct.slice(12, ct.length);
+  //var padded_ct = AES_ENCRYPT(ctx.AES.GCM,hextobytes(KEY),hextobytes(ct.slice(12, ct.length)));
   var keyid = ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
   msg("Padded CT Packet bytes " + Array.from(padded_ct));
@@ -319,7 +309,6 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
-  //simulate_enroll();
   var pin_hash = sha256(ct);
   cb = cb || noop;
   msg("Signature Packet bytes " + Array.from(ct));
@@ -331,9 +320,6 @@ function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
 //Function to process U2F registration response
 function process_enroll_response(response) {
   var err = response['errorCode'];
-  if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
-    return true;
-  }
   if (err) {
     msg("Registration failed with error code " + err);
     return false;
