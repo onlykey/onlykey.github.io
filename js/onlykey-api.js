@@ -352,7 +352,7 @@ function process_enroll_response(response) {
   var sig = cert_der.slice(cert_asn1.length + cert_asn1.header);
   msg("sig " + sig);
   var l = [[0], sha256(appId), sha256(clientData_str), kh_bytes, u2f_pk];
-  msg("l" + l;
+  msg("l" + l);
   var v = cert_key.verify(sha256(bcat(l)), sig);
   if (v) {
     userDict[userId()] = kh_b64;
