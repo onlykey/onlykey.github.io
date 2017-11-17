@@ -142,8 +142,8 @@ function auth_local() {
   u2f.sign(appId, challenge, [req], function(response) {
     var result = process_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
-  }, 3);
-    msg("Finsihed");
+  });
+    msg("Finished");
 }
 
 //Function to send and retrive custom U2F messages
