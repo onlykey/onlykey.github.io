@@ -26,9 +26,11 @@ const button = document.getElementById('onlykey_start');
 
 function init() {
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-  updateStatusFromSelection();
 
-  document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
+  if (typeof(button) !== "undefined" && button !== null) {
+    updateStatusFromSelection();
+    document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
+  }
 
 }
 
