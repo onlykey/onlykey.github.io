@@ -25,7 +25,7 @@ var keySlot;
 const button = document.getElementById('onlykey_start');
 
 function init() {
-  msg_polling({ type: 1, delay: 1 }); //Set time on OnlyKey, get firmware version, get ecc public
+  msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
     updateStatusFromSelection();
@@ -325,6 +325,7 @@ function process_enroll_response(response) {
   var err = response['errorCode'];
   if (err) {
     msg("Registration failed with error code " + err);
+    console.info(errMes);
     return false;
   }
   var clientData_b64 = response['clientData'];
@@ -361,6 +362,7 @@ function process_auth_response(response) {
   var err = response['errorCode'];
   if (err) {
     msg("Auth failed with error code " + err);
+    console.info(errMes);
     return false;
   }
   var clientData_b64 = response['clientData'];
@@ -389,6 +391,7 @@ function custom_auth_response(response) {
   var err = response['errorCode'];
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
+  console.info(errMes);
   if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as no message ready to send or ACK that message was received
     return 1;
   } else if (errMes === "device status code: -80") { //incorrect challenge code entered
