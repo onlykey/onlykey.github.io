@@ -15,15 +15,14 @@
 <script type="text/javascript"src=./hash256.js></script>
 <script type="text/javascript"src=./hash384.js></script>
 <script type="text/javascript"src=./hash512.js></script>
-<script type="text/javascript"src=./sha3.js></script>
 <script type="text/javascript"src=./ctx.js></script>
 
 <script>
 
-// Test NewHope Simple
-// See https://eprint.iacr.org/2016/1157 (Alkim, Ducas, Popplemann and Schwabe)
 
-	var bytestostring = function(b) {
+var ctx = new CTX();
+
+var bytestostring = function(b) {
     var s = "";
     var len = b.length;
     var ch;
