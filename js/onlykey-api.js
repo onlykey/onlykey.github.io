@@ -181,6 +181,7 @@ function msg_polling(params = {}, cb) {
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
     u2f.sign(appId, challenge, [req], function(response) {
+      console.info("Response", response);
       var result = custom_auth_response(response);
       let data;
       if (result == 1) {
