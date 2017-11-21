@@ -26,11 +26,12 @@ var key = forge.pkcs5.pbkdf2('password', salt, numIterations, 16);
 // Note: CBC and ECB modes use PKCS#7 padding as default
 var cipher = forge.cipher.createCipher('AES-CBC', key);
 cipher.start({iv: iv});
+var someBytes = 'hello world!';
 cipher.update(forge.util.createBuffer(someBytes));
 cipher.finish();
 var encrypted = cipher.output;
 // outputs encrypted hex
-console.log(encrypted.toHex());
+console.log("Encrypted Hex", encrypted.toHex());
 
 // decrypt some bytes using CBC mode
 // (other modes include: CFB, OFB, CTR, and GCM)
@@ -39,7 +40,7 @@ decipher.start({iv: iv});
 decipher.update(encrypted);
 var result = decipher.finish(); // check 'result' for true/false
 // outputs decrypted hex
-console.log(decipher.output.toHex());
+console.log("Decrypted Hex", decipher.output.toHex());
 
 // decrypt bytes using CBC mode and streaming
 // Performance can suffer for large multi-MB inputs due to buffer
@@ -62,9 +63,9 @@ do {
   index += chunkSize;
 } while(index < length);
 var result = decipher.finish();
-assert(result);
+//assert(result);
 decrypted += decipher.output.getBytes();
-console.log(forge.util.bytesToHex(decrypted));
+console.log("Decrypted Hex", forge.util.bytesToHex(decrypted));
 
 // encrypt some bytes using GCM mode
 var cipher = forge.cipher.createCipher('AES-GCM', key);
@@ -78,9 +79,10 @@ cipher.finish();
 var encrypted = cipher.output;
 var tag = cipher.mode.tag;
 // outputs encrypted hex
-console.log(encrypted.toHex());
+//console.log("Unencrypted AES-GCM Hex", someBytes.toHex());
+console.log("Encrypted AES-GCM Hex", encrypted.toHex());
 // outputs authentication tag
-console.log(tag.toHex());
+console.log("AES-GCM tag", tag.toHex());
 
 // decrypt some bytes using GCM mode
 var decipher = forge.cipher.createDecipher('AES-GCM', key);
@@ -95,7 +97,7 @@ var pass = decipher.finish();
 // pass is false if there was a failure (eg: authentication tag didn't match)
 if(pass) {
   // outputs decrypted hex
-  console.log(decipher.output.toHex());
+  console.log("Decrypted AES-GCM Hex", decipher.output.toHex());
 }
 
 </script>
