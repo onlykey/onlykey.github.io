@@ -392,7 +392,7 @@ function custom_auth_response(response) {
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
   console.info(errMes);
-  if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as no message ready to send or ACK that message was received
+  if (err === 1 && (typeof(errMes) === "undefined" || errMes === "device status code: -7f")) { //OnlyKey uses err 127 as no message ready to send or ACK that message was received
     return 1;
   } else if (errMes === "device status code: -80") { //incorrect challenge code entered
     return 2;
