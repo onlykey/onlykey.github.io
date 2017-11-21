@@ -413,8 +413,8 @@ function custom_auth_response(response) {
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   msg("Data Received: " + sigData);
   var parsedData = [];
-  Array.prototype.push.apply(parsedData, sigData.slice(8,(sigData[7]+8)));
-  Array.prototype.push.apply(parsedData, sigData.slice((sigData[7]+8+2),(sigData[(sigData[7]+8+1)]+(sigData[7]+8+2))));
+  Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+8)));
+  Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+8+2),(sigData[(sigData[8]+8+1)]+(sigData[8]+8+2))));
   msg("Parsed Data: " + parsedData);
   return parsedData;
 }
