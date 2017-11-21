@@ -63,12 +63,6 @@ u2f.ErrorCodes = {
     'CONFIGURATION_UNSUPPORTED': 3,
     'DEVICE_INELIGIBLE': 4,
     'TIMEOUT': 5
-    //'ACK': 127, //Ack packet received
-    //'NOT_SIGN': 128, //Error key not set as signature key
-    //'NOT_DECR': 129, //Error key not set as decryption key
-    //'NO_KEY': 130, //Error no key set in this slot
-    //'ERR_SIGN': 132, //Error with signing
-    //'ERR_DECR': 133 //Error with decryption
 };
 
 
@@ -236,7 +230,7 @@ u2f.isAndroidChrome_ = function() {
  * @private
  */
 u2f.isIosChrome_ = function() {
-  return $.inArray(navigator.platform, ["iPhone", "iPad", "iPod"]) > -1;
+  return ["iPhone", "iPad", "iPod"].indexOf(navigator.platform) > -1;
 };
 
 /**
