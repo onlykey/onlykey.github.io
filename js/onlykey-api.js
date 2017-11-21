@@ -25,7 +25,7 @@ var keySlot;
 const button = document.getElementById('onlykey_start');
 
 function init() {
-  msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+  msg_polling({ type: 1, delay: 1 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
     updateStatusFromSelection();
