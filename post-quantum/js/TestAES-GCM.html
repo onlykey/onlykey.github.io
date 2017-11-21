@@ -107,7 +107,7 @@ PLAINTEXT = "1695fe475421cace3557daca01f445ff";
 
 console.log("Plaintext: ",PLAINTEXT);
 
-var Cout = AES_ENCRYPT(ctx.AES.ECB,hextobytes(KEY),hextobytes(PLAINTEXT));
+var Cout = AES_ENCRYPT(ctx.AES.GCM,hextobytes(KEY),hextobytes(PLAINTEXT));
 
 console.log("Ciphertext: ",bytestostring(Cout));
 
