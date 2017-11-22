@@ -135,18 +135,8 @@ function auth_local() {
   u2f.sign(appId, challenge, [req], function(response) {
     var result = process_auth_response(response);
     msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
-  }, 3);
+  });
     msg("Finsihed");
-}
-
-//Function to simulate U2F registration so we can send U2F auth
-function simulate_enroll() {
-  var u2f_pk = new Uint8Array(64).fill(0);
-  var kh_bytes = new Uint8Array(64).fill(0);
-  var kh_b64 = bytes2b64(kh_bytes);
-  userDict[userId()] = kh_b64;
-  keyHandleDict[kh_b64] = u2f_pk;
-  //Simulate Registration
 }
 
 //Function to send and retrive custom U2F messages
@@ -339,11 +329,9 @@ function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
 //Function to process U2F registration response
 function process_enroll_response(response) {
   var err = response['errorCode'];
-  if (err==1) { //OnlyKey uses err 1 from register as no message ready to send
-    return true;
-  }
   if (err) {
     msg("Registration failed with error code " + err);
+    console.info(errMes);
     return false;
   }
   var clientData_b64 = response['clientData'];
@@ -358,10 +346,8 @@ function process_enroll_response(response) {
   var v = string2bytes(u2f_unb64(regData_b64));
   var u2f_pk = v.slice(1, 66);                // PK = Public Key
   var kh_bytes = v.slice(67, 67 + v[66]);     // KH = Key Handle
-  msg("Handlekey " + kh_bytes);
   var kh_b64 = bytes2b64(kh_bytes);
-  msg("Handlekey b64 " + kh_b64);
-  var cert_der = v.slice(67 + v[66], v[67 + v[66]]);
+  var cert_der = v.slice(67 + v[66]);
   var cert_asn1 = ASN1.decode(cert_der);
   var cert_pk_asn1 = cert_asn1.sub[0].sub[6].sub[1];
   var cert_pk_bytes = asn1bytes(cert_pk_asn1);
@@ -382,6 +368,7 @@ function process_auth_response(response) {
   var err = response['errorCode'];
   if (err) {
     msg("Auth failed with error code " + err);
+    console.info(errMes);
     return false;
   }
   var clientData_b64 = response['clientData'];
@@ -404,30 +391,14 @@ function process_auth_response(response) {
   return true;
 }
 
-function process_ping_response(response) {
-  console.info("Response", response);
-  var err = response['errorCode'];
-  var errMes = response['errorMessage'];
-  console.info("Response code ", err);
-  if (err==5 || _status === 'done_code') {
-    console.info("Ping Timeout");
-    return 0;
-  } else if (errMes === "device status code: -7f") { //Ack
-    console.info("Ping Success");
-    return 1;
-  } else if (err==1) {
-    console.info("Incorrect Challenge PIN Entered");
-    return -1;
-  }
-}
-
 //Function to parse custom U2F auth response
 function custom_auth_response(response) {
   console.info("Response", response);
   var err = response['errorCode'];
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
-  if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as no message ready to send or ACK that message was received
+  console.info(errMes);
+  if (err === 1 && (typeof(errMes) === "undefined" || errMes === "device status code: -7f")) { //OnlyKey uses err 127 as no message ready to send or ACK that message was received
     return 1;
   } else if (errMes === "device status code: -80") { //incorrect challenge code entered
     return 2;
@@ -454,8 +425,8 @@ function custom_auth_response(response) {
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   msg("Data Received: " + sigData);
   var parsedData = [];
-  Array.prototype.push.apply(parsedData, sigData.slice(8,(sigData[7]+8)));
-  Array.prototype.push.apply(parsedData, sigData.slice((sigData[7]+8+2),(sigData[(sigData[7]+8+1)]+(sigData[7]+8+2))));
+  Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
+  Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2))));
   msg("Parsed Data: " + parsedData);
   return parsedData;
 }
