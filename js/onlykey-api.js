@@ -181,7 +181,6 @@ function msg_polling(params = {}, cb) {
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
     u2f.sign(appId, challenge, [req], function(response) {
-      console.info("Response", response);
       var result = custom_auth_response(response);
       let data;
       if (result == 1) {
@@ -218,6 +217,7 @@ function msg_polling(params = {}, cb) {
       } else if (type == 3) {
         if (result) {
           if (result.length == 64) {
+            aesgcm_decrypt(result);
             var sessKey = result.slice(0, 35);
             var entropy = result.slice(36, 64);
             msg("HW generated entropy" + entropy);
@@ -423,6 +423,27 @@ function custom_auth_response(response) {
   Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2))));
   msg("Parsed Data: " + parsedData);
   return parsedData;
+}
+
+//Function to parse custom U2F auth response
+function aesgcm_decrypt(encrypted) {
+  var key = sha256(shared); //AES256 key sha256 hash of shared secret
+  var iv = okPub.slice(0, 12); //OnlyKey public used as IV, unique for each message
+  // decrypt some bytes using GCM mode
+  var decipher = forge.cipher.createDecipher('AES-GCM', key);
+  decipher.start({
+    iv: iv,
+    additionalData: 'binary-encoded string', // optional
+    tagLength: 128, // optional, defaults to 128 bits
+    tag: tag // authentication tag from encryption
+  });
+  decipher.update(encrypted);
+  var pass = decipher.finish();
+  // pass is false if there was a failure (eg: authentication tag didn't match)
+  if(pass) {
+    // outputs decrypted hex
+    console.log("Decrypted AES-GCM Hex", decipher.output.toHex());
+  }
 }
 
 function u2fSignBuffer(cipherText, mainCallback) {
