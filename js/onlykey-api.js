@@ -264,7 +264,10 @@ function auth_ping() {
     u2f.sign(appId, challenge, [req], function(response) {
       result = custom_auth_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
-    }, 2.5);
+      if (result == 0) {
+      _setStatus('done_code');
+    }
+    });
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -368,8 +371,6 @@ function custom_auth_response(response) {
   console.info("Response code ", err);
   console.info(errMes);
   if (err) { //Ping failed meaning correct challenge entered or other error
-    console.info("Challenge code entered");
-    _setStatus('done_code');
     return 0;
   }
   var clientData_b64 = response['clientData'];
@@ -391,7 +392,7 @@ function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    aesgcm_decrypt(parsedData)
+    //aesgcm_decrypt(parsedData)
     msg("Parsed Data: " + parsedData);
     if(result.slice(0, 5) === 'Error') {
       if(result.slice(6) === '0') {
