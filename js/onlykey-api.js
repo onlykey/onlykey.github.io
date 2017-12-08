@@ -417,6 +417,7 @@ function custom_auth_response(response) {
     }
     return parsedData;
   }
+}
 
 //Function to parse custom U2F auth response
 function aesgcm_decrypt(encrypted) {
