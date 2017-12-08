@@ -11,8 +11,9 @@ var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
 var curve25519 = new ECC('curve25519');
-var appKey = curve25519.genKeyPair();
-var appPub = appKey.getPublic();
+var appKey;
+var appPub;
+var appPubPart;
 var okPub;
 var shared;
 var _status;
@@ -162,7 +163,9 @@ function msg_polling(params = {}, cb) {
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
-      var appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
+      appKey = curve25519.genKeyPair();
+      appPub = appKey.getPublic();
+      appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
       msg("Application ECDH Public Key: " + appPubPart);
       Array.prototype.push.apply(message, appPubPart);
       Array.prototype.push.apply(message, empty);
@@ -422,7 +425,7 @@ function custom_auth_response(response) {
 //Function to parse custom U2F auth response
 function aesgcm_decrypt(encrypted) {
   var key = sha256(shared); //AES256 key sha256 hash of shared secret
-  var iv = appPub.slice(0, 12); //App public used as IV, unique for each message
+  var iv = appPubPart.slice(0, 12); //App public used as IV, unique for each message
   // decrypt some bytes using GCM mode
   var decipher = forge.cipher.createDecipher('AES-GCM', key);
   decipher.start({
