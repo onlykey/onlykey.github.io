@@ -375,7 +375,7 @@ function custom_auth_response(response) {
     return 0;
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
-  msg("Data Received: " + sigData);
+  console.info("Data Received: ", sigData);
   var counter = new BN(sigData.slice(1,5)).toNumber();
   var parsedData = [];
   Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
@@ -389,25 +389,25 @@ function custom_auth_response(response) {
     console.info("Parsed Data: ", parsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       console.info("Decode response message");
-      if(parsedData.slice(6) == 48) {
+      if(parsedData[6] == 48) {
         console.info("Ack message received");
-      } else if(parsedData.slice(6) == 49) {
+      } else if(parsedData[6] == 49) {
         console.info("incorrect challenge code entered");
         button.textContent = "Incorrect challenge code entered";
         _setStatus('wrong_code');
-      } else if (parsedData.slice(6) == 50) {
+      } else if (parsedData[6] == 50) {
         console.info("key type not set as signature/decrypt");
         button.textContent = "key type not set as signature/decrypt";
         _setStatus('wrong_type');
-      } else if (parsedData.slice(6) == 51) {
+      } else if (parsedData[6] == 51) {
         console.info("no key set in this slot");
         button.textContent = "no key set in this slot";
         _setStatus('no_key');
-      } else if (parsedData.slice(6) == 52) {
+      } else if (parsedData[6] == 52) {
         console.info("invalid key, key check failed");
         button.textContent = "invalid key, key check failed";
         _setStatus('bad_key');
-      } else if (parsedData.slice(6) == 53) {
+      } else if (parsedData[6] == 53) {
         console.info("invalid data, or data does not match key");
         button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
@@ -415,7 +415,7 @@ function custom_auth_response(response) {
       return 1;
     }
     return parsedData;
-  //}
+  }
 }
 
 //Function to parse custom U2F auth response
