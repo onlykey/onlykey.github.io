@@ -215,7 +215,7 @@ function msg_polling(params = {}, cb) {
           headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
           hw_RNG.entropy = result.slice(53, result.length);
           msg("HW generated entropy: " + hw_RNG.entropy);
-          shared = appKey.derive(okPub.getPublic()).toHex();;
+          shared = string2bytes(appKey.derive(okPub.getPublic()).toString(16));
           msg("ECDH shared: " + shared);
         } else {
           msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
