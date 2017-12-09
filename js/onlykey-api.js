@@ -476,6 +476,8 @@ function aesgcm_decrypt(encrypted, iv) {
   var decipher = forge.cipher.createDecipher('AES-GCM', key);
   decipher.start({
     iv: iv,
+    tagLength: 0, // optional, defaults to 128 bits
+    tag: NULL // authentication tag from encryption
   });
   decipher.update(encrypted);
   var pass = decipher.finish();
