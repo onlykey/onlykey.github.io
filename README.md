@@ -120,12 +120,12 @@ Encode a *packet in U2F Key Handle field that contains a ping request.
 process_ping_response(response)
 
 Decode response -
-- Error 127 ping reply, ack
-- Error 128 incorrect challenge code entered
-- Error 129 key type not set as signature/decrypt
-- Error 130 no key set in this slot
-- Error 131 invalid key, key check failed
-- Error 132 invalid data, or data does not match  key
+- Error 0 ping reply, ack
+- Error 1 incorrect challenge code entered
+- Error 2 key type not set as signature/decrypt
+- Error 3 no key set in this slot
+- Error 4 invalid key, key check failed
+- Error 5 invalid data, or data does not match  key
 - Error code type 5 (TIMEOUT), ping failed, correct challenge code entered
 
 ┌──────────────────┐

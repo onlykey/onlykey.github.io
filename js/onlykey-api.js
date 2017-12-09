@@ -33,7 +33,7 @@ var browserid = 0; //Default Chrome
 const button = document.getElementById('onlykey_start');
 
 function init() {
-  if (navigator.userAgent.search("Firefox")) {
+  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
   browserid = 128; //Firefox
   }
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
@@ -434,7 +434,7 @@ function custom_auth_response(response) {
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
       console.info("Decode response message");
-      if(parsedData[6] == 0) {
+      if (parsedData[6] == 0) {
         console.info("Ack message received");
       } else if(parsedData[6] == 1) {
         console.info("incorrect challenge code entered");
@@ -500,15 +500,16 @@ function u2fSignBuffer(cipherText, mainCallback) {
     var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
 
-    msg("Handlekey bytes " + message);
-    msg("Sending Handlekey " + keyHandle);
-    msg("Sending challenge " + challenge);
+    console.info("Handlekey bytes ", message);
+    console.info("Sending Handlekey ", keyHandle);
+    console.info("Sending challenge ", challenge);
 
     u2f.sign(appId, challenge, [req], function(response) {
       var result = custom_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
+          console.info("Final packet ");
           _status = 'pending_pin';
           cb().then(skey => {
             msg("skey " + skey);
