@@ -208,7 +208,6 @@ function msg_polling(params = {}, cb) {
         if (result) {
           msg("OnlyKey ECDH Public Key: " + result.slice(21, 53) );
           okPub = curve25519.keyFromPublic(result.slice(21, 53), 'der');
-          msg("OnlyKey ECDH Public Key: " + okPub );
           OKversion = result[19] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(result.slice(8, 20));
           msg("OnlyKey " + OKversion + " " + FWversion);
@@ -217,6 +216,8 @@ function msg_polling(params = {}, cb) {
           msg("HW generated entropy: " + hw_RNG.entropy);
           shared = appKey.derive(okPub.getPublic()).toString(16).match(/.{2}/g).map(hexStrToDec);
           msg("ECDH shared: " + shared);
+          var key = sha256(shared); //AES256 key sha256 hash of shared secret
+          msg("AES Key" + key);
         } else {
           msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
           headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
@@ -390,9 +391,11 @@ function custom_auth_response(response) {
       if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
         console.info("Ack message received");
       } else if (errMes === "device status code: -80") { //incorrect challenge code entered
-        console.info("incorrect challenge code entered");
-        button.textContent = "Incorrect challenge code entered";
-        _setStatus('wrong_code');
+          if (_status === 'pending_pin') {
+          console.info("incorrect challenge code entered");
+          button.textContent = "Incorrect challenge code entered";
+          _setStatus('wrong_code');
+        }
       } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
         console.info("key type not set as signature/decrypt");
         button.textContent = "key type not set as signature/decrypt";
