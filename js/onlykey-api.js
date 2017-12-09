@@ -26,7 +26,7 @@ const OKDECRYPT = 112;
 const OKSIGN = 109;
 const OKSETTIME = 100;
 const OKGETPUBKEY = 108;
-const OKGETRESPONSE = 116;
+const OKGETRESPONSE = 114;
 const OKPING = 115;
 var browserid = 0; //Default Chrome
 
