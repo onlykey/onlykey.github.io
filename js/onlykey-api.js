@@ -473,12 +473,13 @@ function aesgcm_decrypt(encrypted, iv) {
   var key = sha256(shared); //AES256 key sha256 hash of shared secret
   var iv = iv + iv + iv; //Counter used as IV, unique for each message
   // decrypt some bytes using GCM mode
+  iv
   var decipher = forge.cipher.createDecipher('AES-GCM', key);
   decipher.start({
     iv: iv,
     tagLength: 0, // optional, defaults to 128 bits
   });
-  decipher.update(encrypted);
+  decipher.update(forge.util.createBuffer(encrypted));
   var pass = decipher.finish();
   // pass is false if there was a failure (eg: authentication tag didn't match)
   if(pass) {
