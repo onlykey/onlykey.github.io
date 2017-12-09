@@ -471,6 +471,7 @@ function custom_auth_response(response) {
 //Function to parse custom U2F auth response
 function aesgcm_decrypt(encrypted, iv) {
   var key = sha256(shared); //AES256 key sha256 hash of shared secret
+  console.log("AES Key", key);
   var iv = iv + iv + iv; //Counter used as IV, unique for each message
   // decrypt some bytes using GCM mode
   iv
