@@ -425,6 +425,7 @@ function custom_auth_response(response) {
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
   var counter = sigData.slice(1,5);
+  console.info("Counter: ", counter);
   var parsedData = [];
   Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
   Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2))));
@@ -433,7 +434,7 @@ function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    //aesgcm_decrypt(parsedData)
+    aesgcm_decrypt(parsedData, (counter))
     console.info("Parsed Data: ", parsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
@@ -468,9 +469,9 @@ function custom_auth_response(response) {
 }
 
 //Function to parse custom U2F auth response
-function aesgcm_decrypt(encrypted) {
+function aesgcm_decrypt(encrypted, iv) {
   var key = sha256(shared); //AES256 key sha256 hash of shared secret
-  var iv = appPubPart.slice(0, 12); //App public used as IV, unique for each message
+  var iv = iv + iv + iv; //Counter used as IV, unique for each message
   // decrypt some bytes using GCM mode
   var decipher = forge.cipher.createDecipher('AES-GCM', key);
   decipher.start({
