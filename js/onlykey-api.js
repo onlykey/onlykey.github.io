@@ -263,7 +263,7 @@ function auth_ping() {
   var message = [255, 255, 255, 255]; //Add header and message type
   msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
-  var ciphertext[0] = OKPING+browserid;
+  ciphertext[0] = (OKPING+browserid);
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
   var keyHandle = bytes2b64(message);
