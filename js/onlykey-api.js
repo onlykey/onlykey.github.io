@@ -190,8 +190,9 @@ function msg_polling(params = {}, cb) {
         Array.prototype.push.apply(message, empty);
         var keyHandle = bytes2b64(message);
     } else { //Get Response From OKSIGN or OKDECRYPT
-        var keyHandle = bytes2b64(new Array(64).fill(255));
+        var keyHandle = new Array(64).fill(255);
         keyHandle[4] = (OKGETRESPONSE+browserid);
+        keyHandle = bytes2b64(keyHandle);
     }
     var challenge = mkchallenge();
     var req = { "challenge": challenge, "keyHandle": keyHandle,
