@@ -202,7 +202,7 @@ function msg_polling(params = {}, cb) {
       if (result == 2) {
           msg("Polling succeeded but no data was received");
           return;
-      }
+      } else if (result <= 5) return;
       if (type == 1) {
         if (result) {
           okPub = result.slice(0, 32);
