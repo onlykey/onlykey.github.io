@@ -376,15 +376,15 @@ function custom_auth_response(response) {
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   msg("Data Received: " + sigData);
-  var counter = new BN(sigData.slice(1,5)).toNumber();
+  //var counter = new BN(sigData.slice(1,5)).toNumber();
   var parsedData = [];
   Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
   Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2))));
-  if (counter == 0) { //unencrypted data
-    msg("Parsed Data: " + parsedData);
-    return parsedData;
-  }
-  else { //encrypted data
+  //if (counter == 0) { //unencrypted data
+  //  msg("Parsed Data: " + parsedData);
+  //  return parsedData;
+  //}
+  //else { //encrypted data
     //aesgcm_decrypt(parsedData)
     msg("Parsed Data: " + parsedData);
     if(parsedData.slice(0, 5) === 'Error') {
@@ -415,7 +415,7 @@ function custom_auth_response(response) {
       return 1;
     }
     return parsedData;
-  }
+  //}
 }
 
 //Function to parse custom U2F auth response
