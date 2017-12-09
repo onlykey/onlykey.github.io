@@ -387,7 +387,7 @@ function custom_auth_response(response) {
   else { //encrypted data
     //aesgcm_decrypt(parsedData)
     console.info("Parsed Data: ", parsedData);
-    if(parsedData.slice(0, 5).toString() === 'Error') {
+    if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       console.info("Decode response message");
       if(parsedData.slice(6) == 48) {
         console.info("Ack message received");
