@@ -208,11 +208,15 @@ function msg_polling(params = {}, cb) {
         if (result) {
           okPub = result.slice(21, 53);
           msg("OnlyKey ECDH Public Key: " + okPub );
-          okPub = curve25519.keyFromPublic(result.slice(21, 53), 'der');
-          shared = appKey.derive(okPub.getPublic()).toString(16);
+          okPub1 = curve25519.keyFromPublic(result.slice(21, 53), 'hex');
+          shared = appKey.derive(okPub1.getPublic()).toString(16);
           msg("ECDH shared: " + shared);
           shared = shared.match(/.{2}/g).map(hexStrToDec);
           msg("ECDH shared: " + shared);
+
+
+
+
           OKversion = result[19] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(result.slice(8, 20));
           msg("OnlyKey " + OKversion + " " + FWversion);
