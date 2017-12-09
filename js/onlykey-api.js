@@ -265,8 +265,8 @@ function auth_ping() {
       result = custom_auth_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
       if (result == 0) {
-      _setStatus('done_code');
-    }
+        _setStatus('done_code');
+      }
     });
 }
 
@@ -395,13 +395,14 @@ function custom_auth_response(response) {
     //aesgcm_decrypt(parsedData)
     msg("Parsed Data: " + parsedData);
     if(result.slice(0, 5) === 'Error') {
-      if(result.slice(6) === 48) {
-        console.info("Waiting for challenge code");
-      } else if(result.slice(6) === 49) {
+      console.info("Decode response message");
+      if(result.slice(6) == 48) {
+        console.info("Ack message received");
+      } else if(result.slice(6) == 49) {
         console.info("incorrect challenge code entered");
         button.textContent = "Incorrect challenge code entered";
         _setStatus('wrong_code');
-      } else if (result.slice(6) === 50) {
+      } else if (result.slice(6) == 50) {
         console.info("key type not set as signature/decrypt");
         button.textContent = "key type not set as signature/decrypt";
         _setStatus('wrong_type');
@@ -409,15 +410,16 @@ function custom_auth_response(response) {
         console.info("no key set in this slot");
         button.textContent = "no key set in this slot";
         _setStatus('no_key');
-      } else if (result.slice(6) === 52) {
+      } else if (result.slice(6) == 52) {
         console.info("invalid key, key check failed");
         button.textContent = "invalid key, key check failed";
         _setStatus('bad_key');
-      } else if (result.slice(6) === 53) {
+      } else if (result.slice(6) == 53) {
         console.info("invalid data, or data does not match key");
         button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
       }
+      return 1;
     }
     return parsedData;
   }
