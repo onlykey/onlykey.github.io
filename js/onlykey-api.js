@@ -33,7 +33,7 @@ var browserid = 0; //Default Chrome
 const button = document.getElementById('onlykey_start');
 
 function init() {
-  if (navigator.userAgent.search("Firefox") & gt; = 0) {
+  if (navigator.userAgent.search("Firefox")) {
   browserid = 128; //Firefox
   }
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
