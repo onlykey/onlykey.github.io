@@ -369,7 +369,7 @@ function custom_auth_response(response) {
   var err = response['errorCode'];
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
-  console.info(errMes);
+  //console.info(errMes);
   if (err) {
     console.info("Error ", err);
     return 0;
