@@ -370,7 +370,8 @@ function custom_auth_response(response) {
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
   console.info(errMes);
-  if (err) { //Ping failed meaning correct challenge entered or other error
+  if (err) {
+    console.info("Error ", err);
     return 0;
   }
   var clientData_b64 = response['clientData'];
