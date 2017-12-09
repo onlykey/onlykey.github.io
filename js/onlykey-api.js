@@ -22,12 +22,12 @@ var poll_type, poll_delay;
 var custom_keyid;
 var msgType;
 var keySlot;
-const OKDECRYPT = 112;
-const OKSIGN = 109;
-const OKSETTIME = 100;
-const OKGETPUBKEY = 108;
-const OKGETRESPONSE = 114;
-const OKPING = 115;
+const OKDECRYPT = 240;
+const OKSIGN = 237;
+const OKSETTIME = 228;
+const OKGETPUBKEY = 236;
+const OKGETRESPONSE = 242;
+const OKPING = 243;
 var browserid = 0; //Default Chrome
 
 const button = document.getElementById('onlykey_start');
@@ -169,7 +169,7 @@ function msg_polling(params = {}, cb) {
   setTimeout(() => {
     msg("Requesting response from OnlyKey");
     if (type == 1) { //OKSETTIME
-      var message = [255, 255, 255, 255, (OKSETTIME+browserid)]; //Same header and message type used in App
+      var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
       var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
       msg("Setting current time on OnlyKey to " + new Date());
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
@@ -183,7 +183,7 @@ function msg_polling(params = {}, cb) {
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
     } else if (type == 2) { //OKGETPUB
-        var message = [255, 255, 255, 255, (OKGETPUBKEY+browserid)]; //Add header and message type
+        var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
         msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
         var empty = new Array(50).fill(0);
         Array.prototype.push.apply(message, custom_keyid);
@@ -191,7 +191,7 @@ function msg_polling(params = {}, cb) {
         var keyHandle = bytes2b64(message);
     } else { //Get Response From OKSIGN or OKDECRYPT
         var keyHandle = new Array(64).fill(255);
-        keyHandle[4] = (OKGETRESPONSE+browserid);
+        keyHandle[4] = (OKGETRESPONSE-browserid);
         keyHandle = bytes2b64(keyHandle);
     }
     var challenge = mkchallenge();
@@ -267,7 +267,7 @@ function auth_ping() {
   var message = [255, 255, 255, 255]; //Add header and message type
   msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
-  ciphertext[0] = (OKPING+browserid);
+  ciphertext[0] = (OKPING-browserid);
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
   var keyHandle = bytes2b64(message);
@@ -385,7 +385,7 @@ function custom_auth_response(response) {
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
   console.info(errMes);
-  if (browserid != 128) {
+  if (browserid != 128) { //Chrome
     if (err) {
       if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
         console.info("Ack message received");
@@ -490,7 +490,7 @@ function aesgcm_decrypt(encrypted) {
 
 function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN+browserid) : (OKDECRYPT+browserid), slotId()]; //Add header, message type, and key to use
+    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN-browserid) : (OKDECRYPT-browserid), slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var ctChunk = cipherText.slice(0, maxPacketSize);

@@ -154,7 +154,7 @@ function msg_polling(params = {}, cb) {
   setTimeout(() => {
     msg("Requesting response from OnlyKey");
     if (type == 1) { //OKSETTIME
-      var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
+      var message = [255, 255, 255, 255, OKSETTIME]; //Same header and message type used in App
       var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
       msg("Setting current time on OnlyKey to " + new Date());
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
@@ -168,7 +168,7 @@ function msg_polling(params = {}, cb) {
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
     } else if (type == 2) { //OKGETPUB
-        var message = [255, 255, 255, 255, 236]; //Add header and message type
+        var message = [255, 255, 255, 255, OKGETPUB]; //Add header and message type
         msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
         var empty = new Array(50).fill(0);
         Array.prototype.push.apply(message, custom_keyid);
@@ -273,7 +273,7 @@ function auth_ping() {
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
   params = {
-    msgType: params.msgType || 240,
+    msgType: params.msgType || OKDECRYPT,
     keySlot: params.keySlot || 1,
     poll_type: params.poll_type || 3,
     ct: params.ct
@@ -299,7 +299,7 @@ function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
   params = {
-    msgType: params.msgType || 237,
+    msgType: params.msgType || OKSIGN,
     keySlot: params.keySlot || 2,
     poll_type: params.poll_type || 4,
     poll_delay: params.poll_delay,
