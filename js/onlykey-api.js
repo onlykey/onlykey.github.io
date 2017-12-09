@@ -186,7 +186,7 @@ function msg_polling(params = {}, cb) {
     u2f.sign(appId, challenge, [req], function(response) {
       var result = custom_auth_response(response);
       let data;
-      if (result == 1) {
+      if (result == 2) {
           msg("Polling succeeded but no data was received");
           return;
       }
@@ -264,10 +264,10 @@ function auth_ping() {
     u2f.sign(appId, challenge, [req], function(response) {
       result = custom_auth_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
-      if (result == 0) {
+      if (result == 1) {
         _setStatus('done_code');
       }
-    });
+    }, 20);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -369,10 +369,9 @@ function custom_auth_response(response) {
   var err = response['errorCode'];
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
-  //console.info(errMes);
+  console.info(errMes);
   if (err) {
-    console.info("Error ", err);
-    return 0;
+    return 1;
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
@@ -412,7 +411,7 @@ function custom_auth_response(response) {
         button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
       }
-      return 1;
+      return 2;
     }
     return parsedData;
   }
@@ -465,6 +464,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
       if (result) {
         if (finalPacket) {
           _status = 'pending_pin';
+          auth_ping();
           cb().then(skey => {
             msg("skey " + skey);
             mainCallback(skey);
@@ -504,7 +504,6 @@ function setButtonTimerMessage(seconds) {
     const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
     button.textContent = btmsg;
     console.info("enter challenge code", pin);
-    auth_ping();
   }
 }
 
