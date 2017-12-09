@@ -216,6 +216,10 @@ function msg_polling(params = {}, cb) {
           msg("HW generated entropy: " + hw_RNG.entropy);
           shared = appKey.derive(okPub.getPublic()).toString(16).match(/.{2}/g).map(hexStrToDec);
           msg("ECDH shared: " + shared);
+          shared = appKey.derive(curve25519.keyFromPublic(result.slice(21, 53).getPublic('hex'), 'hex')
+                              .getPublic());
+          msg("ECDH shared: " + shared);
+          msg("ECDH shared: " + shared.toString(16);
           var key = sha256(shared); //AES256 key sha256 hash of shared secret
           msg("AES Key" + key);
         } else {
