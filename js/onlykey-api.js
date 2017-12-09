@@ -224,8 +224,8 @@ function msg_polling(params = {}, cb) {
           var bob_public = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f";
           var alice_mult_bob = "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742";
 
-          var pub1 = curve25519.keyFromPublic(alice_public, 'hex');
-          var priv1 = curve25519.keyFromPrivate(bob_private, 'hex');
+          var pub1 = curve25519.keyFromPublic(alice_public.match(/.{2}/g).map(hexStrToDec), 'hex');
+          var priv1 = curve25519.keyFromPrivate(bob_private.match(/.{2}/g).map(hexStrToDec), 'hex');
           shared = priv1.derive(pub1.getPublic()).toString(16);
           msg("ECDH shared: " + shared);
 
