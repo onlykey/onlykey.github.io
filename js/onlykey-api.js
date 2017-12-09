@@ -42,7 +42,6 @@ function init() {
     updateStatusFromSelection();
     document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
   }
-
 }
 
 function updateStatusFromSelection(skipBtn) {
@@ -189,7 +188,7 @@ function msg_polling(params = {}, cb) {
         var keyHandle = bytes2b64(message);
     } else { //Get Response From OKSIGN or OKDECRYPT
         var keyHandle = bytes2b64(new Array(64).fill(255));
-        var keyHandle[4] = OKGETRESPONSE+browserid;
+        keyHandle[4] = (OKGETRESPONSE+browserid);
     }
     var challenge = mkchallenge();
     var req = { "challenge": challenge, "keyHandle": keyHandle,
