@@ -35,7 +35,10 @@ const button = document.getElementById('onlykey_start');
 function init() {
   if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
   browserid = 128; //Firefox
-  }
+  console.info("Firefox browser");
+} else {
+  console.info("Chrome browser (Default)");
+}
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
