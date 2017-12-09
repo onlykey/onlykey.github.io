@@ -424,11 +424,11 @@ function custom_auth_response(response) {
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
-  var counter = new BN(sigData.slice(1,5)).toNumber();
+  var counter = sigData.slice(1,5);
   var parsedData = [];
   Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
   Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2))));
-  if (counter == 0) { //unencrypted data
+  if (counter[0] + counter[1] + counter[2] + counter[3] == 0) { //unencrypted data
     console.info("Parsed Data: ", parsedData);
     return parsedData;
   }
