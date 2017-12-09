@@ -213,7 +213,11 @@ function msg_polling(params = {}, cb) {
           msg("ECDH shared: " + shared);
           shared = shared.match(/.{2}/g).map(hexStrToDec);
           msg("ECDH shared: " + shared);
-
+          okPub2 = curve25519.keyFromPublic(result.slice(21, 53), 'der');
+          shared = appKey.derive(okPub2.getPublic()).toString(16);
+          msg("ECDH shared: " + shared);
+          shared = shared.match(/.{2}/g).map(hexStrToDec);
+          msg("ECDH shared: " + shared);
 
 
 
