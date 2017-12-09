@@ -383,7 +383,7 @@ function custom_auth_response(response) {
   console.info(errMes);
   if (browserid != 128) {
     if (err) {
-      if (errMes === "device status code: -7f")) { //OnlyKey uses err 127 as ping reply, ack
+      if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
         console.info("Ack message received");
       } else if (errMes === "device status code: -80") { //incorrect challenge code entered
         console.info("incorrect challenge code entered");
