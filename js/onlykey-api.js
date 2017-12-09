@@ -374,14 +374,6 @@ function custom_auth_response(response) {
     console.info("Error ", err);
     return 0;
   }
-  var clientData_b64 = response['clientData'];
-  var clientData_str = u2f_unb64(clientData_b64);
-  var clientData_bytes = string2bytes(clientData_str);
-  var clientData = JSON.parse(clientData_str);
-  var origin = clientData['origin'];
-  msg("Origin: " + origin);
-  var kh = response['keyHandle'];
-  msg("Key Handle: " + kh);
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   msg("Data Received: " + sigData);
   var counter = new BN(sigData.slice(1,5)).toNumber();
