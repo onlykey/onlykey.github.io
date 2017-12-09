@@ -206,9 +206,9 @@ function msg_polling(params = {}, cb) {
       } else if (result <= 5) return;
       if (type == 1) {
         if (result) {
-          okPub = result.slice(0, 32);
-          msg("OnlyKey ECDH Public Key: " + okPub );
+          msg("OnlyKey ECDH Public Key: " + result.slice(20, 52) );
           okPub = curve25519.keyFromPublic(result.slice(20, 52), 'der');
+          msg("OnlyKey ECDH Public Key: " + okPub );
           OKversion = result[19] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(result.slice(8, 20));
           msg("OnlyKey " + OKversion + " " + FWversion);
