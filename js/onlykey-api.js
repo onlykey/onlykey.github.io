@@ -434,25 +434,25 @@ function custom_auth_response(response) {
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
       console.info("Decode response message");
-      if(parsedData[6] == 1) {
+      if(parsedData[6] == 0) {
         console.info("Ack message received");
-      } else if(parsedData[6] == 2) {
+      } else if(parsedData[6] == 1) {
         console.info("incorrect challenge code entered");
         button.textContent = "Incorrect challenge code entered";
         _setStatus('wrong_code');
-      } else if (parsedData[6] == 3) {
+      } else if (parsedData[6] == 2) {
         console.info("key type not set as signature/decrypt");
         button.textContent = "key type not set as signature/decrypt";
         _setStatus('wrong_type');
-      } else if (parsedData[6] == 4) {
+      } else if (parsedData[6] == 3) {
         console.info("no key set in this slot");
         button.textContent = "no key set in this slot";
         _setStatus('no_key');
-      } else if (parsedData[6] == 5) {
+      } else if (parsedData[6] == 4) {
         console.info("invalid key, key check failed");
         button.textContent = "invalid key, key check failed";
         _setStatus('bad_key');
-      } else if (parsedData[6] == 6) {
+      } else if (parsedData[6] == 5) {
         console.info("invalid data, or data does not match key");
         button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
