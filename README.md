@@ -13,7 +13,7 @@ A prototype serverless OnlyKey Web App enabling encryption over any web platform
 
 With Keybase user/key management is made easy and with OnlyKey private keys remain offline and protected. They are not accessible to the browser or the local computer. By using U2F the web application can send messages to OnlyKey to be securely decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports U2F and an OnlyKey to send secure messages using Windows, Mac, Linux, Chromebook, and Android (with additional Android app).
 
-* Alternatively, public keys can be input directly not requiring the use of Keybase. 
+* Alternatively, public keys can be input directly not requiring the use of Keybase.
 
 Please, feel free to commit fixes!
 
@@ -27,7 +27,7 @@ Please, feel free to commit fixes!
 
 **Strong Crypto** - Everything should be sent via HTTPS to/from the web application. Data between local browser and OnlyKey should be encrypted using AES/ECDH shared secret (Not fully implemented).
 
-**Open source & audit-able** - What you see is what you get this repository is a Github page hosted directly on Github. 
+**Open source & audit-able** - What you see is what you get this repository is a Github page hosted directly on Github.
 
 ## Protocol
 
@@ -47,7 +47,7 @@ The outline below visualizes the use of onlykey-api.js and u2f-api.js to communi
 
 INITIALIZE - SET TIME, SET APP PUBLIC KEY, GET ONLYKEY PUBLIC KEY, GET FIRMWARE VERSION
 
-1. Authentication Request Message: 
+1. Authentication Request Message:
 init()
 
 Encode a *packet in U2F Key Handle field that contains current epoch time and application public key.
@@ -58,10 +58,10 @@ Encode a *packet in U2F Key Handle field that contains current epoch time and ap
 └──────────────────┴──────────────────┴──────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
-2. Authentication Response Message: 
+2. Authentication Response Message:
 custom_auth_response(response)
 
-Decode a *packet with OnlyKey public key, OnlyKey firmware version, and unused space filled with hardware 
+Decode a *packet with OnlyKey public key, OnlyKey firmware version, and unused space filled with hardware
 generated entropy (entropy not currently used but may be used for future secure key generation operations).
 ┌───────────────────┐
 │     Signature     │
@@ -69,15 +69,15 @@ generated entropy (entropy not currently used but may be used for future secure 
 └───────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
-DECRYPTION/SIGNING REQUEST - DECRYPT OR SIGN DATA USING RSA PRIVATE KEY 
+DECRYPTION/SIGNING REQUEST - DECRYPT OR SIGN DATA USING RSA PRIVATE KEY
 
-1. Authentication Request Message: 
+1. Authentication Request Message:
 auth_decrypt(), auth_sign()
 
-First, generate ECDH shared secret from OnlyKey's provided public key and application 
+First, generate ECDH shared secret from OnlyKey's provided public key and application
 generated public key.
 
-Encode a *packet in U2F Key Handle field that contains chunk of data to decrypt and specifies slot number 
+Encode a *packet in U2F Key Handle field that contains chunk of data to decrypt and specifies slot number
 of private key to use.
 Repeat for each chunk of data.
 ┌──────────────────┬──────────────────┬───────────────────┐
@@ -87,26 +87,25 @@ Repeat for each chunk of data.
 └──────────────────┴──────────────────┴───────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
-2.  Authentication Response Message: 
+2.  Authentication Response Message:
 custom_auth_response(response)
 
-Decode error code from response - Error type 1 (OTHER_ERROR) used as an ACK,
-Acknowledge message received. Any other error code indicates failure.
-┌─────────────────┐
-│  Error Message  │      
-│    (2 bytes)    │   
-└─────────────────┘
+Decode response - Acknowledge message received.
+┌──────────────────┐
+│     Response     │      
+│    (64 bytes)    │   
+└──────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
 Once full message is received both the App and the OnlyKey generate a hash of
 the message that is used to generate a 3 digit code. The OnlyKey light flashes continuously
 and the app prompts the user to enter the 3 digit code to authorize the signing / decrypting of
-that message. This ensures that user presence is required to sign / decrypt and that the authorization 
-applies to a specific plaintext, not a spoofed message. 
+that message. This ensures that user presence is required to sign / decrypt and that the authorization
+applies to a specific plaintext, not a spoofed message.
 
 While waiting for the 3 digit code to be entered a ping is used to check status.
 
-3. Authentication Request Message: 
+3. Authentication Request Message:
 auth_ping()
 
 Encode a *packet in U2F Key Handle field that contains a ping request.
@@ -117,28 +116,28 @@ Encode a *packet in U2F Key Handle field that contains a ping request.
 └──────────────────┴──────────────────┴───────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
-4.  Authentication Response Message: 
+4.  Authentication Response Message:
 process_ping_response(response)
 
-Decode error code from response - 
-Error type 1 (OTHER_ERROR) device status code: -7f, waiting for challenge code
-Error type 1 (OTHER_ERROR) device status code: -80, incorrect challenge code entered
-Error type 1 (OTHER_ERROR) device status code: -81, key type not set as signature/decrypt
-Error type 1 (OTHER_ERROR) device status code: -82, no key set in this slot
-Error type 1 (OTHER_ERROR) device status code: -83, invalid key, key check failed
-Error type 1 (OTHER_ERROR) device status code: -84, invalid data, or data does not match key
-Error type 5 (TIMEOUT), ping failed, correct challenge code entered 
+Decode response -
+- Error 127 ping reply, ack
+- Error 128 incorrect challenge code entered
+- Error 129 key type not set as signature/decrypt
+- Error 130 no key set in this slot
+- Error 131 invalid key, key check failed
+- Error 132 invalid data, or data does not match  key
+- Error code type 5 (TIMEOUT), ping failed, correct challenge code entered
 
-┌─────────────────┐
-│  Error Message  │      
-│    (2 bytes)    │   
-└─────────────────┘
+┌──────────────────┐
+│     Response     │      
+│    (64 bytes)    │   
+└──────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
-Once the 3 digit code is entered correctly, the decryption / signing is completed and the result is stored on the 
+Once the 3 digit code is entered correctly, the decryption / signing is completed and the result is stored on the
 OnlyKey until polling occurs (After 5 seconds unretrived messages are automatically wiped from OnlyKey).
 
-3. Authentication Request Message: 
+3. Authentication Request Message:
 msg_polling({ type: poll_type, delay: poll_delay })
 
 Encode a *packet in U2F Key Handle field that contains a request to retrieve stored data.
@@ -149,7 +148,7 @@ Encode a *packet in U2F Key Handle field that contains a request to retrieve sto
 └──────────────────┴──────────────────┴───────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
-4.  Authentication Response Message: 
+4.  Authentication Response Message:
 custom_auth_response(response)
 
 Decode a *packet containing the sessKey (for decryption) or the oksignature (for signing) and unused space filled with hardware generated entropy.

@@ -22,10 +22,20 @@ var poll_type, poll_delay;
 var custom_keyid;
 var msgType;
 var keySlot;
+const OKDECRYPT = 112;
+const OKSIGN = 109;
+const OKSETTIME = 100;
+const OKGETPUBKEY = 108;
+const OKGETRESPONSE = 116;
+const OKPING = 115;
+var browserid = 0; //Default Chrome
 
 const button = document.getElementById('onlykey_start');
 
 function init() {
+  if (navigator.userAgent.search("Firefox") & gt; = 0) {
+  browserid = 128; //Firefox
+  }
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
@@ -157,7 +167,7 @@ function msg_polling(params = {}, cb) {
   setTimeout(() => {
     msg("Requesting response from OnlyKey");
     if (type == 1) { //OKSETTIME
-      var message = [255, 255, 255, 255, 228]; //Same header and message type used in App
+      var message = [255, 255, 255, 255, (OKSETTIME+browserid)]; //Same header and message type used in App
       var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
       msg("Setting current time on OnlyKey to " + new Date());
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
@@ -171,14 +181,15 @@ function msg_polling(params = {}, cb) {
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
     } else if (type == 2) { //OKGETPUB
-        var message = [255, 255, 255, 255, 236]; //Add header and message type
+        var message = [255, 255, 255, 255, (OKGETPUBKEY+browserid)]; //Add header and message type
         msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
         var empty = new Array(50).fill(0);
         Array.prototype.push.apply(message, custom_keyid);
         Array.prototype.push.apply(message, empty);
         var keyHandle = bytes2b64(message);
-    } else { //OKSIGN or OKDECRYPT
+    } else { //Get Response From OKSIGN or OKDECRYPT
         var keyHandle = bytes2b64(new Array(64).fill(255));
+        var keyHandle[4] = OKGETRESPONSE+browserid;
     }
     var challenge = mkchallenge();
     var req = { "challenge": challenge, "keyHandle": keyHandle,
@@ -244,7 +255,7 @@ function msg_polling(params = {}, cb) {
       }
 
       if (typeof cb === 'function') cb(null, data);
-    }, 3);
+    }, 3+(browserid/64));
   }, delay * 1000);
 }
 
@@ -253,6 +264,7 @@ function auth_ping() {
   var message = [255, 255, 255, 255]; //Add header and message type
   msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
+  var ciphertext[0] = OKPING+browserid;
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
   var keyHandle = bytes2b64(message);
@@ -264,10 +276,10 @@ function auth_ping() {
     u2f.sign(appId, challenge, [req], function(response) {
       result = custom_auth_response(response);
       msg("Ping " + (result ? "Successful" : "Failed"));
-      if (result == 1) {
+      if (result == 5) {
         _setStatus('done_code');
       }
-    }, 20);
+    }, 2.5+(browserid/64));
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -370,8 +382,42 @@ function custom_auth_response(response) {
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
   console.info(errMes);
-  if (err) {
-    return 1;
+  if (browserid != 128) {
+    if (err) {
+      if (errMes === "device status code: -7f")) { //OnlyKey uses err 127 as ping reply, ack
+        console.info("Ack message received");
+      } else if (errMes === "device status code: -80") { //incorrect challenge code entered
+        console.info("incorrect challenge code entered");
+        button.textContent = "Incorrect challenge code entered";
+        _setStatus('wrong_code');
+      } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
+        console.info("key type not set as signature/decrypt");
+        button.textContent = "key type not set as signature/decrypt";
+        _setStatus('wrong_type');
+      } else if (errMes === "device status code: -82") { //no key set in this slot
+        console.info("no key set in this slot");
+        button.textContent = "no key set in this slot";
+        _setStatus('no_key');
+      } else if (errMes === "device status code: -83") { //invalid key, key check failed
+        console.info("invalid key, key check failed");
+        button.textContent = "invalid key, key check failed";
+        _setStatus('bad_key');
+      } else if (errMes === "device status code: -84") { //invalid data, or data does not match key
+        console.info("invalid data, or data does not match key");
+        button.textContent = "invalid data, or data does not match key";
+        _setStatus('bad_data');
+      } else if (err == 5) { //Ping failed meaning correct challenge entered
+        console.info("Timeout or challenge pin entered ");
+        return 5;
+      } else if (err) {
+        console.info("Failed with error code ", err);
+        //other error
+        return 1;
+      }
+    return 2;
+    }
+  } else if (err) {
+    return 5; //Ping failed meaning correct challenge entered
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
@@ -387,26 +433,27 @@ function custom_auth_response(response) {
     //aesgcm_decrypt(parsedData)
     console.info("Parsed Data: ", parsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
+      //Using Firefox Quantums incomplete U2F implementation... so bad
       console.info("Decode response message");
-      if(parsedData[6] == 48) {
+      if(parsedData[6] == 1) {
         console.info("Ack message received");
-      } else if(parsedData[6] == 49) {
+      } else if(parsedData[6] == 2) {
         console.info("incorrect challenge code entered");
         button.textContent = "Incorrect challenge code entered";
         _setStatus('wrong_code');
-      } else if (parsedData[6] == 50) {
+      } else if (parsedData[6] == 3) {
         console.info("key type not set as signature/decrypt");
         button.textContent = "key type not set as signature/decrypt";
         _setStatus('wrong_type');
-      } else if (parsedData[6] == 51) {
+      } else if (parsedData[6] == 4) {
         console.info("no key set in this slot");
         button.textContent = "no key set in this slot";
         _setStatus('no_key');
-      } else if (parsedData[6] == 52) {
+      } else if (parsedData[6] == 5) {
         console.info("invalid key, key check failed");
         button.textContent = "invalid key, key check failed";
         _setStatus('bad_key');
-      } else if (parsedData[6] == 53) {
+      } else if (parsedData[6] == 6) {
         console.info("invalid data, or data does not match key");
         button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
@@ -440,7 +487,7 @@ function aesgcm_decrypt(encrypted) {
 
 function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 237 : 240, slotId()]; //Add header, message type, and key to use
+    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN+browserid) : (OKDECRYPT+browserid), slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var ctChunk = cipherText.slice(0, maxPacketSize);
@@ -464,7 +511,6 @@ function u2fSignBuffer(cipherText, mainCallback) {
       if (result) {
         if (finalPacket) {
           _status = 'pending_pin';
-          auth_ping();
           cb().then(skey => {
             msg("skey " + skey);
             mainCallback(skey);
@@ -473,7 +519,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
           cb();
         }
       }
-    }, 3);
+    }, 3+(browserid/64));
 }
 
 window.doPinTimer = function (seconds) {
@@ -495,7 +541,7 @@ window.doPinTimer = function (seconds) {
     }
 
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3+(browserid/64)), 3000+(browserid/64));
   });
 };
 
@@ -504,6 +550,7 @@ function setButtonTimerMessage(seconds) {
     const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
     button.textContent = btmsg;
     console.info("enter challenge code", pin);
+    auth_ping();
   }
 }
 
