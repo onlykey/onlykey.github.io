@@ -233,16 +233,12 @@ function msg_polling(params = {}, cb) {
           console.log(pair1.derive(pair2.getPublic()).toString(16));
           console.log(pair2.derive(pair1.getPublic()).toString(16));
 
-          const key1 = curve25519.keyFromPublic(alice_public, 'hex');
-          const key2 = curve25519.keyFromPrivate(bob_private, 'hex');
-
-          // curve.g.mul(key) -- publicKey
-          const shared1 = curve25519.g.mul(key1).mul(key2).getX()
-          const shared2 = curve25519.g.mul(key2).mul(key1).getX()
+          const shared1 = pair1.getPublic().mul(pair2.getPrivate()).getX().toString(16);
+          const shared2 = pair2.getPublic().mul(pair1.getPrivate()).getX().toString(16);
 
           // 32 enough for curve25519
-          console.log(shared1.toArrayLike(Buffer, 'be', 32))
-          console.log(shared2.toArrayLike(Buffer, 'be', 32))
+          console.log(shared1)
+          console.log(shared2)
           // => shared1 should be equal shared2
 
 
