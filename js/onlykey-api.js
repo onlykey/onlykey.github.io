@@ -233,13 +233,12 @@ function msg_polling(params = {}, cb) {
           console.log(pair1.derive(pair2.getPublic()).toString(16));
           console.log(pair2.derive(pair1.getPublic()).toString(16));
 
-          const shared1 = pair1.getPublic().mul(pair2.getPrivate()).getX().toString(16);
-          const shared2 = pair2.getPublic().mul(pair1.getPrivate()).getX().toString(16);
+          const shared1 = pair1.getPublic().mul(pair2.getPrivate()).toString(16);
+          const shared2 = pair2.getPublic().mul(pair1.getPrivate()).toString(16);
 
-          // 32 enough for curve25519
+
           console.log(shared1)
           console.log(shared2)
-          // => shared1 should be equal shared2
 
 
           OKversion = result[19] == 99 ? 'Color' : 'Original';
