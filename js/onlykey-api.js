@@ -209,7 +209,7 @@ function msg_polling(params = {}, cb) {
           okPub = result.slice(21, 53);
           msg("OnlyKey ECDH Private Key: " + okPub );
           testPub1 = curve25519.keyFromPrivate(okPub, 'hex');
-          testPub1 = testPub1.getPublic();
+          testPub1 = testPub1.getPublic().toString(16);
           msg("OnlyKey ECDH Public Key: " + testPub1 );
 
           okPub1 = curve25519.keyFromPublic(okPub, 'hex');
