@@ -302,8 +302,8 @@ function msg_polling(params = {}, cb) {
 
 const genKey = () => {
   while (true) {
-    const privateKey = new BN(crypto.randomBytes(Math.ceil(curve.n.bitLength() / 8)))
-    if (!privateKey.isZero() && privateKey.cmp(curve.n) < 0) return privateKey
+    const privateKey = new BN(crypto.randomBytes(Math.ceil(curve25519.n.bitLength() / 8)))
+    if (!privateKey.isZero() && privateKey.cmp(curve25519.n) < 0) return privateKey
   }
 }
 
