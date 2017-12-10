@@ -238,8 +238,8 @@ function msg_polling(params = {}, cb) {
 
 
           // curve.g.mul(key) -- publicKey
-          const shared1 = curve25519.g.mul(pair1).mul(pair2).getX();
-          const shared2 = curve25519.g.mul(pair2).mul(pair1).getX();
+          const shared1 = curve25519.mul(pair1).mul(pair2).getX();
+          const shared2 = curve25519.mul(pair2).mul(pair1).getX();
 
           // 32 enough for curve25519
           console.log(shared1);
