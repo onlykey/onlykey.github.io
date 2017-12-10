@@ -207,10 +207,10 @@ function msg_polling(params = {}, cb) {
       if (type == 1) {
         if (result) {
           okPub = result.slice(21, 53);
-          msg("OnlyKey ECDH Private Key: " + okPub );
+          console.info("OnlyKey ECDH Private Key: ", okPub );
           testPub1 = curve25519.keyFromPrivate(okPub, 'hex');
           testPub1 = testPub1.getPublic().toString(16);
-          msg("OnlyKey ECDH Public Key: " + testPub1 );
+          console.info("OnlyKey ECDH Public Key: ", testPub1 );
 
           okPub1 = curve25519.keyFromPublic(okPub, 'hex');
           shared = appKey.derive(okPub1.getPublic()).toString(16);
