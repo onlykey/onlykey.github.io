@@ -6,11 +6,11 @@ var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
 
-var p256 = new ECC('p256');
+var p256 = new EC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
-var BN = p256.n.constructor;  // BN = BigNumber
+//var BN = p256.n.constructor;  // BN = BigNumber
 
-var curve25519 = new ECC('curve25519');
+var curve25519 = new EC('curve25519');
 var appKey;
 var appPub;
 var appPubPart;
@@ -208,9 +208,16 @@ function msg_polling(params = {}, cb) {
         if (result) {
           okPub = result.slice(21, 53);
           console.info("OnlyKey ECDH Private Key: ", okPub );
-          testPub1 = curve25519.keyFromPrivate(okPub, 'hex');
+          testPub1 = curve25519.keyFromSecret(okPub);
           testPub1 = testPub1.getPublic().toString(16);
-          console.info("OnlyKey ECDH Public Key: ", testPub1 );
+          console.dir(testPub1 );
+
+
+          //import private keys
+          // curve25519.keyFromSecret('693e3c...');
+          //import public keys
+          // ec.keyFromPublic(pub, 'hex');
+          //
 
           okPub1 = curve25519.keyFromPublic(okPub, 'hex');
           shared = appKey.derive(okPub1.getPublic()).toString(16);
