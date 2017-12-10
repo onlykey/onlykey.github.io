@@ -209,7 +209,8 @@ function msg_polling(params = {}, cb) {
           okPub = result.slice(21, 53);
           console.info("OnlyKey ECDH Private Key: ", okPub );
           testPriv = curve25519.keyFromPrivate(okPub);
-          testPub = testPriv.getPublic().toString(16);
+          testPub = testPriv.getPublic();
+          console.log(testPub);
           console.dir(testPub);
           console.info(JSON.stringify(testPub));
           console.table(testPub);
