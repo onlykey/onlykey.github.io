@@ -177,7 +177,9 @@ function msg_polling(params = {}, cb) {
       Array.prototype.push.apply(message, timePart);
       appKey = curve25519.genKeyPair();
       appPub = appKey.getPublic();
-      appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
+      //appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
+      var alice_public = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
+      appPubPart = alice_public.match(/.{2}/g).map(hexStrToDec);
       msg("Application ECDH Public Key: " + appPubPart);
       Array.prototype.push.apply(message, appPubPart);
       Array.prototype.push.apply(message, empty);
@@ -213,7 +215,7 @@ function msg_polling(params = {}, cb) {
           var apppriv2 = curve25519.keyFromPrivate(alice_private, 'hex');
           shared = apppriv2.derive(okPub1.getPublic()).toString(16);
           console.info("Elliptic shared: ", shared);
-
+          okPub2 = Buffer.concat([Buffer.from([0x02]), randomBytes(32)])
 
           //import private keys
           // curve25519.keyFromSecret('693e3c...');
@@ -235,10 +237,7 @@ function msg_polling(params = {}, cb) {
           var bob_private = "5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb";
           var bob_public = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f";
           var alice_mult_bob = "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742";
-          var pub1 = curve25519.keyFromPublic(alice_public, 'hex');
-          console.log(pub1);
-          pub1 = pub1.getPublic();
-          console.log(pub1);
+
           console.info("OnlyKey ECDH Private Key: ", okPub );
           var priv1 = curve25519.keyFromPrivate(bob_private, 'hex');
           shared = priv1.derive(pub1.getPublic()).toString(16);
