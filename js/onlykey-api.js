@@ -233,6 +233,12 @@ function msg_polling(params = {}, cb) {
           msg("ECDH shared: " + shared);
 
 
+          const pair1 = curve25519.genKeyPair()
+          const pair2 = curve25519.genKeyPair()
+
+          console.log(pair1.derive(pair2.getPublic()))
+          console.log(pair2.derive(pair1.getPublic()))
+
           OKversion = result[19] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(result.slice(8, 20));
           msg("OnlyKey " + OKversion + " " + FWversion);
