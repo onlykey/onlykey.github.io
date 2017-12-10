@@ -177,12 +177,11 @@ function msg_polling(params = {}, cb) {
       Array.prototype.push.apply(message, timePart);
       appKey = nacl.box.keyPair();
       console.info(appKey);
-      appPub = appKey.getPublic();
+      console.info(appKey.publicKey);
+      console.info(appKey.secretKey);
       //appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
-      var alice_public = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
-      appPubPart = alice_public.match(/.{2}/g).map(hexStrToDec);
-      msg("Application ECDH Public Key: " + appPubPart);
-      Array.prototype.push.apply(message, appPubPart);
+      console.info("Application ECDH Public Key: ", appKey.publicKey);
+      Array.prototype.push.apply(message, appKey.publicKey);
       Array.prototype.push.apply(message, empty);
       var keyHandle = bytes2b64(message);
     } else if (type == 2) { //OKGETPUB
@@ -213,11 +212,10 @@ function msg_polling(params = {}, cb) {
 
 
 
-          var alice_private = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
           okPub = result.slice(21, 53);
           console.info("OnlyKey Public Key: ", okPub );
           okPub1 = curve25519.keyFromPublic(okPub, 'hex');
-          var apppriv2 = curve25519.keyFromPrivate(alice_private, 'hex');
+          var apppriv2 = curve25519.keyFromPrivate(appKey.secretKey, 'hex');
           shared = apppriv2.derive(okPub1.getPublic()).toString(16);
           console.info("Elliptic shared: ", shared);
 
@@ -230,9 +228,7 @@ function msg_polling(params = {}, cb) {
           //const pubKey = Buffer.concat([Buffer.from([0x02]), randomBytes(32)])
           //const pub = curve.keyFromPublic(Uint8Array.from(pubKey))
 
-
-          alice_private = alice_private.match(/.{2}/g).map(hexStrToDec);
-          sharedsec = nacl.box.before(Uint8Array.from(okPub), Uint8Array.from(alice_private));
+          sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
           console.info("NACL shared secret: ", sharedsec );
 
 
