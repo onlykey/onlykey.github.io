@@ -175,7 +175,8 @@ function msg_polling(params = {}, cb) {
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
-      appKey = curve25519.genKeyPair();
+      appKey = nacl.box.keyPair();
+      console.info(appKey);
       appPub = appKey.getPublic();
       //appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
       var alice_public = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
@@ -208,6 +209,10 @@ function msg_polling(params = {}, cb) {
       } else if (result <= 5) return;
       if (type == 1) {
         if (result) {
+
+
+
+
           var alice_private = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
           okPub = result.slice(21, 53);
           console.info("OnlyKey Public Key: ", okPub );
