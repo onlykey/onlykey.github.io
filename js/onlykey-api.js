@@ -208,8 +208,7 @@ function msg_polling(params = {}, cb) {
         if (result) {
           okPub = result.slice(21, 53);
           msg("OnlyKey ECDH Public Key: " + okPub );
-          pub1 =  utils.toArray(result.slice(21, 53), 'hex');
-          okPub1 = curve25519.keyFromPublic(pub1, 'hex');
+          okPub1 = curve25519.keyFromPublic(okPub, 'hex');
           okPub1.validate();
           appKey.validate();
           shared = appKey.derive(okPub1.getPublic()).toString(16);
@@ -238,6 +237,16 @@ function msg_polling(params = {}, cb) {
 
           console.log(pair1.derive(pair2.getPublic()))
           console.log(pair2.derive(pair1.getPublic()))
+
+
+          // curve.g.mul(key) -- publicKey
+          const shared1 = curve.g.mul(pair1).mul(pair2).getX()
+          const shared2 = curve.g.mul(pair2).mul(pair1).getX()
+
+          // 32 enough for curve25519
+          console.log(shared1.toArrayLike(Buffer, 'be', 32))
+          console.log(shared2.toArrayLike(Buffer, 'be', 32))
+          // => shared1 should be equal shared2
 
           OKversion = result[19] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(result.slice(8, 20));
