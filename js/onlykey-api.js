@@ -220,10 +220,13 @@ function msg_polling(params = {}, cb) {
           //import public keys
           // ec.keyFromPublic(pub, 'hex');
           //
+          //const priv = curve.keyFromPrivate(Uint8Array.from(randomBytes(32)))
+          //const pubKey = Buffer.concat([Buffer.from([0x02]), randomBytes(32)])
+          //const pub = curve.keyFromPublic(Uint8Array.from(pubKey))
 
 
           alice_private = alice_private.match(/.{2}/g).map(hexStrToDec);
-          sharedsec = nacl.box.before(okPub, alice_private);
+          sharedsec = nacl.box.before(Uint8Array.from(okPub), Uint8Array.from(alice_private));
           console.info("NACL shared secret: ", sharedsec );
 
 
