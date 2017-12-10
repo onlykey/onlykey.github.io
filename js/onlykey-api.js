@@ -19,7 +19,7 @@ var shared;
 var _status;
 var pin;
 var poll_type, poll_delay;
-var custom_keyid;
+var custom_keyid;0
 var msgType;
 var keySlot;
 const OKDECRYPT = 240;
@@ -208,7 +208,7 @@ function msg_polling(params = {}, cb) {
         if (result) {
           okPub = result.slice(21, 53);
           console.info("OnlyKey ECDH Private Key: ", okPub );
-          testPub1 = curve25519.keyFromSecret(okPub);
+          testPub1 = curve25519.keyFromPrivate(okPub);
           testPub1 = testPub1.getPublic().toString(16);
           console.dir(testPub1 );
 
