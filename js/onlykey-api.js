@@ -248,7 +248,7 @@ function msg_polling(params = {}, cb) {
           console.info("NACL Public: ", pub_nacl);
           shared = priv_elliptic.derive(priv_elliptic.getPublic()).toString(16);
           console.info("Elliptic shared: ", shared);
-          shared2 = nacl.box.before(pub_nacl, Uint8Array.from(alice_private));
+          shared2 = nacl.box.before(pub_nacl, priv_nacl);
           console.info("NACL shared: ", shared2);
 
 
