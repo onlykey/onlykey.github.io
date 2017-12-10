@@ -206,11 +206,13 @@ function msg_polling(params = {}, cb) {
       } else if (result <= 5) return;
       if (type == 1) {
         if (result) {
+          var alice_private = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
           okPub = result.slice(21, 53);
-          console.info("OnlyKey ECDH Private Key: ", okPub );
-          testPriv = curve25519.keyFromPrivate(okPub);
-          testPub = testPriv.getPublic();
-          console.log(testPub);
+          console.info("OnlyKey Public Key: ", okPub );
+          okPub1 = curve25519.keyFromPublic(okPub, 'hex');
+          var apppriv2 = curve25519.keyFromPrivate(alice_private, 'hex');
+          shared = apppriv2.derive(okPub1.getPublic()).toString(16);
+          console.info("Elliptic shared: ", shared);
 
 
           //import private keys
@@ -219,9 +221,12 @@ function msg_polling(params = {}, cb) {
           // ec.keyFromPublic(pub, 'hex');
           //
 
-          okPub1 = curve25519.keyFromPublic(okPub, 'hex');
-          shared = appKey.derive(okPub1.getPublic()).toString(16);
-          msg("ECDH shared: " + shared);
+
+          alice_private = alice_private.match(/.{2}/g).map(hexStrToDec);
+          sharedsec = nacl.box.before(okPub, alice_private);
+          console.info("NACL shared secret: ", sharedsec );
+
+
           var alice_private = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
           var alice_public = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
           var bob_private = "5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb";
@@ -229,7 +234,7 @@ function msg_polling(params = {}, cb) {
           var alice_mult_bob = "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742";
           var pub1 = curve25519.keyFromPublic(alice_public, 'hex');
           console.log(pub1);
-          pub1 = pub1.toString(16);
+          pub1 = pub1.getPublic();
           console.log(pub1);
           console.info("OnlyKey ECDH Private Key: ", okPub );
           var priv1 = curve25519.keyFromPrivate(bob_private, 'hex');
