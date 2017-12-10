@@ -238,13 +238,18 @@ function msg_polling(params = {}, cb) {
           var alice_mult_bob = "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742";
 
           console.info("OnlyKey ECDH Private Key: ", okPub );
-          var priv1 = curve25519.keyFromPrivate(bob_private, 'hex');
-          shared = priv1.derive(pub1.getPublic()).toString(16);
-          msg("ECDH shared1: " + shared);
-          var pub2 = curve25519.keyFromPublic(bob_public, 'hex');
-          var priv2 = curve25519.keyFromPrivate(alice_private, 'hex');
-          shared = priv2.derive(pub2.getPublic()).toString(16);
-          msg("ECDH shared2: " + shared);
+          var priv_elliptic = curve25519.keyFromPrivate(okPub, 'hex');
+          console.info("Elliptic Private: ", priv_elliptic);
+          var priv_nacl = Uint8Array.from(okPub);
+          console.info("NACL Private: " + priv_nacl);
+          var pub_elliptic = priv_elliptic.getPublic();
+          console.info("Elliptic Public: " + pub_elliptic);
+          var pub_nacl = Uint8Array.from(pub_elliptic.encode('hex').match(/.{2}/g).map(hexStrToDec));
+          console.info("NACL Public: " + pub_nacl);
+          shared = priv_elliptic.derive(priv_elliptic.getPublic()).toString(16);
+          console.info("Elliptic shared: " + shared);
+          shared2 = nacl.box.before(pub_nacl, Uint8Array.from(alice_private));
+          console.info("NACL shared: " + shared2);
 
 
           const pair1 = curve25519.genKeyPair();
