@@ -230,20 +230,20 @@ function msg_polling(params = {}, cb) {
           msg("ECDH shared: " + shared);
 
 
-          const pair1 = curve25519.genKeyPair()
-          const pair2 = curve25519.genKeyPair()
+          const pair1 = curve25519.genKeyPair();
+          const pair2 = curve25519.genKeyPair();
 
-          console.log(pair1.derive(pair2.getPublic()))
-          console.log(pair2.derive(pair1.getPublic()))
+          console.log(pair1.derive(pair2.getPublic()).toString(16));
+          console.log(pair2.derive(pair1.getPublic()).toString(16));
 
 
           // curve.g.mul(key) -- publicKey
-          const shared1 = curve.g.mul(pair1).mul(pair2).getX()
-          const shared2 = curve.g.mul(pair2).mul(pair1).getX()
+          const shared1 = curve25519.g.mul(pair1).mul(pair2).getX();
+          const shared2 = curve25519.g.mul(pair2).mul(pair1).getX();
 
           // 32 enough for curve25519
-          console.log(shared1.toArrayLike(Buffer, 'be', 32))
-          console.log(shared2.toArrayLike(Buffer, 'be', 32))
+          console.log(shared1.toArrayLike(Buffer, 'be', 32));
+          console.log(shared2.toArrayLike(Buffer, 'be', 32));
           // => shared1 should be equal shared2
 
           OKversion = result[19] == 99 ? 'Color' : 'Original';
