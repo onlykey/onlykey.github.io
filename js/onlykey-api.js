@@ -211,7 +211,8 @@ function msg_polling(params = {}, cb) {
           testPriv = curve25519.keyFromPrivate(okPub);
           testPub = testPriv.getPublic().toString(16);
           console.dir(testPub);
-          console.dir(JSON.stringify(testPub));
+          console.info(JSON.stringify(testPub));
+          console.table(testPub);
 
 
           //import private keys
