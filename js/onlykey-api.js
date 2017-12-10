@@ -227,7 +227,11 @@ function msg_polling(params = {}, cb) {
           var pub1 = curve25519.keyFromPublic(alice_public.match(/.{2}/g).map(hexStrToDec), 'hex');
           var priv1 = curve25519.keyFromPrivate(bob_private.match(/.{2}/g).map(hexStrToDec), 'hex');
           shared = priv1.derive(pub1.getPublic()).toString(16);
-          msg("ECDH shared: " + shared);
+          msg("ECDH shared1: " + shared);
+          var pub2 = curve25519.keyFromPublic(bob_public.match(/.{2}/g).map(hexStrToDec), 'hex');
+          var priv2 = curve25519.keyFromPrivate(alice_private.match(/.{2}/g).map(hexStrToDec), 'hex');
+          shared = priv2.derive(pub2.getPublic()).toString(16);
+          msg("ECDH shared2: " + shared);
 
 
           const pair1 = curve25519.genKeyPair();
@@ -238,8 +242,8 @@ function msg_polling(params = {}, cb) {
 
 
           // curve.g.mul(key) -- publicKey
-          const shared1 = curve25519.mul(pair1).mul(pair2).getX();
-          const shared2 = curve25519.mul(pair2).mul(pair1).getX();
+          const shared1 = curve25519.g.mul(pair1).mul(pair2).getX();
+          const shared2 = curve25519.g.mul(pair2).mul(pair1).getX();
 
           // 32 enough for curve25519
           console.log(shared1);
