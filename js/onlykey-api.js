@@ -10,7 +10,7 @@ var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
-var curve25519 = new ECC('curve25519');
+var curve25519 = new ECC('curve25519').g.mul;
 var appKey;
 var appPub;
 var appPubPart;
@@ -211,25 +211,18 @@ function msg_polling(params = {}, cb) {
           okPub1 = curve25519.keyFromPublic(okPub, 'hex');
           shared = appKey.derive(okPub1.getPublic()).toString(16);
           msg("ECDH shared: " + shared);
-          shared = shared.match(/.{2}/g).map(hexStrToDec);
-          msg("ECDH shared: " + shared);
-          okPub2 = curve25519.keyFromPublic(result.slice(21, 53), 'der');
-          shared = appKey.derive(okPub2.getPublic()).toString(16);
-          msg("ECDH shared: " + shared);
-          shared = shared.match(/.{2}/g).map(hexStrToDec);
-          msg("ECDH shared: " + shared);
           var alice_private = "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a";
           var alice_public = "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a";
           var bob_private = "5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb";
           var bob_public = "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f";
           var alice_mult_bob = "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742";
 
-          var pub1 = curve25519.keyFromPublic(alice_public.match(/.{2}/g).map(hexStrToDec), 'hex');
-          var priv1 = curve25519.keyFromPrivate(bob_private.match(/.{2}/g).map(hexStrToDec), 'hex');
+          var pub1 = curve25519.keyFromPublic(alice_public, 'hex');
+          var priv1 = curve25519.keyFromPrivate(bob_private, 'hex');
           shared = priv1.derive(pub1.getPublic()).toString(16);
           msg("ECDH shared1: " + shared);
-          var pub2 = curve25519.keyFromPublic(bob_public.match(/.{2}/g).map(hexStrToDec), 'hex');
-          var priv2 = curve25519.keyFromPrivate(alice_private.match(/.{2}/g).map(hexStrToDec), 'hex');
+          var pub2 = curve25519.keyFromPublic(bob_public, 'hex');
+          var priv2 = curve25519.keyFromPrivate(alice_private, 'hex');
           shared = priv2.derive(pub2.getPublic()).toString(16);
           msg("ECDH shared2: " + shared);
 
@@ -240,15 +233,18 @@ function msg_polling(params = {}, cb) {
           console.log(pair1.derive(pair2.getPublic()).toString(16));
           console.log(pair2.derive(pair1.getPublic()).toString(16));
 
+          const key1 = genKey()
+          const key2 = genKey()
 
           // curve.g.mul(key) -- publicKey
-          const shared1 = curve25519.g.mul(pair1).mul(pair2).getX();
-          const shared2 = curve25519.g.mul(pair2).mul(pair1).getX();
+          const shared1 = curve25519.g.mul(key1).mul(key2).getX()
+          const shared2 = curve25519.g.mul(key2).mul(key1).getX()
 
           // 32 enough for curve25519
-          console.log(shared1);
-          console.log(shared2);
+          console.log(shared1.toArrayLike(Buffer, 'be', 32))
+          console.log(shared2.toArrayLike(Buffer, 'be', 32))
           // => shared1 should be equal shared2
+
 
           OKversion = result[19] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(result.slice(8, 20));
@@ -302,6 +298,13 @@ function msg_polling(params = {}, cb) {
       if (typeof cb === 'function') cb(null, data);
     }, 3+(browserid/64));
   }, delay * 1000);
+}
+
+const genKey = () => {
+  while (true) {
+    const privateKey = new BN(crypto.randomBytes(Math.ceil(curve.n.bitLength() / 8)))
+    if (!privateKey.isZero() && privateKey.cmp(curve.n) < 0) return privateKey
+  }
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
