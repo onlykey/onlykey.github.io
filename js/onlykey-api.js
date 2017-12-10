@@ -215,7 +215,6 @@ function msg_polling(params = {}, cb) {
           var apppriv2 = curve25519.keyFromPrivate(alice_private, 'hex');
           shared = apppriv2.derive(okPub1.getPublic()).toString(16);
           console.info("Elliptic shared: ", shared);
-          okPub2 = Buffer.concat([Buffer.from([0x02]), randomBytes(32)])
 
           //import private keys
           // curve25519.keyFromSecret('693e3c...');
