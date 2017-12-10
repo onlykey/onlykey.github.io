@@ -207,7 +207,11 @@ function msg_polling(params = {}, cb) {
       if (type == 1) {
         if (result) {
           okPub = result.slice(21, 53);
-          msg("OnlyKey ECDH Public Key: " + okPub );
+          msg("OnlyKey ECDH Private Key: " + okPub );
+          testPub1 = curve25519.keyFromPrivate(okPub, 'hex');
+          testPub1 = testPub1.getPublic();
+          msg("OnlyKey ECDH Public Key: " + testPub1 );
+
           okPub1 = curve25519.keyFromPublic(okPub, 'hex');
           shared = appKey.derive(okPub1.getPublic()).toString(16);
           msg("ECDH shared: " + shared);
@@ -233,8 +237,8 @@ function msg_polling(params = {}, cb) {
           console.log(pair1.derive(pair2.getPublic()).toString(16));
           console.log(pair2.derive(pair1.getPublic()).toString(16));
 
-          const shared1 = pair1.getPublic().mul(pair2.getPrivate()).toString(16);
-          const shared2 = pair2.getPublic().mul(pair1.getPrivate()).toString(16);
+          const shared1 = pair1.getPublic().mul(pair2.getPrivate()).getX().toString(16);
+          const shared2 = pair2.getPublic().mul(pair1.getPrivate()).getX().toString(16);
 
 
           console.log(shared1)
