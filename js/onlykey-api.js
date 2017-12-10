@@ -233,8 +233,8 @@ function msg_polling(params = {}, cb) {
           console.log(pair1.derive(pair2.getPublic()).toString(16));
           console.log(pair2.derive(pair1.getPublic()).toString(16));
 
-          const key1 = genKey()
-          const key2 = genKey()
+          const key1 = curve25519.keyFromPublic(alice_public, 'hex');
+          const key2 = curve25519.keyFromPrivate(bob_private, 'hex');
 
           // curve.g.mul(key) -- publicKey
           const shared1 = curve25519.g.mul(key1).mul(key2).getX()
@@ -298,13 +298,6 @@ function msg_polling(params = {}, cb) {
       if (typeof cb === 'function') cb(null, data);
     }, 3+(browserid/64));
   }, delay * 1000);
-}
-
-const genKey = () => {
-  while (true) {
-    const privateKey = new BN(crypto.randomBytes(Math.ceil(curve25519.n.bitLength() / 8)))
-    if (!privateKey.isZero() && privateKey.cmp(curve25519.n) < 0) return privateKey
-  }
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
