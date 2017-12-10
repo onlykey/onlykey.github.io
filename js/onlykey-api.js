@@ -241,15 +241,15 @@ function msg_polling(params = {}, cb) {
           var priv_elliptic = curve25519.keyFromPrivate(okPub, 'hex');
           console.info("Elliptic Private: ", priv_elliptic);
           var priv_nacl = Uint8Array.from(okPub);
-          console.info("NACL Private: " + priv_nacl);
+          console.info("NACL Private: ", priv_nacl);
           var pub_elliptic = priv_elliptic.getPublic();
-          console.info("Elliptic Public: " + pub_elliptic);
+          console.info("Elliptic Public: ", pub_elliptic);
           var pub_nacl = Uint8Array.from(pub_elliptic.encode('hex').match(/.{2}/g).map(hexStrToDec));
-          console.info("NACL Public: " + pub_nacl);
+          console.info("NACL Public: ", pub_nacl);
           shared = priv_elliptic.derive(priv_elliptic.getPublic()).toString(16);
-          console.info("Elliptic shared: " + shared);
+          console.info("Elliptic shared: ", shared);
           shared2 = nacl.box.before(pub_nacl, Uint8Array.from(alice_private));
-          console.info("NACL shared: " + shared2);
+          console.info("NACL shared: ", shared2);
 
 
           const pair1 = curve25519.genKeyPair();
