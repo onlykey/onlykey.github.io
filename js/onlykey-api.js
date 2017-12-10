@@ -10,7 +10,7 @@ var p256 = new ECC('p256');
 var sha256 = function(s) { return p256.hash().update(s).digest(); };
 var BN = p256.n.constructor;  // BN = BigNumber
 
-var curve25519 = new EC('curve25519');
+var curve25519 = new ECC('curve25519');
 var appKey;
 var appPub;
 var appPubPart;
@@ -208,7 +208,10 @@ function msg_polling(params = {}, cb) {
         if (result) {
           okPub = result.slice(21, 53);
           msg("OnlyKey ECDH Public Key: " + okPub );
-          okPub1 = curve25519.keyFromPublic(result.slice(21, 53), 'hex');
+          pub1 =  utils.toArray(result.slice(21, 53), 'hex');
+          okPub1 = curve25519.keyFromPublic(pub1);
+          okPub1.validate();
+          appKey.validate();
           shared = appKey.derive(okPub1.getPublic()).toString(16);
           msg("ECDH shared: " + shared);
           shared = shared.match(/.{2}/g).map(hexStrToDec);
@@ -228,6 +231,7 @@ function msg_polling(params = {}, cb) {
           var priv1 = curve25519.keyFromPrivate(bob_private.match(/.{2}/g).map(hexStrToDec), 'hex');
           shared = priv1.derive(pub1.getPublic()).toString(16);
           msg("ECDH shared: " + shared);
+
 
           OKversion = result[19] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(result.slice(8, 20));
