@@ -29,6 +29,7 @@ const OKGETPUBKEY = 236;
 const OKGETRESPONSE = 242;
 const OKPING = 243;
 var browserid = 0; //Default Chrome
+var counter = 0;
 
 const button = document.getElementById('onlykey_start');
 
@@ -378,9 +379,9 @@ function process_auth_response(response) {
   var m = bcat([sha256(appid), sigData.slice(0,5), sha256(clientData_bytes)]);
   if (!key.verify(sha256(m), sig)) return false;
   var userPresent = sigData[0];
-  var counter = new BN(sigData.slice(1,5)).toNumber();
+  var counter2 = new BN(sigData.slice(1,5)).toNumber();
   msg("User present: " + userPresent);
-  msg("Counter: " + counter);
+  msg("Counter: " + counter2);
   return true;
 }
 
@@ -432,7 +433,7 @@ function custom_auth_response(response) {
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
-  var counter = sigData.slice(1,5);
+  counter = sigData.slice(1,5);
   console.info("Counter: ", counter);
   var parsedData = [];
   Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
