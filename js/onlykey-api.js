@@ -513,7 +513,7 @@ function aesgcm_encrypt(plaintext, iv) {
     iv: iv, // should be a 12-byte binary-encoded string or byte buffer
     tagLength: 0
   });
-  cipher.update(forge.util.createBuffer(someBytes));
+  cipher.update(forge.util.createBuffer(plaintext));
   cipher.finish();
   console.log("Encrypted AES-GCM Hex", cipher.output.toHex());
   plaintext = cipher.output.toHex();
