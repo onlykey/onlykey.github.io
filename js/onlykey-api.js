@@ -191,12 +191,12 @@ function msg_polling(params = {}, cb) {
         var empty = new Array(50).fill(0);
         Array.prototype.push.apply(message, custom_keyid);
         Array.prototype.push.apply(message, empty);
-        aesgcm_encrypt(keyHandle, counter);
+        keyHandle = aesgcm_encrypt(keyHandle, counter);
         var keyHandle = bytes2b64(message);
     } else { //Get Response From OKSIGN or OKDECRYPT
         var keyHandle = new Array(64).fill(255);
         keyHandle[4] = (OKGETRESPONSE-browserid);
-        aesgcm_encrypt(keyHandle, counter);
+        keyHandle = aesgcm_encrypt(keyHandle, counter);
         keyHandle = bytes2b64(keyHandle);
     }
     var challenge = mkchallenge();
@@ -276,7 +276,7 @@ function auth_ping() {
   ciphertext[0] = (OKPING-browserid);
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
-  aesgcm_encrypt(keyHandle, counter);
+  keyHandle = aesgcm_encrypt(keyHandle, counter);
   var keyHandle = bytes2b64(message);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
@@ -443,7 +443,7 @@ function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    aesgcm_decrypt(parsedData, counter)
+    parsedData = aesgcm_decrypt(parsedData, counter);
     console.info("Parsed Data: ", parsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
@@ -478,8 +478,9 @@ function custom_auth_response(response) {
 }
 
 //Function to decrypt
-function aesgcm_decrypt(encrypted, iv) {
+async function aesgcm_decrypt(encrypted, iv) {
   var key = sha256(shared); //AES256 key sha256 hash of shared secret
+  var pt = await Promise;
   console.log("Shared", shared);
   console.log("AES Key", key);
   var iv = iv + iv + iv; //Counter used as IV, unique for each message
@@ -496,13 +497,15 @@ function aesgcm_decrypt(encrypted, iv) {
   if(pass) {
     // outputs decrypted hex
     console.log("Decrypted AES-GCM Hex", decipher.output.toHex());
-  encrypted = decipher.output.toHex();
+  pt = decipher.output.toHex();
+  return pt;
   }
 }
 
 //Function to encrypt
-function aesgcm_encrypt(plaintext, iv) {
+async function aesgcm_encrypt(plaintext, iv) {
   var key = sha256(shared); //AES256 key sha256 hash of shared secret
+  var ct = await Promise;
   console.log("Shared", shared);
   console.log("AES Key", key);
   var iv = iv + iv + iv; //Counter used as IV, unique for each message
@@ -516,7 +519,8 @@ function aesgcm_encrypt(plaintext, iv) {
   cipher.update(forge.util.createBuffer(plaintext));
   cipher.finish();
   console.log("Encrypted AES-GCM Hex", cipher.output.toHex());
-  plaintext = cipher.output.toHex();
+  ct = cipher.output.toHex();
+  return ct;
 }
 
 function u2fSignBuffer(cipherText, mainCallback) {
@@ -538,7 +542,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
     console.info("Handlekey bytes ", message);
     console.info("Sending Handlekey ", keyHandle);
     console.info("Sending challenge ", challenge);
-    aesgcm_encrypt(keyHandle, counter);
+    keyHandle = aesgcm_encrypt(keyHandle, counter);
 
     u2f.sign(appId, challenge, [req], function(response) {
       var result = custom_auth_response(response);
