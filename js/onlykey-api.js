@@ -39,6 +39,7 @@ function init() {
 } else {
   console.info("Chrome browser (Default)");
 }
+  appKey = nacl.box.keyPair();
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
@@ -175,7 +176,6 @@ function msg_polling(params = {}, cb) {
       var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
       var empty = new Array(23).fill(0);
       Array.prototype.push.apply(message, timePart);
-      appKey = nacl.box.keyPair();
       console.info(appKey);
       console.info(appKey.publicKey);
       console.info(appKey.secretKey);
