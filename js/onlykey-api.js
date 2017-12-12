@@ -166,7 +166,7 @@ function auth_local() {
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 //Function to send and retrive custom U2F messages
-let msg_polling(params = {}, cb) = async () => {
+let msg_polling(params = {}) = async () => {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
   await wait(delay);
@@ -265,9 +265,7 @@ let msg_polling(params = {}, cb) = async () => {
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
     }
-
-    if (typeof cb === 'function') cb(null, data);
-  }, 3+(browserid/64));
+  });
 }
 
 /*
