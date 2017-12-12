@@ -605,8 +605,8 @@ async function aesgcm_decrypt(encrypted, iv) {
   if(pass) {
     // outputs decrypted hex
   var decrypted = decipher.output;
-  console.log("Decrypted AES-GCM Hex", decipher.output.match(/.{2}/g).map(hexStrToDec));
-  pt = decrypted.toHex().match(/.{2}/g).map(hexStrToDec);
+  console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted));
+  pt = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
   return pt;
   }
 }
@@ -630,7 +630,7 @@ async function aesgcm_encrypt(plaintext, iv) {
   cipher.update(forge.util.createBuffer(plaintext));
   cipher.finish();
   var encrypted = cipher.output;
-  console.log("Encrypted AES-GCM Hex", forge.util.bytesToHex(encrypted).match(/.{2}/g).map(hexStrToDec));
+  console.log("Encrypted AES-GCM Hex", forge.util.bytesToHex(encrypted));
   ct = forge.util.bytesToHex(encrypted).match(/.{2}/g).map(hexStrToDec);
   return ct;
 }
@@ -646,10 +646,10 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
-    var keyHandle = bytes2b64(message);
+    var keyHandle = await aesgcm_encrypt(message, counter);
+    keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
-    encryptedkeyHandle = await aesgcm_encrypt(keyHandle, counter);
-    var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
+    var req = { "challenge": challenge, "keyHandle": keyHandle,
                  "appId": appId, "version": version };
 
     console.info("Handlekey bytes ", message);
