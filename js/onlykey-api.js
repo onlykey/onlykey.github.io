@@ -166,11 +166,10 @@ function auth_local() {
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 //Function to send and retrive custom U2F messages
-let msg_polling(params = {}) = async () => {
+async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
   await wait(delay);
-  let data = await Promise;
   msg("Requesting response from OnlyKey");
   if (type == 1) { //OKSETTIME
     var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
@@ -206,6 +205,7 @@ let msg_polling(params = {}) = async () => {
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], function(response) {
     var result = custom_auth_response(response);
+    let data = await Promise;
     if (result == 2) {
         msg("Polling succeeded but no data was received");
         return;
@@ -224,6 +224,7 @@ let msg_polling(params = {}) = async () => {
         msg("HW generated entropy: " + hw_RNG.entropy);
         var key = sha256(shared); //AES256 key sha256 hash of shared secret
         msg("AES Key" + key);
+        data = NULL;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
@@ -265,7 +266,9 @@ let msg_polling(params = {}) = async () => {
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
     }
-  });
+
+    if (typeof cb === 'function') cb(null, data);
+  }, 3+(browserid/64));
 }
 
 /*
@@ -642,7 +645,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
-    var encryptedkeyHandle = await aesgcm_encrypt(keyHandle, counter);
+    encryptedkeyHandle = await aesgcm_encrypt(keyHandle, counter);
     var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                  "appId": appId, "version": version };
 
