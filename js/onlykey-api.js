@@ -648,14 +648,14 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
-    var keyHandle = await aesgcm_encrypt(message, counter);
-    keyHandle = bytes2b64(keyHandle);
     var challenge = mkchallenge();
-    var req = { "challenge": challenge, "keyHandle": keyHandle,
+    var encryptedkeyHandle = await aesgcm_encrypt(message, counter);
+    encryptedkeyHandle = bytes2b64(encryptedkeyHandle);
+    var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                  "appId": appId, "version": version };
 
     console.info("Handlekey bytes ", message);
-    console.info("Sending Handlekey ", keyHandle);
+    console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
     u2f.sign(appId, challenge, [req], function(response) {
