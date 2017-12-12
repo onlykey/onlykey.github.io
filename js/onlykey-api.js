@@ -164,7 +164,7 @@ function auth_local() {
 }
 
 //Function to send and retrive custom U2F messages
-function msg_polling(params = {}, cb) {
+async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
 
@@ -269,7 +269,7 @@ function msg_polling(params = {}, cb) {
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
-function auth_ping() {
+async function auth_ping() {
   var message = [255, 255, 255, 255]; //Add header and message type
   msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
@@ -386,7 +386,7 @@ function process_auth_response(response) {
 }
 
 //Function to parse custom U2F auth response
-function custom_auth_response(response) {
+async function custom_auth_response(response) {
   console.info("Response", response);
   var err = response['errorCode'];
   var errMes = response['errorMessage'];
@@ -523,7 +523,7 @@ async function aesgcm_encrypt(plaintext, iv) {
   return ct;
 }
 
-function u2fSignBuffer(cipherText, mainCallback) {
+async function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
     var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN-browserid) : (OKDECRYPT-browserid), slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
