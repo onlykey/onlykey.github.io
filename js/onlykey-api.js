@@ -605,7 +605,7 @@ async function aesgcm_decrypt(encrypted, iv) {
   if(pass) {
     // outputs decrypted hex
   var decrypted = decipher.output;
-  console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted));
+  console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
   pt = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
   return pt;
   }
@@ -630,7 +630,7 @@ async function aesgcm_encrypt(plaintext, iv) {
   cipher.update(forge.util.createBuffer(plaintext));
   cipher.finish();
   var encrypted = cipher.output;
-  console.log("Encrypted AES-GCM Hex", forge.util.bytesToHex(encrypted));
+  console.log("Encrypted AES-GCM Hex", forge.util.bytesToHex(encrypted).match(/.{2}/g).map(hexStrToDec));
   ct = forge.util.bytesToHex(encrypted).match(/.{2}/g).map(hexStrToDec);
   return ct;
 }
