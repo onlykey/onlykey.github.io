@@ -224,12 +224,12 @@ async function msg_polling(params = {}, cb) {
         msg("HW generated entropy: " + hw_RNG.entropy);
         var key = sha256(shared); //AES256 key sha256 hash of shared secret
         msg("AES Key" + key);
-        data = NULL;
+        data = 0;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
-      data = NULL;
+      data = 0;
     } else if (type == 2) {
       if (result) {
         var pubkey = result.slice(0, 1); //slot number containing matching key
