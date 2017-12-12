@@ -605,8 +605,8 @@ async function aesgcm_decrypt(encrypted, iv) {
   // pass is false if there was a failure (eg: authentication tag didn't match)
   if(pass) {
     // outputs decrypted hex
-    console.log("Decrypted AES-GCM Hex", decipher.output.toHex());
-  pt = decipher.output.toHex();
+    console.log("Decrypted AES-GCM Hex", decipher.output);
+  pt = decipher.output;
   return pt;
   }
 }
@@ -625,10 +625,12 @@ async function aesgcm_encrypt(plaintext, iv) {
     iv: iv, // should be a 12-byte binary-encoded string or byte buffer
     tagLength: 0
   });
+  console.log("plaintext", forge.util.createBuffer(plaintext));
+  console.log("plaintext", plaintext);
   cipher.update(forge.util.createBuffer(plaintext));
   cipher.finish();
-  console.log("Encrypted AES-GCM Hex", cipher.output.toHex());
-  ct = cipher.output.toHex();
+  console.log("Encrypted AES-GCM Hex", cipher.output);
+  ct = cipher.output;
   return ct;
 }
 
