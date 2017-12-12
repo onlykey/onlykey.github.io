@@ -191,12 +191,12 @@ function msg_polling(params = {}, cb) {
         var empty = new Array(50).fill(0);
         Array.prototype.push.apply(message, custom_keyid);
         Array.prototype.push.apply(message, empty);
-        keyHandle = aesgcm_encrypt(keyHandle, counter);
-        var keyHandle = bytes2b64(message);
+        var keyHandle = aesgcm_encrypt(message, counter);
+        keyHandle = bytes2b64(message);
     } else { //Get Response From OKSIGN or OKDECRYPT
-        var keyHandle = new Array(64).fill(255);
-        keyHandle[4] = (OKGETRESPONSE-browserid);
-        keyHandle = aesgcm_encrypt(keyHandle, counter);
+        var message = new Array(64).fill(255);
+        message[4] = (OKGETRESPONSE-browserid);
+        var keyHandle = aesgcm_encrypt(message, counter);
         keyHandle = bytes2b64(keyHandle);
     }
     var challenge = mkchallenge();
@@ -276,8 +276,8 @@ function auth_ping() {
   ciphertext[0] = (OKPING-browserid);
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
-  keyHandle = aesgcm_encrypt(keyHandle, counter);
-  var keyHandle = bytes2b64(message);
+  var keyHandle = aesgcm_encrypt(message, counter);
+  keyHandle = bytes2b64(message);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
   var req = { "challenge": challenge, "keyHandle": keyHandle,
@@ -443,37 +443,37 @@ function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    parsedData = aesgcm_decrypt(parsedData, counter);
-    console.info("Parsed Data: ", parsedData);
+    decryptedparsedData = aesgcm_decrypt(parsedData, counter);
+    console.info("Parsed Data: ", decryptedparsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
       console.info("Decode response message");
-      if (parsedData[6] == 0) {
+      if (decryptedparsedData[6] == 0) {
         console.info("Ack message received");
-      } else if(parsedData[6] == 1) {
+      } else if(decryptedparsedData[6] == 1) {
         console.info("incorrect challenge code entered");
         button.textContent = "Incorrect challenge code entered";
         _setStatus('wrong_code');
-      } else if (parsedData[6] == 2) {
+      } else if (decryptedparsedData[6] == 2) {
         console.info("key type not set as signature/decrypt");
         button.textContent = "key type not set as signature/decrypt";
         _setStatus('wrong_type');
-      } else if (parsedData[6] == 3) {
+      } else if (decryptedparsedData[6] == 3) {
         console.info("no key set in this slot");
         button.textContent = "no key set in this slot";
         _setStatus('no_key');
-      } else if (parsedData[6] == 4) {
+      } else if (decryptedparsedData[6] == 4) {
         console.info("invalid key, key check failed");
         button.textContent = "invalid key, key check failed";
         _setStatus('bad_key');
-      } else if (parsedData[6] == 5) {
+      } else if (decryptedparsedData[6] == 5) {
         console.info("invalid data, or data does not match key");
         button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
       }
       return 2;
     }
-    return parsedData;
+    return decryptedparsedData;
   }
 }
 
@@ -536,13 +536,13 @@ function u2fSignBuffer(cipherText, mainCallback) {
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
-    var req = { "challenge": challenge, "keyHandle": keyHandle,
+    encryptedkeyHandle = aesgcm_encrypt(keyHandle, counter);
+    var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                  "appId": appId, "version": version };
 
     console.info("Handlekey bytes ", message);
     console.info("Sending Handlekey ", keyHandle);
     console.info("Sending challenge ", challenge);
-    keyHandle = aesgcm_encrypt(keyHandle, counter);
 
     u2f.sign(appId, challenge, [req], function(response) {
       var result = custom_auth_response(response);
