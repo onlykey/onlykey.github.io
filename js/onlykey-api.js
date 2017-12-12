@@ -45,7 +45,7 @@ async function init() {
   shared = appKey.secretKey;
   var plaintext = appKey.secretKey + appKey.secretKey;
   var iv = 0;
-  var test =  aesgcm_encrypt(plaintext, iv);
+  var test =  await aesgcm_encrypt(plaintext, iv);
   console.info("test", test);
   //msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
@@ -621,7 +621,7 @@ function aesgcm_decrypt(encrypted, iv) {
 
 //Function to encrypt
 function aesgcm_encrypt(plaintext, iv) {
-  //return new Promise(resolve => {
+  return new Promise(resolve => {
     forge.options.usePureJavaScript = true;
     var key = sha256(shared); //AES256 key sha256 hash of shared secret
     console.log("Shared", shared);
@@ -638,14 +638,13 @@ function aesgcm_encrypt(plaintext, iv) {
     console.log("plaintext", plaintext);
     cipher.update(forge.util.createBuffer(plaintext));
     cipher.finish();
-    console.log("Encrypted AES-GCM Hex", cipher.output.getBytes());
-    console.log("Encrypted AES-GCM Hex", cipher.output.toString('utf8'));
-    console.log("Encrypted AES-GCM Hex", cipher.output.toHex());
-    console.log("Encrypted AES-GCM Hex", forge.util.hexToBytes(cipher.output.toHex()));
-    plaintext = forge.util.hexToBytes(cipher.output.toHex());
-    //resolve(plaintext);
-  //});
-  return plaintext;
+    plaintext = cipher.output;
+    console.log("Encrypted AES-GCM Hex", plaintext.toHex());
+    //console.log("Encrypted AES-GCM Hex", cipher.output.getBytes());
+    //console.log("Encrypted AES-GCM Hex", forge.util.hexToBytes(cipher.output.toHex()));
+    plaintext = forge.util.hexToBytes(plaintext.toHex());
+    resolve(plaintext);
+  });
 }
 
 async function u2fSignBuffer(cipherText, mainCallback) {
