@@ -203,7 +203,7 @@ async function msg_polling(params = {}, cb) {
   var challenge = mkchallenge();
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
+  u2f.sign(appId, challenge, [req], async function(response) {
     var result = custom_auth_response(response);
     let data = await Promise;
     if (result == 2) {
