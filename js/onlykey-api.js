@@ -45,7 +45,8 @@ function init() {
   shared = appKey.secretKey;
   var encrypted = appKey.secretKey + appKey.secretKey;
   var iv = appKey.secretKey.slice(0, 4);
-  aesgcm_decrypt(encrypted, iv)
+  var test =  await aesgcm_decrypt(encrypted, iv);
+  console.info("test", test);
   //msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
