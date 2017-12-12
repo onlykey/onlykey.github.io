@@ -204,7 +204,7 @@ async function msg_polling(params = {}, cb) {
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], async function(response) {
-    var result = custom_auth_response(response);
+    var result = await custom_auth_response(response);
     var data = await Promise;
     if (result == 2) {
         msg("Polling succeeded but no data was received");
