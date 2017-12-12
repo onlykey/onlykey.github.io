@@ -43,9 +43,9 @@ async function init() {
   appKey = nacl.box.keyPair();
   //testing
   shared = appKey.secretKey;
-  var encrypted = appKey.secretKey + appKey.secretKey;
-  var iv = appKey.secretKey.slice(0, 4);
-  var test =  await aesgcm_decrypt(encrypted, iv);
+  var plaintext = appKey.secretKey + appKey.secretKey;
+  var iv = 0;
+  var test =  aesgcm_encrypt(plaintext, iv);
   console.info("test", test);
   //msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
@@ -594,10 +594,11 @@ async function custom_auth_response(response) {
 //Function to decrypt
 function aesgcm_decrypt(encrypted, iv) {
   return new Promise(resolve => {
+    forge.options.usePureJavaScript = true;
     var key = sha256(shared); //AES256 key sha256 hash of shared secret
     console.log("Shared", shared);
     console.log("AES Key", key);
-    var iv = iv + iv + iv; //Counter used as IV, unique for each message
+    //var iv = iv + iv + iv; //Counter used as IV, unique for each message
     // decrypt some bytes using GCM mode
     console.log("IV", iv);
     var decipher = forge.cipher.createDecipher('AES-GCM', key);
@@ -620,11 +621,12 @@ function aesgcm_decrypt(encrypted, iv) {
 
 //Function to encrypt
 function aesgcm_encrypt(plaintext, iv) {
-  return new Promise(resolve => {
+  //return new Promise(resolve => {
+    forge.options.usePureJavaScript = true;
     var key = sha256(shared); //AES256 key sha256 hash of shared secret
     console.log("Shared", shared);
     console.log("AES Key", key);
-    var iv = iv + iv + iv; //Counter used as IV, unique for each message
+    //var iv = iv + iv + iv; //Counter used as IV, unique for each message
     var iv = sha256(iv);
     console.log("IV", iv);
     var cipher = forge.cipher.createCipher('AES-GCM', key);
@@ -641,8 +643,9 @@ function aesgcm_encrypt(plaintext, iv) {
     console.log("Encrypted AES-GCM Hex", cipher.output.toHex());
     console.log("Encrypted AES-GCM Hex", forge.util.hexToBytes(cipher.output.toHex()));
     plaintext = forge.util.hexToBytes(cipher.output.toHex());
-    resolve(plaintext);
-  });
+    //resolve(plaintext);
+  //});
+  return plaintext;
 }
 
 async function u2fSignBuffer(cipherText, mainCallback) {
