@@ -191,12 +191,12 @@ function msg_polling(params = {}, cb) {
         var empty = new Array(50).fill(0);
         Array.prototype.push.apply(message, custom_keyid);
         Array.prototype.push.apply(message, empty);
-        var keyHandle = aesgcm_encrypt(message, counter);
+        var keyHandle = await aesgcm_encrypt(message, counter);
         keyHandle = bytes2b64(message);
     } else { //Get Response From OKSIGN or OKDECRYPT
         var message = new Array(64).fill(255);
         message[4] = (OKGETRESPONSE-browserid);
-        var keyHandle = aesgcm_encrypt(message, counter);
+        var keyHandle = await aesgcm_encrypt(message, counter);
         keyHandle = bytes2b64(keyHandle);
     }
     var challenge = mkchallenge();
@@ -276,7 +276,7 @@ function auth_ping() {
   ciphertext[0] = (OKPING-browserid);
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
-  var keyHandle = aesgcm_encrypt(message, counter);
+  var keyHandle = await aesgcm_encrypt(message, counter);
   keyHandle = bytes2b64(message);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
@@ -443,7 +443,7 @@ function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    decryptedparsedData = aesgcm_decrypt(parsedData, counter);
+    decryptedparsedData = await aesgcm_decrypt(parsedData, counter);
     console.info("Parsed Data: ", decryptedparsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
@@ -536,7 +536,7 @@ function u2fSignBuffer(cipherText, mainCallback) {
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
-    encryptedkeyHandle = aesgcm_encrypt(keyHandle, counter);
+    encryptedkeyHandle = await aesgcm_encrypt(keyHandle, counter);
     var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                  "appId": appId, "version": version };
 
