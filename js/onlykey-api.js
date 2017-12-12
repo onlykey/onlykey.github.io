@@ -630,8 +630,8 @@ async function aesgcm_encrypt(plaintext, iv) {
   cipher.update(forge.util.createBuffer(plaintext));
   cipher.finish();
   var encrypted = cipher.output;
-  console.log("Encrypted AES-GCM Hex", encrypted.toString(16));
-  ct = encrypted.toString(16).match(/.{2}/g).map(hexStrToDec);
+  console.log("Encrypted AES-GCM Hex", forge.util.bytesToHex(encrypted));
+  ct = forge.util.bytesToHex(encrypted);
   return ct;
 }
 
