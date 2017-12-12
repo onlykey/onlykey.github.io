@@ -181,7 +181,6 @@ async function msg_polling(params = {}, cb) {
     console.info(appKey);
     console.info(appKey.publicKey);
     console.info(appKey.secretKey);
-    //appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
     console.info("Application ECDH Public Key: ", appKey.publicKey);
     Array.prototype.push.apply(message, appKey.publicKey);
     Array.prototype.push.apply(message, empty);
@@ -631,8 +630,8 @@ async function aesgcm_encrypt(plaintext, iv) {
   cipher.update(forge.util.createBuffer(plaintext));
   cipher.finish();
   var encrypted = cipher.output;
-  console.log("Encrypted AES-GCM Hex", encrypted.toHex().match(/.{2}/g).map(hexStrToDec));
-  ct = encrypted.toHex().match(/.{2}/g).map(hexStrToDec);
+  console.log("Encrypted AES-GCM Hex", encrypted.toString(16));
+  ct = encrypted.toString(16).match(/.{2}/g).map(hexStrToDec);
   return ct;
 }
 
