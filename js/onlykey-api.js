@@ -33,7 +33,7 @@ var counter = 0;
 
 const button = document.getElementById('onlykey_start');
 
-function init() {
+async function init() {
   if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
   browserid = 128; //Firefox
   console.info("Firefox browser");
