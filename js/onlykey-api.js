@@ -551,7 +551,7 @@ async function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    decryptedparsedData = await aesgcm_decrypt(parsedData, counter);
+    var decryptedparsedData = await aesgcm_decrypt(parsedData, counter);
     console.info("Parsed Data: ", decryptedparsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
@@ -586,55 +586,57 @@ async function custom_auth_response(response) {
 }
 
 //Function to decrypt
-async function aesgcm_decrypt(encrypted, iv) {
-  var key = sha256(shared); //AES256 key sha256 hash of shared secret
-  var pt = await Promise;
-  console.log("Shared", shared);
-  console.log("AES Key", key);
-  var iv = iv + iv + iv; //Counter used as IV, unique for each message
-  // decrypt some bytes using GCM mode
-  console.log("IV", iv);
-  var decipher = forge.cipher.createDecipher('AES-GCM', key);
-  decipher.start({
-    iv: iv,
-    tagLength: 0, // optional, defaults to 128 bits
+function aesgcm_decrypt(encrypted, iv) {
+  return new Promise(resolve => {
+    var key = sha256(shared); //AES256 key sha256 hash of shared secret
+    console.log("Shared", shared);
+    console.log("AES Key", key);
+    var iv = iv + iv + iv; //Counter used as IV, unique for each message
+    // decrypt some bytes using GCM mode
+    console.log("IV", iv);
+    var decipher = forge.cipher.createDecipher('AES-GCM', key);
+    decipher.start({
+      iv: iv,
+      tagLength: 0, // optional, defaults to 128 bits
+    });
+    decipher.update(forge.util.createBuffer(encrypted));
+    var pass = decipher.finish();
+    // pass is false if there was a failure (eg: authentication tag didn't match)
+    if(pass) {
+      // outputs decrypted hex
+    var decrypted = decipher.output;
+    console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
+    encrypted = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
+    resolve(encrypted);
+    }
   });
-  decipher.update(forge.util.createBuffer(encrypted));
-  var pass = decipher.finish();
-  // pass is false if there was a failure (eg: authentication tag didn't match)
-  if(pass) {
-    // outputs decrypted hex
-  var decrypted = decipher.output;
-  console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
-  pt = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
-  return pt;
-  }
 }
 
 //Function to encrypt
-async function aesgcm_encrypt(plaintext, iv) {
-  var key = sha256(shared); //AES256 key sha256 hash of shared secret
-  var ct = await Promise;
-  console.log("Shared", shared);
-  console.log("AES Key", key);
-  var iv = iv + iv + iv; //Counter used as IV, unique for each message
-  var iv = sha256(iv);
-  console.log("IV", iv);
-  var cipher = forge.cipher.createCipher('AES-GCM', key);
-  cipher.start({
-    iv: iv, // should be a 12-byte binary-encoded string or byte buffer
-    tagLength: 0
+function aesgcm_encrypt(plaintext, iv) {
+  return new Promise(resolve => {
+    var key = sha256(shared); //AES256 key sha256 hash of shared secret
+    console.log("Shared", shared);
+    console.log("AES Key", key);
+    var iv = iv + iv + iv; //Counter used as IV, unique for each message
+    var iv = sha256(iv);
+    console.log("IV", iv);
+    var cipher = forge.cipher.createCipher('AES-GCM', key);
+    cipher.start({
+      iv: iv, // should be a 12-byte binary-encoded string or byte buffer
+      tagLength: 0
+    });
+    console.log("plaintext", forge.util.createBuffer(plaintext));
+    console.log("plaintext", plaintext);
+    cipher.update(forge.util.createBuffer(plaintext));
+    cipher.finish();
+    console.log("Encrypted AES-GCM Hex", cipher.output.getBytes());
+    console.log("Encrypted AES-GCM Hex", cipher.output.toString('utf8'));
+    console.log("Encrypted AES-GCM Hex", cipher.output.toHex());
+    console.log("Encrypted AES-GCM Hex", forge.util.hexToBytes(cipher.output.toHex()));
+    plaintext = forge.util.hexToBytes(cipher.output.toHex());
+    resolve(plaintext);
   });
-  console.log("plaintext", forge.util.createBuffer(plaintext));
-  console.log("plaintext", plaintext);
-  cipher.update(forge.util.createBuffer(plaintext));
-  cipher.finish();
-  console.log("Encrypted AES-GCM Hex", cipher.output.getBytes());
-  console.log("Encrypted AES-GCM Hex", cipher.output.toString('utf8'));
-  console.log("Encrypted AES-GCM Hex", cipher.output.toHex());
-  console.log("Encrypted AES-GCM Hex", forge.util.hexToBytes(cipher.output.toHex()));
-  ct = forge.util.hexToBytes(cipher.output.toHex());
-  return ct;
 }
 
 async function u2fSignBuffer(cipherText, mainCallback) {
@@ -650,7 +652,6 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var challenge = mkchallenge();
     var encryptedkeyHandle = await aesgcm_encrypt(message, counter);
-    await wait(1);
     var b64keyhandle = bytes2b64(encryptedkeyHandle)
     var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                  "appId": appId, "version": version };
