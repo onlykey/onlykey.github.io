@@ -163,7 +163,114 @@ function auth_local() {
     msg("Finished");
 }
 
+let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 //Function to send and retrive custom U2F messages
+let msg_polling(params = {}, cb) = async () => {
+  const delay = params.delay || 0; // no delay by default
+  const type = params.type || 1; // default type to 1
+  await wait(delay);
+  let data = await Promise;
+  msg("Requesting response from OnlyKey");
+  if (type == 1) { //OKSETTIME
+    var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
+    var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+    msg("Setting current time on OnlyKey to " + new Date());
+    var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+    var empty = new Array(23).fill(0);
+    Array.prototype.push.apply(message, timePart);
+    console.info(appKey);
+    console.info(appKey.publicKey);
+    console.info(appKey.secretKey);
+    //appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
+    console.info("Application ECDH Public Key: ", appKey.publicKey);
+    Array.prototype.push.apply(message, appKey.publicKey);
+    Array.prototype.push.apply(message, empty);
+    var keyHandle = bytes2b64(message);
+  } else if (type == 2) { //OKGETPUB
+      var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
+      msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
+      var empty = new Array(50).fill(0);
+      Array.prototype.push.apply(message, custom_keyid);
+      Array.prototype.push.apply(message, empty);
+      var keyHandle = await aesgcm_encrypt(message, counter);
+      keyHandle = bytes2b64(message);
+  } else { //Get Response From OKSIGN or OKDECRYPT
+      var message = new Array(64).fill(255);
+      message[4] = (OKGETRESPONSE-browserid);
+      var keyHandle = await aesgcm_encrypt(message, counter);
+      keyHandle = bytes2b64(keyHandle);
+  }
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "keyHandle": keyHandle,
+               "appId": appId, "version": version };
+  u2f.sign(appId, challenge, [req], function(response) {
+    var result = custom_auth_response(response);
+    if (result == 2) {
+        msg("Polling succeeded but no data was received");
+        return;
+    } else if (result <= 5) return;
+    if (type == 1) {
+      if (result) {
+        okPub = result.slice(21, 53);
+        console.info("OnlyKey Public Key: ", okPub );
+        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+        console.info("NACL shared secret: ", sharedsec );
+        OKversion = result[19] == 99 ? 'Color' : 'Original';
+        var FWversion = bytes2string(result.slice(8, 20));
+        msg("OnlyKey " + OKversion + " " + FWversion);
+        headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
+        hw_RNG.entropy = result.slice(53, result.length);
+        msg("HW generated entropy: " + hw_RNG.entropy);
+        var key = sha256(shared); //AES256 key sha256 hash of shared secret
+        msg("AES Key" + key);
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+      data = NULL;
+    } else if (type == 2) {
+      if (result) {
+        var pubkey = result.slice(0, 1); //slot number containing matching key
+        msg("Public Key found in slot" + pubkey);
+        var entropy = result.slice(2, result.length);
+        msg("HW generated entropy" + entropy);
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+      data = pubkey;
+    } else if (type == 3) {
+      if (result) {
+        if (result.length == 64) {
+          var sessKey = result.slice(0, 35);
+          var entropy = result.slice(36, 64);
+          msg("HW generated entropy" + entropy);
+        } else {
+          var sessKey = result.slice(0, result.length);
+        }
+        msg("Session Key " + sessKey);
+        data = sessKey;
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+    } else if (type == 4) {
+      if (result) {
+        var oksignature = result.slice(0, result.length); //4+32+2+32
+        msg("Signed by OnlyKey " + oksignature);
+        data = oksignature;
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+    }
+
+    if (typeof cb === 'function') cb(null, data);
+  }, 3+(browserid/64));
+}
+
+/*
 async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
@@ -267,6 +374,7 @@ async function msg_polling(params = {}, cb) {
     }, 3+(browserid/64));
   }, delay * 1000);
 }
+*/
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
 async function auth_ping() {
@@ -536,7 +644,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
-    encryptedkeyHandle = await aesgcm_encrypt(keyHandle, counter);
+    var encryptedkeyHandle = await aesgcm_encrypt(keyHandle, counter);
     var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                  "appId": appId, "version": version };
 
