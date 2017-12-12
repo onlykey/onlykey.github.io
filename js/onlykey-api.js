@@ -650,8 +650,8 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var challenge = mkchallenge();
     var encryptedkeyHandle = await aesgcm_encrypt(message, counter);
-    encryptedkeyHandle = bytes2b64(encryptedkeyHandle);
-    var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
+    var b64keyhandle = bytes2b64(encryptedkeyHandle)
+    var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                  "appId": appId, "version": version };
 
     console.info("Handlekey bytes ", message);
