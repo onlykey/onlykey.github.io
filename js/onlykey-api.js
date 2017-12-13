@@ -379,17 +379,18 @@ async function msg_polling(params = {}, cb) {
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
 async function auth_ping() {
+  if (_status === 'done_code') return;
   var message = [255, 255, 255, 255]; //Add header and message type
   msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
   ciphertext[0] = (OKPING-browserid);
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
-  var keyHandle = await aesgcm_encrypt(message);
-  keyHandle = bytes2b64(message);
-  msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
+  while (message.length < 64) message.push(0);
+  var encryptedkeyHandle = await aesgcm_encrypt(message);
+  var b64keyhandle = bytes2b64(encryptedkeyHandle);
+  var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                "appId": appId, "version": version };
   var result;
     u2f.sign(appId, challenge, [req], function(response) {
@@ -818,7 +819,7 @@ window.doPinTimer = function (seconds) {
 };
 
 function setButtonTimerMessage(seconds) {
-  if (_status !== 'done_code' && _status !== 'wrong_code' && _status !== 'wrong_type' && _status !== 'no_key' && _status !== 'bad_key' && _status !== 'bad_data') {
+  if (_status === 'pending_pin') {
     const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
     button.textContent = btmsg;
     console.info("enter challenge code", pin);
