@@ -411,10 +411,11 @@ async function auth_ping() {
   var result;
     u2f.sign(appId, challenge, [req], function(response) {
       result = custom_auth_response(response);
-      msg("Ping " + (result ? "Successful" : "Failed"));
       if (result == 5) {
         _setStatus('done_code');
+        return;
       }
+      msg("Ping " + (result ? "Successful" : "Failed"));
     }, 2.5+(browserid/64));
 }
 
@@ -656,6 +657,7 @@ IntToByteArray = function(int) {
 //Function to decrypt
 function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
+    counter++;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
@@ -680,13 +682,13 @@ function aesgcm_decrypt(encrypted) {
 //Function to encrypt
 function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
+    counter++;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
     var iv = IntToByteArray(counter);
     while (iv.length < 12) iv.push(0);
     console.log("IV", iv);
-    iv = Uint8Array.from(sha256(iv));
     //Counter used as IV, unique for each message
     iv = iv.slice(0, 12);
     console.log("IV", iv);
