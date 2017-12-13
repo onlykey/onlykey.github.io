@@ -644,12 +644,9 @@ function aesdecrypt(ciphertext) {
 }
 
 function toBytesInt32 (num) {
-    arr = new Uint8Array([
-         (num & 0xff000000) >> 24,
-         (num & 0x00ff0000) >> 16,
-         (num & 0x0000ff00) >> 8,
-         (num & 0x000000ff)
-    ]);
+    arr = new ArrayBuffer(4); // an Int32 takes 4 bytes
+    view = new DataView(arr);
+    view.setUint32(0, num, false); // byteOffset = 0; litteEndian = false
     return arr;
 }
 
