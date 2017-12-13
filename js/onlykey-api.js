@@ -688,7 +688,7 @@ function aesgcm_encrypt(plaintext) {
     var iv = toBytesInt32(counter);
     iv = iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4);
     console.log("IV", iv);
-    iv = Uint8Array.from(sha256(iv);
+    iv = Uint8Array.from(sha256(iv));
     //Counter used as IV, unique for each message
     iv = iv.slice(0, 12);
     console.log("IV", iv);
