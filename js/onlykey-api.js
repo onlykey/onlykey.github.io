@@ -649,7 +649,7 @@ IntToByteArray = function(int) {
     var byteArray = [0, 0, 0, 0];
     for ( var index = 0; index < byteArray.length; index ++ ) {
         var byte = int & 0xff;
-        byteArray [ byteArray.length - index ] = byte;
+        byteArray [ (byteArray.length - index) ] = byte;
         int = (int - byte) / 256 ;
     }
     return byteArray;
