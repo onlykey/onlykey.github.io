@@ -16,6 +16,7 @@ var appPub;
 var appPubPart;
 var okPub;
 var shared;
+var aeskey;
 var _status;
 var pin;
 var poll_type, poll_delay;
@@ -43,10 +44,21 @@ async function init() {
   appKey = nacl.box.keyPair();
   //testing
   shared = appKey.secretKey;
-  var plaintext = appKey.secretKey + appKey.secretKey;
-  var iv = 0;
-  var test =  await aesgcm_encrypt(plaintext, iv);
-  console.info("test", test);
+  var keybuffer = new ArrayBuffer(32);
+  key = sha256(shared);
+  key.map(function(value, i){keybuffer[i] = value});
+  console.info("Key", keybuffer);
+  var plaintext = str2buf(buf2str(keybuffer));
+  aeskey = await crypto.subtle.importKey("raw", keybuffer, "AES-GCM", false, ["encrypt", "decrypt"]);
+  var encrypted = await aesencrypt(plaintext);
+  //var encrypted = encrypted.slice(0, (encrypted.length - 16))
+  console.info("encrypted", encrypted);
+  var decrypted = await aesdecrypt(encrypted);
+  console.info("decrypted", decrypted);
+  var encrypted2 = await aesgcm_encrypt(decrypted);
+  console.info("encrypted2", encrypted2);
+  var decrypted2 = await aesgcm_decrypt(encrypted2);
+  console.info("decrypted2", decrypted2);
   //msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
@@ -197,12 +209,12 @@ async function msg_polling(params = {}, cb) {
       var empty = new Array(50).fill(0);
       Array.prototype.push.apply(message, custom_keyid);
       Array.prototype.push.apply(message, empty);
-      var keyHandle = await aesgcm_encrypt(message, counter);
+      var keyHandle = await aesgcm_encrypt(message);
       keyHandle = bytes2b64(message);
   } else { //Get Response From OKSIGN or OKDECRYPT
       var message = new Array(64).fill(255);
       message[4] = (OKGETRESPONSE-browserid);
-      var keyHandle = await aesgcm_encrypt(message, counter);
+      var keyHandle = await aesgcm_encrypt(message);
       keyHandle = bytes2b64(keyHandle);
   }
   var challenge = mkchallenge();
@@ -390,7 +402,7 @@ async function auth_ping() {
   ciphertext[0] = (OKPING-browserid);
   Array.prototype.push.apply(message, ciphertext);
   msg("Handlekey bytes " + message);
-  var keyHandle = await aesgcm_encrypt(message, counter);
+  var keyHandle = await aesgcm_encrypt(message);
   keyHandle = bytes2b64(message);
   msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
@@ -557,7 +569,7 @@ async function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    var decryptedparsedData = await aesgcm_decrypt(parsedData, counter);
+    var decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
@@ -591,13 +603,64 @@ async function custom_auth_response(response) {
   }
 }
 
+/**
+ * @param {Uint8Array} plaintext
+ * @returns {Promise<String>}
+ */
+function aesencrypt(plaintext) {
+  try {
+    var iv = sha256(toBytesInt32(counter));
+    iv = Uint8Array.from(iv.slice(0,12));
+    var data = Uint8Array.from(plaintext);
+    console.log("IV", iv);
+    console.log("Data", data);
+    return crypto.subtle.encrypt({ name: "AES-GCM", iv}, aeskey, data).then(ciphertext => new Uint8Array(ciphertext));
+    }
+  catch(err) {
+    console.log("Error", err);
+  }
+}
+
+
+/**
+ * @param {Uint8Array} ciphertext
+ * @returns {Promise<String>}
+ */
+function aesdecrypt(ciphertext) {
+    //var iv_part = Uint8Array.from(toBytesInt32(counter));
+    //var iv = new Uint8Array(12).fill(0);
+    //iv_part.map(function(value, i){iv[i] = value});
+    try {
+      var iv = sha256(toBytesInt32(counter));
+      iv = Uint8Array.from(iv.slice(0,12));
+      var data = Uint8Array.from(ciphertext);
+      console.log("IV", iv);
+      console.log("Data", data);
+      return crypto.subtle.decrypt({ name: "AES-GCM", iv, }, aeskey, data).then(v => new Uint8Array(v));
+    }
+    catch(err) {
+      console.log("Error", err);
+    }
+}
+
+function toBytesInt32 (num) {
+    arr = new Uint8Array([
+         (num & 0xff000000) >> 24,
+         (num & 0x00ff0000) >> 16,
+         (num & 0x0000ff00) >> 8,
+         (num & 0x000000ff)
+    ]);
+    return arr.buffer;
+}
+
 //Function to decrypt
-function aesgcm_decrypt(encrypted, iv) {
+function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
     forge.options.usePureJavaScript = true;
     var key = sha256(shared); //AES256 key sha256 hash of shared secret
-    console.log("Shared", shared);
-    console.log("AES Key", key);
+    console.log("Key", key);
+    var iv = sha256(toBytesInt32(counter));
+    iv = Uint8Array.from(iv.slice(0,12));
     //var iv = iv + iv + iv; //Counter used as IV, unique for each message
     // decrypt some bytes using GCM mode
     console.log("IV", iv);
@@ -606,45 +669,82 @@ function aesgcm_decrypt(encrypted, iv) {
       iv: iv,
       tagLength: 0, // optional, defaults to 128 bits
     });
-    decipher.update(forge.util.createBuffer(encrypted));
-    var pass = decipher.finish();
-    // pass is false if there was a failure (eg: authentication tag didn't match)
-    if(pass) {
-      // outputs decrypted hex
-    var decrypted = decipher.output;
-    console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
-    encrypted = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
-    resolve(encrypted);
-    }
+    decipher.update(forge.util.createBuffer(Uint8Array.from(encrypted)));
+    var plaintext = decipher.output.toHex()
+    decipher.finish();
+
+    //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
+    //encrypted = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
+    resolve(plaintext.match(/.{2}/g).map(hexStrToDec));
   });
 }
 
 //Function to encrypt
-function aesgcm_encrypt(plaintext, iv) {
+function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
     forge.options.usePureJavaScript = true;
     var key = sha256(shared); //AES256 key sha256 hash of shared secret
-    console.log("Shared", shared);
-    console.log("AES Key", key);
+    console.log("Key", key);
+    var iv = sha256(toBytesInt32(counter));
+    iv = Uint8Array.from(iv.slice(0,12));
     //var iv = iv + iv + iv; //Counter used as IV, unique for each message
-    var iv = sha256(iv);
     console.log("IV", iv);
     var cipher = forge.cipher.createCipher('AES-GCM', key);
     cipher.start({
       iv: iv, // should be a 12-byte binary-encoded string or byte buffer
       tagLength: 0
     });
-    console.log("plaintext", forge.util.createBuffer(plaintext));
-    console.log("plaintext", plaintext);
+    console.log("Plaintext", plaintext);
     cipher.update(forge.util.createBuffer(plaintext));
     cipher.finish();
-    plaintext = cipher.output;
-    console.log("Encrypted AES-GCM Hex", plaintext.toHex());
+    //plaintext = cipher.output;
+    //console.log("Encrypted AES-GCM Hex", plaintext.toHex());
     //console.log("Encrypted AES-GCM Hex", cipher.output.getBytes());
     //console.log("Encrypted AES-GCM Hex", forge.util.hexToBytes(cipher.output.toHex()));
-    plaintext = forge.util.hexToBytes(plaintext.toHex());
-    resolve(plaintext);
+    var ciphertext = cipher.output;
+    ciphertext = ciphertext.toHex();
+    resolve(ciphertext.match(/.{2}/g).map(hexStrToDec));
   });
+}
+
+/**
+ * Encodes a utf8 string as a byte array.
+ * @param {String} str
+ * @returns {Uint8Array}
+ */
+function str2buf(str) {
+  return new TextEncoder("utf-8").encode(str);
+}
+
+/**
+ * Decodes a byte array as a utf8 string.
+ * @param {Uint8Array} buffer
+ * @returns {String}
+ */
+function buf2str(buffer) {
+  return new TextDecoder("utf-8").decode(buffer);
+}
+
+/**
+ * Decodes a string of hex to a byte array.
+ * @param {String} hexStr
+ * @returns {Uint8Array}
+ */
+function hex2buf(hexStr) {
+  return new Uint8Array(hexStr.match(/.{2}/g).map(h => parseInt(h, 16)));
+}
+
+/**
+ * Encodes a byte array as a string of hex.
+ * @param {Uint8Array} buffer
+ * @returns {String}
+ */
+function buf2hex(buffer) {
+  return Array.prototype.slice
+    .call(new Uint8Array(buffer))
+    .map(x => [x >> 4, x & 15])
+    .map(ab => ab.map(x => x.toString(16)).join(""))
+    .join("");
 }
 
 async function u2fSignBuffer(cipherText, mainCallback) {
@@ -659,7 +759,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var challenge = mkchallenge();
-    var encryptedkeyHandle = await aesgcm_encrypt(message, counter);
+    var encryptedkeyHandle = await aesgcm_encrypt(message);
     var b64keyhandle = bytes2b64(encryptedkeyHandle)
     var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                  "appId": appId, "version": version };
