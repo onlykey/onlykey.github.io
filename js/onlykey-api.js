@@ -659,8 +659,8 @@ function aesgcm_decrypt(encrypted) {
     forge.options.usePureJavaScript = true;
     var key = sha256(shared); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
-    var iv = sha256(toBytesInt32(counter));
-    iv = Uint8Array.from(iv.slice(0,12));
+    var iv = toBytesInt32(counter);
+    iv = Uint8Array.from(iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4));
     //var iv = iv + iv + iv; //Counter used as IV, unique for each message
     // decrypt some bytes using GCM mode
     console.log("IV", iv);
@@ -686,7 +686,7 @@ function aesgcm_encrypt(plaintext) {
     var key = sha256(shared); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
     var iv = sha256(toBytesInt32(counter));
-    iv = Uint8Array.from(iv.slice(0,12));
+    iv = Uint8Array.from(sha256((iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4))));
     //var iv = iv + iv + iv; //Counter used as IV, unique for each message
     console.log("IV", iv);
     var cipher = forge.cipher.createCipher('AES-GCM', key);
