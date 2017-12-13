@@ -203,6 +203,7 @@ async function msg_polling(params = {}, cb) {
     Array.prototype.push.apply(message, appKey.publicKey);
     Array.prototype.push.apply(message, empty);
     var keyHandle = bytes2b64(message);
+    counter = 0;
   } else if (type == 2) { //OKGETPUB
       var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
       msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
@@ -560,12 +561,12 @@ async function custom_auth_response(response) {
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
-  counter = sigData.slice(1,5);
-  console.info("Counter: ", counter);
+  var U2Fcounter = sigData.slice(1,5);
+  console.info("U2Fcounter: ", U2Fcounter);
   var parsedData = [];
   Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
   Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2))));
-  if (counter[0] + counter[1] + counter[2] + counter[3] == 0) { //unencrypted data
+  if (U2Fcounter[0] + U2Fcounter[1] + U2Fcounter[2] + U2Fcounter[3] == 0) { //unencrypted data
     console.info("Parsed Data: ", parsedData);
     return parsedData;
   }
