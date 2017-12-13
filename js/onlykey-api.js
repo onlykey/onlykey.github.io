@@ -695,7 +695,7 @@ function aesgcm_encrypt(plaintext) {
       tagLength: 0
     });
     console.log("Plaintext", plaintext);
-    cipher.update(forge.util.createBuffer(plaintext));
+    cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
     cipher.finish();
     //plaintext = cipher.output;
     //console.log("Encrypted AES-GCM Hex", plaintext.toHex());
