@@ -687,7 +687,8 @@ function aesgcm_encrypt(plaintext) {
     console.log("Key", key);
     var iv = toBytesInt32(counter);
     iv = Uint8Array.from(sha256((iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4))));
-    //var iv = iv + iv + iv; //Counter used as IV, unique for each message
+    //Counter used as IV, unique for each message
+    iv = iv.slice(0, 12);
     console.log("IV", iv);
     var cipher = forge.cipher.createCipher('AES-GCM', key);
     cipher.start({
