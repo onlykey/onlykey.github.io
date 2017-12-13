@@ -644,7 +644,7 @@ function aesdecrypt(ciphertext) {
 }
 
 function toBytesInt32 (num) {
-    arr = new ArrayBuffer(4); // an Int32 takes 4 bytes
+    arr = new ArrayBuffer(12); // an Int32 takes 4 bytes
     view = new DataView(arr);
     view.setUint32(0, num, false); // byteOffset = 0; litteEndian = false
     return arr;
@@ -683,9 +683,6 @@ function aesgcm_encrypt(plaintext) {
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
     var iv = Uint8Array.from(toBytesInt32(counter));
-    while (iv.length < 12) {
-      iv.push(0);
-    }
     console.log("IV", iv);
     iv = Uint8Array.from(sha256(iv));
     //Counter used as IV, unique for each message
