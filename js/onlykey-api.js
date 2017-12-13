@@ -763,7 +763,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var challenge = mkchallenge();
-    while (message.length < 64) message.push(0);
+    //while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
     var b64keyhandle = bytes2b64(encryptedkeyHandle)
     var req = { "challenge": challenge, "keyHandle": b64keyhandle,
