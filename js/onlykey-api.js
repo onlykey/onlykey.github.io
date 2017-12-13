@@ -650,7 +650,7 @@ function toBytesInt32 (num) {
          (num & 0x0000ff00) >> 8,
          (num & 0x000000ff)
     ]);
-    return arr.buffer;
+    return arr;
 }
 
 //Function to decrypt
