@@ -15,8 +15,7 @@ var appKey;
 var appPub;
 var appPubPart;
 var okPub;
-var shared;
-var aeskey;
+var sharedsec;
 var _status;
 var pin;
 var poll_type, poll_delay;
@@ -240,8 +239,8 @@ async function msg_polling(params = {}, cb) {
         headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
         hw_RNG.entropy = result.slice(53, result.length);
         msg("HW generated entropy: " + hw_RNG.entropy);
-        var key = sha256(shared); //AES256 key sha256 hash of shared secret
-        msg("AES Key" + key);
+        var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+        console.info("AES Key", key);
         data = 0;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
@@ -658,7 +657,7 @@ function toBytesInt32 (num) {
 function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
     forge.options.usePureJavaScript = true;
-    var key = sha256(shared); //AES256 key sha256 hash of shared secret
+    var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
     var iv = toBytesInt32(counter);
     iv = Uint8Array.from(iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4));
@@ -684,7 +683,7 @@ function aesgcm_decrypt(encrypted) {
 function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
     forge.options.usePureJavaScript = true;
-    var key = sha256(shared); //AES256 key sha256 hash of shared secret
+    var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
     var iv = toBytesInt32(counter);
     iv = Uint8Array.from(sha256((iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4))));
