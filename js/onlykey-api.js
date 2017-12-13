@@ -659,6 +659,7 @@ IntToByteArray = function(int) {
 function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
     counter++;
+    counter = 0;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
@@ -684,6 +685,7 @@ function aesgcm_decrypt(encrypted) {
 function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
     counter++;
+    counter = 0;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
@@ -691,8 +693,6 @@ function aesgcm_encrypt(plaintext) {
     while (iv.length < 12) iv.push(0);
     console.log("IV", iv);
     //Counter used as IV, unique for each message
-    iv = iv.slice(0, 12);
-    console.log("IV", iv);
     var cipher = forge.cipher.createCipher('AES-GCM', key);
     cipher.start({
       iv: iv, // should be a 12-byte binary-encoded string or byte buffer
