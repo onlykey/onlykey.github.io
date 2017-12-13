@@ -41,24 +41,6 @@ async function init() {
   console.info("Chrome browser (Default)");
 }
   appKey = nacl.box.keyPair();
-    /*testing
-  shared = appKey.secretKey;
-  var keybuffer = new ArrayBuffer(32);
-  key = sha256(shared);
-  key.map(function(value, i){keybuffer[i] = value});
-  console.info("Key", keybuffer);
-  var plaintext = str2buf(buf2str(keybuffer));
-  aeskey = await crypto.subtle.importKey("raw", keybuffer, "AES-GCM", false, ["encrypt", "decrypt"]);
-  var encrypted = await aesencrypt(plaintext);
-  //var encrypted = encrypted.slice(0, (encrypted.length - 16))
-  console.info("encrypted", encrypted);
-  var decrypted = await aesdecrypt(encrypted);
-  console.info("decrypted", decrypted);
-  var encrypted2 = await aesgcm_encrypt(decrypted);
-  console.info("encrypted2", encrypted2);
-  var decrypted2 = await aesgcm_decrypt(encrypted2);
-  console.info("decrypted2", decrypted2);
-  */
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
@@ -611,10 +593,11 @@ async function custom_auth_response(response) {
  */
 function aesencrypt(plaintext) {
   try {
-    var iv = sha256(toBytesInt32(counter));
-    iv = Uint8Array.from(iv.slice(0,12));
-    var data = Uint8Array.from(plaintext);
+    var iv = IntToByteArray(counter);
+    while (iv.length < 12) iv.push(0);
     console.log("IV", iv);
+    iv = Uint8Array.from(iv);
+    var data = Uint8Array.from(plaintext);
     console.log("Data", data);
     return crypto.subtle.encrypt({ name: "AES-GCM", iv}, aeskey, data).then(ciphertext => new Uint8Array(ciphertext));
     }
@@ -633,10 +616,11 @@ function aesdecrypt(ciphertext) {
     //var iv = new Uint8Array(12).fill(0);
     //iv_part.map(function(value, i){iv[i] = value});
     try {
-      var iv = sha256(toBytesInt32(counter));
-      iv = Uint8Array.from(iv.slice(0,12));
-      var data = Uint8Array.from(ciphertext);
+      var iv = IntToByteArray(counter);
+      while (iv.length < 12) iv.push(0);
+      iv = Uint8Array.from(iv);
       console.log("IV", iv);
+      var data = Uint8Array.from(ciphertext);
       console.log("Data", data);
       return crypto.subtle.decrypt({ name: "AES-GCM", iv, }, aeskey, data).then(v => new Uint8Array(v));
     }
@@ -665,6 +649,7 @@ function aesgcm_decrypt(encrypted) {
     console.log("Key", key);
     var iv = IntToByteArray(counter);
     while (iv.length < 12) iv.push(0);
+    iv = Uint8Array.from(iv);
     console.log("IV", iv);
     var decipher = forge.cipher.createDecipher('AES-GCM', key);
     decipher.start({
@@ -691,6 +676,7 @@ function aesgcm_encrypt(plaintext) {
     console.log("Key", key);
     var iv = IntToByteArray(counter);
     while (iv.length < 12) iv.push(0);
+    iv = Uint8Array.from(iv);
     console.log("IV", iv);
     //Counter used as IV, unique for each message
     var cipher = forge.cipher.createCipher('AES-GCM', key);
@@ -709,6 +695,25 @@ function aesgcm_encrypt(plaintext) {
     ciphertext = ciphertext.toHex();
     resolve(ciphertext.match(/.{2}/g).map(hexStrToDec));
   });
+}
+
+async function test_encryption () {
+  appKey = nacl.box.keyPair();
+  shared = appKey.secretKey;
+  var keybuffer = new ArrayBuffer(32);
+  key = sha256(shared);
+  key.map(function(value, i){keybuffer[i] = value});
+  console.info("Key", keybuffer);
+  var plaintext = str2buf(buf2str(keybuffer));
+  aeskey = await crypto.subtle.importKey("raw", keybuffer, "AES-GCM", false, ["encrypt", "decrypt"]);
+  var encrypted = await aesencrypt(plaintext);
+  console.info("encrypted", encrypted);
+  var decrypted = await aesdecrypt(encrypted);
+  console.info("decrypted", decrypted);
+  var encrypted2 = await aesgcm_encrypt(decrypted);
+  console.info("encrypted2", encrypted2);
+  var decrypted2 = await aesgcm_decrypt(encrypted2);
+  console.info("decrypted2", decrypted2);
 }
 
 /**
@@ -763,7 +768,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var challenge = mkchallenge();
-    //while (message.length < 64) message.push(0);
+    while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
     var b64keyhandle = bytes2b64(encryptedkeyHandle)
     var req = { "challenge": challenge, "keyHandle": b64keyhandle,
