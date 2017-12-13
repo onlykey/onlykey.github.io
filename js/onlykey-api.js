@@ -643,12 +643,16 @@ function aesdecrypt(ciphertext) {
     }
 }
 
-function toBytesInt32 (num) {
-    arr = new ArrayBuffer(12); // an Int32 takes 4 bytes
-    view = new DataView(arr);
-    view.setUint32(0, num, false); // byteOffset = 0; litteEndian = false
-    return arr;
-}
+longToByteArray = function(/*long*/long) {
+    // we want to represent the input as a 8-bytes array
+    var byteArray = [0, 0, 0, 0, 0, 0, 0, 0];
+    for ( var index = 0; index < byteArray.length; index ++ ) {
+        var byte = long & 0xff;
+        byteArray [ index ] = byte;
+        long = (long - byte) / 256 ;
+    }
+    return byteArray;
+};
 
 //Function to decrypt
 function aesgcm_decrypt(encrypted) {
@@ -656,7 +660,7 @@ function aesgcm_decrypt(encrypted) {
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
-    var iv = toBytesInt32(counter);
+    var iv = longToByteArray(counter);
     iv = Uint8Array.from(iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4));
     //var iv = iv + iv + iv; //Counter used as IV, unique for each message
     // decrypt some bytes using GCM mode
@@ -682,7 +686,7 @@ function aesgcm_encrypt(plaintext) {
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
-    var iv = Uint8Array.from(toBytesInt32(counter));
+    var iv = Uint8Array.from(longToByteArray(counter));
     console.log("IV", iv);
     iv = Uint8Array.from(sha256(iv));
     //Counter used as IV, unique for each message
