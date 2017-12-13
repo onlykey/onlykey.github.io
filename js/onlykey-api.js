@@ -660,7 +660,7 @@ function aesgcm_decrypt(encrypted) {
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
     var iv = IntToByteArray(counter);
-    iv = iv + iv + iv;
+    while (iv.length < 12) iv.push(0);
     console.log("IV", iv);
     var decipher = forge.cipher.createDecipher('AES-GCM', key);
     decipher.start({
@@ -684,7 +684,7 @@ function aesgcm_encrypt(plaintext) {
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
     var iv = IntToByteArray(counter);
-    iv = iv + iv + iv;
+    while (iv.length < 12) iv.push(0);
     console.log("IV", iv);
     iv = Uint8Array.from(sha256(iv));
     //Counter used as IV, unique for each message
@@ -760,6 +760,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var challenge = mkchallenge();
+    while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
     var b64keyhandle = bytes2b64(encryptedkeyHandle)
     var req = { "challenge": challenge, "keyHandle": b64keyhandle,
