@@ -647,9 +647,9 @@ function aesdecrypt(ciphertext) {
 
 IntToByteArray = function(int) {
     var byteArray = [0, 0, 0, 0];
-    for ( var index = 0; index < byteArray.length; index ++ ) {
+    for ( var index = 0; index < 4; index ++ ) {
         var byte = int & 0xff;
-        byteArray [ (byteArray.length - index) ] = byte;
+        byteArray [ (4 - index) ] = byte;
         int = (int - byte) / 256 ;
     }
     return byteArray;
