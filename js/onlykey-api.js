@@ -687,7 +687,7 @@ function aesgcm_encrypt(plaintext) {
     console.log("Key", key);
     var iv = toBytesInt32(counter);
     while (iv.length < 12) {
-      iv.unshift(0);
+      iv.push(0);
     }
     console.log("IV", iv);
     iv = Uint8Array.from(sha256(iv));
