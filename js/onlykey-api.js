@@ -203,9 +203,9 @@ async function msg_polling(params = {}, cb) {
   var challenge = mkchallenge();
   var req = { "challenge": challenge, "keyHandle": keyHandle,
                "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], async function(response) {
-    var result = await custom_auth_response(response);
-    var data = await Promise;
+  u2f.sign(appId, challenge, [req], function(response) {
+    var result = custom_auth_response(response);
+    let data;
     if (result == 2) {
         msg("Polling succeeded but no data was received");
         return;
@@ -224,12 +224,10 @@ async function msg_polling(params = {}, cb) {
         msg("HW generated entropy: " + hw_RNG.entropy);
         var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
         console.info("AES Key", key);
-        data = 0;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
-      data = 0;
     } else if (type == 2) {
       if (result) {
         var pubkey = result.slice(0, 1); //slot number containing matching key
@@ -266,7 +264,6 @@ async function msg_polling(params = {}, cb) {
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
     }
-
     if (typeof cb === 'function') cb(null, data);
   }, 3+(browserid/64));
 }
@@ -393,14 +390,12 @@ async function auth_ping() {
   var b64keyhandle = bytes2b64(encryptedkeyHandle);
   var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                "appId": appId, "version": version };
-  var result;
     u2f.sign(appId, challenge, [req], function(response) {
-      result = custom_auth_response(response);
+      var result = custom_auth_response(response);
       if (result == 5) {
         _setStatus('done_code');
-        return;
-      }
-      console.info("Ping " + (result ? "Successful" : "Failed"));
+        console.info("Ping Failed"));
+      } else console.info("Ping Successful");
     }, 2.5+(browserid/64));
 }
 
