@@ -659,7 +659,7 @@ IntToByteArray = function(int) {
 function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
     counter++;
-    counter = 0;
+    counter = 1;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
@@ -685,7 +685,7 @@ function aesgcm_decrypt(encrypted) {
 function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
     counter++;
-    counter = 0;
+    counter = 1;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
