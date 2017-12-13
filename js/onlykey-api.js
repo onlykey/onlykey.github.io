@@ -682,7 +682,7 @@ function aesgcm_encrypt(plaintext) {
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
-    var iv = toBytesInt32(counter);
+    var iv = Uint8Array.from(toBytesInt32(counter));
     while (iv.length < 12) {
       iv.push(0);
     }
