@@ -390,13 +390,13 @@ async function auth_ping() {
   var b64keyhandle = bytes2b64(encryptedkeyHandle);
   var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                "appId": appId, "version": version };
-    u2f.sign(appId, challenge, [req], function(response) {
-      var result = custom_auth_response(response);
-      if (result == 5) {
-        _setStatus('done_code');
-        console.info("Ping Failed"));
-      } else console.info("Ping Successful");
-    }, 2.5+(browserid/64));
+  u2f.sign(appId, challenge, [req], function(response) {
+    var result = custom_auth_response(response);
+    if (result == 5) {
+      _setStatus('done_code');
+      console.info("Ping Failed");
+    } else console.info("Ping Successful");
+  }, 2.5+(browserid/64));
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
