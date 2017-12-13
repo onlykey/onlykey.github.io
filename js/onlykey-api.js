@@ -686,7 +686,9 @@ function aesgcm_encrypt(plaintext) {
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
     var iv = toBytesInt32(counter);
-    iv = Uint8Array.from(sha256((iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4))));
+    iv = (iv.slice(0,4)+iv.slice(0,4)+iv.slice(0,4);
+    console.log("IV", iv);
+    iv = Uint8Array.from(sha256(iv);
     //Counter used as IV, unique for each message
     iv = iv.slice(0, 12);
     console.log("IV", iv);
