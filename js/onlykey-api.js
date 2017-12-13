@@ -20,7 +20,7 @@ var aeskey;
 var _status;
 var pin;
 var poll_type, poll_delay;
-var custom_keyid;0
+var custom_keyid;
 var msgType;
 var keySlot;
 const OKDECRYPT = 240;
@@ -42,7 +42,7 @@ async function init() {
   console.info("Chrome browser (Default)");
 }
   appKey = nacl.box.keyPair();
-  //testing
+    /*testing
   shared = appKey.secretKey;
   var keybuffer = new ArrayBuffer(32);
   key = sha256(shared);
@@ -59,7 +59,8 @@ async function init() {
   console.info("encrypted2", encrypted2);
   var decrypted2 = await aesgcm_decrypt(encrypted2);
   console.info("decrypted2", decrypted2);
-  //msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+  */
+  msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 
   if (typeof(button) !== "undefined" && button !== null) {
     updateStatusFromSelection();
