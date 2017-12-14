@@ -555,7 +555,9 @@ async function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
+    counter-=2;
     var decryptedparsedData = await aesgcm_decrypt(parsedData);
+    counter++;
     console.info("Parsed Data: ", decryptedparsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
       //Using Firefox Quantums incomplete U2F implementation... so bad
