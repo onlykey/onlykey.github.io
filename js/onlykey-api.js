@@ -211,8 +211,10 @@ async function msg_polling(params = {}, cb) {
     var data = await Promise;
     if (result == 2) {
         msg("Polling succeeded but no data was received");
-        return 2;
-    } else if (result <= 5) return 5;
+        data = 2;
+    } else if (result <= 5) {
+      data = 5;
+    }
     if (type == 1) {
       if (result) {
         okPub = result.slice(21, 53);
@@ -396,10 +398,8 @@ async function auth_ping() {
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
-    if (result == 5) {
-      _setStatus('done_code');
-      counter--;
-      console.info("Ping Failed");
+    if (_status === 'done_code') {
+      console.info("Ping Timed Out");
     } else console.info("Ping Successful");
   }, 2.5+(browserid/64));
 }
@@ -540,6 +540,8 @@ async function custom_auth_response(response) {
         _setStatus('bad_data');
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
+        _setStatus('done_code');
+        counter--;
         return 5;
       } else if (err) {
         console.info("Failed with error code ", err);
@@ -818,9 +820,11 @@ window.doPinTimer = function (seconds) {
 
     if (_status === 'done_code') {
       msg(`Delay ${poll_delay} seconds`);
+      var result = await custom_auth_response(response);
       return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
         if (data<=5){
+           counter--;
            data = msg_polling({ type: poll_type, delay: 0 });
         }
         resolve(data);
