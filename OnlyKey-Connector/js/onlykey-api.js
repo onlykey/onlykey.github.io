@@ -264,7 +264,6 @@ async function msg_polling(params = {}, cb) {
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
 async function auth_ping() {
-  return;
   console.info("Sending Ping Request to OnlyKey");
   if (_status === 'done_code') return;
   var message = [255, 255, 255, 255]; //Add header and message type
@@ -692,7 +691,7 @@ async function u2fSignBuffer(params, mainCallback) {
      console.info("Handlekey bytes ", message);
      console.info("Sending Handlekey ", encryptedkeyHandle);
      console.info("Sending challenge ", challenge);
-
+    await wait(1000);
     u2f.sign(appId, challenge, [req], async function(response) {
       var result = await custom_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
