@@ -184,7 +184,7 @@ async function msg_polling(params = {}, cb) {
     console.info("Application ECDH Public Key: ", appKey.publicKey);
     Array.prototype.push.apply(message, appKey.publicKey);
     Array.prototype.push.apply(message, empty);
-    var keyHandle = bytes2b64(message);
+    var b64keyhandle = bytes2b64(message);
     counter = 0;
   } else if (type == 2) { //OKGETPUB
       var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
@@ -192,16 +192,18 @@ async function msg_polling(params = {}, cb) {
       var empty = new Array(50).fill(0);
       Array.prototype.push.apply(message, custom_keyid);
       Array.prototype.push.apply(message, empty);
-      var keyHandle = await aesgcm_encrypt(message);
-      keyHandle = bytes2b64(message);
+      while (message.length < 64) message.push(0);
+      var encryptedkeyHandle = await aesgcm_encrypt(message);
+      var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } else { //Get Response From OKSIGN or OKDECRYPT
       var message = new Array(64).fill(255);
       message[4] = (OKGETRESPONSE-browserid);
-      var keyHandle = await aesgcm_encrypt(message);
-      keyHandle = bytes2b64(keyHandle);
+      while (message.length < 64) message.push(0);
+      var encryptedkeyHandle = await aesgcm_encrypt(message);
+      var b64keyhandle = bytes2b64(encryptedkeyHandle);
   }
   var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
+  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
