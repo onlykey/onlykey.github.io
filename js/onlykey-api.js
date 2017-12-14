@@ -199,6 +199,7 @@ async function msg_polling(params = {}, cb) {
       var message = new Array(64).fill(255);
       message[4] = (OKGETRESPONSE-browserid);
       while (message.length < 64) message.push(0);
+      counter++;
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
   }
@@ -397,6 +398,7 @@ async function auth_ping() {
     var result = await custom_auth_response(response);
     if (result == 5) {
       _setStatus('done_code');
+      counter--;
       console.info("Ping Failed");
     } else console.info("Ping Successful");
   }, 2.5+(browserid/64));
@@ -530,7 +532,6 @@ async function custom_auth_response(response) {
         _setStatus('bad_data');
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
-        counter--;
         return 5;
       } else if (err) {
         console.info("Failed with error code ", err);
