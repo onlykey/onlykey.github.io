@@ -393,8 +393,8 @@ async function auth_ping() {
   var b64keyhandle = bytes2b64(encryptedkeyHandle);
   var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
                "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = custom_auth_response(response);
+  u2f.sign(appId, challenge, [req], async function(response) {
+    var result = await custom_auth_response(response);
     if (result == 5) {
       _setStatus('done_code');
       console.info("Ping Failed");
