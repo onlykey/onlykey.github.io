@@ -406,6 +406,10 @@ async function auth_ping() {
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
+  if (sharedsec === 'undefined'){
+    button.textContent = "Insert OnlyKey and reload page";
+    return;
+  }
   cb = cb || noop;
   if (ct.length == 396) {
     poll_delay = 5; //5 Second delay for RSA 3072
@@ -424,6 +428,10 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
+  if (sharedsec === 'undefined'){
+    button.textContent = "Insert OnlyKey and reload page";
+    return;
+  }
   var pin_hash = sha256(ct);
   cb = cb || noop;
   msg("Signature Packet bytes " + Array.from(ct));
