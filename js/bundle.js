@@ -69580,19 +69580,16 @@ class Pgp2go {
         default:
       }
       this.loadPrivate();
-      button.textContent = "Decrypting message ...";
       kbpgp.unbox({
               keyfetch: ring,
               armored: ct
           }, (err, ct) => {
           if (err)
               return void this.showError(err);
-
+          if (button.textContent === 'Decrypting message ...') {
           button.textContent = "Done :)";
-          messagebox.value = ct;
-          messagebox.focus();
-          messagebox.select();
-          if (recipient_public_key != 'undefined') {
+          } else {
+
             var ds = recipient_public_key = null;
               ds = ct[0].get_data_signer();
               console.log(ds);
@@ -69607,8 +69604,10 @@ class Pgp2go {
                 button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
               }
           }
+          messagebox.value = ct;
+          messagebox.focus();
+          messagebox.select();
           button.classList.remove("working")
-
       });
   }
 
