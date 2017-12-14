@@ -9,7 +9,7 @@ window.addEventListener('message', function (event) {
 	}
 });
 
-function handleMessage(params = {}) {
+async function handleMessage(params = {}) {
 	msg(`handleMessage params:`);
 	msgObjectProps(params);
 
@@ -36,6 +36,8 @@ function handleMessage(params = {}) {
 		case 'ENCRYPT':
 			options.ct = event.data.cipherText;
 			options.poll_delay = event.data.poll_delay;
+			init();
+			await wait(2);
 			auth_sign(options, data => respondToEncrypt({
 				extensionId,
 				ok_sig: data
