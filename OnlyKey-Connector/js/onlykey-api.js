@@ -31,7 +31,7 @@ const OKGETRESPONSE = 242;
 const OKPING = 243;
 
 async function init() {
-  msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+  await msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 }
 
 function id(s) { return document.getElementById(s); }

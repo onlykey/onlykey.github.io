@@ -36,8 +36,7 @@ async function handleMessage(params = {}) {
 		case 'ENCRYPT':
 			options.ct = event.data.cipherText;
 			options.poll_delay = event.data.poll_delay;
-			init();
-			await wait(2);
+			await init();
 			auth_sign(options, data => respondToEncrypt({
 				extensionId,
 				ok_sig: data
