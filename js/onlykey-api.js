@@ -801,7 +801,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 window.doPinTimer = function (seconds) {
 
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
-    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
+    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
 
     if (secondsRemaining <= 0) {
       const err = 'Time expired for PIN confirmation';
@@ -810,10 +810,13 @@ window.doPinTimer = function (seconds) {
 
     if (_status === 'done_code') {
       msg(`Delay ${poll_delay} seconds`);
-      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
-        resolve(data);
-      });
+      return new Promise(resolve => {
+          var data = 0;
+          while (data <= 5) {
+          data = msg_polling({ type: poll_type, delay: poll_delay });
+          }
+          resolve(data);
+        });
     }
 
     setButtonTimerMessage(secondsRemaining);
