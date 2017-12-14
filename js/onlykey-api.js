@@ -211,8 +211,8 @@ async function msg_polling(params = {}, cb) {
     var data = await Promise;
     if (result == 2) {
         msg("Polling succeeded but no data was received");
-        return;
-    } else if (result <= 5) return;
+        return 2;
+    } else if (result <= 5) return 5;
     if (type == 1) {
       if (result) {
         okPub = result.slice(21, 53);
