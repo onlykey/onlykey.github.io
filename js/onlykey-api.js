@@ -810,13 +810,13 @@ window.doPinTimer = function (seconds) {
 
     if (_status === 'done_code') {
       msg(`Delay ${poll_delay} seconds`);
-      return new Promise(resolve => {
-          var data = 0;
-          while (data <= 5) {
-          data = msg_polling({ type: poll_type, delay: poll_delay });
-          }
-          resolve(data);
-        });
+      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
+        if (data<=5){
+           data = msg_polling({ type: poll_type, delay: 0 });
+        }
+        resolve(data);
+      });
     }
 
     setButtonTimerMessage(secondsRemaining);
