@@ -9,7 +9,7 @@ window.addEventListener('message', function (event) {
 	}
 });
 
-async function handleMessage(params = {}) {
+function handleMessage(params = {}) {
 	msg(`handleMessage params:`);
 	msgObjectProps(params);
 
