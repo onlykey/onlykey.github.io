@@ -14932,7 +14932,7 @@ _continue()
               }));
               __iced_deferrals._fulfill();
             })(function() {
-              return __iced_k(err != null ? err = new Error("Can't find sender's public key to verify message with) : void 0);
+              return __iced_k(err != null ? err = new Error("Can't find sender's public key to verify message with") : void 0);
             });
           } else {
             return __iced_k();
