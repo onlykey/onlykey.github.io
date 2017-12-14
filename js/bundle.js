@@ -69592,19 +69592,21 @@ class Pgp2go {
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
-          var ds = recipient_public_key = null;
-            ds = ct[0].get_data_signer();
-            console.log(ds);
-            if (ds) { recipient_public_key = ds.get_key_manager(); }
-            if (recipient_public_key) {
-              console.log("Signed by PGP Key");
-              var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex').toUpperCase();
-              keyid = keyid.slice(24, 40);
-              var userid = recipient_public_key.userids[0].components.email.split("@")[0];
-              console.log(keyid);
-              console.log(userid);
-              button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
-            }
+          if (recipient_public_key != 'undefined') {
+            var ds = recipient_public_key = null;
+              ds = ct[0].get_data_signer();
+              console.log(ds);
+              if (ds) { recipient_public_key = ds.get_key_manager(); }
+              if (recipient_public_key) {
+                console.log("Signed by PGP Key");
+                var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex').toUpperCase();
+                keyid = keyid.slice(24, 40);
+                var userid = recipient_public_key.userids[0].components.email.split("@")[0];
+                console.log(keyid);
+                console.log(userid);
+                button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
+              }
+          }
           button.classList.remove("working")
 
       });
