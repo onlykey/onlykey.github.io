@@ -14932,7 +14932,7 @@ _continue()
               }));
               __iced_deferrals._fulfill();
             })(function() {
-              return __iced_k(err != null ? err = new Error("Can't find a key for " + (a.toString('hex')) + ": " + err.message) : void 0);
+              return __iced_k(err != null ? err = new Error("Can't find sender's public key to verify message with) : void 0);
             });
           } else {
             return __iced_k();
@@ -69590,20 +69590,23 @@ class Pgp2go {
           if (Decrypt_Only) {
           button.textContent = "Done :)";
           } else {
-
             var ds = recipient_public_key = null;
               ds = ct[0].get_data_signer();
-              console.log(ds);
-              if (ds) { recipient_public_key = ds.get_key_manager(); }
-              if (recipient_public_key) {
-                console.log("Signed by PGP Key");
-                var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex').toUpperCase();
-                keyid = keyid.slice(24, 40);
-                var userid = recipient_public_key.userids[0].components.email.split("@")[0];
-                console.log(keyid);
-                console.log(userid);
-                button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
+              if (ds == null) {
+                button.textContent = "Done :) Message has no signature ";
+              } else {
+                console.log(ds);
+                if (ds) { recipient_public_key = ds.get_key_manager(); }
+                if (recipient_public_key) {
+                  console.log("Signed by PGP Key");
+                  var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex').toUpperCase();
+                  keyid = keyid.slice(24, 40);
+                  var userid = recipient_public_key.userids[0].components.email.split("@")[0];
+                  console.log(keyid);
+                  console.log(userid);
+                  button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
               }
+            }
           }
           messagebox.value = ct;
           messagebox.focus();
