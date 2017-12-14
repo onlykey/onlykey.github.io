@@ -69576,6 +69576,7 @@ class Pgp2go {
           break;
         case 'Decrypt Only':
           button.textContent = 'Decrypting message ...';
+          var Decrypt_Only = true;
           break;
         default:
       }
@@ -69586,7 +69587,7 @@ class Pgp2go {
           }, (err, ct) => {
           if (err)
               return void this.showError(err);
-          if (button.textContent === 'Decrypting message ...') {
+          if (Decrypt_Only) {
           button.textContent = "Done :)";
           } else {
 
