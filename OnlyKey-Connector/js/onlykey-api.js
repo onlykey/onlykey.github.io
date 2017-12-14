@@ -156,7 +156,7 @@ async function msg_polling(params = {}, cb) {
   await wait(delay);
   msg("Requesting response from OnlyKey");
   if (type == 1) { //OKSETTIME
-    var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
+    var message = [255, 255, 255, 255, OKSETTIME]; //Same header and message type used in App
     var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
     msg("Setting current time on OnlyKey to " + new Date());
     var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
@@ -172,7 +172,7 @@ async function msg_polling(params = {}, cb) {
     var b64keyhandle = bytes2b64(message);
     counter = 0;
   } else if (type == 2) { //OKGETPUB
-      var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
+      var message = [255, 255, 255, 255, OKGETPUBKEY]; //Add header and message type
       msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
       var empty = new Array(50).fill(0);
       Array.prototype.push.apply(message, custom_keyid);
@@ -182,7 +182,7 @@ async function msg_polling(params = {}, cb) {
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } else { //Get Response From OKSIGN or OKDECRYPT
       var message = new Array(64).fill(255);
-      message[4] = (OKGETRESPONSE-browserid);
+      message[4] = OKGETRESPONSE;
       while (message.length < 64) message.push(0);
       counter++;
       var encryptedkeyHandle = await aesgcm_encrypt(message);
@@ -258,7 +258,7 @@ async function msg_polling(params = {}, cb) {
     }
 
     if (typeof cb === 'function') cb(null, data);
-  }, 3+(browserid/64));
+  }, 3);
 }
 
 
@@ -268,7 +268,7 @@ async function auth_ping() {
   if (_status === 'done_code') return;
   var message = [255, 255, 255, 255]; //Add header and message type
   var ciphertext = new Uint8Array(60).fill(0);
-  ciphertext[0] = (OKPING-browserid);
+  ciphertext[0] = OKPING;
   Array.prototype.push.apply(message, ciphertext);
   var challenge = mkchallenge();
   while (message.length < 64) message.push(0);
@@ -281,7 +281,7 @@ async function auth_ping() {
     if (_status === 'done_code') {
       console.info("Ping Timed Out");
     } else console.info("Ping Successful");
-  }, 2.5+(browserid/64));
+  }, 2.5);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -409,7 +409,7 @@ async function custom_auth_response(response) {
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
   console.info(errMes);
-  if (browserid != 128) { //Chrome
+
     if (err) {
       if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
         console.info("Ack message received");
@@ -447,9 +447,7 @@ async function custom_auth_response(response) {
       }
     return 2;
     }
-  } else if (err) {
-    return 5;
-  }
+
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
   var U2Fcounter = sigData.slice(1,5);
