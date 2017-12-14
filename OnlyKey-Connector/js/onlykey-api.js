@@ -289,7 +289,7 @@ async function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyH
   await init();
   await wait(1500);
   if (sharedsec === 'undefined'){
-    button.textContent = "Insert OnlyKey and reload page";
+    //button.textContent = "Insert OnlyKey and reload page";
     return;
   }
   params = {
@@ -321,7 +321,7 @@ async function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
   await init();
   await wait(1500);
   if (sharedsec === 'undefined'){
-    button.textContent = "Insert OnlyKey and reload page";
+    //button.textContent = "Insert OnlyKey and reload page";
     return;
   }
   params = {
@@ -420,24 +420,24 @@ async function custom_auth_response(response) {
       } else if (errMes === "device status code: -80") { //incorrect challenge code entered
           if (_status === 'pending_pin') {
           console.info("incorrect challenge code entered");
-          button.textContent = "Incorrect challenge code entered";
+          //button.textContent = "Incorrect challenge code entered";
           _setStatus('wrong_code');
         }
       } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
         console.info("key type not set as signature/decrypt");
-        button.textContent = "key type not set as signature/decrypt";
+        //button.textContent = "key type not set as signature/decrypt";
         _setStatus('wrong_type');
       } else if (errMes === "device status code: -82") { //no key set in this slot
         console.info("no key set in this slot");
-        button.textContent = "no key set in this slot";
+        //button.textContent = "no key set in this slot";
         _setStatus('no_key');
       } else if (errMes === "device status code: -83") { //invalid key, key check failed
         console.info("invalid key, key check failed");
-        button.textContent = "invalid key, key check failed";
+        //button.textContent = "invalid key, key check failed";
         _setStatus('bad_key');
       } else if (errMes === "device status code: -84") { //invalid data, or data does not match key
         console.info("invalid data, or data does not match key");
-        button.textContent = "invalid data, or data does not match key";
+        //button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
@@ -475,23 +475,23 @@ async function custom_auth_response(response) {
         console.info("Ack message received");
       } else if(decryptedparsedData[6] == 1) {
         console.info("incorrect challenge code entered");
-        button.textContent = "Incorrect challenge code entered";
+        //button.textContent = "Incorrect challenge code entered";
         _setStatus('wrong_code');
       } else if (decryptedparsedData[6] == 2) {
         console.info("key type not set as signature/decrypt");
-        button.textContent = "key type not set as signature/decrypt";
+        //button.textContent = "key type not set as signature/decrypt";
         _setStatus('wrong_type');
       } else if (decryptedparsedData[6] == 3) {
         console.info("no key set in this slot");
-        button.textContent = "no key set in this slot";
+        //button.textContent = "no key set in this slot";
         _setStatus('no_key');
       } else if (decryptedparsedData[6] == 4) {
         console.info("invalid key, key check failed");
-        button.textContent = "invalid key, key check failed";
+        //button.textContent = "invalid key, key check failed";
         _setStatus('bad_key');
       } else if (decryptedparsedData[6] == 5) {
         console.info("invalid data, or data does not match key");
-        button.textContent = "invalid data, or data does not match key";
+        //button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
       }
       return 2;
