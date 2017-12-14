@@ -396,9 +396,9 @@ function process_auth_response(response) {
   var m = bcat([sha256(appid), sigData.slice(0,5), sha256(clientData_bytes)]);
   if (!key.verify(sha256(m), sig)) return false;
   var userPresent = sigData[0];
-  var counter = new BN(sigData.slice(1,5)).toNumber();
+  var counter2 = new BN(sigData.slice(1,5)).toNumber();
   msg("User present: " + userPresent);
-  msg("Counter: " + counter);
+  msg("Counter: " + counter2);
   return true;
 }
 
