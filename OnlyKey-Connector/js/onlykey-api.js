@@ -264,7 +264,6 @@ async function msg_polling(params = {}, cb) {
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
 async function auth_ping() {
-  await wait(1000);
   console.info("Sending Ping Request to OnlyKey");
   if (_status === 'done_code') return;
   var message = [255, 255, 255, 255]; //Add header and message type
