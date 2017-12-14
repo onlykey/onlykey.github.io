@@ -667,7 +667,7 @@ function buf2hex(buffer) {
     .join("");
 }
 
-function u2fSignBuffer(params, mainCallback) {
+async function u2fSignBuffer(params, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
     var message = [255, 255, 255, 255, params.msgType, params.keySlot]; //Add header, message type, and key to use
     var maxPacketSize = 57;
