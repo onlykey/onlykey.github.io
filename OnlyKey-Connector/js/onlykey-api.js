@@ -15,13 +15,14 @@ var appKey;
 var appPub;
 var appPubPart;
 var okPub;
-var shared;
+var sharedsec;
 
 var pin;
 var poll_type, poll_delay;
 var custom_keyid;
 var msgType;
 var keySlot;
+var counter = 0;
 const OKDECRYPT = 240;
 const OKSIGN = 237;
 const OKSETTIME = 228;
@@ -29,7 +30,7 @@ const OKGETPUBKEY = 236;
 const OKGETRESPONSE = 242;
 const OKPING = 243;
 
-function init() {
+async function init() {
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
 }
 
@@ -146,132 +147,149 @@ function auth_local() {
     msg("Finsihed");
 }
 
+let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 //Function to send and retrive custom U2F messages
-function msg_polling(params = {}, cb) {
+async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
-
-  setTimeout(() => {
-    msg("Requesting response from OnlyKey");
-    if (type == 1) { //OKSETTIME
-      var message = [255, 255, 255, 255, OKSETTIME]; //Same header and message type used in App
-      var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-      msg("Setting current time on OnlyKey to " + new Date());
-      var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-      var empty = new Array(23).fill(0);
-      Array.prototype.push.apply(message, timePart);
-      appKey = curve25519.genKeyPair();
-      appPub = appKey.getPublic();
-      appPubPart = appPub.encode('hex').match(/.{2}/g).map(hexStrToDec);
-      msg("Application ECDH Public Key: " + appPubPart);
-      Array.prototype.push.apply(message, appPubPart);
+  await wait(delay);
+  msg("Requesting response from OnlyKey");
+  if (type == 1) { //OKSETTIME
+    var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
+    var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+    msg("Setting current time on OnlyKey to " + new Date());
+    var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+    var empty = new Array(23).fill(0);
+    Array.prototype.push.apply(message, timePart);
+    appKey = nacl.box.keyPair();
+    console.info(appKey);
+    console.info(appKey.publicKey);
+    console.info(appKey.secretKey);
+    console.info("Application ECDH Public Key: ", appKey.publicKey);
+    Array.prototype.push.apply(message, appKey.publicKey);
+    Array.prototype.push.apply(message, empty);
+    var b64keyhandle = bytes2b64(message);
+    counter = 0;
+  } else if (type == 2) { //OKGETPUB
+      var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
+      msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
+      var empty = new Array(50).fill(0);
+      Array.prototype.push.apply(message, custom_keyid);
       Array.prototype.push.apply(message, empty);
-      var keyHandle = bytes2b64(message);
-    } else if (type == 2) { //OKGETPUB
-        var message = [255, 255, 255, 255, OKGETPUB]; //Add header and message type
-        msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
-        var empty = new Array(50).fill(0);
-        Array.prototype.push.apply(message, custom_keyid);
-        Array.prototype.push.apply(message, empty);
-        var keyHandle = bytes2b64(message);
-    } else { //OKSIGN or OKDECRYPT
-        var keyHandle = new Array(64).fill(255);
-        keyHandle[4] = OKGETRESPONSE;
-        keyHandle = bytes2b64(keyHandle);
+      while (message.length < 64) message.push(0);
+      var encryptedkeyHandle = await aesgcm_encrypt(message);
+      var b64keyhandle = bytes2b64(encryptedkeyHandle);
+  } else { //Get Response From OKSIGN or OKDECRYPT
+      var message = new Array(64).fill(255);
+      message[4] = (OKGETRESPONSE-browserid);
+      while (message.length < 64) message.push(0);
+      counter++;
+      var encryptedkeyHandle = await aesgcm_encrypt(message);
+      var b64keyhandle = bytes2b64(encryptedkeyHandle);
+  }
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
+               "appId": appId, "version": version };
+  u2f.sign(appId, challenge, [req], async function(response) {
+    var result = await custom_auth_response(response);
+    var data = await Promise;
+    if (result == 2) {
+        msg("Polling succeeded but no data was received");
+        data = 2;
+    } else if (result <= 5) {
+      data = 5;
     }
-    var challenge = mkchallenge();
-    var req = { "challenge": challenge, "keyHandle": keyHandle,
-                 "appId": appId, "version": version };
-    u2f.sign(appId, challenge, [req], function(response) {
-      var result = custom_auth_response(response);
-      let data;
-      if (result == 2) {
-          msg("Polling succeeded but no data was received");
-          return;
-      } else if (result <= 5) return;
-      if (type == 1) {
-        if (result) {
-          okPub = result.slice(0, 32);
-          msg("OnlyKey ECDH Public Key: " + okPub );
-          okPub = curve25519.keyFromPublic(result.slice(0, 32), 'der');
-          OKversion = result[51] == 99 ? 'Color' : 'Original';
-          var FWversion = bytes2string(result.slice(40, 52));
-          msg("OnlyKey " + OKversion + " " + FWversion);
-          headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
-          hw_RNG.entropy = result.slice(53, result.length);
-          msg("HW generated entropy: " + hw_RNG.entropy);
-          shared = appKey.derive(okPub.getPublic());
-          msg("ECDH shared: " + shared);
-        } else {
-          msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-          headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        }
-      } else if (type == 2) {
-        if (result) {
-          var pubkey = result.slice(0, 1); //slot number containing matching key
-          msg("Public Key found in slot" + pubkey);
-          var entropy = result.slice(2, result.length);
+    if (type == 1) {
+      if (result) {
+        okPub = result.slice(21, 53);
+        console.info("OnlyKey Public Key: ", okPub );
+        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+        console.info("NACL shared secret: ", sharedsec );
+        OKversion = result[19] == 99 ? 'Color' : 'Original';
+        var FWversion = bytes2string(result.slice(8, 20));
+        msg("OnlyKey " + OKversion + " " + FWversion);
+        headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
+        hw_RNG.entropy = result.slice(53, result.length);
+        msg("HW generated entropy: " + hw_RNG.entropy);
+        var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+        console.info("AES Key", key);
+        data = 0;
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+      data = 0;
+    } else if (type == 2) {
+      if (result) {
+        var pubkey = result.slice(0, 1); //slot number containing matching key
+        msg("Public Key found in slot" + pubkey);
+        var entropy = result.slice(2, result.length);
+        msg("HW generated entropy" + entropy);
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+      data = pubkey;
+    } else if (type == 3) {
+      if (result) {
+        if (result.length == 64) {
+          var sessKey = result.slice(0, 35);
+          var entropy = result.slice(36, 64);
           msg("HW generated entropy" + entropy);
         } else {
-          msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-          headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+          var sessKey = result.slice(0, result.length);
         }
-      } else if (type == 3) {
-        if (result) {
-          if (result.length == 64) {
-            var sessKey = result.slice(0, 35);
-            var entropy = result.slice(36, 64);
-            msg("HW generated entropy" + entropy);
-          } else {
-            var sessKey = result.slice(0, result.length);
-          }
-          msg("Session Key " + sessKey);
-          data = sessKey;
-        } else {
-          msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-          headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        }
-      } else if (type == 4) {
-        if (result) {
-          var oksignature = result.slice(0, result.length); //4+32+2+32
-          msg("Signed by OnlyKey " + oksignature);
-          data = oksignature;
-        } else {
-          msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-          headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        }
+        msg("Session Key " + sessKey);
+        data = sessKey;
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
+    } else if (type == 4) {
+      if (result) {
+        var oksignature = result.slice(0, result.length); //4+32+2+32
+        msg("Signed by OnlyKey " + oksignature);
+        data = oksignature;
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+    }
 
-      if (typeof cb === 'function') cb(null, data);
-    }, 3);
-  }, delay * 1000);
+    if (typeof cb === 'function') cb(null, data);
+  }, 3+(browserid/64));
 }
 
+
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
-function auth_ping() {
+async function auth_ping() {
+  console.info("Sending Ping Request to OnlyKey");
+  if (_status === 'done_code') return;
   var message = [255, 255, 255, 255]; //Add header and message type
-  msg("Sending Ping Request to OnlyKey");
   var ciphertext = new Uint8Array(60).fill(0);
-  ciphertext[0] = OKPING;
+  ciphertext[0] = (OKPING-browserid);
   Array.prototype.push.apply(message, ciphertext);
-  msg("Handlekey bytes " + message);
-  var keyHandle = bytes2b64(message);
-  msg("Sending Handlekey " + keyHandle);
   var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": keyHandle,
+  while (message.length < 64) message.push(0);
+  var encryptedkeyHandle = await aesgcm_encrypt(message);
+  var b64keyhandle = bytes2b64(encryptedkeyHandle);
+  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": version };
-  var result;
-  u2f.sign(appId, challenge, [req], function(response) {
-    result = custom_auth_response(response);
-    msg("Ping " + (result ? "Successful" : "Failed"));
-    if (result == 5) {
-      _setStatus('done_code');
-    }
-  }, 2.5);
+  u2f.sign(appId, challenge, [req], async function(response) {
+    var result = await custom_auth_response(response);
+    if (_status === 'done_code') {
+      console.info("Ping Timed Out");
+    } else console.info("Ping Successful");
+  }, 2.5+(browserid/64));
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
+  if (sharedsec === 'undefined'){
+    button.textContent = "Insert OnlyKey and reload page";
+    return;
+  }
   params = {
     msgType: params.msgType || OKDECRYPT,
     keySlot: params.keySlot || 1,
@@ -298,6 +316,10 @@ function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
+  if (sharedsec === 'undefined'){
+    button.textContent = "Insert OnlyKey and reload page";
+    return;
+  }
   params = {
     msgType: params.msgType || OKSIGN,
     keySlot: params.keySlot || 2,
@@ -381,81 +403,268 @@ function process_auth_response(response) {
 }
 
 //Function to parse custom U2F auth response
-function custom_auth_response(response) {
+async function custom_auth_response(response) {
   console.info("Response", response);
   var err = response['errorCode'];
   var errMes = response['errorMessage'];
   console.info("Response code ", err);
   console.info(errMes);
-  if (err) {
-    if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
-      console.info("Ack message received");
-    } else if (errMes === "device status code: -80") { //incorrect challenge code entered
-      console.info("incorrect challenge code entered");
-      button.textContent = "Incorrect challenge code entered";
-      _setStatus('wrong_code');
-    } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
-      console.info("key type not set as signature/decrypt");
-      button.textContent = "key type not set as signature/decrypt";
-      _setStatus('wrong_type');
-    } else if (errMes === "device status code: -82") { //no key set in this slot
-      console.info("no key set in this slot");
-      button.textContent = "no key set in this slot";
-      _setStatus('no_key');
-    } else if (errMes === "device status code: -83") { //invalid key, key check failed
-      console.info("invalid key, key check failed");
-      button.textContent = "invalid key, key check failed";
-      _setStatus('bad_key');
-    } else if (errMes === "device status code: -84") { //invalid data, or data does not match key
-      console.info("invalid data, or data does not match key");
-      button.textContent = "invalid data, or data does not match key";
-      _setStatus('bad_data');
-    } else if (err == 5) { //Ping failed meaning correct challenge entered
-      console.info("Timeout or challenge pin entered ");
-      return 5;
-    } else if (err) {
-      console.info("Failed with error code ", err);
-      //other error
-      return 1;
+  if (browserid != 128) { //Chrome
+    if (err) {
+      if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
+        console.info("Ack message received");
+      } else if (errMes === "device status code: -80") { //incorrect challenge code entered
+          if (_status === 'pending_pin') {
+          console.info("incorrect challenge code entered");
+          button.textContent = "Incorrect challenge code entered";
+          _setStatus('wrong_code');
+        }
+      } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
+        console.info("key type not set as signature/decrypt");
+        button.textContent = "key type not set as signature/decrypt";
+        _setStatus('wrong_type');
+      } else if (errMes === "device status code: -82") { //no key set in this slot
+        console.info("no key set in this slot");
+        button.textContent = "no key set in this slot";
+        _setStatus('no_key');
+      } else if (errMes === "device status code: -83") { //invalid key, key check failed
+        console.info("invalid key, key check failed");
+        button.textContent = "invalid key, key check failed";
+        _setStatus('bad_key');
+      } else if (errMes === "device status code: -84") { //invalid data, or data does not match key
+        console.info("invalid data, or data does not match key");
+        button.textContent = "invalid data, or data does not match key";
+        _setStatus('bad_data');
+      } else if (err == 5) { //Ping failed meaning correct challenge entered
+        console.info("Timeout or challenge pin entered ");
+        _setStatus('done_code');
+        counter--;
+        return 5;
+      } else if (err) {
+        console.info("Failed with error code ", err);
+        //other error
+        return 1;
+      }
+    return 2;
     }
-  return 2;
+  } else if (err) {
+    return 5;
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
-  var counter = sigData.slice(1,5);
+  var U2Fcounter = sigData.slice(1,5);
+  console.info("U2Fcounter: ", U2Fcounter);
   var parsedData = [];
   Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
   Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2))));
-  if (counter[0] + counter[1] + counter[2] + counter[3] == 0) { //unencrypted data
+  if (U2Fcounter[0] + U2Fcounter[1] + U2Fcounter[2] + U2Fcounter[3] == 0) { //unencrypted data
     console.info("Parsed Data: ", parsedData);
     return parsedData;
   }
   else { //encrypted data
-    //aesgcm_decrypt(parsedData)
-    console.info("Parsed Data: ", parsedData);
-    return parsedData;
+    counter-=2;
+    var decryptedparsedData = await aesgcm_decrypt(parsedData);
+    counter++;
+    console.info("Parsed Data: ", decryptedparsedData);
+    if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
+      //Using Firefox Quantums incomplete U2F implementation... so bad
+      console.info("Decode response message");
+      if (decryptedparsedData[6] == 0) {
+        console.info("Ack message received");
+      } else if(decryptedparsedData[6] == 1) {
+        console.info("incorrect challenge code entered");
+        button.textContent = "Incorrect challenge code entered";
+        _setStatus('wrong_code');
+      } else if (decryptedparsedData[6] == 2) {
+        console.info("key type not set as signature/decrypt");
+        button.textContent = "key type not set as signature/decrypt";
+        _setStatus('wrong_type');
+      } else if (decryptedparsedData[6] == 3) {
+        console.info("no key set in this slot");
+        button.textContent = "no key set in this slot";
+        _setStatus('no_key');
+      } else if (decryptedparsedData[6] == 4) {
+        console.info("invalid key, key check failed");
+        button.textContent = "invalid key, key check failed";
+        _setStatus('bad_key');
+      } else if (decryptedparsedData[6] == 5) {
+        console.info("invalid data, or data does not match key");
+        button.textContent = "invalid data, or data does not match key";
+        _setStatus('bad_data');
+      }
+      return 2;
+    }
+    return decryptedparsedData;
   }
 }
 
-//Function to parse custom U2F auth response
-function aesgcm_decrypt(encrypted) {
-  var key = sha256(shared); //AES256 key sha256 hash of shared secret
-  var iv = appPubPart.slice(0, 12); //App public used as IV, unique for each message
-  // decrypt some bytes using GCM mode
-  var decipher = forge.cipher.createDecipher('AES-GCM', key);
-  decipher.start({
-    iv: iv,
-    additionalData: 'binary-encoded string', // optional
-    tagLength: 128, // optional, defaults to 128 bits
-    tag: tag // authentication tag from encryption
-  });
-  decipher.update(encrypted);
-  var pass = decipher.finish();
-  // pass is false if there was a failure (eg: authentication tag didn't match)
-  if(pass) {
-    // outputs decrypted hex
-    console.log("Decrypted AES-GCM Hex", decipher.output.toHex());
+
+/**
+ * @param {Uint8Array} plaintext
+ * @returns {Promise<String>}
+ */
+function aesencrypt(plaintext) {
+  try {
+    var iv = IntToByteArray(counter);
+    while (iv.length < 12) iv.push(0);
+    console.log("IV", iv);
+    iv = Uint8Array.from(iv);
+    var data = Uint8Array.from(plaintext);
+    console.log("Data", data);
+    return crypto.subtle.encrypt({ name: "AES-GCM", iv}, aeskey, data).then(ciphertext => new Uint8Array(ciphertext));
+    }
+  catch(err) {
+    console.log("Error", err);
   }
+}
+
+
+/**
+ * @param {Uint8Array} ciphertext
+ * @returns {Promise<String>}
+ */
+function aesdecrypt(ciphertext) {
+    //var iv_part = Uint8Array.from(toBytesInt32(counter));
+    //var iv = new Uint8Array(12).fill(0);
+    //iv_part.map(function(value, i){iv[i] = value});
+    try {
+      var iv = IntToByteArray(counter);
+      while (iv.length < 12) iv.push(0);
+      iv = Uint8Array.from(iv);
+      console.log("IV", iv);
+      var data = Uint8Array.from(ciphertext);
+      console.log("Data", data);
+      return crypto.subtle.decrypt({ name: "AES-GCM", iv, }, aeskey, data).then(v => new Uint8Array(v));
+    }
+    catch(err) {
+      console.log("Error", err);
+    }
+}
+
+IntToByteArray = function(int) {
+    var byteArray = [0, 0, 0, 0];
+    for ( var index = 0; index < 4; index ++ ) {
+        var byte = int & 0xff;
+        byteArray [ (3 - index) ] = byte;
+        int = (int - byte) / 256 ;
+    }
+    return byteArray;
+};
+
+//Function to decrypt
+function aesgcm_decrypt(encrypted) {
+  return new Promise(resolve => {
+    counter++;
+    forge.options.usePureJavaScript = true;
+    var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+    console.log("Key", key);
+    var iv = IntToByteArray(counter);
+    while (iv.length < 12) iv.push(0);
+    iv = Uint8Array.from(iv);
+    console.log("IV", iv);
+    var decipher = forge.cipher.createDecipher('AES-GCM', key);
+    decipher.start({
+      iv: iv,
+      tagLength: 0, // optional, defaults to 128 bits
+    });
+    decipher.update(forge.util.createBuffer(Uint8Array.from(encrypted)));
+    var plaintext = decipher.output.toHex()
+    decipher.finish();
+
+    //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
+    //encrypted = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
+    resolve(plaintext.match(/.{2}/g).map(hexStrToDec));
+  });
+}
+
+//Function to encrypt
+function aesgcm_encrypt(plaintext) {
+  return new Promise(resolve => {
+    counter++;
+    forge.options.usePureJavaScript = true;
+    var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+    console.log("Key", key);
+    var iv = IntToByteArray(counter);
+    while (iv.length < 12) iv.push(0);
+    iv = Uint8Array.from(iv);
+    console.log("IV", iv);
+    //Counter used as IV, unique for each message
+    var cipher = forge.cipher.createCipher('AES-GCM', key);
+    cipher.start({
+      iv: iv, // should be a 12-byte binary-encoded string or byte buffer
+      tagLength: 0
+    });
+    console.log("Plaintext", plaintext);
+    cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
+    cipher.finish();
+    //plaintext = cipher.output;
+    //console.log("Encrypted AES-GCM Hex", plaintext.toHex());
+    //console.log("Encrypted AES-GCM Hex", cipher.output.getBytes());
+    //console.log("Encrypted AES-GCM Hex", forge.util.hexToBytes(cipher.output.toHex()));
+    var ciphertext = cipher.output;
+    ciphertext = ciphertext.toHex();
+    resolve(ciphertext.match(/.{2}/g).map(hexStrToDec));
+  });
+}
+
+async function test_encryption () {
+  appKey = nacl.box.keyPair();
+  shared = appKey.secretKey;
+  var keybuffer = new ArrayBuffer(32);
+  key = sha256(shared);
+  key.map(function(value, i){keybuffer[i] = value});
+  console.info("Key", keybuffer);
+  var plaintext = str2buf(buf2str(keybuffer));
+  aeskey = await crypto.subtle.importKey("raw", keybuffer, "AES-GCM", false, ["encrypt", "decrypt"]);
+  var encrypted = await aesencrypt(plaintext);
+  console.info("encrypted", encrypted);
+  var decrypted = await aesdecrypt(encrypted);
+  console.info("decrypted", decrypted);
+  var encrypted2 = await aesgcm_encrypt(decrypted);
+  console.info("encrypted2", encrypted2);
+  var decrypted2 = await aesgcm_decrypt(encrypted2);
+  console.info("decrypted2", decrypted2);
+}
+
+
+/**
+ * Encodes a utf8 string as a byte array.
+ * @param {String} str
+ * @returns {Uint8Array}
+ */
+function str2buf(str) {
+  return new TextEncoder("utf-8").encode(str);
+}
+
+/**
+ * Decodes a byte array as a utf8 string.
+ * @param {Uint8Array} buffer
+ * @returns {String}
+ */
+function buf2str(buffer) {
+  return new TextDecoder("utf-8").decode(buffer);
+}
+
+/**
+ * Decodes a string of hex to a byte array.
+ * @param {String} hexStr
+ * @returns {Uint8Array}
+ */
+function hex2buf(hexStr) {
+  return new Uint8Array(hexStr.match(/.{2}/g).map(h => parseInt(h, 16)));
+}
+
+/**
+ * Encodes a byte array as a string of hex.
+ * @param {Uint8Array} buffer
+ * @returns {String}
+ */
+function buf2hex(buffer) {
+  return Array.prototype.slice
+    .call(new Uint8Array(buffer))
+    .map(x => [x >> 4, x & 15])
+    .map(ab => ab.map(x => x.toString(16)).join(""))
+    .join("");
 }
 
 function u2fSignBuffer(params, mainCallback) {
@@ -470,13 +679,15 @@ function u2fSignBuffer(params, mainCallback) {
     params.ct = params.ct.slice(maxPacketSize);
     var cb = finalPacket ? doPinTimer.bind(null, 20, params) : u2fSignBuffer.bind(null, params, mainCallback);
 
-    var keyHandle = bytes2b64(message);
     var challenge = mkchallenge();
-    var req = { "challenge": challenge, "keyHandle": keyHandle,
+    while (message.length < 64) message.push(0);
+    var encryptedkeyHandle = await aesgcm_encrypt(message);
+    var b64keyhandle = bytes2b64(encryptedkeyHandle);
+    var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                  "appId": appId, "version": version };
 
      console.info("Handlekey bytes ", message);
-     console.info("Sending Handlekey ", keyHandle);
+     console.info("Sending Handlekey ", encryptedkeyHandle);
      console.info("Sending challenge ", challenge);
 
     u2f.sign(appId, challenge, [req], function(response) {
@@ -512,6 +723,10 @@ window.doPinTimer = function (seconds, params) {
       msg(`Delay ${poll_delay} seconds`);
       return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
+        if (data<=5){
+           counter--;
+           data = msg_polling({ type: poll_type, delay: 0 });
+        }
         resolve(data);
       });
     }
@@ -522,7 +737,7 @@ window.doPinTimer = function (seconds, params) {
 };
 
 function setButtonTimerMessage(seconds) {
-  if (_status !== 'done_code' && _status !== 'wrong_code' && _status !== 'wrong_type' && _status !== 'no_key' && _status !== 'bad_key' && _status !== 'bad_data') {
+  if (_status === 'pending_pin') {
     msg(`You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`);
     console.info("enter challenge code", pin);
     auth_ping();
