@@ -387,11 +387,9 @@ async function auth_ping() {
   Array.prototype.push.apply(message, ciphertext);
   var challenge = mkchallenge();
   while (message.length < 64) message.push(0);
-  console.info("Handlekey bytes ", message);
   var encryptedkeyHandle = await aesgcm_encrypt(message);
-  console.info("Encrypted Handlekey bytes ", encryptedkeyHandle);
   var b64keyhandle = bytes2b64(encryptedkeyHandle);
-  var req = { "challenge": challenge, "keyHandle": encryptedkeyHandle,
+  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
@@ -539,7 +537,7 @@ async function custom_auth_response(response) {
     return 2;
     }
   } else if (err) {
-    return 5; //Ping failed meaning correct challenge entered
+    return 5;
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
