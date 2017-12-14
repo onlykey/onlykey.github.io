@@ -153,7 +153,7 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
-  await wait(delay);
+  await wait(delay*1000);
   msg("Requesting response from OnlyKey");
   if (type == 1) { //OKSETTIME
     var message = [255, 255, 255, 255, OKSETTIME]; //Same header and message type used in App
