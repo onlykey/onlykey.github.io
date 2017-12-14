@@ -30,10 +30,6 @@ const OKGETPUBKEY = 236;
 const OKGETRESPONSE = 242;
 const OKPING = 243;
 
-async function init() {
-  await msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-}
-
 function id(s) { return document.getElementById(s); }
 
 function msg(s) {
@@ -286,7 +282,7 @@ async function auth_ping() {
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 async function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
-  await init();
+  msg_polling({ type: 1, delay: 0 });
   if (sharedsec === 'undefined'){
     button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -317,7 +313,7 @@ async function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyH
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 async function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
-  await init();
+  msg_polling({ type: 1, delay: 0 }, => {
   if (sharedsec === 'undefined'){
     button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -337,6 +333,7 @@ async function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
   msg("Generated PIN" + pin);
   params.ct = typeof params.ct === 'string' ? params.ct.match(/.{2}/g) : params.ct;
   return u2fSignBuffer(params, cb);
+  });
 }
 
 //Function to process U2F registration response
