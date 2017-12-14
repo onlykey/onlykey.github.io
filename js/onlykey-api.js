@@ -530,6 +530,7 @@ async function custom_auth_response(response) {
         _setStatus('bad_data');
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
+        counter--;
         return 5;
       } else if (err) {
         console.info("Failed with error code ", err);
