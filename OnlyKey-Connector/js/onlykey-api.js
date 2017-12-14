@@ -688,8 +688,8 @@ async function u2fSignBuffer(params, mainCallback) {
      console.info("Sending Handlekey ", encryptedkeyHandle);
      console.info("Sending challenge ", challenge);
 
-    u2f.sign(appId, challenge, [req], function(response) {
-      var result = custom_auth_response(response);
+    u2f.sign(appId, challenge, [req], async function(response) {
+      var result = await custom_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
