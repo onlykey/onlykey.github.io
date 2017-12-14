@@ -808,7 +808,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     }, 3+(browserid/64));
 }
 
-window.doPinTimer = async function (seconds) {
+window.doPinTimer = function (seconds) {
 
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
@@ -820,7 +820,6 @@ window.doPinTimer = async function (seconds) {
 
     if (_status === 'done_code') {
       msg(`Delay ${poll_delay} seconds`);
-      var result = await custom_auth_response(response);
       return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
         if (data<=5){
