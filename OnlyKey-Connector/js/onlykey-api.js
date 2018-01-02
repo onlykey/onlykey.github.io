@@ -287,7 +287,7 @@ async function auth_ping() {
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 async function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyHandle
   await init();
-  await wait(1500);
+  await wait(1000);
   if (sharedsec === 'undefined'){
     //button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -319,7 +319,7 @@ async function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyH
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 async function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
   await init();
-  await wait(1500);
+  await wait(1000);
   if (sharedsec === 'undefined'){
     //button.textContent = "Insert OnlyKey and reload page";
     return;

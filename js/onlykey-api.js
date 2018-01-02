@@ -465,7 +465,7 @@ async function custom_auth_response(response) {
     counter++;
     console.info("Parsed Data: ", decryptedparsedData);
     if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
-      //Using Firefox Quantums incomplete U2F implementation... so bad
+      //Using Firefox Quantum's incomplete U2F implementation... so bad
       console.info("Decode response message");
       if (decryptedparsedData[6] == 0) {
         console.info("Ack message received");
@@ -684,7 +684,9 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     console.info("Handlekey bytes ", message);
     console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
-
+    if (browserid == 128) {
+    await wait(2000);
+    }
     u2f.sign(appId, challenge, [req], function(response) {
       var result = custom_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
@@ -735,7 +737,9 @@ function setButtonTimerMessage(seconds) {
     const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
     button.textContent = btmsg;
     console.info("enter challenge code", pin);
+    if (browserid != 128) { //Not Firefox
     auth_ping();
+    }
   }
 }
 
