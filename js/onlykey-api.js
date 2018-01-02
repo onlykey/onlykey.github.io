@@ -436,13 +436,14 @@ async function custom_auth_response(response) {
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');
-        counter--;
+        counter-=2;
         return 5;
       } else if (err) {
         console.info("Failed with error code ", err);
         //other error
         return 1;
       }
+    counter++;
     return 2;
     }
   } else if (err) {
@@ -464,7 +465,7 @@ async function custom_auth_response(response) {
     var decryptedparsedData = await aesgcm_decrypt(parsedData);
     counter++;
     console.info("Parsed Data: ", decryptedparsedData);
-    if(bytes2string(parsedData.slice(0, 5)) === 'Error') {
+    if(decryptedparsedData) {
       //Using Firefox Quantum's incomplete U2F implementation... so bad
       console.info("Decode response message");
       if (decryptedparsedData[6] == 0) {
@@ -720,7 +721,7 @@ window.doPinTimer = function (seconds) {
       return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
         if (data<=5){
-           counter--;
+           counter-=2;
            data = msg_polling({ type: poll_type, delay: 0 });
         }
         resolve(data);
