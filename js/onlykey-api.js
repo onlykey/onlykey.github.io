@@ -460,7 +460,7 @@ async function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    counter-=2;
+    counter--;
     var decryptedparsedData = await aesgcm_decrypt(parsedData);
     counter++;
     console.info("Parsed Data: ", decryptedparsedData);
