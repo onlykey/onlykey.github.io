@@ -440,6 +440,7 @@ async function custom_auth_response(response) {
         return 5;
       } else if (err) {
         console.info("Failed with error code ", err);
+        counter-=2;
         //other error
         return 1;
       }
@@ -461,9 +462,7 @@ async function custom_auth_response(response) {
     return parsedData;
   }
   else { //encrypted data
-    counter--;
     var decryptedparsedData = await aesgcm_decrypt(parsedData);
-    counter++;
     console.info("Parsed Data: ", decryptedparsedData);
     if(decryptedparsedData) {
       //Using Firefox Quantum's incomplete U2F implementation... so bad
