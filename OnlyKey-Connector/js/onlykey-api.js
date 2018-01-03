@@ -184,7 +184,7 @@ async function msg_polling(params = {}, cb) {
       var message = new Array(64).fill(255);
       message[4] = OKGETRESPONSE;
       while (message.length < 64) message.push(0);
-      counter++;
+      counter+=2;
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
   }
@@ -442,13 +442,15 @@ async function custom_auth_response(response) {
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');
-        counter--;
+        counter-=2;
         return 5;
       } else if (err) {
         console.info("Failed with error code ", err);
+        counter-=2;
         //other error
         return 1;
       }
+    counter++;
     return 2;
     }
 
