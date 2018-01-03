@@ -439,6 +439,9 @@ async function custom_auth_response(response) {
         console.info("invalid data, or data does not match key");
         //button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
+      } else if (errMes === "device status code: -85") { //no data ready
+        console.info("no data ready");
+        //button.textContent = "no data ready";
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');

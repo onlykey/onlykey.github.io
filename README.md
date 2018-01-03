@@ -125,7 +125,8 @@ Decode response -
 - Error 2 key type not set as signature/decrypt
 - Error 3 no key set in this slot
 - Error 4 invalid key, key check failed
-- Error 5 invalid data, or data does not match  key
+- Error 5 invalid data, or data does not match key
+- Error 6 no data ready
 - Error code type 5 (TIMEOUT), ping failed, correct challenge code entered
 
 ┌──────────────────┐

@@ -433,6 +433,9 @@ async function custom_auth_response(response) {
         console.info("invalid data, or data does not match key");
         button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
+      } else if (errMes === "device status code: -85") { //no data ready
+        console.info("no data ready");
+        button.textContent = "no data ready";
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');
@@ -464,7 +467,7 @@ async function custom_auth_response(response) {
   else { //encrypted data
     var decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
-    if(decryptedparsedData) {
+    if(decryptedparsedData[0] == 69 && decryptedparsedData[1] == 114 && decryptedparsedData[2] == 114 && decryptedparsedData[3] == 111 && decryptedparsedData[4] == 114) {
       //Using Firefox Quantum's incomplete U2F implementation... so bad
       console.info("Decode response message");
       if (decryptedparsedData[6] == 0) {
@@ -489,6 +492,9 @@ async function custom_auth_response(response) {
         console.info("invalid data, or data does not match key");
         button.textContent = "invalid data, or data does not match key";
         _setStatus('bad_data');
+      } else if (decryptedparsedData[6] == 6) {
+        console.info("no data ready");
+        button.textContent = "no data ready";
       }
       return 2;
     }
