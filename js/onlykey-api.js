@@ -737,9 +737,7 @@ function setButtonTimerMessage(seconds) {
     const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
     button.textContent = btmsg;
     console.info("enter challenge code", pin);
-    if (browserid != 128) { //Not Firefox
     auth_ping();
-    }
   }
 }
 
