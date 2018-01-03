@@ -291,6 +291,7 @@ async function auth_ping() {
   var b64keyhandle = bytes2b64(encryptedkeyHandle);
   var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": version };
+
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
     if (_status === 'done_code') {
@@ -726,9 +727,8 @@ window.doPinTimer = function (seconds) {
         resolve(data);
       });
     }
-
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3+(browserid/64)), 3000+(browserid/64));
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3+(browserid/64)), 3000+((browserid/64)*1000));
   });
 };
 
