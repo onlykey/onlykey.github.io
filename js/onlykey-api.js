@@ -703,8 +703,10 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     }, 3+(browserid/64));
 }
 
-window.doPinTimer = function (seconds) {
-
+window.doPinTimer = async function (seconds) {
+  if (browserid == 128) {
+  await wait(2000);
+  }
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
 
