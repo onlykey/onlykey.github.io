@@ -291,7 +291,6 @@ async function auth_ping() {
   var b64keyhandle = bytes2b64(encryptedkeyHandle);
   var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": version };
-
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
     if (_status === 'done_code') {
@@ -685,9 +684,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     console.info("Handlekey bytes ", message);
     console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
-    if (browserid == 128) {
-    await wait(2000);
-    }
+
     u2f.sign(appId, challenge, [req], function(response) {
       var result = custom_auth_response(response);
       msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
