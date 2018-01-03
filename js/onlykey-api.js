@@ -200,7 +200,7 @@ async function msg_polling(params = {}, cb) {
       var message = new Array(64).fill(255);
       message[4] = (OKGETRESPONSE-browserid);
       while (message.length < 64) message.push(0);
-      counter+=2;
+      counter++;
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
   }
@@ -726,7 +726,6 @@ window.doPinTimer = async function (seconds) {
       return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
         msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
         if (data<=5){
-           counter--;
            data = msg_polling({ type: poll_type, delay: 0 });
         }
         resolve(data);
