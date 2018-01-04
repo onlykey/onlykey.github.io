@@ -170,7 +170,7 @@ async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
 
-  setTimeout(async function() => {
+  setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
   if (type == 1) { //OKSETTIME
     var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
@@ -276,7 +276,7 @@ async function msg_polling(params = {}, cb) {
 
     if (typeof cb === 'function') cb(null, data);
   }, 3);
-}, delay * 1000);
+}, (delay * 1000));
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
