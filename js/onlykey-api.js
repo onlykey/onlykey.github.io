@@ -494,6 +494,7 @@ async function custom_auth_response(response) {
     counter-=2;
     decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
+    counter++;
     return decryptedparsedData;
   }
 }
