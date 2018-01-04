@@ -214,9 +214,9 @@ async function msg_polling(params = {}, cb) {
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
     var data = await Promise;
-    if (_status === 'done_code') {
-      console.info("Ping Timed Out");
-      if (result<=5) data = 1;
+    if (_status === 'finished') {
+      console.info("Finished");
+      return;
     } else if (_status === 'waiting_ping') {
       console.info("Ping Successful");
       _setStatus('pending_pin');
