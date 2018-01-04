@@ -291,7 +291,7 @@ async function msg_polling(params = {}, cb) {
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
-  if (sharedsec === 'undefined'){
+  if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
     return;
   }
@@ -313,7 +313,7 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
 
 //Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
-  if (sharedsec === 'undefined'){
+  if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
     return;
   }
@@ -713,7 +713,7 @@ window.doPinTimer = function (seconds) {
       console.info("Delay ", poll_delay);
       data = await msg_polling({ type: poll_type, delay: poll_delay });
       console.info("Executed msg_polling after PIN confirmation: skey", data);
-      if (data<=5) return;
+      if (data<=5 || typeof(data) === "undefined") return;
       else {
         _setStatus('finished');
         resolve(data);
@@ -725,7 +725,7 @@ window.doPinTimer = function (seconds) {
         console.info("enter challenge code", pin);
         data = await msg_polling({ type: poll_type, delay: 0 });
         console.info("Executed msg_polling after PIN confirmation: skey", data);
-        if (data<=5) return;
+        if (data<=5 || typeof(data) === "undefined")
         else {
           _setStatus('finished');
           resolve(data);
