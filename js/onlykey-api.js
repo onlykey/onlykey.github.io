@@ -711,26 +711,26 @@ window.doPinTimer = function (seconds) {
 
     if (_status === 'done_code') {
       console.info("Delay ", poll_delay);
-      data = await msg_polling({ type: poll_type, delay: poll_delay });
+      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       console.info("Executed msg_polling after PIN confirmation: skey", data);
       if (data<=5 || typeof(data) === "undefined") return;
       else {
         _setStatus('finished');
         resolve(data);
-        return data;
       }
+      });
     } else if (_status === 'pending_pin') {
         const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
-        data = await msg_polling({ type: poll_type, delay: 0 });
+        return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
         console.info("Executed msg_polling before PIN confirmation: skey", data);
-      if (data<=5 || typeof(data) === "undefined") return;
+        if (data<=5 || typeof(data) === "undefined") return;
         else {
           _setStatus('finished');
           resolve(data);
-          return data;
         }
+        });
     } else if (_status === 'waiting_ping') {
       counter--;
       _setStatus('done_code');
