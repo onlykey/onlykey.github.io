@@ -286,7 +286,7 @@ async function msg_polling(params = {}, cb) {
       }
     }
     if (typeof cb === 'function') cb(null, data);
-  });
+  }, 3);
 }, (delay * 1000));
 }
 
@@ -492,7 +492,7 @@ async function custom_auth_response(response) {
       return 1;
     }
     _setStatus('finished');
-    send_counter = 0; //message counter is recv_counter + 1
+    send_counter = 0; //counter is last recv_counter + 1
     decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
     return decryptedparsedData;
