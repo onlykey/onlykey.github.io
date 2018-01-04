@@ -493,7 +493,7 @@ async function custom_auth_response(response) {
     }
     _setStatus('finished');
     send_counter = 0; //counter is last recv_counter + 1
-    //decryptedparsedData = await aesgcm_decrypt(parsedData);
+    decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
     return decryptedparsedData;
   }
