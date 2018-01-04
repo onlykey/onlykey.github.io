@@ -197,19 +197,30 @@ async function msg_polling(params = {}, cb) {
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
-  } else { //Get Response From OKSIGN or OKDECRYPT
-      var message = new Array(64).fill(255);
-      message[4] = (OKGETRESPONSE-browserid);
+  } else { //Ping and get Response From OKSIGN or OKDECRYPT
+      console.info("Sending Ping Request to OnlyKey");
+      var message = [255, 255, 255, 255]; //Add header and message type
+      var ciphertext = new Uint8Array(60).fill(0);
+      ciphertext[0] = (OKPING-browserid);
+      Array.prototype.push.apply(message, ciphertext);
       while (message.length < 64) message.push(0);
-      counter++;
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
+      _setStatus('waiting_ping');
   }
   var challenge = mkchallenge();
   var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
+    if (_status === 'done_code') {
+      console.info("Ping Timed Out");
+      if (result<=5) return result;
+    } else if (_status === 'waiting_ping') {
+      console.info("Ping Successful");
+      _setStatus('pending_pin');
+      return 2;
+    }
     var data = await Promise;
     if (result == 2) {
         msg("Polling succeeded but no data was received");
@@ -446,7 +457,6 @@ async function custom_auth_response(response) {
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');
         counter-=2;
-        return 5;
       } else if (err) {
         console.info("Failed with error code ", err);
         counter-=2;
@@ -726,27 +736,31 @@ window.doPinTimer = async function (seconds) {
       return reject(err);
     }
 
-    if (_status === 'done_code') {
-      msg(`Delay ${poll_delay} seconds`);
-      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
-        if (data<=5){
-           data = msg_polling({ type: poll_type, delay: 0 });
-        }
-        resolve(data);
-      });
-    }
     setButtonTimerMessage(secondsRemaining);
     setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
   });
 };
 
 async function setButtonTimerMessage(seconds) {
-  if (_status === 'pending_pin') {
-    const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
-    button.textContent = btmsg;
-    console.info("enter challenge code", pin);
-    auth_ping();
+  if (_status === 'done_code') {
+    msg(`Delay ${poll_delay} seconds`);
+    return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+      msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
+      if (data<=5){
+         data = await msg_polling({ type: poll_type, delay: 0 });
+      }
+      resolve(data);
+    });
+  } else if (_status === 'pending_pin') {
+      const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
+      button.textContent = btmsg;
+      console.info("enter challenge code", pin);
+      data = await msg_polling({ type: poll_type, delay: 0 });
+      if (data<=5){
+      return;
+    } else {
+      resolve(data);
+    }
   } else if (_status === 'waiting_ping') {
     counter--;
     _setStatus('done_code');
