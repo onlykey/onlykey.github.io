@@ -492,7 +492,8 @@ async function custom_auth_response(response) {
       return 1;
     }
     _setStatus('finished');
-    send_counter = 0; //message counter is recv_counter + 1
+    recv_counter--;
+    send_counter--;
     decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
     return decryptedparsedData;
@@ -555,11 +556,11 @@ IntToByteArray = function(int) {
 function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
     recv_counter++;
-    recv_counter = send_counter + recv_counter;
+    var counter = send_counter + recv_counter;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
-    var iv = IntToByteArray(recv_counter);
+    var iv = IntToByteArray(counter);
     while (iv.length < 12) iv.push(0);
     iv = Uint8Array.from(iv);
     console.log("IV", iv);
@@ -582,11 +583,11 @@ function aesgcm_decrypt(encrypted) {
 function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
     send_counter++;
-    send_counter = send_counter + recv_counter;
+    var counter = send_counter + recv_counter;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
-    var iv = IntToByteArray(send_counter);
+    var iv = IntToByteArray(counter);
     while (iv.length < 12) iv.push(0);
     iv = Uint8Array.from(iv);
     console.log("IV", iv);
