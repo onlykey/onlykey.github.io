@@ -700,7 +700,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 }
 
 window.doPinTimer = function (seconds) {
-  return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
+  return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
 
     if (secondsRemaining <= 0) {
@@ -710,22 +710,22 @@ window.doPinTimer = function (seconds) {
 
     if (_status === 'done_code') {
       console.info("Delay ", poll_delay);
-      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+      msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       console.info("Executed msg_polling after PIN confirmation: skey", data);
       if (data!=1) {
         _setStatus('finished');
-        resolve(data);
+        return resolve(data);
       }
       });
     } else if (_status === 'pending_pin') {
         const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
-        return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
+        msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
         console.info("Executed msg_polling before PIN confirmation: skey", data);
         if (data!=1) {
           _setStatus('finished');
-          resolve(data);
+          return resolve(data);
         }
         });
     } else if (_status === 'waiting_ping') {
