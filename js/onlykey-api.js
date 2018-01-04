@@ -296,7 +296,7 @@ async function auth_ping() {
     if (_status === 'done_code') {
       console.info("Ping Timed Out");
     } else console.info("Ping Successful");
-  }, 2.5);
+  }, (2.5+(browserid/64)));
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -730,7 +730,7 @@ window.doPinTimer = async function (seconds) {
       });
     }
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3+(browserid/64)), 3000+((browserid/64)*1000));
   });
 };
 
