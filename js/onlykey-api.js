@@ -714,7 +714,7 @@ window.doPinTimer = function (seconds) {
       return reject(err);
     }
 
-    if (_status === 'done_code') {
+    if (_status === 'done_code' && browserid == 128) {
       console.info("Delay ", poll_delay);
       msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       console.info("Executed msg_polling after PIN confirmation: skey", data);
