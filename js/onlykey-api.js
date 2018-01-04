@@ -747,7 +747,7 @@ async function setButtonTimerMessage(seconds) {
     return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
       if (data<=5){
-         data = await msg_polling({ type: poll_type, delay: 0 });
+         data = msg_polling({ type: poll_type, delay: 0 });
       }
       resolve(data);
     });
