@@ -206,6 +206,7 @@ async function msg_polling(params = {}, cb) {
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
+      if (_status == 'done_code') counter--;
       _setStatus('waiting_ping');
   }
   var challenge = mkchallenge();
