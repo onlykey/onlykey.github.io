@@ -219,15 +219,15 @@ async function msg_polling(params = {}, cb) {
     } else if (_status === 'waiting_ping') {
       console.info("Ping Successful");
       _setStatus('pending_pin');
-      return 2;
+      return 1;
     }
-    var data = await Promise;
     if (result == 2) {
         msg("Polling succeeded but no data was received");
-        data = 2;
+        return 1;
     } else if (result <= 5) {
-      data = 5;
+      return 5;
     }
+    var data = await Promise;
     if (type == 1) {
       if (result) {
         okPub = result.slice(21, 53);
@@ -242,12 +242,11 @@ async function msg_polling(params = {}, cb) {
         msg("HW generated entropy: " + hw_RNG.entropy);
         var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
         console.info("AES Key", key);
-        data = 0;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
-      data = 0;
+      return;
     } else if (type == 2) {
       if (result) {
         var pubkey = result.slice(0, 1); //slot number containing matching key
@@ -258,7 +257,7 @@ async function msg_polling(params = {}, cb) {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
-      data = pubkey;
+      return pubkey;
     } else if (type == 3) {
       if (result) {
         if (result.length == 64) {
