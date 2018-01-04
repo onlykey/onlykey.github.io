@@ -169,7 +169,8 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
-  await wait(delay*1000);
+
+  setTimeout(() => {
   console.info("Requesting response from OnlyKey");
   if (type == 1) { //OKSETTIME
     var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
@@ -275,6 +276,7 @@ async function msg_polling(params = {}, cb) {
 
     if (typeof cb === 'function') cb(null, data);
   }, 3);
+}, delay * 1000);
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
@@ -300,7 +302,7 @@ async function auth_ping() {
       console.info("Ping Successful");
       _setStatus('pending_pin');
     }
-  }, 2.5);
+  }, 2);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
