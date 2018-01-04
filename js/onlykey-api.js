@@ -23,7 +23,8 @@ var custom_keyid;
 var msgType;
 var keySlot;
 var browserid = 0; //Default Chrome
-var counter = 0;
+var send_counter = 0;
+var recv_counter = 0;
 const OKDECRYPT = 240;
 const OKSIGN = 237;
 const OKSETTIME = 228;
@@ -187,7 +188,8 @@ async function msg_polling(params = {}, cb) {
     Array.prototype.push.apply(message, appKey.publicKey);
     Array.prototype.push.apply(message, empty);
     var b64keyhandle = bytes2b64(message);
-    counter = 0;
+    send_counter = 0;
+    recv_counter = 0;
   } else if (type == 2) { //OKGETPUB
       var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
       msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
@@ -206,7 +208,6 @@ async function msg_polling(params = {}, cb) {
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
-      if (_status == 'done_code') counter--;
       _setStatus('waiting_ping');
   }
   var challenge = mkchallenge();
@@ -429,15 +430,15 @@ async function custom_auth_response(response) {
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');
-        counter-=2;
+        send_counter--;
         return 1;
       } else if (err) {
         console.info("Failed with error code ", err);
-        counter-=2;
+        send_counter--;
         //other error
         return 1;
       }
-    counter++;
+    recv_counter++;
     return 1;
     }
   } else if (err) {
@@ -491,10 +492,10 @@ async function custom_auth_response(response) {
       return 1;
     }
     _setStatus('finished');
-    counter-=2;
+    recv_counter--;
+    send_counter--;
     decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
-    counter++;
     return decryptedparsedData;
   }
 }
@@ -554,7 +555,8 @@ IntToByteArray = function(int) {
 //Function to decrypt
 function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
-    counter++;
+    recv_counter++;
+    var counter = send_counter + recv_counter;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
@@ -580,7 +582,8 @@ function aesgcm_decrypt(encrypted) {
 //Function to encrypt
 function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
-    counter++;
+    send_counter++;
+    var counter = send_counter + recv_counter;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
@@ -715,7 +718,7 @@ window.doPinTimer = function (seconds) {
       return reject(err);
     }
 
-    if (_status === 'done_code' && browserid == 128) {
+    if (_status === 'done_code' && browserid != 128) { //Not Firefox
       console.info("Delay ", poll_delay);
       msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       console.info("Executed msg_polling after PIN confirmation: skey", data);
