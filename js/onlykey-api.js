@@ -213,21 +213,21 @@ async function msg_polling(params = {}, cb) {
                "appId": appId, "version": version };
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
+    var data = await Promise;
     if (_status === 'done_code') {
       console.info("Ping Timed Out");
-      if (result<=5) return result;
+      if (result<=5) data = 1;
     } else if (_status === 'waiting_ping') {
       console.info("Ping Successful");
       _setStatus('pending_pin');
-      return 1;
+      data = 1;
     }
     if (result == 2) {
         msg("Polling succeeded but no data was received");
-        return 1;
+        data = 1;
     } else if (result <= 5) {
-      return 5;
+      data = 1;
     }
-    var data = await Promise;
     if (type == 1) {
       if (result) {
         okPub = result.slice(21, 53);
@@ -283,7 +283,6 @@ async function msg_polling(params = {}, cb) {
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
     }
-
     if (typeof cb === 'function') cb(null, data);
   }, 3);
 }, (delay * 1000));
@@ -713,8 +712,7 @@ window.doPinTimer = function (seconds) {
       console.info("Delay ", poll_delay);
       return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       console.info("Executed msg_polling after PIN confirmation: skey", data);
-      if (data<=5 || typeof(data) === "undefined") return;
-      else {
+      if (data!=1) {
         _setStatus('finished');
         resolve(data);
       }
@@ -725,8 +723,7 @@ window.doPinTimer = function (seconds) {
         console.info("enter challenge code", pin);
         return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
         console.info("Executed msg_polling before PIN confirmation: skey", data);
-        if (data<=5 || typeof(data) === "undefined") return;
-        else {
+        if (data!=1) {
           _setStatus('finished');
           resolve(data);
         }
