@@ -747,6 +747,7 @@ async function setButtonTimerMessage(seconds) {
     auth_ping();
   } else if (_status === 'waiting_ping') {
     _setStatus('done_code');
+    counter--;
   }
 }
 
