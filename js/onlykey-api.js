@@ -63,7 +63,7 @@ function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
 
 function _setStatus(newStatus) {
   _status = newStatus;
-  msg(`Changed _status to ${newStatus}`);
+  console.info("Changed _status to ", newStatus);
 }
 
 function userId() {
@@ -691,7 +691,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
           console.info("Final packet ");
           _setStatus('pending_pin');
           cb().then(skey => {
-            msg("skey " + skey);
+            console.info("skey ", skey);
             mainCallback(skey);
           }).catch(err => msg(err));
         } else {
@@ -701,7 +701,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     }, 3);
 }
 
-window.doPinTimer = function (seconds) {
+window.doPinTimer = async function (seconds) {
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
 
@@ -711,9 +711,9 @@ window.doPinTimer = function (seconds) {
     }
 
     if (_status === 'done_code') {
-      msg(`Delay ${poll_delay} seconds`);
+      console.info("Delay ", poll_delay);
       return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
+        console.info("Executed msg_polling after PIN confirmation: skey", data);
         _setStatus('finished');
         resolve(data);
       });
@@ -721,14 +721,13 @@ window.doPinTimer = function (seconds) {
         const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
-        return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
-          msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
-          if (data<=5) return;
-          else {
-            _setStatus('finished');
-            resolve(data);
-          }
-        });
+        data = async msg_polling({ type: poll_type, delay: 0 });
+        console.info("Executed msg_polling after PIN confirmation: skey", data);
+        if (data<=5) return;
+        else {
+          _setStatus('finished');
+          resolve(data);
+        }
     } else if (_status === 'waiting_ping') {
       counter--;
       _setStatus('done_code');
