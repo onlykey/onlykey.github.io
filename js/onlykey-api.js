@@ -724,8 +724,8 @@ window.doPinTimer = function (seconds) {
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
         data = await msg_polling({ type: poll_type, delay: 0 });
-        console.info("Executed msg_polling after PIN confirmation: skey", data);
-        if (data<=5 || typeof(data) === "undefined")
+        console.info("Executed msg_polling before PIN confirmation: skey", data);
+      if (data<=5 || typeof(data) === "undefined") return;
         else {
           _setStatus('finished');
           resolve(data);
