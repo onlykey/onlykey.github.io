@@ -451,6 +451,7 @@ async function custom_auth_response(response) {
     return 2;
     }
   } else if (err) {
+    _setStatus('done_code');
     return 5;
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
