@@ -290,32 +290,6 @@ async function msg_polling(params = {}, cb) {
 }, (delay * 1000));
 }
 
-//Function to get see if OnlyKey responds via U2F auth message Keyhandle
-async function auth_ping() {
-  console.info("Sending Ping Request to OnlyKey");
-  if (_status === 'done_code') return;
-  var message = [255, 255, 255, 255]; //Add header and message type
-  var ciphertext = new Uint8Array(60).fill(0);
-  ciphertext[0] = (OKPING-browserid);
-  Array.prototype.push.apply(message, ciphertext);
-  var challenge = mkchallenge();
-  while (message.length < 64) message.push(0);
-  var encryptedkeyHandle = await aesgcm_encrypt(message);
-  var b64keyhandle = bytes2b64(encryptedkeyHandle);
-  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
-               "appId": appId, "version": version };
-  _setStatus('waiting_ping');
-  u2f.sign(appId, challenge, [req], function(response) {
-    var result = custom_auth_response(response);
-    if (_status === 'done_code') {
-      console.info("Ping Timed Out");
-    } else {
-      console.info("Ping Successful");
-      _setStatus('pending_pin');
-    }
-  }, 2);
-}
-
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   if (sharedsec === 'undefined'){
@@ -746,21 +720,21 @@ async function setButtonTimerMessage(seconds) {
     msg(`Delay ${poll_delay} seconds`);
     return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
-      if (data<=5){
-         data = msg_polling({ type: poll_type, delay: 0 });
-      }
+      _setStatus('finished');
       resolve(data);
     });
   } else if (_status === 'pending_pin') {
       const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
       button.textContent = btmsg;
       console.info("enter challenge code", pin);
-      data = await msg_polling({ type: poll_type, delay: 0 });
-      if (data<=5){
-      return;
-    } else {
-      resolve(data);
-    }
+      return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
+        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
+        if (data<=5) return;
+        else {
+          _setStatus('finished');
+          resolve(data);
+        }
+      });
   } else if (_status === 'waiting_ping') {
     counter--;
     _setStatus('done_code');
