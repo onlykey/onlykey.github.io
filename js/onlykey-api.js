@@ -429,6 +429,7 @@ async function custom_auth_response(response) {
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');
         counter-=2;
+        return 1;
       } else if (err) {
         console.info("Failed with error code ", err);
         counter-=2;
@@ -436,11 +437,11 @@ async function custom_auth_response(response) {
         return 1;
       }
     counter++;
-    return 2;
+    return 1;
     }
   } else if (err) {
     _setStatus('done_code');
-    return 5;
+    return 1;
   }
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
@@ -486,9 +487,11 @@ async function custom_auth_response(response) {
         button.textContent = "no data ready";
         return 6;
       }
-      return 2;
+      return 1;
     }
     _setStatus('finished');
+    counter--;
+    decryptedparsedData = await aesgcm_decrypt(parsedData);
     return decryptedparsedData;
   }
 }
