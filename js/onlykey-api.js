@@ -712,11 +712,10 @@ window.doPinTimer = async function (seconds) {
 
     if (_status === 'done_code') {
       console.info("Delay ", poll_delay);
-      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-        console.info("Executed msg_polling after PIN confirmation: skey", data);
-        _setStatus('finished');
-        resolve(data);
-      });
+      data = async msg_polling({ type: poll_type, delay: poll_delay) });
+      console.info("Executed msg_polling after PIN confirmation: skey", data);
+      _setStatus('finished');
+      resolve(data);
     } else if (_status === 'pending_pin') {
         const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
