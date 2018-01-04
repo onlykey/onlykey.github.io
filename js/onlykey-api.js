@@ -291,11 +291,15 @@ async function auth_ping() {
   var b64keyhandle = bytes2b64(encryptedkeyHandle);
   var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": version };
+  _setStatus('waiting_ping');
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
     if (_status === 'done_code') {
       console.info("Ping Timed Out");
-    } else console.info("Ping Successful");
+    } else {
+      console.info("Ping Successful");
+      _setStatus('pending_pin');
+    }
   }, 2.5);
 }
 
@@ -741,6 +745,8 @@ async function setButtonTimerMessage(seconds) {
     button.textContent = btmsg;
     console.info("enter challenge code", pin);
     auth_ping();
+  } else if (_status === 'waiting_ping') {
+    _setStatus('done_code');
   }
 }
 
