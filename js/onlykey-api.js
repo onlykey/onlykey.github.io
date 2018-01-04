@@ -170,7 +170,7 @@ async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
   await wait(delay*1000);
-  msg("Requesting response from OnlyKey");
+  console.info("Requesting response from OnlyKey");
   if (type == 1) { //OKSETTIME
     var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
     var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
@@ -292,8 +292,8 @@ async function auth_ping() {
   var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": version };
   _setStatus('waiting_ping');
-  u2f.sign(appId, challenge, [req], async function(response) {
-    var result = await custom_auth_response(response);
+  u2f.sign(appId, challenge, [req], function(response) {
+    var result = custom_auth_response(response);
     if (_status === 'done_code') {
       console.info("Ping Timed Out");
     } else {
@@ -746,8 +746,8 @@ async function setButtonTimerMessage(seconds) {
     console.info("enter challenge code", pin);
     auth_ping();
   } else if (_status === 'waiting_ping') {
-    _setStatus('done_code');
     counter--;
+    _setStatus('done_code');
   }
 }
 
