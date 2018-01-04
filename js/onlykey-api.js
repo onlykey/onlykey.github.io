@@ -488,6 +488,7 @@ async function custom_auth_response(response) {
       }
       return 2;
     }
+    _setStatus('finished');
     return decryptedparsedData;
   }
 }
@@ -712,8 +713,7 @@ window.doPinTimer = function (seconds) {
       console.info("Delay ", poll_delay);
       msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       console.info("Executed msg_polling after PIN confirmation: skey", data);
-      if (data!=1) {
-        _setStatus('finished');
+      if (_status == 'finished') {
         return resolve(data);
       }
       });
@@ -723,8 +723,7 @@ window.doPinTimer = function (seconds) {
         console.info("enter challenge code", pin);
         msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
         console.info("Executed msg_polling before PIN confirmation: skey", data);
-        if (data!=1) {
-          _setStatus('finished');
+        if (_status == 'finished') {
           return resolve(data);
         }
         });
