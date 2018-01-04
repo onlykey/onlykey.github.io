@@ -710,36 +710,34 @@ window.doPinTimer = async function (seconds) {
       return reject(err);
     }
 
-    setButtonTimerMessage(secondsRemaining);
+    if (_status === 'done_code') {
+      msg(`Delay ${poll_delay} seconds`);
+      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
+        _setStatus('finished');
+        resolve(data);
+      });
+    } else if (_status === 'pending_pin') {
+        const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
+        button.textContent = btmsg;
+        console.info("enter challenge code", pin);
+        return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
+          msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
+          if (data<=5) return;
+          else {
+            _setStatus('finished');
+            resolve(data);
+          }
+        });
+    } else if (_status === 'waiting_ping') {
+      counter--;
+      _setStatus('done_code');
+    }
+
     setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
   });
 };
 
-async function setButtonTimerMessage(seconds) {
-  if (_status === 'done_code') {
-    msg(`Delay ${poll_delay} seconds`);
-    return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-      msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
-      _setStatus('finished');
-      resolve(data);
-    });
-  } else if (_status === 'pending_pin') {
-      const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
-      button.textContent = btmsg;
-      console.info("enter challenge code", pin);
-      return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
-        msg(`Executed msg_polling after PIN confirmation: skey = ${data}`);
-        if (data<=5) return;
-        else {
-          _setStatus('finished');
-          resolve(data);
-        }
-      });
-  } else if (_status === 'waiting_ping') {
-    counter--;
-    _setStatus('done_code');
-  }
-}
 
 function get_pin (byte) {
   if (byte < 6) return 1;
