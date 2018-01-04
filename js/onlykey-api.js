@@ -728,7 +728,6 @@ window.doPinTimer = function (seconds) {
         }
         });
     } else if (_status === 'waiting_ping') {
-      counter--;
       _setStatus('done_code');
     }
 
