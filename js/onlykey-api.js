@@ -712,7 +712,7 @@ window.doPinTimer = function (seconds) {
 
     if (_status === 'done_code') {
       console.info("Delay ", poll_delay);
-      data = await msg_polling({ type: poll_type, delay: poll_delay) });
+      data = await msg_polling({ type: poll_type, delay: poll_delay });
       console.info("Executed msg_polling after PIN confirmation: skey", data);
       _setStatus('finished');
       resolve(data);
