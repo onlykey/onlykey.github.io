@@ -274,7 +274,7 @@ async function msg_polling(params = {}, cb) {
     }
 
     if (typeof cb === 'function') cb(null, data);
-  }, 3+(browserid/64));
+  }, 3);
 }
 
 //Function to get see if OnlyKey responds via U2F auth message Keyhandle
@@ -296,7 +296,7 @@ async function auth_ping() {
     if (_status === 'done_code') {
       console.info("Ping Timed Out");
     } else console.info("Ping Successful");
-  }, 2.5+(browserid/64));
+  }, 2.5);
 }
 
 //Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
@@ -707,7 +707,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
           cb();
         }
       }
-    }, 3+(browserid/64));
+    }, 3);
 }
 
 window.doPinTimer = async function (seconds) {
@@ -730,7 +730,7 @@ window.doPinTimer = async function (seconds) {
       });
     }
     setButtonTimerMessage(secondsRemaining);
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3+(browserid/64)), 3000+((browserid/64)*1000));
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
   });
 };
 
