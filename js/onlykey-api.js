@@ -720,6 +720,8 @@ window.doPinTimer = function (seconds) {
     }
 
     if (_status === 'done_code') {
+      const btmsg = `Waiting ${secondsRemaining} seconds retrive data from OnlyKey.`;
+      button.textContent = btmsg;
       console.info("Delay ", poll_delay);
       msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       console.info("Executed msg_polling after PIN confirmation: skey", data);
