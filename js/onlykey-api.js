@@ -401,7 +401,7 @@ async function custom_auth_response(response) {
       if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
         console.info("Ack message received");
       } else if (errMes === "device status code: -80") { //incorrect challenge code entered
-          if (_status === 'pending_pin') {
+          if (_status === 'waiting_ping') {
           console.info("incorrect challenge code entered");
           button.textContent = "Incorrect challenge code entered";
           _setStatus('wrong_code');
@@ -432,7 +432,7 @@ async function custom_auth_response(response) {
         return 1;
       } else if (err) {
         console.info("Failed with error code ", err);
-        counter-=2;
+        counter--;
         //other error
         return 1;
       }
