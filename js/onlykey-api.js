@@ -428,6 +428,7 @@ async function custom_auth_response(response) {
         button.textContent = "no data ready";
       } else if (errMes === "device status code: -b") {
         console.info("Timeout or challenge pin entered ");
+        counter-=3;
         _setStatus('done_code');
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
@@ -724,7 +725,7 @@ window.doPinTimer = function (seconds) {
     }
 
     if (_status === 'done_code') {
-      const btmsg = `Waiting ${secondsRemaining} seconds retrive data from OnlyKey.`;
+      const btmsg = `Waiting ${poll_delay} seconds retrive data from OnlyKey.`;
       button.textContent = btmsg;
       console.info("Delay ", poll_delay);
       msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
