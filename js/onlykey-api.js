@@ -491,10 +491,6 @@ async function custom_auth_response(response) {
       return 1;
     }
     _setStatus('finished');
-    counter-=2;
-    decryptedparsedData = await aesgcm_decrypt(parsedData);
-    console.info("Parsed Data: ", decryptedparsedData);
-    counter++;
     return decryptedparsedData;
   }
 }
@@ -715,7 +711,7 @@ window.doPinTimer = function (seconds) {
       return reject(err);
     }
 
-    if (_status === 'done_code' && browserid == 128) {
+    if (_status === 'done_code') {
       console.info("Delay ", poll_delay);
       msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
       console.info("Executed msg_polling after PIN confirmation: skey", data);
