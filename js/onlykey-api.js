@@ -217,7 +217,6 @@ async function msg_polling(params = {}, cb) {
     var data = await Promise;
     if (_status === 'finished') {
       console.info("Finished");
-      return;
     } else if (_status === 'waiting_ping') {
       console.info("Ping Successful");
       _setStatus('pending_pin');
@@ -259,7 +258,7 @@ async function msg_polling(params = {}, cb) {
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
       return pubkey;
-    } else if (type == 3 && data != 1) {
+    } else if (type == 3 && _status == 'finished') {
       if (result) {
         if (result.length == 64) {
           var sessKey = result.slice(0, 35);
@@ -274,7 +273,7 @@ async function msg_polling(params = {}, cb) {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
-    } else if (type == 4 && data != 1) {
+    } else if (type == 4 && _status == 'finished') {
       if (result) {
         var oksignature = result.slice(0, result.length); //4+32+2+32
         msg("Signed by OnlyKey " + oksignature);
