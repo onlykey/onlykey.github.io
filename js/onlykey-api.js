@@ -455,7 +455,7 @@ async function custom_auth_response(response) {
     halflen = sigData[8];
   }
   Array.prototype.push.apply(parsedData, sigData.slice(9,(halflen+9)));
-  Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen));
+  Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen)));
   if (U2Fcounter[0] + U2Fcounter[1] + U2Fcounter[2] + U2Fcounter[3] == 0) { //unencrypted data
     console.info("Parsed Data: ", parsedData);
     return parsedData;
