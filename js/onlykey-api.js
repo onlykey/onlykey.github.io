@@ -448,8 +448,14 @@ async function custom_auth_response(response) {
   var U2Fcounter = sigData.slice(1,5);
   console.info("U2Fcounter: ", U2Fcounter);
   var parsedData = [];
-  Array.prototype.push.apply(parsedData, sigData.slice(9,(sigData[8]+9)));
-  Array.prototype.push.apply(parsedData, sigData.slice((sigData[8]+9+2),(sigData[(sigData[8]+9+1)]+(sigData[8]+9+2))));
+  var halflen;
+  if (sigData[8] == 0) {
+    halflen = 256;
+  } else {
+    halflen = sigData[8];
+  }
+  Array.prototype.push.apply(parsedData, sigData.slice(9,(halflen+9)));
+  Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2),(sigData[(halflen+9+1)]+(halflen+9+2))));
   if (U2Fcounter[0] + U2Fcounter[1] + U2Fcounter[2] + U2Fcounter[3] == 0) { //unencrypted data
     console.info("Parsed Data: ", parsedData);
     return parsedData;
