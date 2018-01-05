@@ -430,6 +430,7 @@ async function custom_auth_response(response) {
         console.info("Timeout or challenge pin entered ");
         counter-=3;
         _setStatus('done_code');
+        ping(0);
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');
@@ -728,22 +729,12 @@ window.doPinTimer = function (seconds) {
       const btmsg = `Waiting ${poll_delay} seconds retrive data from OnlyKey.`;
       button.textContent = btmsg;
       console.info("Delay ", poll_delay);
-      msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-      console.info("Executed msg_polling after PIN confirmation: skey", data);
-      if (_status == 'finished') {
-        return resolve(data);
-      }
-      });
+      ping(poll_delay);
     } else if (_status === 'pending_pin') {
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
-        msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
-        console.info("Executed msg_polling before PIN confirmation: skey", data);
-        if (_status == 'finished') {
-          return resolve(data);
-        }
-        });
+        ping(0);
     } else if (_status === 'waiting_ping') {
       _setStatus('done_code');
     }
@@ -751,6 +742,13 @@ window.doPinTimer = function (seconds) {
     setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
   });
 };
+
+async function ping (delay) {
+  data = await msg_polling({ type: poll_type, delay: delay });
+  if (_status == 'finished') {
+    return resolve(data);
+  }
+}
 
 
 function get_pin (byte) {
