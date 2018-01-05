@@ -199,6 +199,7 @@ async function msg_polling(params = {}, cb) {
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } else { //Ping and get Response From OKSIGN or OKDECRYPT
       if (_status == 'done_code') counter++;
+      if (_status == 'finished') return;
       console.info("Sending Ping Request to OnlyKey");
       var message = [255, 255, 255, 255]; //Add header and message type
       var ciphertext = new Uint8Array(60).fill(0);
@@ -425,6 +426,9 @@ async function custom_auth_response(response) {
       } else if (errMes === "device status code: -85") { //no data ready
         console.info("no data ready");
         button.textContent = "no data ready";
+      } else if (errMes === "device status code: -b") {
+        console.info("Timeout or challenge pin entered ");
+        _setStatus('done_code');
       } else if (err == 5) { //Ping failed meaning correct challenge entered
         console.info("Timeout or challenge pin entered ");
         _setStatus('done_code');
