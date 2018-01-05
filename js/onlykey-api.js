@@ -709,7 +709,7 @@ window.doPinTimer = function (seconds) {
   return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
 
-    if (secondsRemaining <= 0) {
+    if (secondsRemaining <= 4) {
       const err = 'Time expired for PIN confirmation';
       return reject(err);
     }
@@ -723,7 +723,7 @@ window.doPinTimer = function (seconds) {
       }
       });
     } else if (_status === 'pending_pin') {
-        const btmsg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
+        const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
         msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
@@ -736,7 +736,7 @@ window.doPinTimer = function (seconds) {
       _setStatus('done_code');
     }
 
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=3), 3000);
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
   });
 };
 
