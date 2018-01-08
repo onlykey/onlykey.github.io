@@ -723,14 +723,6 @@ window.doPinTimer = function (seconds) {
       return reject(err);
     }
 
-    if (_status == 'finished') {
-      counter+=2;
-      decrypted_data = await aesgcm_decrypt(encrypted_data);
-      counter--;
-      console.info("Parsed Data: ", decryptedparsedData);
-      return resolve(decrypted_data);
-    }
-
     if (_status === 'done_code') {
       const btmsg = `Waiting ${poll_delay} seconds retrive data from OnlyKey.`;
       button.textContent = btmsg;
@@ -743,6 +735,12 @@ window.doPinTimer = function (seconds) {
         ping(0);
     } else if (_status === 'waiting_ping') {
       _setStatus('done_code');
+    }
+    if (_status == 'finished') {
+      decrypted_data = await aesgcm_decrypt(encrypted_data);
+      counter--;
+      console.info("Parsed Data: ", decryptedparsedData);
+      return resolve(decrypted_data);
     }
 
     setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
