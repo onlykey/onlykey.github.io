@@ -504,7 +504,7 @@ async function custom_auth_response(response) {
     }
     _setStatus('finished');
     encrypted_data = parsedData;
-    return;
+    return parsedData;
   }
 }
 
@@ -724,38 +724,34 @@ window.doPinTimer = function (seconds) {
       return reject(err);
     }
 
-    if (_status === 'done_challenge') {
+    if (_status === 'done_challenge' || _status === 'waiting_ping') {
+      _setStatus('done_challenge');
       const btmsg = `Waiting ${poll_delay} seconds retrive data from OnlyKey.`;
       button.textContent = btmsg;
       console.info("Delay ", poll_delay);
-      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
-        if (_status == 'finished') {
-          decrypted_data = await aesgcm_decrypt(encrypted_data);
-          counter--;
-          console.info("Parsed Data: ", decryptedparsedData);
-          resolve(decrypted_data);
-        }
-      });
+      await ping(poll_delay);
     } else if (_status === 'pending_challenge') {
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
-        return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
-          if (_status == 'finished') {
-            decrypted_data = await aesgcm_decrypt(encrypted_data);
-            counter--;
-            console.info("Parsed Data: ", decryptedparsedData);
-            resolve(decrypted_data);
-          }
-        });
-    } else if (_status === 'waiting_ping') {
-      _setStatus('done_challenge');
+        await ping(0);
     }
 
+    if (_status === 'finished') {
+      decrypted_data = await aesgcm_decrypt(encrypted_data);
+      counter--;
+      console.info("Parsed Data: ", decryptedparsedData);
+      return resolve(decrypted_data);
+    }
 
     setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
   });
 };
+
+async function ping (delay) {
+  return await msg_polling({ type: poll_type, delay: delay });
+}
+
 
 function get_pin (byte) {
   if (byte < 6) return 1;
