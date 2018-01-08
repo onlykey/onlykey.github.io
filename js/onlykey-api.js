@@ -724,6 +724,7 @@ window.doPinTimer = function (seconds) {
     }
 
     if (_status == 'finished') {
+      counter++;
       decrypted_data = await aesgcm_decrypt(encrypted_data);
       counter--;
       console.info("Parsed Data: ", decryptedparsedData);
