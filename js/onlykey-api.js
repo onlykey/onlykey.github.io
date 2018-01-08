@@ -296,8 +296,8 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   var padded_ct = ct.slice(12, ct.length);
   var keyid = ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
-  msg("Padded CT Packet bytes " + Array.from(padded_ct));
-  msg("Key ID bytes " + Array.from(keyid));
+  console.info("Padded CT Packet bytes", Array.from(padded_ct));
+  console.info("Key ID bytes", Array.from(keyid));
   pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   msg("Generated PIN" + pin);
   return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
@@ -311,9 +311,9 @@ function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   }
   var pin_hash = sha256(ct);
   cb = cb || noop;
-  msg("Signature Packet bytes " + Array.from(ct));
+  console.info("Signature Packet bytes ", Array.from(ct));
   pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
-  msg("Generated PIN" + pin);
+  console.info("Generated PIN", pin);
   return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
 }
 
@@ -712,7 +712,7 @@ window.doPinTimer = async function (seconds) {
 
     if (_status === 'done_challenge' || _status === 'waiting_ping') {
       _setStatus('done_challenge');
-      const btmsg = `Waiting ${poll_delay} seconds retrive data from OnlyKey.`;
+      const btmsg = `Waiting ${poll_delay} seconds to retrive data from OnlyKey.`;
       button.textContent = btmsg;
       console.info("Delay ", poll_delay);
       await ping(poll_delay); //Delay
