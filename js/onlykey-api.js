@@ -24,6 +24,7 @@ var msgType;
 var keySlot;
 var browserid = 0; //Default Chrome
 var counter = 0;
+var encrypted_data;
 const OKDECRYPT = 240;
 const OKSIGN = 237;
 const OKSETTIME = 228;
@@ -502,10 +503,7 @@ async function custom_auth_response(response) {
       return 1;
     }
     _setStatus('finished');
-    decryptedparsedData = await aesgcm_decrypt(parsedData);
-    counter--;
-    console.info("Parsed Data: ", decryptedparsedData);
-    return decryptedparsedData;
+    return parsedData;
   }
 }
 
@@ -717,12 +715,19 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 }
 
 window.doPinTimer = function (seconds) {
-  return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
+  return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
 
     if (secondsRemaining <= 4) {
       const err = 'Time expired for PIN confirmation';
       return reject(err);
+    }
+
+    if (_status == 'finished') {
+      decrypted_data = await aesgcm_decrypt(encrypted_data);
+      counter--;
+      console.info("Parsed Data: ", decryptedparsedData);
+      resolve(decrypted_data);
     }
 
     if (_status === 'done_code') {
@@ -746,7 +751,7 @@ window.doPinTimer = function (seconds) {
 async function ping (delay) {
   data = await msg_polling({ type: poll_type, delay: delay });
   if (_status == 'finished') {
-    return resolve(data);
+    encrypted_data = data;
   }
 }
 
