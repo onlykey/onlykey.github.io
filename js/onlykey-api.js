@@ -715,7 +715,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     }, 3);
 }
 
-window.doPinTimer = function (seconds) {
+window.doPinTimer = async function (seconds) {
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
 
