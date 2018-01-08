@@ -262,15 +262,7 @@ async function msg_polling(params = {}, cb) {
       return pubkey;
     } else if (type == 3 && _status == 'finished') {
       if (result) {
-        if (result.length == 64) {
-          var sessKey = result.slice(0, 35);
-          var entropy = result.slice(36, 64);
-          msg("HW generated entropy" + entropy);
-        } else {
-          var sessKey = result.slice(0, result.length);
-        }
-        msg("Session Key " + sessKey);
-        data = sessKey;
+        data = result;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
@@ -278,7 +270,6 @@ async function msg_polling(params = {}, cb) {
     } else if (type == 4 && _status == 'finished') {
       if (result) {
         var oksignature = result.slice(0, result.length); //4+32+2+32
-        msg("Signed by OnlyKey " + oksignature);
         data = oksignature;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
@@ -724,7 +715,7 @@ window.doPinTimer = async function (seconds) {
       const btmsg = `Waiting ${poll_delay} seconds retrive data from OnlyKey.`;
       button.textContent = btmsg;
       console.info("Delay ", poll_delay);
-      await ping(poll_delay);
+      await ping(poll_delay); //Delay
     } else if (_status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
           const err = 'Time expired for PIN confirmation';
@@ -738,6 +729,11 @@ window.doPinTimer = async function (seconds) {
 
     if (_status === 'finished') {
       var decrypted_data = await aesgcm_decrypt(encrypted_data);
+      if (decrypted_data.length == 64) {
+        var entropy = decrypted_data.slice(36, 64);
+        decrypted_data = decrypted_data.slice(0, 35);
+        console.info("HW generated entropy =", entropy);
+      }
       counter--;
       console.info("Parsed Decrypted Data: ", decrypted_data);
       return resolve(decrypted_data);
