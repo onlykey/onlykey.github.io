@@ -728,7 +728,7 @@ window.doPinTimer = async function (seconds) {
     }
 
     if (_status === 'finished') {
-      if (decrypted_data.length != 64) counter-=2;
+      if (encrypted_data.length != 64) counter-=2;
       var decrypted_data = await aesgcm_decrypt(encrypted_data);
       if (decrypted_data.length == 64) {
         var entropy = decrypted_data.slice(36, 64);
