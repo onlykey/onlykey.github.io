@@ -719,11 +719,6 @@ window.doPinTimer = function (seconds) {
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
 
-    if (secondsRemaining <= 4) {
-      const err = 'Time expired for PIN confirmation';
-      return reject(err);
-    }
-
     if (_status === 'done_challenge' || _status === 'waiting_ping') {
       _setStatus('done_challenge');
       const btmsg = `Waiting ${poll_delay} seconds retrive data from OnlyKey.`;
@@ -731,6 +726,10 @@ window.doPinTimer = function (seconds) {
       console.info("Delay ", poll_delay);
       await ping(poll_delay);
     } else if (_status === 'pending_challenge') {
+        if (secondsRemaining <= 4) {
+          const err = 'Time expired for PIN confirmation';
+          return reject(err);
+        }
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
@@ -740,7 +739,7 @@ window.doPinTimer = function (seconds) {
     if (_status === 'finished') {
       decrypted_data = await aesgcm_decrypt(encrypted_data);
       counter--;
-      console.info("Parsed Data: ", decryptedparsedData);
+      console.info("Parsed Decrypted Data: ", decryptedparsedData);
       return resolve(decrypted_data);
     }
 
