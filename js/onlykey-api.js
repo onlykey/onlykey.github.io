@@ -263,6 +263,7 @@ async function msg_polling(params = {}, cb) {
     } else if (type == 3 && _status == 'finished') {
       if (result) {
         data = result;
+        counter-=2;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
@@ -728,7 +729,7 @@ window.doPinTimer = async function (seconds) {
     }
 
     if (_status === 'finished') {
-      if (decrypted_data.length == 64) counter-=2;
+      counter+=2;
       var decrypted_data = await aesgcm_decrypt(encrypted_data);
       if (decrypted_data.length == 64) {
         var entropy = decrypted_data.slice(36, 64);
