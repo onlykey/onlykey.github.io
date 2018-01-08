@@ -728,13 +728,13 @@ window.doPinTimer = async function (seconds) {
     }
 
     if (_status === 'finished') {
+      if(browserid == 128 && encrypted_data.length != 64) counter-=2;
       var decrypted_data = await aesgcm_decrypt(encrypted_data);
       if (decrypted_data.length == 64) {
         var entropy = decrypted_data.slice(36, 64);
         decrypted_data = decrypted_data.slice(0, 35);
         console.info("HW generated entropy =", entropy);
       }
-      counter--;
       console.info("Parsed Decrypted Data: ", decrypted_data);
       return resolve(decrypted_data);
     }
