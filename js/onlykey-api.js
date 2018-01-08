@@ -200,7 +200,7 @@ async function msg_polling(params = {}, cb) {
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } else { //Ping and get Response From OKSIGN or OKDECRYPT
       if (_status == 'done_challenge') counter++;
-      if (_status == 'finished') return;
+      if (_status == 'finished') return encrypted_data;
       console.info("Sending Ping Request to OnlyKey");
       var message = [255, 255, 255, 255]; //Add header and message type
       var ciphertext = new Uint8Array(60).fill(0);
@@ -728,30 +728,34 @@ window.doPinTimer = function (seconds) {
       const btmsg = `Waiting ${poll_delay} seconds retrive data from OnlyKey.`;
       button.textContent = btmsg;
       console.info("Delay ", poll_delay);
-      ping(poll_delay);
+      return msg_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+        if (_status == 'finished') {
+          decrypted_data = await aesgcm_decrypt(encrypted_data);
+          counter--;
+          console.info("Parsed Data: ", decryptedparsedData);
+          resolve(decrypted_data);
+        }
+      });
     } else if (_status === 'pending_challenge') {
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
-        ping(0);
+        return msg_polling({ type: poll_type, delay: 0 }, (err, data) => {
+          if (_status == 'finished') {
+            decrypted_data = await aesgcm_decrypt(encrypted_data);
+            counter--;
+            console.info("Parsed Data: ", decryptedparsedData);
+            resolve(decrypted_data);
+          }
+        });
     } else if (_status === 'waiting_ping') {
       _setStatus('done_challenge');
     }
-    if (_status == 'finished') {
-      decrypted_data = await aesgcm_decrypt(encrypted_data);
-      counter--;
-      console.info("Parsed Data: ", decryptedparsedData);
-      return resolve(decrypted_data);
-    }
+
 
     setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
   });
 };
-
-async function ping (delay) {
-  data = await msg_polling({ type: poll_type, delay: delay });
-}
-
 
 function get_pin (byte) {
   if (byte < 6) return 1;
