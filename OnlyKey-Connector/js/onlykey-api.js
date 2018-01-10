@@ -537,6 +537,8 @@ async function u2fSignBuffer(params, mainCallback) {
  */
 window.doPinTimer = async function (seconds, params) {
   const { poll_type, poll_delay } = params;
+  poll_delay = params.poll_delay;
+  poll_type = params.poll_type;
 
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
