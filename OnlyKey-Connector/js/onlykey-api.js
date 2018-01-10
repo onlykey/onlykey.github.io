@@ -421,7 +421,7 @@ async function custom_auth_response(response) {
     }
     else { //encrypted data
       counter++;
-      console.info("Parsed Data: ", decryptedparsedData);
+      console.info("Parsed Encrypted Data: ", parsedData);
       _setStatus('finished');
       encrypted_data = parsedData;
       return parsedData;
@@ -537,7 +537,7 @@ async function u2fSignBuffer(params, mainCallback) {
  * Display number of seconds remaining to enter challenge code on OnlyKey
  * @param {number} seconds
  */
-window.doPinTimer = async function (seconds, params) {
+window.doPinTimer = async function (seconds) {
 
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
