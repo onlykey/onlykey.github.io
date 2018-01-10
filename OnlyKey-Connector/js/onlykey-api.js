@@ -519,7 +519,7 @@ async function u2fSignBuffer(params, mainCallback) {
       if (result) {
         if (finalPacket) {
           console.info("Final packet ");
-          _setStatus('pending_pin');
+          _setStatus('pending_challenge');
           cb().then(skey => {
             msg("skey " + skey);
             mainCallback(skey);
