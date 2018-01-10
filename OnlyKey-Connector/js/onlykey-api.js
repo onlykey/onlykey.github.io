@@ -544,7 +544,7 @@ window.doPinTimer = async function (seconds, params) {
     if (_status === 'done_challenge' || _status === 'waiting_ping') {
       _setStatus('done_challenge');
       const btmsg = `Waiting ${poll_delay} seconds for OnlyKey to process message.`;
-      button.textContent = btmsg;
+      //button.textContent = btmsg;
       console.info("Delay ", poll_delay);
       await ping(poll_delay); //Delay
     } else if (_status === 'pending_challenge') {
@@ -553,7 +553,7 @@ window.doPinTimer = async function (seconds, params) {
           return reject(err);
         }
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
-        button.textContent = btmsg;
+        //button.textContent = btmsg;
         console.info("enter challenge code", pin);
         await ping(0);
     }
