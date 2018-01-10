@@ -290,7 +290,8 @@ async function auth_decrypt(params = {}, cb) { //OnlyKey decrypt request to keyH
     poll_type: params.poll_type || 3,
     ct: params.ct
   };
-
+  poll_delay = params.poll_delay;
+  poll_type = params.poll_type;
   cb = cb || noop;
   if (params.ct.length == 396) {
     params.poll_delay = 5; //5 Second delay for RSA 3072
@@ -329,7 +330,8 @@ async function auth_sign(params = {}, cb) { //OnlyKey sign request to keyHandle
     poll_delay: params.poll_delay,
     ct: params.ct
   };
-
+  poll_delay = params.poll_delay;
+  poll_type = params.poll_type;
   var pin_hash = sha256(params.ct);
   cb = cb || noop;
   console.info("Signature Packet bytes ", Array.from(params.ct));
@@ -536,9 +538,6 @@ async function u2fSignBuffer(params, mainCallback) {
  * @param {number} seconds
  */
 window.doPinTimer = async function (seconds, params) {
-  const { poll_type, poll_delay } = params;
-  poll_delay = params.poll_delay;
-  poll_type = params.poll_type;
 
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
