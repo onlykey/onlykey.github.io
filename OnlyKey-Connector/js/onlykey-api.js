@@ -194,7 +194,7 @@ async function msg_polling(params = {}, cb) {
       console.info("Sending Ping Request to OnlyKey");
       var message = [255, 255, 255, 255]; //Add header and message type
       var ciphertext = new Uint8Array(60).fill(0);
-      ciphertext[0] = (OKPING-browserid);
+      ciphertext[0] = (OKPING);
       Array.prototype.push.apply(message, ciphertext);
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
@@ -521,7 +521,7 @@ async function u2fSignBuffer(params, mainCallback) {
           console.info("Final packet ");
           _setStatus('pending_challenge');
           cb().then(skey => {
-            msg("skey " + skey);
+            console.info("skey ", skey);
             mainCallback(skey);
           }).catch(err => msg(err));
         } else {
@@ -579,6 +579,7 @@ window.doPinTimer = async function (seconds, params) {
  * @param {number} delay
  */
 async function ping (delay) {
+  console.info("poll type", poll_type);
   return await msg_polling({ type: poll_type, delay: delay });
 }
 
