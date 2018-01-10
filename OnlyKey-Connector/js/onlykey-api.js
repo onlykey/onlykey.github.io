@@ -535,10 +535,10 @@ async function u2fSignBuffer(params, mainCallback) {
  * Display number of seconds remaining to enter challenge code on OnlyKey
  * @param {number} seconds
  */
-window.doPinTimer = function (seconds, params) {
+window.doPinTimer = async function (seconds, params) {
   const { poll_type, poll_delay } = params;
 
-  return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
+  return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
 
     if (_status === 'done_challenge' || _status === 'waiting_ping') {
