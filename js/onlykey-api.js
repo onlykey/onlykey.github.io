@@ -35,6 +35,11 @@ const OKPING = 243;
 
 const button = document.getElementById('onlykey_start');
 
+/**
+ * Initializes OnlyKey
+ * Performs NACL key exchange to encrypt all future packets
+ * Receives hardware generated entropy for future use
+ */
 async function init() {
   if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
   browserid = 128; //Firefox
@@ -50,90 +55,19 @@ async function init() {
   }
 }
 
+/**
+ * Sets user selected radio button
+ * @param {String} skipBtn
+ */
 function updateStatusFromSelection(skipBtn) {
   const val = document.action.select_one.value;
   _status = val;
   if (!skipBtn) button.textContent = val;
 }
 
-function id(s) { return document.getElementById(s); }
-
-function msg(s) { id('messages').innerHTML += "<br>" + s; }
-
-function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
-
-function _setStatus(newStatus) {
-  _status = newStatus;
-  console.info("Changed _status to ", newStatus);
-}
-
-function userId() {
-    var el = id('userid');
-    return el && el.value || 'u2ftest';
-}
-
-function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
-
-function b64EncodeUnicode(str) {
-    // first we use encodeURIComponent to get percent-encoded UTF-8,
-    // then we convert the percent encodings into raw bytes which
-    // can be fed into btoa.
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-        function toSolidBytes(match, p1) {
-            return String.fromCharCode('0x' + p1);
-    }));
-}
-
-function u2f_b64(s) {
-  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-function u2f_unb64(s) {
-  s = s.replace(/-/g, '+').replace(/_/g, '/');
-  return atob(s + '==='.slice((s.length+3) % 4));
-}
-function string2bytes(s) {
-  var len = s.length;
-  var bytes = new Uint8Array(len);
-  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
-  return bytes;
-}
-function hexStrToDec(hexStr) {
-    return ~~(new Number('0x' + hexStr).toString(10));
-}
-
-function bcat(buflist) {
-  var len = 0;
-  for (var i=0; i<buflist.length; i++) {
-    if (typeof(buflist[i])=='string') buflist[i]=string2bytes(buflist[i]);
-    len += buflist[i].length;
-  }
-  var buf = new Uint8Array(len);
-  len = 0;
-  for (var i=0; i<buflist.length; i++) {
-    buf.set(buflist[i], len);
-    len += buflist[i].length;
-  }
-  return buf;
-}
-
-function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
-function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
-function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
-
-function asn1bytes(asn1) {
-  return asn1.stream.enc.slice(
-    asn1.stream.pos, asn1.stream.pos + asn1.length + asn1.header);
-}
-
-//Generate a random number for challenge value
-function mkchallenge() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  return u2f_b64(s.join());
-}
-
-//Basic U2F enroll test
+/**
+ * U2F registration pure JavaScript
+ */
 function enroll_local() {
   msg("Enrolling user " + userId());
   var challenge = mkchallenge();
@@ -144,7 +78,9 @@ function enroll_local() {
   });
 }
 
-//Basic U2F auth test
+/**
+ * U2F authentication pure JavaScript
+ */
 function auth_local() {
   msg("Authorizing user " + userId());
   keyHandle = userDict[userId()];
@@ -164,9 +100,89 @@ function auth_local() {
     msg("Finished");
 }
 
+/**
+ * Function to process U2F registration response
+ * @param {Array} response
+ */
+function process_enroll_response(response) {
+  var err = response['errorCode'];
+  if (err) {
+    msg("Registration failed with error code " + err);
+    console.info(errMes);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  var regData_b64 = response['registrationData'];
+  var clientData_str = u2f_unb64(clientData_b64);
+  var clientData = JSON.parse(clientData_str);
+  var origin = clientData['origin'];
+  if (origin != appId) {
+    msg("Registration failed.  AppId was " + origin + ", should be " + appId);
+    return false;
+  }
+  var v = string2bytes(u2f_unb64(regData_b64));
+  var u2f_pk = v.slice(1, 66);                // PK = Public Key
+  var kh_bytes = v.slice(67, 67 + v[66]);     // KH = Key Handle
+  var kh_b64 = bytes2b64(kh_bytes);
+  var cert_der = v.slice(67 + v[66]);
+  var cert_asn1 = ASN1.decode(cert_der);
+  var cert_pk_asn1 = cert_asn1.sub[0].sub[6].sub[1];
+  var cert_pk_bytes = asn1bytes(cert_pk_asn1);
+  var cert_key = p256.keyFromPublic(cert_pk_bytes.slice(3), 'der');
+  var sig = cert_der.slice(cert_asn1.length + cert_asn1.header);
+  var l = [[0], sha256(appId), sha256(clientData_str), kh_bytes, u2f_pk];
+  var v = cert_key.verify(sha256(bcat(l)), sig);
+  if (v) {
+    userDict[userId()] = kh_b64;
+    keyHandleDict[kh_b64] = u2f_pk;
+  }
+  return v;
+}
+
+/**
+ * Function to process U2F sign response
+ * @param {Array} response
+ */
+function process_auth_response(response) {
+  console.info("Response", response);
+  var err = response['errorCode'];
+  if (err) {
+    msg("Auth failed with error code " + err);
+    console.info(errMes);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  var clientData_str = u2f_unb64(clientData_b64);
+  var clientData_bytes = string2bytes(clientData_str);
+  var clientData = JSON.parse(clientData_str);
+  var origin = clientData['origin'];
+  var kh = response['keyHandle'];
+  var pk = keyHandleDict[kh];
+  var key = p256.keyFromPublic(pk, 'der');
+  var sigData = string2bytes(u2f_unb64(response['signatureData']));
+  var sig = sigData.slice(5);
+  var appid = document.location.origin;
+  var m = bcat([sha256(appid), sigData.slice(0,5), sha256(clientData_bytes)]);
+  if (!key.verify(sha256(m), sig)) return false;
+  var userPresent = sigData[0];
+  var counter2 = new BN(sigData.slice(1,5)).toNumber();
+  msg("User present: " + userPresent);
+  msg("Counter: " + counter2);
+  return true;
+}
+
+/**
+ * Use promise and setTimeout to wait x seconds
+ */
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-//Function to send and retrive custom U2F messages
+/**
+ * Request response from OnlyKey using U2F authentication message
+ * @param {number} params.delay
+ * Number of seconds to delay before requesting response
+ * @param {number} params.type
+ * Type of response requested - OKSETTIME, OKGETPUBKEY, OKSIGN, OKDECRYPT
+ */
 async function msg_polling(params = {}, cb) {
   const delay = params.delay || 0; // no delay by default
   const type = params.type || 1; // default type to 1
@@ -281,7 +297,10 @@ async function msg_polling(params = {}, cb) {
 }, (delay * 1000));
 }
 
-//Function to send ciphertext to decrypt on OnlyKey via U2F auth message Keyhandle
+/**
+ * Decrypt ciphertext via OnlyKey
+ * @param {Array} ct
+ */
 function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
@@ -303,7 +322,10 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 }
 
-//Function to send hash to sign on OnlyKey via U2F auth message Keyhandle
+/**
+ * Sign message via OnlyKey
+ * @param {Array} ct
+ */
 function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
@@ -317,72 +339,10 @@ function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
 }
 
-//Function to process U2F registration response
-function process_enroll_response(response) {
-  var err = response['errorCode'];
-  if (err) {
-    msg("Registration failed with error code " + err);
-    console.info(errMes);
-    return false;
-  }
-  var clientData_b64 = response['clientData'];
-  var regData_b64 = response['registrationData'];
-  var clientData_str = u2f_unb64(clientData_b64);
-  var clientData = JSON.parse(clientData_str);
-  var origin = clientData['origin'];
-  if (origin != appId) {
-    msg("Registration failed.  AppId was " + origin + ", should be " + appId);
-    return false;
-  }
-  var v = string2bytes(u2f_unb64(regData_b64));
-  var u2f_pk = v.slice(1, 66);                // PK = Public Key
-  var kh_bytes = v.slice(67, 67 + v[66]);     // KH = Key Handle
-  var kh_b64 = bytes2b64(kh_bytes);
-  var cert_der = v.slice(67 + v[66]);
-  var cert_asn1 = ASN1.decode(cert_der);
-  var cert_pk_asn1 = cert_asn1.sub[0].sub[6].sub[1];
-  var cert_pk_bytes = asn1bytes(cert_pk_asn1);
-  var cert_key = p256.keyFromPublic(cert_pk_bytes.slice(3), 'der');
-  var sig = cert_der.slice(cert_asn1.length + cert_asn1.header);
-  var l = [[0], sha256(appId), sha256(clientData_str), kh_bytes, u2f_pk];
-  var v = cert_key.verify(sha256(bcat(l)), sig);
-  if (v) {
-    userDict[userId()] = kh_b64;
-    keyHandleDict[kh_b64] = u2f_pk;
-  }
-  return v;
-}
-
-//Function to process U2F auth response
-function process_auth_response(response) {
-  console.info("Response", response);
-  var err = response['errorCode'];
-  if (err) {
-    msg("Auth failed with error code " + err);
-    console.info(errMes);
-    return false;
-  }
-  var clientData_b64 = response['clientData'];
-  var clientData_str = u2f_unb64(clientData_b64);
-  var clientData_bytes = string2bytes(clientData_str);
-  var clientData = JSON.parse(clientData_str);
-  var origin = clientData['origin'];
-  var kh = response['keyHandle'];
-  var pk = keyHandleDict[kh];
-  var key = p256.keyFromPublic(pk, 'der');
-  var sigData = string2bytes(u2f_unb64(response['signatureData']));
-  var sig = sigData.slice(5);
-  var appid = document.location.origin;
-  var m = bcat([sha256(appid), sigData.slice(0,5), sha256(clientData_bytes)]);
-  if (!key.verify(sha256(m), sig)) return false;
-  var userPresent = sigData[0];
-  var counter2 = new BN(sigData.slice(1,5)).toNumber();
-  msg("User present: " + userPresent);
-  msg("Counter: " + counter2);
-  return true;
-}
-
-//Function to parse custom U2F auth response
+/**
+ * Parse custom U2F sign response
+ * @param {Array} response
+ */
 async function custom_auth_response(response) {
   console.info("Response", response);
   var err = response['errorCode'];
@@ -397,7 +357,7 @@ async function custom_auth_response(response) {
           if (_status === 'waiting_ping') {
           console.info("incorrect challenge code entered");
           button.textContent = "Incorrect challenge code entered";
-          _setStatus('wrong_code');
+          _setStatus('wrong_challenge');
         }
       } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
         console.info("key type not set as signature/decrypt");
@@ -469,7 +429,7 @@ async function custom_auth_response(response) {
       } else if(decryptedparsedData[6] == 1) {
         console.info("incorrect challenge code entered");
         button.textContent = "Incorrect challenge code entered";
-        _setStatus('wrong_code');
+        _setStatus('wrong_challenge');
       } else if (decryptedparsedData[6] == 2) {
         console.info("key type not set as signature/decrypt");
         button.textContent = "key type not set as signature/decrypt";
@@ -500,58 +460,10 @@ async function custom_auth_response(response) {
 }
 
 /**
- * @param {Uint8Array} plaintext
- * @returns {Promise<String>}
+ * Perform AES_256_GCM decryption using NACL shared secret
+ * @param {Array} encrypted
+ * @return {Array}
  */
-function aesencrypt(plaintext) {
-  try {
-    var iv = IntToByteArray(counter);
-    while (iv.length < 12) iv.push(0);
-    console.log("IV", iv);
-    iv = Uint8Array.from(iv);
-    var data = Uint8Array.from(plaintext);
-    console.log("Data", data);
-    return crypto.subtle.encrypt({ name: "AES-GCM", iv}, aeskey, data).then(ciphertext => new Uint8Array(ciphertext));
-    }
-  catch(err) {
-    console.log("Error", err);
-  }
-}
-
-
-/**
- * @param {Uint8Array} ciphertext
- * @returns {Promise<String>}
- */
-function aesdecrypt(ciphertext) {
-    //var iv_part = Uint8Array.from(toBytesInt32(counter));
-    //var iv = new Uint8Array(12).fill(0);
-    //iv_part.map(function(value, i){iv[i] = value});
-    try {
-      var iv = IntToByteArray(counter);
-      while (iv.length < 12) iv.push(0);
-      iv = Uint8Array.from(iv);
-      console.log("IV", iv);
-      var data = Uint8Array.from(ciphertext);
-      console.log("Data", data);
-      return crypto.subtle.decrypt({ name: "AES-GCM", iv, }, aeskey, data).then(v => new Uint8Array(v));
-    }
-    catch(err) {
-      console.log("Error", err);
-    }
-}
-
-IntToByteArray = function(int) {
-    var byteArray = [0, 0, 0, 0];
-    for ( var index = 0; index < 4; index ++ ) {
-        var byte = int & 0xff;
-        byteArray [ (3 - index) ] = byte;
-        int = (int - byte) / 256 ;
-    }
-    return byteArray;
-};
-
-//Function to decrypt
 function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
     counter++;
@@ -577,7 +489,11 @@ function aesgcm_decrypt(encrypted) {
   });
 }
 
-//Function to encrypt
+/**
+ * Perform AES_256_GCM encryption using NACL shared secret
+ * @param {Array} plaintext
+ * @return {Array}
+ */
 function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
     counter++;
@@ -597,75 +513,16 @@ function aesgcm_encrypt(plaintext) {
     console.log("Plaintext", plaintext);
     cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
     cipher.finish();
-    //plaintext = cipher.output;
-    //console.log("Encrypted AES-GCM Hex", plaintext.toHex());
-    //console.log("Encrypted AES-GCM Hex", cipher.output.getBytes());
-    //console.log("Encrypted AES-GCM Hex", forge.util.hexToBytes(cipher.output.toHex()));
     var ciphertext = cipher.output;
     ciphertext = ciphertext.toHex();
     resolve(ciphertext.match(/.{2}/g).map(hexStrToDec));
   });
 }
 
-async function test_encryption () {
-  appKey = nacl.box.keyPair();
-  shared = appKey.secretKey;
-  var keybuffer = new ArrayBuffer(32);
-  key = sha256(shared);
-  key.map(function(value, i){keybuffer[i] = value});
-  console.info("Key", keybuffer);
-  var plaintext = str2buf(buf2str(keybuffer));
-  aeskey = await crypto.subtle.importKey("raw", keybuffer, "AES-GCM", false, ["encrypt", "decrypt"]);
-  var encrypted = await aesencrypt(plaintext);
-  console.info("encrypted", encrypted);
-  var decrypted = await aesdecrypt(encrypted);
-  console.info("decrypted", decrypted);
-  var encrypted2 = await aesgcm_encrypt(decrypted);
-  console.info("encrypted2", encrypted2);
-  var decrypted2 = await aesgcm_decrypt(encrypted2);
-  console.info("decrypted2", decrypted2);
-}
-
 /**
- * Encodes a utf8 string as a byte array.
- * @param {String} str
- * @returns {Uint8Array}
+ * Break cipherText into chunks and send via u2f sign
+ * @param {Array} cipherText
  */
-function str2buf(str) {
-  return new TextEncoder("utf-8").encode(str);
-}
-
-/**
- * Decodes a byte array as a utf8 string.
- * @param {Uint8Array} buffer
- * @returns {String}
- */
-function buf2str(buffer) {
-  return new TextDecoder("utf-8").decode(buffer);
-}
-
-/**
- * Decodes a string of hex to a byte array.
- * @param {String} hexStr
- * @returns {Uint8Array}
- */
-function hex2buf(hexStr) {
-  return new Uint8Array(hexStr.match(/.{2}/g).map(h => parseInt(h, 16)));
-}
-
-/**
- * Encodes a byte array as a string of hex.
- * @param {Uint8Array} buffer
- * @returns {String}
- */
-function buf2hex(buffer) {
-  return Array.prototype.slice
-    .call(new Uint8Array(buffer))
-    .map(x => [x >> 4, x & 15])
-    .map(ab => ab.map(x => x.toString(16)).join(""))
-    .join("");
-}
-
 async function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
     var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN-browserid) : (OKDECRYPT-browserid), slotId()]; //Add header, message type, and key to use
@@ -706,9 +563,13 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     }, 3);
 }
 
+/**
+ * Display number of seconds remaining to enter challenge code on OnlyKey
+ * @param {number} seconds
+ */
 window.doPinTimer = async function (seconds) {
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 18;
+    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
 
     if (_status === 'done_challenge' || _status === 'waiting_ping') {
       _setStatus('done_challenge');
@@ -743,16 +604,106 @@ window.doPinTimer = async function (seconds) {
   });
 };
 
+/**
+ * Ping OnlyKey for resoponse after delay
+ * @param {number} delay
+ */
 async function ping (delay) {
   return await msg_polling({ type: poll_type, delay: delay });
 }
 
+IntToByteArray = function(int) {
+    var byteArray = [0, 0, 0, 0];
+    for ( var index = 0; index < 4; index ++ ) {
+        var byte = int & 0xff;
+        byteArray [ (3 - index) ] = byte;
+        int = (int - byte) / 256 ;
+    }
+    return byteArray;
+};
 
 function get_pin (byte) {
   if (byte < 6) return 1;
   else {
     return (byte % 5) + 1;
   }
+}
+
+function id(s) { return document.getElementById(s); }
+
+function msg(s) { id('messages').innerHTML += "<br>" + s; }
+
+function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
+
+function _setStatus(newStatus) {
+  _status = newStatus;
+  console.info("Changed _status to ", newStatus);
+}
+
+function userId() {
+    var el = id('userid');
+    return el && el.value || 'u2ftest';
+}
+
+function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
+
+function b64EncodeUnicode(str) {
+    // first we use encodeURIComponent to get percent-encoded UTF-8,
+    // then we convert the percent encodings into raw bytes which
+    // can be fed into btoa.
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+    }));
+}
+
+function u2f_b64(s) {
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function u2f_unb64(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/');
+  return atob(s + '==='.slice((s.length+3) % 4));
+}
+function string2bytes(s) {
+  var len = s.length;
+  var bytes = new Uint8Array(len);
+  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
+  return bytes;
+}
+function hexStrToDec(hexStr) {
+    return ~~(new Number('0x' + hexStr).toString(10));
+}
+
+function bcat(buflist) {
+  var len = 0;
+  for (var i=0; i<buflist.length; i++) {
+    if (typeof(buflist[i])=='string') buflist[i]=string2bytes(buflist[i]);
+    len += buflist[i].length;
+  }
+  var buf = new Uint8Array(len);
+  len = 0;
+  for (var i=0; i<buflist.length; i++) {
+    buf.set(buflist[i], len);
+    len += buflist[i].length;
+  }
+  return buf;
+}
+
+function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
+function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
+function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
+
+function asn1bytes(asn1) {
+  return asn1.stream.enc.slice(
+    asn1.stream.pos, asn1.stream.pos + asn1.length + asn1.header);
+}
+
+//Generate a random number for challenge value
+function mkchallenge() {
+  var s = [];
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  return u2f_b64(s.join());
 }
 
 function noop() {}
