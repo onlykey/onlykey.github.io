@@ -69628,12 +69628,14 @@ class Pgp2go {
       }
       let keyurl = url.parse(urlinputbox.value);
       let keyurl2 = url.parse(urlinputbox2.value);
-      if (keyurl.hostname) { // Check if its a url
+      if (keyurl.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+        console.info(keyurl.slice(0,10));
         sender_public_key = this.downloadPublicKey(urlinputbox.value);
                   console.info("sender_public_key" + sender_public_key);
           } else {
             sender_public_key = urlinputbox.value;
-      } if (keyurl2.hostname) { // Check if its a url
+      } if (keyurl2.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+        console.info(keyurl2.slice(0,10));
         recipient_public_key = this.downloadPublicKey(urlinputbox2.value);
                           console.info("recipient_public_key" + recipient_public_key);
           } else {
@@ -69646,6 +69648,11 @@ class Pgp2go {
 
   downloadPublicKey(url) {
       button.textContent = 'Downloading public key ...';
+      if (keyurl.slice(0,8) != 'https://') {
+        console.info(url);
+        url = url.concat('https://keybase.io/', url, 'pgp_keys.asc');
+        console.info(url);
+      }
       request
           .get(url)
           .end((err, key) => {
