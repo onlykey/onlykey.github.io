@@ -69646,7 +69646,7 @@ class Pgp2go {
 
   downloadPublicKey(url) {
       button.textContent = 'Downloading public key ...';
-      if (keyurl.slice(0,8) != 'https://') {
+      if (url.slice(0,8) != 'https://') {
         console.info(url);
         url = url.concat('https://keybase.io/', url, 'pgp_keys.asc');
         console.info(url);
