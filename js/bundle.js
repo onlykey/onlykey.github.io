@@ -69626,16 +69626,14 @@ class Pgp2go {
           this.showError(new Error("I need sender's public pgp key :("));
           return;
       }
-      let keyurl = url.parse(urlinputbox.value);
-      let keyurl2 = url.parse(urlinputbox2.value);
-      if (keyurl.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
-        console.info(keyurl.slice(0,10));
+      if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+        console.info(urlinputbox.value.slice(0,10));
         sender_public_key = this.downloadPublicKey(urlinputbox.value);
                   console.info("sender_public_key" + sender_public_key);
           } else {
             sender_public_key = urlinputbox.value;
-      } if (keyurl2.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
-        console.info(keyurl2.slice(0,10));
+      } if (urlinputbox2.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+        console.info(urlinputbox2.value.slice(0,10));
         recipient_public_key = this.downloadPublicKey(urlinputbox2.value);
                           console.info("recipient_public_key" + recipient_public_key);
           } else {
