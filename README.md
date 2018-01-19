@@ -5,36 +5,64 @@
 
 ## About
 
-A prototype serverless OnlyKey Web App enabling encryption over any web platform, with the help of [keybase.io](https://keybase.io/) and [OnlyKey](https://crp.to/p/).
+WebCrypt is a serverless Web App that integrates with [OnlyKey](https://crp.to/p/) and [keybase.io](https://keybase.io/) to provide encryption everywhere on-the-go.
 
-[Try it out here!](https://apps.crp.to)
+Supports Google Chrome and Firefox!
+
+**Still in early development available for testing only.**
+
+[Try it out here!](https://apps.crp.to/encrypt-test)
 
 ## How it works
 
-With Keybase user/key management is made easy and with OnlyKey private keys remain offline and protected. They are not accessible to the browser or the local computer. By using U2F the web application can send messages to OnlyKey to be securely decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports U2F and an OnlyKey to send secure messages using Windows, Mac, Linux, Chromebook, and Android (with additional Android app).
+With Keybase user/key management is made easy and with OnlyKey private keys remain offline and protected. Private keys are not accessible to the browser or even the local computer. By using U2F as a secure communication channel the web application can send messages to OnlyKey that are decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports U2F and an OnlyKey to send secure messages using Windows, Mac, Linux, Chromebook, and Android (with additional Android app coming soon).
 
-* Alternatively, public keys can be input directly not requiring the use of Keybase.
+To create encrypted PGP message just:
+- Browse to https://apps.crp.to/encrypt-test
+- Enter the recipient's Keybase ID in the first box
+- Enter your Keybase ID (for the key you loaded onto OnlyKey) in the second box
+- Enter your secure message in the third box
+- Click "Encrypt and Sign"
+- When prompted enter the challenge code onto the OnlyKey
 
-Please, feel free to commit fixes!
+The encrypted message will be displayed and you can paste it into an email, IM, app or pretty much anything.
+
+*Alternatively, if you don't want to use Keybase you can paste a public key instead as shown in the animation below:*
+
+![Securely encrypt messages anywhere with OnlyKey WebCrypt](https://raw.githubusercontent.com/onlykey/onlykey.github.io/master/encrypt.gif)
+
+To decrypt PGP message just:
+- Browse to https://apps.crp.to/decrypt-test
+- Enter your Keybase ID (for the key you loaded onto OnlyKey) in the first box
+- Paste your encrypted PGP message in the second box
+- Click "Decrypt and Verify"
+- When prompted enter the challenge code onto the OnlyKey
+
+The decrypted message will be displayed. Read it and then close the browser tab and there will be no trace of the decrypted message.
+
+![Securely decrypt messages anywhere with OnlyKey WebCrypt](https://raw.githubusercontent.com/onlykey/onlykey.github.io/master/decrypt.gif)
 
 ## Security Goals
 
-**Empower the people**: Give people the ability to securely send and receive messages using any computer with no complicated software/drivers required.
+**Empower the people**: Give people the ability to securely send and receive messages using any computer with no complicated software/drivers required and no worrying about compromise of user's private identity.
 
 **Serverless**: All processing done via javascript in users own browser locally (no server to hack).
 
-**Private**: No logins required. No data retention. No tracking!!! No emails. No ads. No demographics. Retain no metadata, or other tracking information we don't know who / what / where you are.
+**Private**: No logins required. No data retention. No tracking!!! No emails. No ads. No demographics. Retain no metadata, or other tracking information.
 
-**Strong Crypto** - Everything should be sent via HTTPS to/from the web application. Data between local browser and OnlyKey should be encrypted using AES/ECDH shared secret (Not fully implemented).
+**Strong crypto** - Everything should be sent via HTTPS to/from the web application. Data between local browser and OnlyKey should be encrypted using AES/ECDH shared secret (NaCl + AES-256-GCM). This means on the local computer data is end-to-end encrypted and even if a malicious applications were to intercept communication it would be encrypted and unreadable without the key.
+
+**Phishing prevention** - The OnlyKey currently only works with apps.crp.to. Other domains are ignored, domains are enforced by origin.
 
 **Open source & audit-able** - What you see is what you get this repository is a Github page hosted directly on Github.
 
+Please, feel free to commit fixes!
+
 ## Protocol
 
-The protocol outlined below utilizes existing communication channel via U2F. More
-information is available on U2F protocol [here](https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-raw-message-formats.html).
+The protocol outlined below utilizes existing communication channel via U2F. More information is available on U2F protocol [here](https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-raw-message-formats.html).
 
-### Overview
+### Communication Channel Overview (Advanced)
 
 U2F utilizes registration and authentication message types. To send data to the OnlyKey, messages are encoded in the Key Handle of the authentication message type. To receive data back, messages are encoded in the signature of the authentication response. This method provides a reliable form of communication that is supported anywhere U2F is supported including Chrome, Chromium, Opera, and Firefox (Quantum or w/plugin).
 
@@ -45,10 +73,9 @@ The outline below visualizes the use of onlykey-api.js and u2f-api.js to communi
 │ APPLICATION  │                                                   │ OnlyKey │
 └──────────────┘                                                   └─────────┘
 
-INITIALIZE - SET TIME, SET APP PUBLIC KEY, GET ONLYKEY PUBLIC KEY, GET FIRMWARE VERSION
+INITIALIZE - SET TIME, SET APP PUBLIC NaCl KEY, GET ONLYKEY PUBLIC NaCl KEY, GET FIRMWARE VERSION
 
 1. Authentication Request Message:
-init()
 
 Encode a *packet in U2F Key Handle field that contains current epoch time and application public key.
 ┌──────────────────┬──────────────────┬──────────────────┐
@@ -59,27 +86,27 @@ Encode a *packet in U2F Key Handle field that contains current epoch time and ap
 ───────────────────────────────────────────────────────────────────────────▶
 
 2. Authentication Response Message:
-custom_auth_response(response)
 
 Decode a *packet with OnlyKey public key, OnlyKey firmware version, and unused space filled with hardware
 generated entropy (entropy not currently used but may be used for future secure key generation operations).
-┌───────────────────┐
-│     Signature     │
-│     *packet       │
-└───────────────────┘
+┌──────────────────┬─────────────────┬──────────────────┐
+│   User Presence  │     Counter     │     Signature    │  
+│                  │                 │     *packet      │  
+│     (1 byte)     │    (4 bytes)    │    (64 bytes)    │
+└──────────────────┴─────────────────┴──────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
 DECRYPTION/SIGNING REQUEST - DECRYPT OR SIGN DATA USING RSA PRIVATE KEY
 
 1. Authentication Request Message:
-auth_decrypt(), auth_sign()
 
 First, generate ECDH shared secret from OnlyKey's provided public key and application
-generated public key.
+generated public key. AES-GCM key is derived from SHA256 hash of shared secret (32 bytes). Encrypt and decrypt
+all future packets with this key and IV set to an incrementing counter.
 
-Encode a *packet in U2F Key Handle field that contains chunk of data to decrypt and specifies slot number
-of private key to use.
-Repeat for each chunk of data.
+Encode encrypted *packet in U2F Key Handle field one chunk at a time (64 bytes).
+Repeat for each chunk of data. Once finished sending data ping messages continue to be sent in
+order to get response or error codes.
 ┌──────────────────┬──────────────────┬───────────────────┐
 │    challenge     │       appId      │     Key Handle    │  
 │      random      │      crp.to      │      *packet      │  
@@ -88,38 +115,17 @@ Repeat for each chunk of data.
 ───────────────────────────────────────────────────────────────────────────▶
 
 2.  Authentication Response Message:
-custom_auth_response(response)
-
-Decode response - Acknowledge message received.
-┌──────────────────┐
-│     Response     │      
-│    (64 bytes)    │   
-└──────────────────┘
-◀───────────────────────────────────────────────────────────────────────────
 
 Once full message is received both the App and the OnlyKey generate a hash of
-the message that is used to generate a 3 digit code. The OnlyKey light flashes continuously
+the message that is used to generate a 3 digit challenge code. The OnlyKey light flashes continuously
 and the app prompts the user to enter the 3 digit code to authorize the signing / decrypting of
 that message. This ensures that user presence is required to sign / decrypt and that the authorization
-applies to a specific plaintext, not a spoofed message.
+applies to a specific plaintext, not a spoofed message. For increased security future versions may permit
+a longer challenge code.
 
-While waiting for the 3 digit code to be entered a ping is used to check status.
+While waiting for the challenge code to be entered a ping is used to check status. If no status is returned (TIMEOUT) the app polls for the response.
 
-3. Authentication Request Message:
-auth_ping()
-
-Encode a *packet in U2F Key Handle field that contains a ping request.
-┌──────────────────┬──────────────────┬───────────────────┐
-│    challenge     │       appId      │     Key Handle    │  
-│      random      │      crp.to      │      *packet      │  
-│    (32 bytes)    │     (32 bytes)   │     (64 bytes)    │
-└──────────────────┴──────────────────┴───────────────────┘
-───────────────────────────────────────────────────────────────────────────▶
-
-4.  Authentication Response Message:
-process_ping_response(response)
-
-Decode response -
+Error/status codes:
 - Error 0 ping reply, ack
 - Error 1 incorrect challenge code entered
 - Error 2 key type not set as signature/decrypt
@@ -129,34 +135,14 @@ Decode response -
 - Error 6 no data ready
 - Error code type 5 (TIMEOUT), ping failed, correct challenge code entered
 
-┌──────────────────┐
-│     Response     │      
-│    (64 bytes)    │   
-└──────────────────┘
-◀───────────────────────────────────────────────────────────────────────────
+Once the challenge code is entered correctly, the decryption / signing is completed and the result is stored on the
+OnlyKey until polling occurs (After 5 seconds unretrieved messages are automatically wiped from OnlyKey).
 
-Once the 3 digit code is entered correctly, the decryption / signing is completed and the result is stored on the
-OnlyKey until polling occurs (After 5 seconds unretrived messages are automatically wiped from OnlyKey).
-
-3. Authentication Request Message:
-msg_polling({ type: poll_type, delay: poll_delay })
-
-Encode a *packet in U2F Key Handle field that contains a request to retrieve stored data.
-┌──────────────────┬──────────────────┬───────────────────┐
-│    challenge     │       appId      │     Key Handle    │  
-│      random      │      crp.to      │      *packet      │  
-│    (32 bytes)    │     (32 bytes)   │     (64 bytes)    │
-└──────────────────┴──────────────────┴───────────────────┘
-───────────────────────────────────────────────────────────────────────────▶
-
-4.  Authentication Response Message:
-custom_auth_response(response)
-
-Decode a *packet containing the sessKey (for decryption) or the oksignature (for signing) and unused space filled with hardware generated entropy.
-┌───────────────────┐
-│     Signature     │
-│     *packet       │
-└───────────────────┘
+┌──────────────────┬─────────────────┬────────────────────────┐
+│   User Presence  │     Counter     │        Signature       │  
+│                  │                 │        *packet         │  
+│     (1 byte)     │    (4 bytes)    │     (Variable Size)    │
+└──────────────────┴─────────────────┴────────────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
 ```
@@ -206,3 +192,7 @@ The following cryptographic software is included in this distribution:
    "RFC4880 Implementation in IcedCoffeeScript" - https://github.com/keybase/kbpgp
 
 For more information on export restrictions see: http://www.apache.org/licenses/exports/
+
+## Source
+
+[OnlyKey WebCrypt on Github](https://github.com/onlykey/onlykey.github.io)
