@@ -1,11 +1,9 @@
 ![OnlyKey WebCrypt](logo-with-text.png)
 ========
 
-**Still in early development.**
-
 ## About
 
-WebCrypt is a serverless Web App that integrates with [OnlyKey](https://crp.to/p/) and [keybase.io](https://keybase.io/) to provide encryption everywhere on-the-go.
+WebCrypt is a serverless Web App that integrates with [OnlyKey](https://crp.to/p/) and [keybase.io](https://keybase.io/) to provide PGP encryption everywhere on-the-go.
 
 Supports Google Chrome and Firefox!
 
@@ -16,6 +14,20 @@ Supports Google Chrome and Firefox!
 ## How it works
 
 With Keybase user/key management is made easy and with OnlyKey private keys remain offline and protected. Private keys are not accessible to the browser or even the local computer. By using U2F as a secure communication channel the web application can send messages to OnlyKey that are decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports U2F and an OnlyKey to send secure messages using Windows, Mac, Linux, Chromebook, and Android (with additional Android app coming soon).
+
+## Setup
+
+**Before using this app you must follow these instructions to generate PGP keys and load them on OnlyKey:**
+- [Generate keys](https://docs.crp.to/usersguide.html#generating-keys) using Keybase
+- [Load keys](https://docs.crp.to/usersguide.html#loading-keys) onto OnlyKey
+
+If using Firefox, U2F must be enabled by completing the following steps in your browser:
+
+- Type about:config into the Firefox browser.
+- Search for “u2f”.
+- Double click on security.webauth.u2f to enable U2F support.
+
+## Sending secure messages
 
 To create encrypted PGP message just:
 - Browse to https://apps.crp.to/encrypt-test
@@ -30,6 +42,8 @@ The encrypted message will be displayed and you can paste it into an email, IM, 
 *Alternatively, if you don't want to use Keybase you can paste a public key instead as shown in the animation below:*
 
 ![Securely encrypt messages anywhere with OnlyKey WebCrypt](https://raw.githubusercontent.com/onlykey/onlykey.github.io/master/encrypt.gif)
+
+## Receiving secure messages
 
 To decrypt PGP message just:
 - Browse to https://apps.crp.to/decrypt-test
