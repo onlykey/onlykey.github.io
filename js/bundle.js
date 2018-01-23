@@ -69645,8 +69645,6 @@ class Pgp2go {
   }
 
   downloadPublicKey(url) {
-      button.classList.remove('error');
-      button.classList.add('working');
       button.textContent = 'Downloading public key ...';
       if (url.slice(0,8) != 'https://') {
         console.info(url);
@@ -69666,6 +69664,8 @@ class Pgp2go {
   }
 
   encryptText(key1, key2, msg) {
+    button.classList.remove('error');
+    button.classList.add('working');
       switch (_status) {
         case 'Encrypt and Sign':
           this.loadPublic(key1);
