@@ -1,4 +1,4 @@
-![OnlyKey WebCrypt](logo-with-text.png)
+![OnlyKey WebCrypt](https://raw.githubusercontent.com/onlykey/onlykey.github.io/master/logo-with-text.png)
 ========
 
 ## About

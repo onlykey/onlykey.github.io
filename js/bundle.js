@@ -69645,6 +69645,8 @@ class Pgp2go {
   }
 
   downloadPublicKey(url) {
+      button.classList.remove('error');
+      button.classList.add('working');
       button.textContent = 'Downloading public key ...';
       if (url.slice(0,8) != 'https://') {
         console.info(url);
@@ -69700,7 +69702,7 @@ class Pgp2go {
               this.showError(err);
               return;
           }
-          button.textContent = 'Done :)  Encrypted message copied to clipboard you can paste into an email, IM, whatever.';
+          button.textContent = 'Done :)  You can paste encrypted message into an email, IM, whatever.';
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
