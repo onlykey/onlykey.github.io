@@ -69556,18 +69556,16 @@ class Pgp2go {
         });
     }
 
-	startDecryption() {
+	async startDecryption() {
 			button.classList.remove('error');
 			button.classList.add('working');
         let keyurl = url.parse(urlinputbox.value);
           if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
-              sender_public_key = this.downloadPublicKey(urlinputbox.value);
+              sender_public_key = await this.downloadPublicKey(urlinputbox.value);
             } else {
               sender_public_key = urlinputbox.value;
         }
-        setTimeout(() => {
           this.decryptText(sender_public_key, messagebox.value);
-        }, 3000);
 	}
 
 	decryptText(key, ct) {
@@ -69616,9 +69614,7 @@ class Pgp2go {
       });
   }
 
-  startEncryption() {
-      button.classList.remove('error');
-      button.classList.add('working');
+  async startEncryption() {
       if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
           this.showError(new Error("I need recipient's public pgp key :("));
           return;
@@ -69628,21 +69624,19 @@ class Pgp2go {
           return;
       }
       if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
-        console.info(urlinputbox.value.slice(0,10));
-        sender_public_key = this.downloadPublicKey(urlinputbox.value);
-                  console.info("sender_public_key" + sender_public_key);
+          console.info(urlinputbox.value.slice(0,10));
+          sender_public_key = await this.downloadPublicKey(urlinputbox.value);
+          console.info("sender_public_key" + sender_public_key);
           } else {
             sender_public_key = urlinputbox.value;
       } if (urlinputbox2.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
         console.info(urlinputbox2.value.slice(0,10));
-        recipient_public_key = this.downloadPublicKey(urlinputbox2.value);
+        recipient_public_key = await this.downloadPublicKey(urlinputbox2.value);
                           console.info("recipient_public_key" + recipient_public_key);
           } else {
             recipient_public_key = urlinputbox2.value;
       }
-      setTimeout(() => {
         this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
-      }, 3000);
   }
 
   downloadPublicKey(url) {
