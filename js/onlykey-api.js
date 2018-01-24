@@ -48,6 +48,11 @@ async function init() {
   console.info("Chrome browser (Default)");
 }
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+  await wait(3000);
+  if (typeof(sharedsec) === "undefined") {
+  headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+}
+
 
   if (typeof(button) !== "undefined" && button !== null) {
     updateStatusFromSelection();
@@ -262,7 +267,6 @@ async function msg_polling(params = {}, cb) {
         console.info("AES Key", key);
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
       return;
     } else if (type == 2) {
