@@ -69571,6 +69571,7 @@ class Pgp2go {
 	decryptText(key, ct) {
       switch (_status) {
         case 'Decrypt and Verify':
+          this.loadPublic(key);
           button.textContent = 'Decrypting and verifying message ...';
           break;
         case 'Decrypt Only':
