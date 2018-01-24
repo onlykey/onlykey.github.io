@@ -50,7 +50,7 @@ async function init() {
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
   await wait(3000);
   if (typeof(sharedsec) === "undefined") {
-  headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+  headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
 }
 
 
