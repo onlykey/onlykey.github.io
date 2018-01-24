@@ -69560,11 +69560,12 @@ class Pgp2go {
 			button.classList.remove('error');
 			button.classList.add('working');
         let keyurl = url.parse(urlinputbox.value);
-        if (keyurl.hostname) { // Check if its a url
-            sender_public_key = this.downloadUrl();
-            this.decryptText(sender_public_key, messagebox.value);
-        } else {
-            this.decryptText(urlinputbox.value, messagebox.value);
+          if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+              sender_public_key = this.downloadPublicKey(urlinputbox.value);
+              console.info("sender_public_key" + sender_public_key);
+              this.decryptText(sender_public_key, messagebox.value);
+            } else {
+              this.decryptText(urlinputbox.value, messagebox.value);
         }
 	}
 
