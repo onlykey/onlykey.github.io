@@ -69559,7 +69559,10 @@ class Pgp2go {
 	async startDecryption() {
 			button.classList.remove('error');
 			button.classList.add('working');
-      if (_status == 'Decrypt and Verify') {
+      if (urlinputbox.value == "" && _status=='Decrypt and Verify') {
+          this.showError(new Error("I need senders's public pgp key to verify :("));
+          return;
+      } else if (urlinputbox.value != "") {
         let keyurl = url.parse(urlinputbox.value);
           if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
               sender_public_key = await this.downloadPublicKey(urlinputbox.value);
@@ -69619,11 +69622,11 @@ class Pgp2go {
 
   async startEncryption() {
       if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
-          this.showError(new Error("I need recipient's public pgp key :("));
+          this.showError(new Error("I need recipient's public pgp key to encrypt :("));
           return;
       }
       if (urlinputbox2.value == "" && (_status=='Encrypt and Sign' || _status=='Sign Only')) {
-          this.showError(new Error("I need sender's public pgp key :("));
+          this.showError(new Error("I need sender's public pgp key to sign :("));
           return;
       }
       if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
