@@ -69640,6 +69640,7 @@ class Pgp2go {
   }
 
   downloadPublicKey(url) {
+    return new Promise(resolve => {
       button.textContent = 'Downloading public key ...';
       if (url.slice(0,8) != 'https://') {
         console.info(url);
@@ -69654,8 +69655,10 @@ class Pgp2go {
                   this.showError(err);
                   return;
               }
+              resolve(key.text);
               return key.text;
           });
+        });
   }
 
   encryptText(key1, key2, msg) {
