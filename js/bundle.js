@@ -69559,12 +69559,14 @@ class Pgp2go {
 	async startDecryption() {
 			button.classList.remove('error');
 			button.classList.add('working');
+      if (_status == 'Decrypt and Verify') {
         let keyurl = url.parse(urlinputbox.value);
           if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
               sender_public_key = await this.downloadPublicKey(urlinputbox.value);
             } else {
               sender_public_key = urlinputbox.value;
-        }
+            }
+          }
           this.decryptText(sender_public_key, messagebox.value);
 	}
 
