@@ -69562,17 +69562,17 @@ class Pgp2go {
         let keyurl = url.parse(urlinputbox.value);
           if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
               sender_public_key = this.downloadPublicKey(urlinputbox.value);
-              console.info("sender_public_key" + sender_public_key);
-              this.decryptText(sender_public_key, messagebox.value);
             } else {
-              this.decryptText(urlinputbox.value, messagebox.value);
+              sender_public_key = urlinputbox.value;
         }
+        setTimeout(() => {
+          this.decryptText(sender_public_key, messagebox.value);
+        }, 3000);
 	}
 
 	decryptText(key, ct) {
       switch (_status) {
         case 'Decrypt and Verify':
-          this.loadPublic(key);
           button.textContent = 'Decrypting and verifying message ...';
           break;
         case 'Decrypt Only':
