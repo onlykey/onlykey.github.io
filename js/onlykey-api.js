@@ -191,9 +191,6 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function msg_polling(params = {}, cb) {
   var delay = params.delay || 0;
   var type = params.type || 1; // default type to 1
-  if (OKversion == 'Original') {
-    delay = delay*4;
-  }
 
   setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
@@ -581,10 +578,13 @@ window.doPinTimer = async function (seconds) {
 
     if (_status === 'done_challenge' || _status === 'waiting_ping') {
       _setStatus('done_challenge');
-      const btmsg = `Waiting ${poll_delay} seconds for OnlyKey to process message.`;
+      if (OKversion == 'Original') {
+        var delay = poll_delay*4;
+      }
+      const btmsg = `Waiting ${delay} seconds for OnlyKey to process message.`;
       button.textContent = btmsg;
-      console.info("Delay ", poll_delay);
-      await ping(poll_delay); //Delay
+      console.info("Delay ", delay);
+      await ping(delay); //Delay
     } else if (_status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
           const err = 'Time expired for PIN confirmation';
