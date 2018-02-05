@@ -189,8 +189,11 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  * Type of response requested - OKSETTIME, OKGETPUBKEY, OKSIGN, OKDECRYPT
  */
 async function msg_polling(params = {}, cb) {
-  const delay = params.delay || 0; // no delay by default
-  const type = params.type || 1; // default type to 1
+  var delay = params.delay || 0;
+  var type = params.type || 1; // default type to 1
+  if (OKversion == 'Original') {
+    delay = delay*4;
+  }
 
   setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
@@ -316,6 +319,7 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   } else if (ct.length == 524) {
     poll_delay = 7; //7 Second delay for RSA 4096
   }
+
   var padded_ct = ct.slice(12, ct.length);
   var keyid = ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
