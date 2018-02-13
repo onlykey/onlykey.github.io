@@ -9,7 +9,7 @@ var OKversion;
 var p256 = new ECC('p256');
 var sha256 = function(s) {
   var md = forge.md.sha256.create();
-  md.update(forge.util.createBuffer(Uint8Array.from(s)));
+  md.update(forge.util.createBuffer(s, 'raw'););
   console.info(md.digest().toHex());
   return Array.from(md.digest().toHex().match(/.{2}/g).map(hexStrToDec));
 };
