@@ -599,11 +599,6 @@ function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
 function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
 function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
 
-function asn1bytes(asn1) {
-  return asn1.stream.enc.slice(
-    asn1.stream.pos, asn1.stream.pos + asn1.length + asn1.header);
-}
-
 //Generate a random number for challenge value
 function mkchallenge() {
   var s = [];
