@@ -1,7 +1,7 @@
-const url = __webpack_require__(172);
-const kbpgp = __webpack_require__(169);
-const request = __webpack_require__(171);
-const randomColor = __webpack_require__(170);
+const url = require('url');
+const kbpgp = require('kbpgp');
+const request = require('superagent');
+const randomColor = require('randomcolor');
 
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
@@ -315,10 +315,10 @@ loadPublicSignerID(key) {
           sender_public_key = sender;
           var keyids = sender_public_key.get_all_pgp_key_ids();
           if (typeof keyids[2] !== "undefined") {
-            poll_delay = 2;  //Assuming RSA 2048
+            poll_delay = 3;  //Assuming RSA 2048
             var subkey = 2;
           } else {
-            poll_delay = 9;  //Assuming RSA 4096 or 3072
+            poll_delay = 11;  //Assuming RSA 4096 or 3072
             var subkey = 0;
           }
           custom_keyid = keyids[subkey].toString('hex').toUpperCase();
@@ -377,14 +377,47 @@ button.onclick = function () {
         case 'Decrypt and Verify':
         case 'Decrypt Only':
             poll_type = 3;
-            poll_delay = 1;
+            poll_delay = 3;
             p2g.startDecryption();
             break;
         case 'pending_pin':
+            _status = 'done_pin';
+            break;
+        case 'done_pin':
+            //something
             break;
     }
     return false;
 };
+
+window.doPinTimer = function (seconds) {
+  return new Promise(function updateTimer(resolve, reject, secondsRemaining) {
+    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
+    if (secondsRemaining <= 0) {
+      const err = 'Time expired for PIN confirmation';
+      p2g.showError({ message: err });
+      updateStatusFromSelection(true);
+      return reject(err);
+    }
+    if (_status === 'done_pin') {
+      button.textContent = 'Confirming PIN...';
+      msg(`Delay ${poll_delay} seconds`);
+      return enroll_polling({ type: poll_type, delay: poll_delay }, (err, data) => {
+        msg(`Executed enroll_polling after PIN confirmation: skey = ${data}`);
+        updateStatusFromSelection();
+        resolve(data);
+      });
+    }
+
+    setButtonTimerMessage(secondsRemaining);
+    setTimeout(updateTimer.bind(null, resolve, reject, --secondsRemaining), 1000);
+  });
+};
+
+function setButtonTimerMessage(seconds) {
+  const msg = `You have ${seconds} seconds to enter challenge code ${pin} on OnlyKey.`;
+  button.textContent = msg;
+}
 
 urlinputbox.onkeyup = function () {
     let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;

@@ -6,12 +6,11 @@ var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
 
-var sha256 = function(s) {
-  var md = forge.md.sha256.create();
-  md.update(s);
-  return md.digest().toHex().match(/.{2}/g).map(hexStrToDec);
-};
+var p256 = new ECC('p256');
+var sha256 = function(s) { return p256.hash().update(s).digest(); };
+var BN = p256.n.constructor;  // BN = BigNumber
 
+var curve25519 = new ECC('curve25519');
 var appKey;
 var appPub;
 var appPubPart;
@@ -42,7 +41,7 @@ const button = document.getElementById('onlykey_start');
  * Receives hardware generated entropy for future use
  */
 async function init() {
-  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
+  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
   browserid = 128; //Firefox
   console.info("Firefox browser");
 } else {
@@ -72,6 +71,112 @@ function updateStatusFromSelection(skipBtn) {
 }
 
 /**
+ * U2F registration pure JavaScript
+ */
+function enroll_local() {
+  msg("Enrolling user " + userId());
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "appId": appId, "version": version};
+  u2f.register(appId, [req], [], function(response) {
+    var result = process_enroll_response(response);
+    msg("User " + userId() + " enroll " + (result ? "succeeded" : "failed"));
+  });
+}
+
+/**
+ * U2F authentication pure JavaScript
+ */
+function auth_local() {
+  msg("Authorizing user " + userId());
+  keyHandle = userDict[userId()];
+  if (!keyHandle) {
+    msg("User " + userId() + " not enrolled");
+    return;
+  }
+  msg("Sending Handlekey " + keyHandle);
+  var challenge = mkchallenge();
+  msg("Sending challenge " + challenge);
+  var req = { "challenge": challenge, "keyHandle": keyHandle,
+               "appId": appId, "version": version };
+  u2f.sign(appId, challenge, [req], function(response) {
+    var result = process_auth_response(response);
+    msg("User " + userId() + " auth " + (result ? "succeeded" : "failed"));
+  });
+    msg("Finished");
+}
+
+/**
+ * Function to process U2F registration response
+ * @param {Array} response
+ */
+function process_enroll_response(response) {
+  var err = response['errorCode'];
+  if (err) {
+    msg("Registration failed with error code " + err);
+    console.info(errMes);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  var regData_b64 = response['registrationData'];
+  var clientData_str = u2f_unb64(clientData_b64);
+  var clientData = JSON.parse(clientData_str);
+  var origin = clientData['origin'];
+  if (origin != appId) {
+    msg("Registration failed.  AppId was " + origin + ", should be " + appId);
+    return false;
+  }
+  var v = string2bytes(u2f_unb64(regData_b64));
+  var u2f_pk = v.slice(1, 66);                // PK = Public Key
+  var kh_bytes = v.slice(67, 67 + v[66]);     // KH = Key Handle
+  var kh_b64 = bytes2b64(kh_bytes);
+  var cert_der = v.slice(67 + v[66]);
+  var cert_asn1 = ASN1.decode(cert_der);
+  var cert_pk_asn1 = cert_asn1.sub[0].sub[6].sub[1];
+  var cert_pk_bytes = asn1bytes(cert_pk_asn1);
+  var cert_key = p256.keyFromPublic(cert_pk_bytes.slice(3), 'der');
+  var sig = cert_der.slice(cert_asn1.length + cert_asn1.header);
+  var l = [[0], sha256(appId), sha256(clientData_str), kh_bytes, u2f_pk];
+  var v = cert_key.verify(sha256(bcat(l)), sig);
+  if (v) {
+    userDict[userId()] = kh_b64;
+    keyHandleDict[kh_b64] = u2f_pk;
+  }
+  return v;
+}
+
+/**
+ * Function to process U2F sign response
+ * @param {Array} response
+ */
+function process_auth_response(response) {
+  console.info("Response", response);
+  var err = response['errorCode'];
+  if (err) {
+    msg("Auth failed with error code " + err);
+    console.info(errMes);
+    return false;
+  }
+  var clientData_b64 = response['clientData'];
+  var clientData_str = u2f_unb64(clientData_b64);
+  var clientData_bytes = string2bytes(clientData_str);
+  var clientData = JSON.parse(clientData_str);
+  var origin = clientData['origin'];
+  var kh = response['keyHandle'];
+  var pk = keyHandleDict[kh];
+  var key = p256.keyFromPublic(pk, 'der');
+  var sigData = string2bytes(u2f_unb64(response['signatureData']));
+  var sig = sigData.slice(5);
+  var appid = document.location.origin;
+  var m = bcat([sha256(appid), sigData.slice(0,5), sha256(clientData_bytes)]);
+  if (!key.verify(sha256(m), sig)) return false;
+  var userPresent = sigData[0];
+  var counter2 = new BN(sigData.slice(1,5)).toNumber();
+  msg("User present: " + userPresent);
+  msg("Counter: " + counter2);
+  return true;
+}
+
+/**
  * Use promise and setTimeout to wait x seconds
  */
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -85,7 +190,10 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  */
 async function msg_polling(params = {}, cb) {
   var delay = params.delay || 0;
-  var type = params.type || 1; // default type to 1
+  const type = params.type || 1; // default type to 1
+  if (OKversion == 'Original') {
+    delay = delay*4;
+  }
 
   setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
@@ -211,7 +319,9 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   } else if (ct.length == 524) {
     poll_delay = 7; //7 Second delay for RSA 4096
   }
-
+  if (OKversion == 'Original') {
+    poll_delay = poll_delay*4;
+  }
   var padded_ct = ct.slice(12, ct.length);
   var keyid = ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
@@ -380,7 +490,7 @@ function aesgcm_decrypt(encrypted) {
       tagLength: 0, // optional, defaults to 128 bits
     });
     decipher.update(forge.util.createBuffer(Uint8Array.from(encrypted)));
-    var plaintext = decipher.output.toHex();
+    var plaintext = decipher.output.toHex()
     decipher.finish();
 
     //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
@@ -473,13 +583,10 @@ window.doPinTimer = async function (seconds) {
 
     if (_status === 'done_challenge' || _status === 'waiting_ping') {
       _setStatus('done_challenge');
-      if (OKversion == 'Original') {
-        var delay = poll_delay*4;
-      }
-      const btmsg = `Waiting ${delay} seconds for OnlyKey to process message.`;
+      const btmsg = `Waiting ${poll_delay} seconds for OnlyKey to process message.`;
       button.textContent = btmsg;
-      console.info("Delay ", delay);
-      await ping(delay); //Delay
+      console.info("Delay ", poll_delay);
+      await ping(poll_delay); //Delay
     } else if (_status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
           const err = 'Time expired for PIN confirmation';
