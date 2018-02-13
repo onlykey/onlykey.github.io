@@ -380,7 +380,7 @@ function aesgcm_decrypt(encrypted) {
       tagLength: 0, // optional, defaults to 128 bits
     });
     decipher.update(forge.util.createBuffer(Uint8Array.from(encrypted)));
-    var plaintext = decipher.output.toHex()
+    var plaintext = decipher.output.toHex();
     decipher.finish();
 
     //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
