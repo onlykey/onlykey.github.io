@@ -9,7 +9,7 @@ var OKversion;
 var sha256 = function(s) {
   var md = forge.md.sha256.create();
   md.update(s);
-  return md.digest();
+  return md.digest().toHex().match(/.{2}/g).map(hexStrToDec);
 };
 
 var appKey;
