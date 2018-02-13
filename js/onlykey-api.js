@@ -41,7 +41,7 @@ const button = document.getElementById('onlykey_start');
  * Receives hardware generated entropy for future use
  */
 async function init() {
-  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
   browserid = 128; //Firefox
   console.info("Firefox browser");
 } else {
