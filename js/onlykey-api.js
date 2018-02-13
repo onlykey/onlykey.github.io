@@ -10,6 +10,7 @@ var p256 = new ECC('p256');
 var sha256 = function(s) {
   var md = forge.md.sha256.create();
   md.update(s);
+  console.info(md.digest().toHex());
   return Array.from(md.digest().toHex().match(/.{2}/g).map(hexStrToDec));
 };
 var BN = p256.n.constructor;  // BN = BigNumber
