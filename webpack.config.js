@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const MinifyPlugin = require("babel-minify-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
@@ -25,15 +25,28 @@ let plugins = [
         cache: false,
         showErrors: false
     }),
-    new UglifyJsPlugin({
-        uglifyOptions: {
-        ie8: false,
-        ecma: 8,
+    new MinifyPlugin(
+      minifyOpts={
+        consecutiveAdds: false,
+        deadcode: false,
+        evaluate: false,
+        flipComparisons: false,
+        guards: false,
+        infinity: false,
         mangle: false,
-        compress: true,
-        warnings: false
+        mergeVars: false,
+        numericLiterals: false,
+        propertyLiterals: false,
+        removeConsole: true,
+        removeDebugger: true,
+        removeUndefined: false,
+        simplifyComparisons: false,
+        undefinedToVoid: false
+      },
+      pluginOpts={
+        exclude: ["./js/forge.min.js", "./js/nacl.min.js"]
       }
-    }),
+    ),
     new SriPlugin({
         hashFuncNames: ['sha256', 'sha384'],
         enabled: true
