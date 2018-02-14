@@ -54,7 +54,7 @@ let plugins = [
 ];
 
 module.exports = {
-    entry: ['./js/app.js', './js/forge.min.js', './js/kbpgp.js', './js/onlykey-api.js', './js/u2f-api.js', './js/nacl.min.js'],
+    entry: ['./js/app.js'],
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
         filename: 'bundle.[hash].js',

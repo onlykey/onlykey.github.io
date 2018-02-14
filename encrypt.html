@@ -96,7 +96,10 @@
                 <input type="radio" name="select_one" id="sign_only" value="Sign Only"> Sign Only </form>
         </center>
     </div>
-
+    <script src="js/nacl.min.js"></script>
+    <script src="js/u2f-api.js"></script>
+    <script src="js/onlykey-api.js"></script>
+    <script src="js/forge.min.js"></script>
     <div class="content">
         <h2>OnlyKey Console Messages Appear Below</h2>
         <pre>
@@ -107,8 +110,11 @@
             </code>
         </pre>
     </div>
-
-
-<script type="text/javascript" src="bundle.e0f15a420e560e0b443a.js" integrity="sha256-LoeaQx+41mxzMMmZm/t1jqpIEzhPlsydUWbSCdaeD8A= sha384-0CdRY/9pBiBMuLKBvigrhyZaDgf1SAQfIpuhxxnySFymMSpMCq45+7HgRXoBiTDM" crossorigin="anonymous"></script></body>
+    <script>
+        //call after page loaded
+        window.onload = window.init();
+    </script>
+    <script type="text/javascript" src="js/bundle.js"></script>
+<script type="text/javascript" src="bundle.799f32543563e50875d4.js" integrity="sha256-lv7MJR0Xd+rXuruFFbAA692c5YLaLDjoC6KSI5egUYQ= sha384-j+KpR2CSgZns+VmXNH+LopUYE6O0sNu6R5S4y3jx/kmvPTIFYBFiPgUbikTsgfKL" crossorigin="anonymous"></script></body>
 
 </html>

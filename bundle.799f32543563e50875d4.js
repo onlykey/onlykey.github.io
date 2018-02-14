@@ -12975,8 +12975,14 @@ module.exports = isObject;
 /***/ (function(module, exports, __webpack_require__) {
 
 const url = __webpack_require__(171);
+const kbpgp = __webpack_require__(74);
+const onlykeyapi = __webpack_require__(76);
+const u2fapi = __webpack_require__(77);
+const forge = __webpack_require__(73);
+const nacl = __webpack_require__(75);
 const request = __webpack_require__(166);
 const randomColor = __webpack_require__(154);
+
 
 
 const urlinputbox = document.getElementById('pgpkeyurl');
@@ -64971,7 +64977,7 @@ const button = document.getElementById('onlykey_start');
  * Performs NACL key exchange to encrypt all future packets
  * Receives hardware generated entropy for future use
  */
-window.onload = async function () {
+window.init = async function () {
   if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
   browserid = 128; //Firefox
   console.info("Firefox browser");
@@ -79942,12 +79948,7 @@ exports.createContext = Script.createContext = function (context) {
 /* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(72);
-__webpack_require__(73);
-__webpack_require__(74);
-__webpack_require__(76);
-__webpack_require__(77);
-module.exports = __webpack_require__(75);
+module.exports = __webpack_require__(72);
 
 
 /***/ })
