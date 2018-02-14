@@ -25,7 +25,7 @@ let plugins = [
         cache: false,
         showErrors: false
     }),
-    new MinifyPlugin(
+    /*new MinifyPlugin(
       minifyOpts={
         consecutiveAdds: false,
         deadcode: false,
@@ -46,7 +46,7 @@ let plugins = [
       pluginOpts={
         exclude: ["./js/forge.min.js", "./js/nacl.min.js"]
       }
-    ),
+    ),*/
     new SriPlugin({
         hashFuncNames: ['sha256', 'sha384'],
         enabled: true
