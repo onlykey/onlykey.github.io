@@ -27,6 +27,7 @@
     "webpack-subresource-integrity": "^0.9.0"
   },
   "dependencies": {
+    "exports-loader": "^0.7.0",
     "install": "^0.10.1",
     "kbpgp": "file:../kbpgp",
     "npm": "^5.6.0",

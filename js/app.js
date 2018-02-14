@@ -1,9 +1,9 @@
+require("exports-loader?file,parse=helpers.parse!./onlykey-api.js");
+require("exports-loader?file,parse=helpers.parse!./u2f-api.js");
+require("exports-loader?file,parse=helpers.parse!./forge.min.js");
+require("exports-loader?file,parse=helpers.parse!./nacl.min.js");
 const url = require('url');
 const kbpgp = require('./kbpgp.js');
-const onlykeyapi = require('./onlykey-api.js');
-const u2fapi = require('./u2f-api.js');
-const forge = require('./forge.min.js');
-const nacl = require('./nacl.min.js');
 const request = require('superagent');
 const randomColor = require('randomcolor');
 
