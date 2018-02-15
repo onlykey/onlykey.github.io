@@ -12975,7 +12975,7 @@ module.exports = isObject;
 /***/ (function(module, exports, __webpack_require__) {
 
 const onlykey = ('./onlykey-api.js');
-__webpack_require__(129)
+var init = __webpack_require__(129);
 const u2f = __webpack_require__(76);
 const forge = __webpack_require__(73);
 const nacl = __webpack_require__(75);
