@@ -1,6 +1,8 @@
-const u2f = require('./u2f-api.js');
-const forge = require('./forge.min.js');
-const nacl = require('./nacl.min.js');
+require('./app.js');
+require('./u2f-api.js');
+require('./forge.min.js');
+require('./nacl.min.js');
+
 
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
@@ -45,19 +47,18 @@ const button = document.getElementById('onlykey_start');
  * Performs NACL key exchange to encrypt all future packets
  * Receives hardware generated entropy for future use
  */
-async function init() {
-  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
-  browserid = 128; //Firefox
-  console.info("Firefox browser");
-} else {
-  console.info("Chrome browser (Default)");
-}
-  msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-  await wait(3000);
-  if (typeof(sharedsec) === "undefined") {
-  headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
-}
-
+window.onload = async function() {
+    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
+    browserid = 128; //Firefox
+    console.info("Firefox browser");
+  } else {
+    console.info("Chrome browser (Default)");
+  }
+    msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+    await wait(3000);
+    if (typeof(sharedsec) === "undefined") {
+    headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
+  }
 
 if (typeof(button) !== "undefined" && button !== null) {
     updateStatusFromSelection();

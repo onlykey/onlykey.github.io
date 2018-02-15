@@ -24,7 +24,10 @@ let plugins = [
         hash: false,
         cache: false,
         showErrors: false
-    }),
+    })
+];
+
+if (process.env.NODE_ENV === 'production') {
     /*new MinifyPlugin(
       minifyOpts={
         consecutiveAdds: false,
@@ -47,17 +50,17 @@ let plugins = [
         exclude: ["./js/forge.min.js", "./js/nacl.min.js"]
       }
     ),*/
-    new SriPlugin({
+    plugins.push(new SriPlugin({
         hashFuncNames: ['sha256', 'sha384'],
-        enabled: true
-    }),
-];
+        enabled: process.env.NODE_ENV === 'production'
+    }));
+}
 
 module.exports = {
-    entry: ['./js/app.js', './js/onlykey-api.js'],
+    entry: ['./js/onlykey-api.js', './js/app.js', './js/kbpgp.js'],
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
-        filename: 'bundle.[hash].js',
+        filename: (process.env.NODE_ENV === 'production') ? 'bundle.[hash].js' : 'bundle.js',
         crossOriginLoading: 'anonymous'
     },
     plugins: plugins

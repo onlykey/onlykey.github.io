@@ -1,10 +1,8 @@
-const u2f = require('./u2f-api.js');
-const forge = require('./forge.min.js');
-const nacl = require('./nacl.min.js');
 const url = require('url');
 const kbpgp = require('./kbpgp.js');
 const request = require('superagent');
 const randomColor = require('randomcolor');
+require('./onlykey-api.js');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
