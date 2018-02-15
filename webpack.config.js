@@ -24,6 +24,13 @@ let plugins = [
         hash: false,
         cache: false,
         showErrors: false
+    }),
+    new webpack.ProvidePlugin({
+      u2f: './u2f-api.js',
+      nacl: './nacl.min.js',
+      forge: './forge.min.js',
+      auth_sign: './onlykey-api.js',
+      auth_decrypt: './onlykey-api.js'
     })
 ];
 
@@ -57,7 +64,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 module.exports = {
-    entry: ['./js/onlykey-api.js', './js/app.js', './js/kbpgp.js'],
+    entry: ['./js/app.js'],
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
         filename: (process.env.NODE_ENV === 'production') ? 'bundle.[hash].js' : 'bundle.js',

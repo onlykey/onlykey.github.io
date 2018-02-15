@@ -1,9 +1,3 @@
-require('./app.js');
-require('./u2f-api.js');
-require('./forge.min.js');
-require('./nacl.min.js');
-
-
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};

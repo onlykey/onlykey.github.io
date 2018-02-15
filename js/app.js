@@ -1,8 +1,6 @@
-const url = require('url');
 const kbpgp = require('./kbpgp.js');
 const request = require('superagent');
 const randomColor = require('randomcolor');
-require('./onlykey-api.js');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
