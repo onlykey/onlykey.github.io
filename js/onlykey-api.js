@@ -41,7 +41,7 @@ const button = document.getElementById('onlykey_start');
  * Performs NACL key exchange to encrypt all future packets
  * Receives hardware generated entropy for future use
  */
-window.init = async function () {
+async function init() {
   if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
   browserid = 128; //Firefox
   console.info("Firefox browser");
