@@ -13370,7 +13370,7 @@ button.onclick = function () {
 };
 
 window.onload = function () {
-  init();
+  onlykey.init();
 };
 
 
