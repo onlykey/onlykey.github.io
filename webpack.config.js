@@ -26,7 +26,6 @@ let plugins = [
         showErrors: false
     }),
     new webpack.ProvidePlugin({
-      u2f: './u2f-api.js',
       nacl: './nacl.min.js',
       forge: './forge.min.js',
       auth_sign: './onlykey-api.js',

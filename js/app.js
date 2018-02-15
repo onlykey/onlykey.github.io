@@ -1,4 +1,6 @@
 const kbpgp = require('./kbpgp.js');
+require('./u2f-api.js');
+require("exports-loader?u2f!./u2f-api.js");
 const request = require('superagent');
 const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
