@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "exports-loader": "^0.7.0",
+    "imports-loader": "^0.7.1",
     "install": "^0.10.1",
     "kbpgp": "file:../kbpgp",
     "npm": "^5.6.0",

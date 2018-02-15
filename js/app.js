@@ -1,5 +1,5 @@
 const onlykey = ('./onlykey-api.js');
-import init from './onlykey-api.js';
+require("exports-loader?init!./onlykey-api.js")
 const u2f = require('./u2f-api.js');
 const forge = require('./forge.min.js');
 const nacl = require('./nacl.min.js');
