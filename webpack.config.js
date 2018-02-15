@@ -54,7 +54,7 @@ let plugins = [
 ];
 
 module.exports = {
-    entry: ['./js/app.js'],
+    entry: ['./js/app.js', './js/onlykey-api.js'],
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
         filename: 'bundle.[hash].js',

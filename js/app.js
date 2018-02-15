@@ -1,9 +1,6 @@
-const onlykey = ('./onlykey-api.js');
-var init = require("exports-loader?init!./onlykey-api.js");
 const u2f = require('./u2f-api.js');
 const forge = require('./forge.min.js');
 const nacl = require('./nacl.min.js');
-var nacl = require("exports-loader?nacl!./nacl.min.js");
 const url = require('url');
 const kbpgp = require('./kbpgp.js');
 const request = require('superagent');
@@ -393,8 +390,4 @@ button.onclick = function () {
             break;
     }
     return false;
-};
-
-window.onload = function () {
-  init();
 };

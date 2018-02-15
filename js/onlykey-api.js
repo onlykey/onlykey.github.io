@@ -1,3 +1,7 @@
+const u2f = require('./u2f-api.js');
+const forge = require('./forge.min.js');
+const nacl = require('./nacl.min.js');
+
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};
