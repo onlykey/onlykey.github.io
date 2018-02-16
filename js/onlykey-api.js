@@ -42,6 +42,7 @@ const button = document.getElementById('onlykey_start');
  * Receives hardware generated entropy for future use
  */
 window.onload = async function() {
+  //Initialize OnlyKey
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
     browserid = 128; //Firefox
     console.info("Firefox browser");
@@ -52,22 +53,10 @@ window.onload = async function() {
     await wait(3000);
     if (typeof(sharedsec) === "undefined") {
     headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
+  } else {
+    //Initialize App
+     window.initapp();
   }
-
-if (typeof(button) !== "undefined" && button !== null) {
-    updateStatusFromSelection();
-    document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
-  }
-}
-
-/**
- * Sets user selected radio button
- * @param {String} skipBtn
- */
-function updateStatusFromSelection(skipBtn) {
-  const val = document.action.select_one.value;
-  _status = val;
-  if (!skipBtn) button.textContent = val;
 }
 
 /**
