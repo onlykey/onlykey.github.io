@@ -15048,7 +15048,7 @@ _break()
               //privk = key_material.key;
               console.info("err", err);
               err = null;
-              auth_decrypt(packet.raw, (ok_sesskey) => {
+              window.auth_decrypt(packet.raw, (ok_sesskey) => {
                   sesskey = packet.raw.slice(0, ok_sesskey.length);
                   sesskey = Object.assign(sesskey, ok_sesskey);
                   console.info("sesskey from OnlyKey:", sesskey);
@@ -18257,7 +18257,7 @@ _break()
           _this.sign(m, __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
-                auth_sign(hashed_data, (ok_sig) => {
+                window.auth_sign(hashed_data, (ok_sig) => {
                     console.info("signature from OnlyKey:", ok_sig);
                     sig = arguments[0].to_mpi_buffer();
                     console.info("signature from app:", sig);
