@@ -5909,111 +5909,6 @@ process.umask = function() { return 0; };
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(20).Transform
-var StringDecoder = __webpack_require__(32).StringDecoder
-var inherits = __webpack_require__(0)
-
-function CipherBase (hashMode) {
-  Transform.call(this)
-  this.hashMode = typeof hashMode === 'string'
-  if (this.hashMode) {
-    this[hashMode] = this._finalOrDigest
-  } else {
-    this.final = this._finalOrDigest
-  }
-  if (this._final) {
-    this.__final = this._final
-    this._final = null
-  }
-  this._decoder = null
-  this._encoding = null
-}
-inherits(CipherBase, Transform)
-
-CipherBase.prototype.update = function (data, inputEnc, outputEnc) {
-  if (typeof data === 'string') {
-    data = Buffer.from(data, inputEnc)
-  }
-
-  var outData = this._update(data)
-  if (this.hashMode) return this
-
-  if (outputEnc) {
-    outData = this._toString(outData, outputEnc)
-  }
-
-  return outData
-}
-
-CipherBase.prototype.setAutoPadding = function () {}
-CipherBase.prototype.getAuthTag = function () {
-  throw new Error('trying to get auth tag in unsupported state')
-}
-
-CipherBase.prototype.setAuthTag = function () {
-  throw new Error('trying to set auth tag in unsupported state')
-}
-
-CipherBase.prototype.setAAD = function () {
-  throw new Error('trying to set aad in unsupported state')
-}
-
-CipherBase.prototype._transform = function (data, _, next) {
-  var err
-  try {
-    if (this.hashMode) {
-      this._update(data)
-    } else {
-      this.push(this._update(data))
-    }
-  } catch (e) {
-    err = e
-  } finally {
-    next(err)
-  }
-}
-CipherBase.prototype._flush = function (done) {
-  var err
-  try {
-    this.push(this.__final())
-  } catch (e) {
-    err = e
-  }
-
-  done(err)
-}
-CipherBase.prototype._finalOrDigest = function (outputEnc) {
-  var outData = this.__final() || Buffer.alloc(0)
-  if (outputEnc) {
-    outData = this._toString(outData, outputEnc, true)
-  }
-  return outData
-}
-
-CipherBase.prototype._toString = function (value, enc, fin) {
-  if (!this._decoder) {
-    this._decoder = new StringDecoder(enc)
-    this._encoding = enc
-  }
-
-  if (this._encoding !== enc) throw new Error('can\'t switch encodings')
-
-  var out = this._decoder.write(value)
-  if (fin) {
-    out += this._decoder.end()
-  }
-
-  return out
-}
-
-module.exports = CipherBase
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /* WEBPACK VAR INJECTION */(function(forge, nacl) {var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};
@@ -6615,6 +6510,111 @@ function noop() {}
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(76), __webpack_require__(80)))
 
 /***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Buffer = __webpack_require__(1).Buffer
+var Transform = __webpack_require__(20).Transform
+var StringDecoder = __webpack_require__(32).StringDecoder
+var inherits = __webpack_require__(0)
+
+function CipherBase (hashMode) {
+  Transform.call(this)
+  this.hashMode = typeof hashMode === 'string'
+  if (this.hashMode) {
+    this[hashMode] = this._finalOrDigest
+  } else {
+    this.final = this._finalOrDigest
+  }
+  if (this._final) {
+    this.__final = this._final
+    this._final = null
+  }
+  this._decoder = null
+  this._encoding = null
+}
+inherits(CipherBase, Transform)
+
+CipherBase.prototype.update = function (data, inputEnc, outputEnc) {
+  if (typeof data === 'string') {
+    data = Buffer.from(data, inputEnc)
+  }
+
+  var outData = this._update(data)
+  if (this.hashMode) return this
+
+  if (outputEnc) {
+    outData = this._toString(outData, outputEnc)
+  }
+
+  return outData
+}
+
+CipherBase.prototype.setAutoPadding = function () {}
+CipherBase.prototype.getAuthTag = function () {
+  throw new Error('trying to get auth tag in unsupported state')
+}
+
+CipherBase.prototype.setAuthTag = function () {
+  throw new Error('trying to set auth tag in unsupported state')
+}
+
+CipherBase.prototype.setAAD = function () {
+  throw new Error('trying to set aad in unsupported state')
+}
+
+CipherBase.prototype._transform = function (data, _, next) {
+  var err
+  try {
+    if (this.hashMode) {
+      this._update(data)
+    } else {
+      this.push(this._update(data))
+    }
+  } catch (e) {
+    err = e
+  } finally {
+    next(err)
+  }
+}
+CipherBase.prototype._flush = function (done) {
+  var err
+  try {
+    this.push(this.__final())
+  } catch (e) {
+    err = e
+  }
+
+  done(err)
+}
+CipherBase.prototype._finalOrDigest = function (outputEnc) {
+  var outData = this.__final() || Buffer.alloc(0)
+  if (outputEnc) {
+    outData = this._toString(outData, outputEnc, true)
+  }
+  return outData
+}
+
+CipherBase.prototype._toString = function (value, enc, fin) {
+  if (!this._decoder) {
+    this._decoder = new StringDecoder(enc)
+    this._encoding = enc
+  }
+
+  if (this._encoding !== enc) throw new Error('can\'t switch encodings')
+
+  var out = this._decoder.write(value)
+  if (fin) {
+    out += this._decoder.end()
+  }
+
+  return out
+}
+
+module.exports = CipherBase
+
+
+/***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6888,7 +6888,7 @@ var md5 = __webpack_require__(27)
 var RIPEMD160 = __webpack_require__(28)
 var sha = __webpack_require__(33)
 
-var Base = __webpack_require__(9)
+var Base = __webpack_require__(10)
 
 function HashNoConstructor (hash) {
   Base.call(this, 'digest')
@@ -11504,7 +11504,7 @@ module.exports = Sha512
 
 var inherits = __webpack_require__(0)
 var Legacy = __webpack_require__(96)
-var Base = __webpack_require__(9)
+var Base = __webpack_require__(10)
 var Buffer = __webpack_require__(1).Buffer
 var md5 = __webpack_require__(27)
 var RIPEMD160 = __webpack_require__(28)
@@ -11798,7 +11798,7 @@ module.exports = {"aes-128-ecb":{"cipher":"AES","key":128,"iv":0,"mode":"ECB","t
 
 var aes = __webpack_require__(23)
 var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(9)
+var Transform = __webpack_require__(10)
 var inherits = __webpack_require__(0)
 var GHASH = __webpack_require__(109)
 var xor = __webpack_require__(16)
@@ -11921,7 +11921,7 @@ module.exports = StreamCipher
 
 var aes = __webpack_require__(23)
 var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(9)
+var Transform = __webpack_require__(10)
 var inherits = __webpack_require__(0)
 
 function StreamCipher (mode, key, iv, decrypt) {
@@ -13686,7 +13686,7 @@ module.exports = __webpack_require__(75);
 /* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(_status, poll_delay, custom_keyid, poll_type) {const url = __webpack_require__(166);
+/* WEBPACK VAR INJECTION */(function(_status, poll_delay, custom_keyid, hexStrToDec, poll_type) {const url = __webpack_require__(166);
 const kbpgp = __webpack_require__(172);
 //require("exports-loader?kbpgp!./kbpgp.js");
 const request = __webpack_require__(173);
@@ -14102,7 +14102,7 @@ urlinputbox.onkeyup = function () {
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(10), __webpack_require__(10), __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(9), __webpack_require__(9), __webpack_require__(9), __webpack_require__(9)))
 
 /***/ }),
 /* 76 */
@@ -15342,7 +15342,7 @@ module.exports = Sha384
 var inherits = __webpack_require__(0)
 var Buffer = __webpack_require__(1).Buffer
 
-var Base = __webpack_require__(9)
+var Base = __webpack_require__(10)
 
 var ZEROS = Buffer.alloc(128)
 var blocksize = 64
@@ -15840,7 +15840,7 @@ var MODES = __webpack_require__(35)
 var AuthCipher = __webpack_require__(56)
 var Buffer = __webpack_require__(1).Buffer
 var StreamCipher = __webpack_require__(57)
-var Transform = __webpack_require__(9)
+var Transform = __webpack_require__(10)
 var aes = __webpack_require__(23)
 var ebtk = __webpack_require__(22)
 var inherits = __webpack_require__(0)
@@ -16232,7 +16232,7 @@ var AuthCipher = __webpack_require__(56)
 var Buffer = __webpack_require__(1).Buffer
 var MODES = __webpack_require__(35)
 var StreamCipher = __webpack_require__(57)
-var Transform = __webpack_require__(9)
+var Transform = __webpack_require__(10)
 var aes = __webpack_require__(23)
 var ebtk = __webpack_require__(22)
 var inherits = __webpack_require__(0)
@@ -16355,7 +16355,7 @@ exports.createDecipheriv = createDecipheriv
 /* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(9)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(10)
 var des = __webpack_require__(36)
 var inherits = __webpack_require__(0)
 
@@ -77017,7 +77017,7 @@ module.exports={
 },{}]},{},[29])(29)
 });
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(10), __webpack_require__(10), __webpack_require__(6), __webpack_require__(26).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(9), __webpack_require__(9), __webpack_require__(6), __webpack_require__(26).setImmediate))
 
 /***/ }),
 /* 173 */
