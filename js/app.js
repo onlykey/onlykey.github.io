@@ -1,7 +1,4 @@
 const kbpgp = require('./kbpgp.js');
-import _status from './onlykey-api.js';
-import poll_delay from './onlykey-api.js';
-import poll_type from './onlykey-api.js';
 const request = require('superagent');
 const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
