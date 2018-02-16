@@ -13686,9 +13686,9 @@ module.exports = __webpack_require__(75);
 /* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(_status, poll_delay, custom_keyid, hexStrToDec, poll_type) {const url = __webpack_require__(166);
+/* WEBPACK VAR INJECTION */(function(_status, poll_delay, custom_keyid, poll_type) {const url = __webpack_require__(166);
 const kbpgp = __webpack_require__(172);
-//require("exports-loader?kbpgp!./kbpgp.js");
+__webpack_require__(9);
 const request = __webpack_require__(173);
 const randomColor = __webpack_require__(179);
 const urlinputbox = document.getElementById('pgpkeyurl');
@@ -13701,8 +13701,8 @@ var sender_public_key;
 var recipient_public_key;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
-Version: Mailvelope v1.8.0
-Comment: https://www.mailvelope.com
+Version: TEST KEY v1.0.0
+Comment: THIS KEY IS JUST A PLACEHOLDER
 
 xcaGBFms0QoBEAC9hQ0tnhwnSYlLQmVTsvVWyYnnS8woQnLLr0gz9gb2ZSxE
 gh7SMQewx5xff7zsxhcRoID00tarP4KueEOx2sPwFFgbK5jhN1UDEA0zG3oA
@@ -14102,7 +14102,7 @@ urlinputbox.onkeyup = function () {
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(9), __webpack_require__(9), __webpack_require__(9), __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(9), __webpack_require__(9), __webpack_require__(9)))
 
 /***/ }),
 /* 76 */

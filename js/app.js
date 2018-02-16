@@ -1,6 +1,6 @@
 const url = require('url');
 const kbpgp = require('./kbpgp.js');
-//require("exports-loader?kbpgp!./kbpgp.js");
+require('./onlykey-api.js');
 const request = require('superagent');
 const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
@@ -13,8 +13,8 @@ var sender_public_key;
 var recipient_public_key;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
-Version: Mailvelope v1.8.0
-Comment: https://www.mailvelope.com
+Version: TEST KEY v1.0.0
+Comment: THIS KEY IS JUST A PLACEHOLDER
 
 xcaGBFms0QoBEAC9hQ0tnhwnSYlLQmVTsvVWyYnnS8woQnLLr0gz9gb2ZSxE
 gh7SMQewx5xff7zsxhcRoID00tarP4KueEOx2sPwFFgbK5jhN1UDEA0zG3oA
