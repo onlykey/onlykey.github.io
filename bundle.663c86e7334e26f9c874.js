@@ -5911,7 +5911,7 @@ process.umask = function() { return 0; };
 
 var Buffer = __webpack_require__(1).Buffer
 var Transform = __webpack_require__(19).Transform
-var StringDecoder = __webpack_require__(31).StringDecoder
+var StringDecoder = __webpack_require__(32).StringDecoder
 var inherits = __webpack_require__(0)
 
 function CipherBase (hashMode) {
@@ -6065,7 +6065,7 @@ util.inherits = __webpack_require__(0);
 /*</replacement>*/
 
 var Readable = __webpack_require__(40);
-var Writable = __webpack_require__(30);
+var Writable = __webpack_require__(31);
 
 util.inherits(Duplex, Readable);
 
@@ -6280,9 +6280,9 @@ module.exports = Hash
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {
 var inherits = __webpack_require__(0)
-var md5 = __webpack_require__(26)
-var RIPEMD160 = __webpack_require__(27)
-var sha = __webpack_require__(32)
+var md5 = __webpack_require__(27)
+var RIPEMD160 = __webpack_require__(28)
+var sha = __webpack_require__(33)
 
 var Base = __webpack_require__(9)
 
@@ -6617,11 +6617,11 @@ base.Node = __webpack_require__(152);
 
 module.exports = Stream;
 
-var EE = __webpack_require__(28).EventEmitter;
+var EE = __webpack_require__(29).EventEmitter;
 var inherits = __webpack_require__(0);
 
 inherits(Stream, EE);
-Stream.Readable = __webpack_require__(29);
+Stream.Readable = __webpack_require__(30);
 Stream.Writable = __webpack_require__(89);
 Stream.Duplex = __webpack_require__(90);
 Stream.Transform = __webpack_require__(91);
@@ -7081,7 +7081,7 @@ curve.edwards = __webpack_require__(131);
 /* WEBPACK VAR INJECTION */(function(Buffer) {var asn1 = __webpack_require__(147)
 var aesid = __webpack_require__(159)
 var fixProc = __webpack_require__(160)
-var ciphers = __webpack_require__(33)
+var ciphers = __webpack_require__(34)
 var compat = __webpack_require__(48)
 module.exports = parseKeys
 
@@ -7191,6 +7191,621 @@ function decrypt (data, password) {
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/* WEBPACK VAR INJECTION */(function(forge, nacl) {var userDict = {}           // UserId -> KeyHandle
+var keyHandleDict = {};     // KeyHandle -> PublicKey
+var hw_RNG = {};
+
+var appId = window.location.origin;
+var version = "U2F_V2";
+var OKversion;
+
+var sha256 = function(s) {
+  var md = forge.md.sha256.create();
+  md.update(bytes2string(s));
+  return Array.from(md.digest().toHex().match(/.{2}/g).map(hexStrToDec));
+};
+
+var appKey;
+var appPub;
+var appPubPart;
+var okPub;
+var sharedsec;
+var _status;
+var pin;
+var poll_type, poll_delay;
+var custom_keyid;
+var msgType;
+var keySlot;
+var browserid = 0; //Default Chrome
+var counter = 0;
+var encrypted_data;
+const OKDECRYPT = 240;
+const OKSIGN = 237;
+const OKSETTIME = 228;
+const OKGETPUBKEY = 236;
+const OKGETRESPONSE = 242;
+const OKPING = 243;
+
+
+const button = document.getElementById('onlykey_start');
+
+/**
+ * Initializes OnlyKey
+ * Performs NACL key exchange to encrypt all future packets
+ * Receives hardware generated entropy for future use
+ */
+window.onload = async function() {
+    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
+    browserid = 128; //Firefox
+    console.info("Firefox browser");
+  } else {
+    console.info("Chrome browser (Default)");
+  }
+    msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+    await wait(3000);
+    if (typeof(sharedsec) === "undefined") {
+    headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
+  }
+
+if (typeof(button) !== "undefined" && button !== null) {
+    updateStatusFromSelection();
+    document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
+  }
+}
+
+/**
+ * Sets user selected radio button
+ * @param {String} skipBtn
+ */
+function updateStatusFromSelection(skipBtn) {
+  const val = document.action.select_one.value;
+  _status = val;
+  if (!skipBtn) button.textContent = val;
+}
+
+/**
+ * Use promise and setTimeout to wait x seconds
+ */
+let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Request response from OnlyKey using U2F authentication message
+ * @param {number} params.delay
+ * Number of seconds to delay before requesting response
+ * @param {number} params.type
+ * Type of response requested - OKSETTIME, OKGETPUBKEY, OKSIGN, OKDECRYPT
+ */
+async function msg_polling(params = {}, cb) {
+  var delay = params.delay || 0;
+  const type = params.type || 1; // default type to 1
+  if (OKversion == 'Original') {
+    delay = delay*4;
+  }
+
+  setTimeout(async function() {
+  console.info("Requesting response from OnlyKey");
+  if (type == 1) { //OKSETTIME
+    var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
+    var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+    msg("Setting current time on OnlyKey to " + new Date());
+    var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+    var empty = new Array(23).fill(0);
+    Array.prototype.push.apply(message, timePart);
+    appKey = nacl.box.keyPair();
+    console.info(appKey);
+    console.info(appKey.publicKey);
+    console.info(appKey.secretKey);
+    console.info("Application ECDH Public Key: ", appKey.publicKey);
+    Array.prototype.push.apply(message, appKey.publicKey);
+    Array.prototype.push.apply(message, empty);
+    var b64keyhandle = bytes2b64(message);
+    counter = 0;
+  } else if (type == 2) { //OKGETPUB
+      var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
+      msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
+      var empty = new Array(50).fill(0);
+      Array.prototype.push.apply(message, custom_keyid);
+      Array.prototype.push.apply(message, empty);
+      while (message.length < 64) message.push(0);
+      var encryptedkeyHandle = await aesgcm_encrypt(message);
+      var b64keyhandle = bytes2b64(encryptedkeyHandle);
+  } else { //Ping and get Response From OKSIGN or OKDECRYPT
+      if (_status == 'done_challenge') counter++;
+      if (_status == 'finished') return encrypted_data;
+      console.info("Sending Ping Request to OnlyKey");
+      var message = [255, 255, 255, 255]; //Add header and message type
+      var ciphertext = new Uint8Array(60).fill(0);
+      ciphertext[0] = (OKPING-browserid);
+      Array.prototype.push.apply(message, ciphertext);
+      while (message.length < 64) message.push(0);
+      var encryptedkeyHandle = await aesgcm_encrypt(message);
+      var b64keyhandle = bytes2b64(encryptedkeyHandle);
+      _setStatus('waiting_ping');
+  }
+  var challenge = mkchallenge();
+  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
+               "appId": appId, "version": version };
+  u2f.sign(appId, challenge, [req], async function(response) {
+    var result = await custom_auth_response(response);
+    var data = await Promise;
+    if (_status === 'finished') {
+      console.info("Finished");
+    } else if (_status === 'waiting_ping') {
+      console.info("Ping Successful");
+      _setStatus('pending_challenge');
+      data = 1;
+    }
+    if (result == 2) {
+        msg("Polling succeeded but no data was received");
+        data = 1;
+    } else if (result <= 5) {
+      data = 1;
+    }
+    if (type == 1) {
+      if (result) {
+        okPub = result.slice(21, 53);
+        console.info("OnlyKey Public Key: ", okPub );
+        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+        console.info("NACL shared secret: ", sharedsec );
+        OKversion = result[19] == 99 ? 'Color' : 'Original';
+        var FWversion = bytes2string(result.slice(8, 20));
+        msg("OnlyKey " + OKversion + " " + FWversion);
+        headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
+        hw_RNG.entropy = result.slice(53, result.length);
+        msg("HW generated entropy: " + hw_RNG.entropy);
+        var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+        console.info("AES Key", key);
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+      return;
+    } else if (type == 2) {
+      if (result) {
+        var pubkey = result.slice(0, 1); //slot number containing matching key
+        msg("Public Key found in slot" + pubkey);
+        var entropy = result.slice(2, result.length);
+        msg("HW generated entropy" + entropy);
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+      return pubkey;
+    } else if (type == 3 && _status == 'finished') {
+      if (result) {
+        data = result;
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+    } else if (type == 4 && _status == 'finished') {
+      if (result) {
+        var oksignature = result.slice(0, result.length); //4+32+2+32
+        data = oksignature;
+      } else {
+        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      }
+    }
+    if (typeof cb === 'function') cb(null, data);
+  });
+}, (delay * 1000));
+}
+
+/**
+ * Decrypt ciphertext via OnlyKey
+ * @param {Array} ct
+ */
+function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
+  if (typeof(sharedsec) === "undefined"){
+    button.textContent = "Insert OnlyKey and reload page";
+    return;
+  }
+  cb = cb || noop;
+  if (ct.length == 396) {
+    poll_delay = 5; //5 Second delay for RSA 3072
+  } else if (ct.length == 524) {
+    poll_delay = 7; //7 Second delay for RSA 4096
+  }
+  if (OKversion == 'Original') {
+    poll_delay = poll_delay*4;
+  }
+  var padded_ct = ct.slice(12, ct.length);
+  var keyid = ct.slice(1, 8);
+  var pin_hash = sha256(padded_ct);
+  console.info("Padded CT Packet bytes", Array.from(padded_ct));
+  console.info("Key ID bytes", Array.from(keyid));
+  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
+  msg("Generated PIN" + pin);
+  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
+}
+
+/**
+ * Sign message via OnlyKey
+ * @param {Array} ct
+ */
+function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
+  if (typeof(sharedsec) === "undefined"){
+    button.textContent = "Insert OnlyKey and reload page";
+    return;
+  }
+  var pin_hash = sha256(ct);
+  cb = cb || noop;
+  console.info("Signature Packet bytes ", Array.from(ct));
+  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
+  console.info("Generated PIN", pin);
+  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
+}
+
+/**
+ * Parse custom U2F sign response
+ * @param {Array} response
+ */
+async function custom_auth_response(response) {
+  console.info("Response", response);
+  var err = response['errorCode'];
+  var errMes = response['errorMessage'];
+  console.info("Response code ", err);
+  console.info(errMes);
+  if (browserid != 128) { //Chrome
+    if (err) {
+      if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
+        console.info("Ack message received");
+      } else if (errMes === "device status code: -80") { //incorrect challenge code entered
+          if (_status === 'waiting_ping') {
+          console.info("incorrect challenge code entered");
+          button.textContent = "Incorrect challenge code entered";
+          _setStatus('wrong_challenge');
+        }
+      } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
+        console.info("key type not set as signature/decrypt");
+        button.textContent = "key type not set as signature/decrypt";
+        _setStatus('wrong_type');
+      } else if (errMes === "device status code: -82") { //no key set in this slot
+        console.info("no key set in this slot");
+        button.textContent = "no key set in this slot";
+        _setStatus('no_key');
+      } else if (errMes === "device status code: -83") { //invalid key, key check failed
+        console.info("invalid key, key check failed");
+        button.textContent = "invalid key, key check failed";
+        _setStatus('bad_key');
+      } else if (errMes === "device status code: -84") { //invalid data, or data does not match key
+        console.info("invalid data, or data does not match key");
+        button.textContent = "invalid data, or data does not match key";
+        _setStatus('bad_data');
+      } else if (errMes === "device status code: -85") { //no data ready
+        console.info("no data ready");
+        button.textContent = "no data ready";
+      } else if (errMes === "device status code: -b") {
+        console.info("Timeout or challenge pin entered ");
+        counter-=3;
+        _setStatus('done_challenge');
+        ping(0);
+      } else if (err == 5) { //Ping failed meaning correct challenge entered
+        console.info("Timeout or challenge pin entered ");
+        _setStatus('done_challenge');
+        counter-=2;
+        return 1;
+      } else if (err) {
+        console.info("Failed with error code ", err);
+        counter--;
+        //other error
+        return 1;
+      }
+    counter++;
+    return 1;
+    }
+  } else if (err) {
+    _setStatus('done_challenge');
+    return 1;
+  }
+  var sigData = string2bytes(u2f_unb64(response['signatureData']));
+  console.info("Data Received: ", sigData);
+  var U2Fcounter = sigData.slice(1,5);
+  console.info("U2Fcounter: ", U2Fcounter);
+  var parsedData = [];
+  var halflen;
+  if (sigData[8] == 0) {
+    halflen = 256;
+  } else {
+    halflen = sigData[8];
+  }
+  Array.prototype.push.apply(parsedData, sigData.slice(9,(halflen+9)));
+  Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen)));
+  if (U2Fcounter[0] + U2Fcounter[1] + U2Fcounter[2] + U2Fcounter[3] == 0) { //unencrypted data
+    console.info("Parsed Data: ", parsedData);
+    return parsedData;
+  }
+  else { //encrypted data
+    var decryptedparsedData = await aesgcm_decrypt(parsedData);
+    console.info("Parsed Data: ", decryptedparsedData);
+    if(decryptedparsedData[0] == 69 && decryptedparsedData[1] == 114 && decryptedparsedData[2] == 114 && decryptedparsedData[3] == 111 && decryptedparsedData[4] == 114) {
+      //Using Firefox Quantum's incomplete U2F implementation... so bad
+      console.info("Decode response message");
+      if (decryptedparsedData[6] == 0) {
+        console.info("Ack message received");
+      } else if(decryptedparsedData[6] == 1) {
+        console.info("incorrect challenge code entered");
+        button.textContent = "Incorrect challenge code entered";
+        _setStatus('wrong_challenge');
+      } else if (decryptedparsedData[6] == 2) {
+        console.info("key type not set as signature/decrypt");
+        button.textContent = "key type not set as signature/decrypt";
+        _setStatus('wrong_type');
+      } else if (decryptedparsedData[6] == 3) {
+        console.info("no key set in this slot");
+        button.textContent = "no key set in this slot";
+        _setStatus('no_key');
+      } else if (decryptedparsedData[6] == 4) {
+        console.info("invalid key, key check failed");
+        button.textContent = "invalid key, key check failed";
+        _setStatus('bad_key');
+      } else if (decryptedparsedData[6] == 5) {
+        console.info("invalid data, or data does not match key");
+        button.textContent = "invalid data, or data does not match key";
+        _setStatus('bad_data');
+      } else if (decryptedparsedData[6] == 6) {
+        console.info("no data ready");
+        button.textContent = "no data ready";
+        return 6;
+      }
+      return 1;
+    }
+    _setStatus('finished');
+    encrypted_data = parsedData;
+    return parsedData;
+  }
+}
+
+/**
+ * Perform AES_256_GCM decryption using NACL shared secret
+ * @param {Array} encrypted
+ * @return {Array}
+ */
+function aesgcm_decrypt(encrypted) {
+  return new Promise(resolve => {
+    counter++;
+    forge.options.usePureJavaScript = true;
+    var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+    console.log("Key", key);
+    var iv = IntToByteArray(counter);
+    while (iv.length < 12) iv.push(0);
+    iv = Uint8Array.from(iv);
+    console.log("IV", iv);
+    var decipher = forge.cipher.createDecipher('AES-GCM', key);
+    decipher.start({
+      iv: iv,
+      tagLength: 0, // optional, defaults to 128 bits
+    });
+    decipher.update(forge.util.createBuffer(Uint8Array.from(encrypted)));
+    var plaintext = decipher.output.toHex()
+    decipher.finish();
+
+    //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
+    //encrypted = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
+    resolve(plaintext.match(/.{2}/g).map(hexStrToDec));
+  });
+}
+
+/**
+ * Perform AES_256_GCM encryption using NACL shared secret
+ * @param {Array} plaintext
+ * @return {Array}
+ */
+function aesgcm_encrypt(plaintext) {
+  return new Promise(resolve => {
+    counter++;
+    forge.options.usePureJavaScript = true;
+    var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+    console.log("Key", key);
+    var iv = IntToByteArray(counter);
+    while (iv.length < 12) iv.push(0);
+    iv = Uint8Array.from(iv);
+    console.log("IV", iv);
+    //Counter used as IV, unique for each message
+    var cipher = forge.cipher.createCipher('AES-GCM', key);
+    cipher.start({
+      iv: iv, // should be a 12-byte binary-encoded string or byte buffer
+      tagLength: 0
+    });
+    console.log("Plaintext", plaintext);
+    cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
+    cipher.finish();
+    var ciphertext = cipher.output;
+    ciphertext = ciphertext.toHex();
+    resolve(ciphertext.match(/.{2}/g).map(hexStrToDec));
+  });
+}
+
+/**
+ * Break cipherText into chunks and send via u2f sign
+ * @param {Array} cipherText
+ */
+async function u2fSignBuffer(cipherText, mainCallback) {
+    // this function should recursively call itself until all bytes are sent in chunks
+    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN-browserid) : (OKDECRYPT-browserid), slotId()]; //Add header, message type, and key to use
+    var maxPacketSize = 57;
+    var finalPacket = cipherText.length - maxPacketSize <= 0;
+    var ctChunk = cipherText.slice(0, maxPacketSize);
+    message.push(finalPacket ? ctChunk.length : 255); // 'FF'
+    Array.prototype.push.apply(message, ctChunk);
+
+    var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+
+    var challenge = mkchallenge();
+    while (message.length < 64) message.push(0);
+    var encryptedkeyHandle = await aesgcm_encrypt(message);
+    var b64keyhandle = bytes2b64(encryptedkeyHandle);
+    var req = { "challenge": challenge, "keyHandle": b64keyhandle,
+                 "appId": appId, "version": version };
+
+    console.info("Handlekey bytes ", message);
+    console.info("Sending Handlekey ", encryptedkeyHandle);
+    console.info("Sending challenge ", challenge);
+
+    u2f.sign(appId, challenge, [req], function(response) {
+      var result = custom_auth_response(response);
+      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
+      if (result) {
+        if (finalPacket) {
+          console.info("Final packet ");
+          _setStatus('pending_challenge');
+          cb().then(skey => {
+            console.info("skey ", skey);
+            mainCallback(skey);
+          }).catch(err => msg(err));
+        } else {
+          cb();
+        }
+      }
+    }, 3);
+}
+
+/**
+ * Display number of seconds remaining to enter challenge code on OnlyKey
+ * @param {number} seconds
+ */
+window.doPinTimer = async function (seconds) {
+  return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
+    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
+
+    if (_status === 'done_challenge' || _status === 'waiting_ping') {
+      _setStatus('done_challenge');
+      const btmsg = `Waiting ${poll_delay} seconds for OnlyKey to process message.`;
+      button.textContent = btmsg;
+      console.info("Delay ", poll_delay);
+      await ping(poll_delay); //Delay
+    } else if (_status === 'pending_challenge') {
+        if (secondsRemaining <= 4) {
+          const err = 'Time expired for PIN confirmation';
+          return reject(err);
+        }
+        const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
+        button.textContent = btmsg;
+        console.info("enter challenge code", pin);
+        await ping(0);
+    }
+
+    if (_status === 'finished') {
+      if(browserid == 128 && encrypted_data.length != 64) counter-=2;
+      var decrypted_data = await aesgcm_decrypt(encrypted_data);
+      if (decrypted_data.length == 64) {
+        var entropy = decrypted_data.slice(36, 64);
+        decrypted_data = decrypted_data.slice(0, 35);
+        console.info("HW generated entropy =", entropy);
+      }
+      console.info("Parsed Decrypted Data: ", decrypted_data);
+      return resolve(decrypted_data);
+    }
+
+    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
+  });
+};
+
+/**
+ * Ping OnlyKey for resoponse after delay
+ * @param {number} delay
+ */
+async function ping (delay) {
+  return await msg_polling({ type: poll_type, delay: delay });
+}
+
+IntToByteArray = function(int) {
+    var byteArray = [0, 0, 0, 0];
+    for ( var index = 0; index < 4; index ++ ) {
+        var byte = int & 0xff;
+        byteArray [ (3 - index) ] = byte;
+        int = (int - byte) / 256 ;
+    }
+    return byteArray;
+};
+
+function get_pin (byte) {
+  if (byte < 6) return 1;
+  else {
+    return (byte % 5) + 1;
+  }
+}
+
+function id(s) { return document.getElementById(s); }
+
+function msg(s) { id('messages').innerHTML += "<br>" + s; }
+
+function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
+
+function _setStatus(newStatus) {
+  _status = newStatus;
+  console.info("Changed _status to ", newStatus);
+}
+
+function userId() {
+    var el = id('userid');
+    return el && el.value || 'u2ftest';
+}
+
+function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
+
+function b64EncodeUnicode(str) {
+    // first we use encodeURIComponent to get percent-encoded UTF-8,
+    // then we convert the percent encodings into raw bytes which
+    // can be fed into btoa.
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+    }));
+}
+
+function u2f_b64(s) {
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function u2f_unb64(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/');
+  return atob(s + '==='.slice((s.length+3) % 4));
+}
+function string2bytes(s) {
+  var len = s.length;
+  var bytes = new Uint8Array(len);
+  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
+  return bytes;
+}
+function hexStrToDec(hexStr) {
+    return ~~(new Number('0x' + hexStr).toString(10));
+}
+
+function bcat(buflist) {
+  var len = 0;
+  for (var i=0; i<buflist.length; i++) {
+    if (typeof(buflist[i])=='string') buflist[i]=string2bytes(buflist[i]);
+    len += buflist[i].length;
+  }
+  var buf = new Uint8Array(len);
+  len = 0;
+  for (var i=0; i<buflist.length; i++) {
+    buf.set(buflist[i], len);
+    len += buflist[i].length;
+  }
+  return buf;
+}
+
+function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
+function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
+function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
+
+//Generate a random number for challenge value
+function mkchallenge() {
+  var s = [];
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  return u2f_b64(s.join());
+}
+
+function noop() {}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(77), __webpack_require__(81)))
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(global) {var apply = Function.prototype.apply;
 
 // DOM APIs, for completeness
@@ -7255,7 +7870,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7413,7 +8028,7 @@ module.exports = function md5 (buf) {
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7712,7 +8327,7 @@ module.exports = RIPEMD160
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2).Buffer))
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -8020,20 +8635,20 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(40);
 exports.Stream = exports;
 exports.Readable = exports;
-exports.Writable = __webpack_require__(30);
+exports.Writable = __webpack_require__(31);
 exports.Duplex = __webpack_require__(10);
 exports.Transform = __webpack_require__(43);
 exports.PassThrough = __webpack_require__(88);
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8701,10 +9316,10 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(25).setImmediate, __webpack_require__(6)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(26).setImmediate, __webpack_require__(6)))
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8982,7 +9597,7 @@ function simpleEnd(buf) {
 }
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var exports = module.exports = function SHA (algorithm) {
@@ -9003,7 +9618,7 @@ exports.sha512 = __webpack_require__(45)
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var ciphers = __webpack_require__(103)
@@ -9022,7 +9637,7 @@ exports.listCiphers = exports.getCiphers = getCiphers
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var modeModules = {
@@ -9046,7 +9661,7 @@ module.exports = modes
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9060,7 +9675,7 @@ exports.EDE = __webpack_require__(117);
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var bn = __webpack_require__(3);
@@ -9107,7 +9722,7 @@ function getr(priv) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2).Buffer))
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var hash = exports;
@@ -9126,621 +9741,6 @@ hash.sha384 = hash.sha.sha384;
 hash.sha512 = hash.sha.sha512;
 hash.ripemd160 = hash.ripemd.ripemd160;
 
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(forge, nacl) {var userDict = {}           // UserId -> KeyHandle
-var keyHandleDict = {};     // KeyHandle -> PublicKey
-var hw_RNG = {};
-
-var appId = window.location.origin;
-var version = "U2F_V2";
-var OKversion;
-
-var sha256 = function(s) {
-  var md = forge.md.sha256.create();
-  md.update(bytes2string(s));
-  return Array.from(md.digest().toHex().match(/.{2}/g).map(hexStrToDec));
-};
-
-var appKey;
-var appPub;
-var appPubPart;
-var okPub;
-var sharedsec;
-var _status;
-var pin;
-var poll_type, poll_delay;
-var custom_keyid;
-var msgType;
-var keySlot;
-var browserid = 0; //Default Chrome
-var counter = 0;
-var encrypted_data;
-const OKDECRYPT = 240;
-const OKSIGN = 237;
-const OKSETTIME = 228;
-const OKGETPUBKEY = 236;
-const OKGETRESPONSE = 242;
-const OKPING = 243;
-
-
-const button = document.getElementById('onlykey_start');
-
-/**
- * Initializes OnlyKey
- * Performs NACL key exchange to encrypt all future packets
- * Receives hardware generated entropy for future use
- */
-window.onload = async function() {
-    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
-    browserid = 128; //Firefox
-    console.info("Firefox browser");
-  } else {
-    console.info("Chrome browser (Default)");
-  }
-    msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-    await wait(3000);
-    if (typeof(sharedsec) === "undefined") {
-    headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
-  }
-
-if (typeof(button) !== "undefined" && button !== null) {
-    updateStatusFromSelection();
-    document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
-  }
-}
-
-/**
- * Sets user selected radio button
- * @param {String} skipBtn
- */
-function updateStatusFromSelection(skipBtn) {
-  const val = document.action.select_one.value;
-  _status = val;
-  if (!skipBtn) button.textContent = val;
-}
-
-/**
- * Use promise and setTimeout to wait x seconds
- */
-let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-/**
- * Request response from OnlyKey using U2F authentication message
- * @param {number} params.delay
- * Number of seconds to delay before requesting response
- * @param {number} params.type
- * Type of response requested - OKSETTIME, OKGETPUBKEY, OKSIGN, OKDECRYPT
- */
-async function msg_polling(params = {}, cb) {
-  var delay = params.delay || 0;
-  const type = params.type || 1; // default type to 1
-  if (OKversion == 'Original') {
-    delay = delay*4;
-  }
-
-  setTimeout(async function() {
-  console.info("Requesting response from OnlyKey");
-  if (type == 1) { //OKSETTIME
-    var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
-    var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-    msg("Setting current time on OnlyKey to " + new Date());
-    var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-    var empty = new Array(23).fill(0);
-    Array.prototype.push.apply(message, timePart);
-    appKey = nacl.box.keyPair();
-    console.info(appKey);
-    console.info(appKey.publicKey);
-    console.info(appKey.secretKey);
-    console.info("Application ECDH Public Key: ", appKey.publicKey);
-    Array.prototype.push.apply(message, appKey.publicKey);
-    Array.prototype.push.apply(message, empty);
-    var b64keyhandle = bytes2b64(message);
-    counter = 0;
-  } else if (type == 2) { //OKGETPUB
-      var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
-      msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
-      var empty = new Array(50).fill(0);
-      Array.prototype.push.apply(message, custom_keyid);
-      Array.prototype.push.apply(message, empty);
-      while (message.length < 64) message.push(0);
-      var encryptedkeyHandle = await aesgcm_encrypt(message);
-      var b64keyhandle = bytes2b64(encryptedkeyHandle);
-  } else { //Ping and get Response From OKSIGN or OKDECRYPT
-      if (_status == 'done_challenge') counter++;
-      if (_status == 'finished') return encrypted_data;
-      console.info("Sending Ping Request to OnlyKey");
-      var message = [255, 255, 255, 255]; //Add header and message type
-      var ciphertext = new Uint8Array(60).fill(0);
-      ciphertext[0] = (OKPING-browserid);
-      Array.prototype.push.apply(message, ciphertext);
-      while (message.length < 64) message.push(0);
-      var encryptedkeyHandle = await aesgcm_encrypt(message);
-      var b64keyhandle = bytes2b64(encryptedkeyHandle);
-      _setStatus('waiting_ping');
-  }
-  var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], async function(response) {
-    var result = await custom_auth_response(response);
-    var data = await Promise;
-    if (_status === 'finished') {
-      console.info("Finished");
-    } else if (_status === 'waiting_ping') {
-      console.info("Ping Successful");
-      _setStatus('pending_challenge');
-      data = 1;
-    }
-    if (result == 2) {
-        msg("Polling succeeded but no data was received");
-        data = 1;
-    } else if (result <= 5) {
-      data = 1;
-    }
-    if (type == 1) {
-      if (result) {
-        okPub = result.slice(21, 53);
-        console.info("OnlyKey Public Key: ", okPub );
-        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-        console.info("NACL shared secret: ", sharedsec );
-        OKversion = result[19] == 99 ? 'Color' : 'Original';
-        var FWversion = bytes2string(result.slice(8, 20));
-        msg("OnlyKey " + OKversion + " " + FWversion);
-        headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
-        hw_RNG.entropy = result.slice(53, result.length);
-        msg("HW generated entropy: " + hw_RNG.entropy);
-        var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
-        console.info("AES Key", key);
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
-      return;
-    } else if (type == 2) {
-      if (result) {
-        var pubkey = result.slice(0, 1); //slot number containing matching key
-        msg("Public Key found in slot" + pubkey);
-        var entropy = result.slice(2, result.length);
-        msg("HW generated entropy" + entropy);
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
-      return pubkey;
-    } else if (type == 3 && _status == 'finished') {
-      if (result) {
-        data = result;
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
-    } else if (type == 4 && _status == 'finished') {
-      if (result) {
-        var oksignature = result.slice(0, result.length); //4+32+2+32
-        data = oksignature;
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
-    }
-    if (typeof cb === 'function') cb(null, data);
-  });
-}, (delay * 1000));
-}
-
-/**
- * Decrypt ciphertext via OnlyKey
- * @param {Array} ct
- */
-function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
-  if (typeof(sharedsec) === "undefined"){
-    button.textContent = "Insert OnlyKey and reload page";
-    return;
-  }
-  cb = cb || noop;
-  if (ct.length == 396) {
-    poll_delay = 5; //5 Second delay for RSA 3072
-  } else if (ct.length == 524) {
-    poll_delay = 7; //7 Second delay for RSA 4096
-  }
-  if (OKversion == 'Original') {
-    poll_delay = poll_delay*4;
-  }
-  var padded_ct = ct.slice(12, ct.length);
-  var keyid = ct.slice(1, 8);
-  var pin_hash = sha256(padded_ct);
-  console.info("Padded CT Packet bytes", Array.from(padded_ct));
-  console.info("Key ID bytes", Array.from(keyid));
-  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
-  msg("Generated PIN" + pin);
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
-}
-
-/**
- * Sign message via OnlyKey
- * @param {Array} ct
- */
-function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
-  if (typeof(sharedsec) === "undefined"){
-    button.textContent = "Insert OnlyKey and reload page";
-    return;
-  }
-  var pin_hash = sha256(ct);
-  cb = cb || noop;
-  console.info("Signature Packet bytes ", Array.from(ct));
-  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
-  console.info("Generated PIN", pin);
-  return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
-}
-
-/**
- * Parse custom U2F sign response
- * @param {Array} response
- */
-async function custom_auth_response(response) {
-  console.info("Response", response);
-  var err = response['errorCode'];
-  var errMes = response['errorMessage'];
-  console.info("Response code ", err);
-  console.info(errMes);
-  if (browserid != 128) { //Chrome
-    if (err) {
-      if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
-        console.info("Ack message received");
-      } else if (errMes === "device status code: -80") { //incorrect challenge code entered
-          if (_status === 'waiting_ping') {
-          console.info("incorrect challenge code entered");
-          button.textContent = "Incorrect challenge code entered";
-          _setStatus('wrong_challenge');
-        }
-      } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
-        console.info("key type not set as signature/decrypt");
-        button.textContent = "key type not set as signature/decrypt";
-        _setStatus('wrong_type');
-      } else if (errMes === "device status code: -82") { //no key set in this slot
-        console.info("no key set in this slot");
-        button.textContent = "no key set in this slot";
-        _setStatus('no_key');
-      } else if (errMes === "device status code: -83") { //invalid key, key check failed
-        console.info("invalid key, key check failed");
-        button.textContent = "invalid key, key check failed";
-        _setStatus('bad_key');
-      } else if (errMes === "device status code: -84") { //invalid data, or data does not match key
-        console.info("invalid data, or data does not match key");
-        button.textContent = "invalid data, or data does not match key";
-        _setStatus('bad_data');
-      } else if (errMes === "device status code: -85") { //no data ready
-        console.info("no data ready");
-        button.textContent = "no data ready";
-      } else if (errMes === "device status code: -b") {
-        console.info("Timeout or challenge pin entered ");
-        counter-=3;
-        _setStatus('done_challenge');
-        ping(0);
-      } else if (err == 5) { //Ping failed meaning correct challenge entered
-        console.info("Timeout or challenge pin entered ");
-        _setStatus('done_challenge');
-        counter-=2;
-        return 1;
-      } else if (err) {
-        console.info("Failed with error code ", err);
-        counter--;
-        //other error
-        return 1;
-      }
-    counter++;
-    return 1;
-    }
-  } else if (err) {
-    _setStatus('done_challenge');
-    return 1;
-  }
-  var sigData = string2bytes(u2f_unb64(response['signatureData']));
-  console.info("Data Received: ", sigData);
-  var U2Fcounter = sigData.slice(1,5);
-  console.info("U2Fcounter: ", U2Fcounter);
-  var parsedData = [];
-  var halflen;
-  if (sigData[8] == 0) {
-    halflen = 256;
-  } else {
-    halflen = sigData[8];
-  }
-  Array.prototype.push.apply(parsedData, sigData.slice(9,(halflen+9)));
-  Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen)));
-  if (U2Fcounter[0] + U2Fcounter[1] + U2Fcounter[2] + U2Fcounter[3] == 0) { //unencrypted data
-    console.info("Parsed Data: ", parsedData);
-    return parsedData;
-  }
-  else { //encrypted data
-    var decryptedparsedData = await aesgcm_decrypt(parsedData);
-    console.info("Parsed Data: ", decryptedparsedData);
-    if(decryptedparsedData[0] == 69 && decryptedparsedData[1] == 114 && decryptedparsedData[2] == 114 && decryptedparsedData[3] == 111 && decryptedparsedData[4] == 114) {
-      //Using Firefox Quantum's incomplete U2F implementation... so bad
-      console.info("Decode response message");
-      if (decryptedparsedData[6] == 0) {
-        console.info("Ack message received");
-      } else if(decryptedparsedData[6] == 1) {
-        console.info("incorrect challenge code entered");
-        button.textContent = "Incorrect challenge code entered";
-        _setStatus('wrong_challenge');
-      } else if (decryptedparsedData[6] == 2) {
-        console.info("key type not set as signature/decrypt");
-        button.textContent = "key type not set as signature/decrypt";
-        _setStatus('wrong_type');
-      } else if (decryptedparsedData[6] == 3) {
-        console.info("no key set in this slot");
-        button.textContent = "no key set in this slot";
-        _setStatus('no_key');
-      } else if (decryptedparsedData[6] == 4) {
-        console.info("invalid key, key check failed");
-        button.textContent = "invalid key, key check failed";
-        _setStatus('bad_key');
-      } else if (decryptedparsedData[6] == 5) {
-        console.info("invalid data, or data does not match key");
-        button.textContent = "invalid data, or data does not match key";
-        _setStatus('bad_data');
-      } else if (decryptedparsedData[6] == 6) {
-        console.info("no data ready");
-        button.textContent = "no data ready";
-        return 6;
-      }
-      return 1;
-    }
-    _setStatus('finished');
-    encrypted_data = parsedData;
-    return parsedData;
-  }
-}
-
-/**
- * Perform AES_256_GCM decryption using NACL shared secret
- * @param {Array} encrypted
- * @return {Array}
- */
-function aesgcm_decrypt(encrypted) {
-  return new Promise(resolve => {
-    counter++;
-    forge.options.usePureJavaScript = true;
-    var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
-    console.log("Key", key);
-    var iv = IntToByteArray(counter);
-    while (iv.length < 12) iv.push(0);
-    iv = Uint8Array.from(iv);
-    console.log("IV", iv);
-    var decipher = forge.cipher.createDecipher('AES-GCM', key);
-    decipher.start({
-      iv: iv,
-      tagLength: 0, // optional, defaults to 128 bits
-    });
-    decipher.update(forge.util.createBuffer(Uint8Array.from(encrypted)));
-    var plaintext = decipher.output.toHex()
-    decipher.finish();
-
-    //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
-    //encrypted = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
-    resolve(plaintext.match(/.{2}/g).map(hexStrToDec));
-  });
-}
-
-/**
- * Perform AES_256_GCM encryption using NACL shared secret
- * @param {Array} plaintext
- * @return {Array}
- */
-function aesgcm_encrypt(plaintext) {
-  return new Promise(resolve => {
-    counter++;
-    forge.options.usePureJavaScript = true;
-    var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
-    console.log("Key", key);
-    var iv = IntToByteArray(counter);
-    while (iv.length < 12) iv.push(0);
-    iv = Uint8Array.from(iv);
-    console.log("IV", iv);
-    //Counter used as IV, unique for each message
-    var cipher = forge.cipher.createCipher('AES-GCM', key);
-    cipher.start({
-      iv: iv, // should be a 12-byte binary-encoded string or byte buffer
-      tagLength: 0
-    });
-    console.log("Plaintext", plaintext);
-    cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
-    cipher.finish();
-    var ciphertext = cipher.output;
-    ciphertext = ciphertext.toHex();
-    resolve(ciphertext.match(/.{2}/g).map(hexStrToDec));
-  });
-}
-
-/**
- * Break cipherText into chunks and send via u2f sign
- * @param {Array} cipherText
- */
-async function u2fSignBuffer(cipherText, mainCallback) {
-    // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN-browserid) : (OKDECRYPT-browserid), slotId()]; //Add header, message type, and key to use
-    var maxPacketSize = 57;
-    var finalPacket = cipherText.length - maxPacketSize <= 0;
-    var ctChunk = cipherText.slice(0, maxPacketSize);
-    message.push(finalPacket ? ctChunk.length : 255); // 'FF'
-    Array.prototype.push.apply(message, ctChunk);
-
-    var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
-
-    var challenge = mkchallenge();
-    while (message.length < 64) message.push(0);
-    var encryptedkeyHandle = await aesgcm_encrypt(message);
-    var b64keyhandle = bytes2b64(encryptedkeyHandle);
-    var req = { "challenge": challenge, "keyHandle": b64keyhandle,
-                 "appId": appId, "version": version };
-
-    console.info("Handlekey bytes ", message);
-    console.info("Sending Handlekey ", encryptedkeyHandle);
-    console.info("Sending challenge ", challenge);
-
-    u2f.sign(appId, challenge, [req], function(response) {
-      var result = custom_auth_response(response);
-      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
-      if (result) {
-        if (finalPacket) {
-          console.info("Final packet ");
-          _setStatus('pending_challenge');
-          cb().then(skey => {
-            console.info("skey ", skey);
-            mainCallback(skey);
-          }).catch(err => msg(err));
-        } else {
-          cb();
-        }
-      }
-    }, 3);
-}
-
-/**
- * Display number of seconds remaining to enter challenge code on OnlyKey
- * @param {number} seconds
- */
-window.doPinTimer = async function (seconds) {
-  return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
-
-    if (_status === 'done_challenge' || _status === 'waiting_ping') {
-      _setStatus('done_challenge');
-      const btmsg = `Waiting ${poll_delay} seconds for OnlyKey to process message.`;
-      button.textContent = btmsg;
-      console.info("Delay ", poll_delay);
-      await ping(poll_delay); //Delay
-    } else if (_status === 'pending_challenge') {
-        if (secondsRemaining <= 4) {
-          const err = 'Time expired for PIN confirmation';
-          return reject(err);
-        }
-        const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
-        button.textContent = btmsg;
-        console.info("enter challenge code", pin);
-        await ping(0);
-    }
-
-    if (_status === 'finished') {
-      if(browserid == 128 && encrypted_data.length != 64) counter-=2;
-      var decrypted_data = await aesgcm_decrypt(encrypted_data);
-      if (decrypted_data.length == 64) {
-        var entropy = decrypted_data.slice(36, 64);
-        decrypted_data = decrypted_data.slice(0, 35);
-        console.info("HW generated entropy =", entropy);
-      }
-      console.info("Parsed Decrypted Data: ", decrypted_data);
-      return resolve(decrypted_data);
-    }
-
-    setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
-  });
-};
-
-/**
- * Ping OnlyKey for resoponse after delay
- * @param {number} delay
- */
-async function ping (delay) {
-  return await msg_polling({ type: poll_type, delay: delay });
-}
-
-IntToByteArray = function(int) {
-    var byteArray = [0, 0, 0, 0];
-    for ( var index = 0; index < 4; index ++ ) {
-        var byte = int & 0xff;
-        byteArray [ (3 - index) ] = byte;
-        int = (int - byte) / 256 ;
-    }
-    return byteArray;
-};
-
-function get_pin (byte) {
-  if (byte < 6) return 1;
-  else {
-    return (byte % 5) + 1;
-  }
-}
-
-function id(s) { return document.getElementById(s); }
-
-function msg(s) { id('messages').innerHTML += "<br>" + s; }
-
-function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
-
-function _setStatus(newStatus) {
-  _status = newStatus;
-  console.info("Changed _status to ", newStatus);
-}
-
-function userId() {
-    var el = id('userid');
-    return el && el.value || 'u2ftest';
-}
-
-function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
-
-function b64EncodeUnicode(str) {
-    // first we use encodeURIComponent to get percent-encoded UTF-8,
-    // then we convert the percent encodings into raw bytes which
-    // can be fed into btoa.
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-        function toSolidBytes(match, p1) {
-            return String.fromCharCode('0x' + p1);
-    }));
-}
-
-function u2f_b64(s) {
-  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-function u2f_unb64(s) {
-  s = s.replace(/-/g, '+').replace(/_/g, '/');
-  return atob(s + '==='.slice((s.length+3) % 4));
-}
-function string2bytes(s) {
-  var len = s.length;
-  var bytes = new Uint8Array(len);
-  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
-  return bytes;
-}
-function hexStrToDec(hexStr) {
-    return ~~(new Number('0x' + hexStr).toString(10));
-}
-
-function bcat(buflist) {
-  var len = 0;
-  for (var i=0; i<buflist.length; i++) {
-    if (typeof(buflist[i])=='string') buflist[i]=string2bytes(buflist[i]);
-    len += buflist[i].length;
-  }
-  var buf = new Uint8Array(len);
-  len = 0;
-  for (var i=0; i<buflist.length; i++) {
-    buf.set(buflist[i], len);
-    len += buflist[i].length;
-  }
-  return buf;
-}
-
-function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
-function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
-function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
-
-//Generate a random number for challenge value
-function mkchallenge() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  return u2f_b64(s.join());
-}
-
-function noop() {}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(77), __webpack_require__(81)))
 
 /***/ }),
 /* 39 */
@@ -9799,7 +9799,7 @@ var Duplex;
 Readable.ReadableState = ReadableState;
 
 /*<replacement>*/
-var EE = __webpack_require__(28).EventEmitter;
+var EE = __webpack_require__(29).EventEmitter;
 
 var EElistenerCount = function (emitter, type) {
   return emitter.listeners(type).length;
@@ -9922,7 +9922,7 @@ function ReadableState(options, stream) {
   this.decoder = null;
   this.encoding = null;
   if (options.encoding) {
-    if (!StringDecoder) StringDecoder = __webpack_require__(31).StringDecoder;
+    if (!StringDecoder) StringDecoder = __webpack_require__(32).StringDecoder;
     this.decoder = new StringDecoder(options.encoding);
     this.encoding = options.encoding;
   }
@@ -10078,7 +10078,7 @@ Readable.prototype.isPaused = function () {
 
 // backwards compatibility.
 Readable.prototype.setEncoding = function (enc) {
-  if (!StringDecoder) StringDecoder = __webpack_require__(31).StringDecoder;
+  if (!StringDecoder) StringDecoder = __webpack_require__(32).StringDecoder;
   this._readableState.decoder = new StringDecoder(enc);
   this._readableState.encoding = enc;
   return this;
@@ -10771,7 +10771,7 @@ function indexOf(xs, x) {
 /* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(28).EventEmitter;
+module.exports = __webpack_require__(29).EventEmitter;
 
 
 /***/ }),
@@ -11489,10 +11489,10 @@ var inherits = __webpack_require__(0)
 var Legacy = __webpack_require__(97)
 var Base = __webpack_require__(9)
 var Buffer = __webpack_require__(1).Buffer
-var md5 = __webpack_require__(26)
-var RIPEMD160 = __webpack_require__(27)
+var md5 = __webpack_require__(27)
+var RIPEMD160 = __webpack_require__(28)
 
-var sha = __webpack_require__(32)
+var sha = __webpack_require__(33)
 
 var ZEROS = Buffer.alloc(128)
 
@@ -11609,9 +11609,9 @@ module.exports = defaultEncoding
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var md5 = __webpack_require__(26)
-var rmd160 = __webpack_require__(27)
-var sha = __webpack_require__(32)
+var md5 = __webpack_require__(27)
+var rmd160 = __webpack_require__(28)
+var sha = __webpack_require__(33)
 
 var checkParameters = __webpack_require__(49)
 var defaultEncoding = __webpack_require__(50)
@@ -13698,6 +13698,7 @@ module.exports = __webpack_require__(75);
 /***/ (function(module, exports, __webpack_require__) {
 
 const kbpgp = __webpack_require__(76);
+__webpack_require__(25);
 const request = __webpack_require__(167);
 const randomColor = __webpack_require__(173);
 const urlinputbox = document.getElementById('pgpkeyurl');
@@ -65585,7 +65586,7 @@ module.exports={
 },{}]},{},[29])(29)
 });
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(38), __webpack_require__(38), __webpack_require__(6), __webpack_require__(25).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25), __webpack_require__(25), __webpack_require__(6), __webpack_require__(26).setImmediate))
 
 /***/ }),
 /* 77 */
@@ -65602,7 +65603,7 @@ value:[{name:"PBES2Algorithms.keyDerivationFunc",tagClass:u.Class.UNIVERSAL,type
 },findRecipient:function(t){for(var r=t.issuer.attributes,a=0;a<e.recipients.length;++a){var n=e.recipients[a],i=n.issuer;if(n.serialNumber===t.serialNumber&&i.length===r.length){for(var s=!0,o=0;o<r.length;++o)if(i[o].type!==r[o].type||i[o].value!==r[o].value){s=!1;break}if(s)return n}}return null},decrypt:function(t,r){if(void 0===e.encryptedContent.key&&void 0!==t&&void 0!==r)switch(t.encryptedContent.algorithm){case f.pki.oids.rsaEncryption:case f.pki.oids.desCBC:var a=r.decrypt(t.encryptedContent.content);e.encryptedContent.key=f.util.createBuffer(a);break;default:throw new Error("Unsupported asymmetric cipher, OID "+t.encryptedContent.algorithm)}h(e)},addRecipient:function(t){e.recipients.push({version:0,issuer:t.issuer.attributes,serialNumber:t.serialNumber,encryptedContent:{algorithm:f.pki.oids.rsaEncryption,key:t.publicKey}})},encrypt:function(t,r){if(void 0===e.encryptedContent.content){r=r||e.encryptedContent.algorithm,t=t||e.encryptedContent.key;var a,n,i;switch(r){case f.pki.oids["aes128-CBC"]:a=16,n=16,i=f.aes.createEncryptionCipher;break;case f.pki.oids["aes192-CBC"]:a=24,n=16,i=f.aes.createEncryptionCipher;break;case f.pki.oids["aes256-CBC"]:a=32,n=16,i=f.aes.createEncryptionCipher;break;case f.pki.oids["des-EDE3-CBC"]:a=24,n=8,i=f.des.createEncryptionCipher;break;default:throw new Error("Unsupported symmetric cipher, OID "+r)}if(void 0===t)t=f.util.createBuffer(f.random.getBytes(a));else if(t.length()!=a)throw new Error("Symmetric key has wrong length; got "+t.length()+" bytes, expected "+a+".");e.encryptedContent.algorithm=r,e.encryptedContent.key=t,e.encryptedContent.parameter=f.util.createBuffer(f.random.getBytes(n));var s=i(t);if(s.start(e.encryptedContent.parameter.copy()),s.update(e.content),!s.finish())throw new Error("Symmetric encryption failed.");e.encryptedContent.content=s.output}for(var o=0;o<e.recipients.length;++o){var c=e.recipients[o];if(void 0===c.encryptedContent.content)switch(c.encryptedContent.algorithm){case f.pki.oids.rsaEncryption:c.encryptedContent.content=c.encryptedContent.key.encrypt(e.encryptedContent.key.data);break;default:throw new Error("Unsupported asymmetric cipher, OID "+c.encryptedContent.algorithm)}}}}}},function(e,t,r){function a(){c=String.fromCharCode(128),c+=i.util.fillString(String.fromCharCode(0),128),l=[[1116352408,3609767458],[1899447441,602891725],[3049323471,3964484399],[3921009573,2173295548],[961987163,4081628472],[1508970993,3053834265],[2453635748,2937671579],[2870763221,3664609560],[3624381080,2734883394],[310598401,1164996542],[607225278,1323610764],[1426881987,3590304994],[1925078388,4068182383],[2162078206,991336113],[2614888103,633803317],[3248222580,3479774868],[3835390401,2666613458],[4022224774,944711139],[264347078,2341262773],[604807628,2007800933],[770255983,1495990901],[1249150122,1856431235],[1555081692,3175218132],[1996064986,2198950837],[2554220882,3999719339],[2821834349,766784016],[2952996808,2566594879],[3210313671,3203337956],[3336571891,1034457026],[3584528711,2466948901],[113926993,3758326383],[338241895,168717936],[666307205,1188179964],[773529912,1546045734],[1294757372,1522805485],[1396182291,2643833823],[1695183700,2343527390],[1986661051,1014477480],[2177026350,1206759142],[2456956037,344077627],[2730485921,1290863460],[2820302411,3158454273],[3259730800,3505952657],[3345764771,106217008],[3516065817,3606008344],[3600352804,1432725776],[4094571909,1467031594],[275423344,851169720],[430227734,3100823752],[506948616,1363258195],[659060556,3750685593],[883997877,3785050280],[958139571,3318307427],[1322822218,3812723403],[1537002063,2003034995],[1747873779,3602036899],[1955562222,1575990012],[2024104815,1125592928],[2227730452,2716904306],[2361852424,442776044],[2428436474,593698344],[2756734187,3733110249],[3204031479,2999351573],[3329325298,3815920427],[3391569614,3928383900],[3515267271,566280711],[3940187606,3454069534],[4118630271,4000239992],[116418474,1914138554],[174292421,2731055270],[289380356,3203993006],[460393269,320620315],[685471733,587496836],[852142971,1086792851],[1017036298,365543100],[1126000580,2618297676],[1288033470,3409855158],[1501505948,4234509866],[1607167915,987167468],[1816402316,1246189591]],p={},p["SHA-512"]=[[1779033703,4089235720],[3144134277,2227873595],[1013904242,4271175723],[2773480762,1595750129],[1359893119,2917565137],[2600822924,725511199],[528734635,4215389547],[1541459225,327033209]],p["SHA-384"]=[[3418070365,3238371032],[1654270250,914150663],[2438529370,812702999],[355462360,4144912697],[1731405415,4290775857],[2394180231,1750603025],[3675008525,1694076839],[1203062813,3204075428]],p["SHA-512/256"]=[[573645204,4230739756],[2673172387,3360449730],[596883563,1867755857],[2520282905,1497426621],[2519219938,2827943907],[3193839141,1401305490],[721525244,746961066],[246885852,2177182882]],p["SHA-512/224"]=[[2352822216,424955298],[1944164710,2312950998],[502970286,855612546],[1738396948,1479516111],[258812777,2077511080],[2011393907,79989058],[1067287976,1780299464],[286451373,2446758561]],u=!0}function n(e,t,r){for(var a,n,i,s,o,c,u,p,h,f,d,y,g,v,m,C,E,S,T,I,A,b,B,N,k,R,w,L,_,U,D,P,V,O,x,K=r.length();K>=128;){for(_=0;_<16;++_)t[_][0]=r.getInt32()>>>0,t[_][1]=r.getInt32()>>>0;for(;_<80;++_)P=t[_-2],U=P[0],D=P[1],a=((U>>>19|D<<13)^(D>>>29|U<<3)^U>>>6)>>>0,n=((U<<13|D>>>19)^(D<<3|U>>>29)^(U<<26|D>>>6))>>>0,O=t[_-15],U=O[0],D=O[1],i=((U>>>1|D<<31)^(U>>>8|D<<24)^U>>>7)>>>0,s=((U<<31|D>>>1)^(U<<24|D>>>8)^(U<<25|D>>>7))>>>0,V=t[_-7],x=t[_-16],D=n+V[1]+s+x[1],t[_][0]=a+V[0]+i+x[0]+(D/4294967296>>>0)>>>0,t[_][1]=D>>>0;for(g=e[0][0],v=e[0][1],m=e[1][0],C=e[1][1],E=e[2][0],S=e[2][1],T=e[3][0],I=e[3][1],A=e[4][0],b=e[4][1],B=e[5][0],N=e[5][1],k=e[6][0],R=e[6][1],w=e[7][0],L=e[7][1],_=0;_<80;++_)u=((A>>>14|b<<18)^(A>>>18|b<<14)^(b>>>9|A<<23))>>>0,p=((A<<18|b>>>14)^(A<<14|b>>>18)^(b<<23|A>>>9))>>>0,h=(k^A&(B^k))>>>0,f=(R^b&(N^R))>>>0,o=((g>>>28|v<<4)^(v>>>2|g<<30)^(v>>>7|g<<25))>>>0,c=((g<<4|v>>>28)^(v<<30|g>>>2)^(v<<25|g>>>7))>>>0,d=(g&m|E&(g^m))>>>0,y=(v&C|S&(v^C))>>>0,D=L+p+f+l[_][1]+t[_][1],a=w+u+h+l[_][0]+t[_][0]+(D/4294967296>>>0)>>>0,n=D>>>0,D=c+y,i=o+d+(D/4294967296>>>0)>>>0,s=D>>>0,w=k,L=R,k=B,R=N,B=A,N=b,D=I+n,A=T+a+(D/4294967296>>>0)>>>0,b=D>>>0,T=E,I=S,E=m,S=C,m=g,C=v,D=n+s,g=a+i+(D/4294967296>>>0)>>>0,v=D>>>0;D=e[0][1]+v,e[0][0]=e[0][0]+g+(D/4294967296>>>0)>>>0,e[0][1]=D>>>0,D=e[1][1]+C,e[1][0]=e[1][0]+m+(D/4294967296>>>0)>>>0,e[1][1]=D>>>0,D=e[2][1]+S,e[2][0]=e[2][0]+E+(D/4294967296>>>0)>>>0,e[2][1]=D>>>0,D=e[3][1]+I,e[3][0]=e[3][0]+T+(D/4294967296>>>0)>>>0,e[3][1]=D>>>0,D=e[4][1]+b,e[4][0]=e[4][0]+A+(D/4294967296>>>0)>>>0,e[4][1]=D>>>0,D=e[5][1]+N,e[5][0]=e[5][0]+B+(D/4294967296>>>0)>>>0,e[5][1]=D>>>0,D=e[6][1]+R,e[6][0]=e[6][0]+k+(D/4294967296>>>0)>>>0,e[6][1]=D>>>0,D=e[7][1]+L,e[7][0]=e[7][0]+w+(D/4294967296>>>0)>>>0,e[7][1]=D>>>0,K-=128}}var i=r(0);r(4),r(1);var s=e.exports=i.sha512=i.sha512||{};i.md.sha512=i.md.algorithms.sha512=s;var o=i.sha384=i.sha512.sha384=i.sha512.sha384||{};o.create=function(){return s.create("SHA-384")},i.md.sha384=i.md.algorithms.sha384=o,i.sha512.sha256=i.sha512.sha256||{create:function(){return s.create("SHA-512/256")}},i.md["sha512/256"]=i.md.algorithms["sha512/256"]=i.sha512.sha256,i.sha512.sha224=i.sha512.sha224||{create:function(){return s.create("SHA-512/224")}},i.md["sha512/224"]=i.md.algorithms["sha512/224"]=i.sha512.sha224,s.create=function(e){if(u||a(),"undefined"==typeof e&&(e="SHA-512"),!(e in p))throw new Error("Invalid SHA-512 algorithm: "+e);for(var t=p[e],r=null,s=i.util.createBuffer(),o=new Array(80),l=0;l<80;++l)o[l]=new Array(2);var h={algorithm:e.replace("-","").toLowerCase(),blockLength:128,digestLength:64,messageLength:0,fullMessageLength:null,messageLengthSize:16};return h.start=function(){h.messageLength=0,h.fullMessageLength=h.messageLength128=[];for(var e=h.messageLengthSize/4,a=0;a<e;++a)h.fullMessageLength.push(0);s=i.util.createBuffer(),r=new Array(t.length);for(var a=0;a<t.length;++a)r[a]=t[a].slice(0);return h},h.start(),h.update=function(e,t){"utf8"===t&&(e=i.util.encodeUtf8(e));var a=e.length;h.messageLength+=a,a=[a/4294967296>>>0,a>>>0];for(var c=h.fullMessageLength.length-1;c>=0;--c)h.fullMessageLength[c]+=a[1],a[1]=a[0]+(h.fullMessageLength[c]/4294967296>>>0),h.fullMessageLength[c]=h.fullMessageLength[c]>>>0,a[0]=a[1]/4294967296>>>0;return s.putBytes(e),n(r,o,s),(s.read>2048||0===s.length())&&s.compact(),h},h.digest=function(){var t=i.util.createBuffer();t.putBytes(s.bytes());var a=h.fullMessageLength[h.fullMessageLength.length-1]+h.messageLengthSize,u=a&h.blockLength-1;t.putBytes(c.substr(0,h.blockLength-u));for(var l,p,f=8*h.fullMessageLength[0],d=0;d<h.fullMessageLength.length-1;++d)l=8*h.fullMessageLength[d+1],p=l/4294967296>>>0,f+=p,t.putInt32(f>>>0),f=l>>>0;t.putInt32(f);for(var y=new Array(r.length),d=0;d<r.length;++d)y[d]=r[d].slice(0);n(y,o,t);var g,v=i.util.createBuffer();g="SHA-512"===e?y.length:"SHA-384"===e?y.length-2:y.length-4;for(var d=0;d<g;++d)v.putInt32(y[d][0]),d===g-1&&"SHA-512/224"===e||v.putInt32(y[d][1]);return v},h};var c=null,u=!1,l=null,p=null},function(e,t,r){function a(e,t){var r=t.toString(16);r[0]>="8"&&(r="00"+r);var a=s.util.hexToBytes(r);e.putInt32(a.length),e.putBytes(a)}function n(e,t){e.putInt32(t.length),e.putString(t)}function i(){for(var e=s.md.sha1.create(),t=arguments.length,r=0;r<t;++r)e.update(arguments[r]);return e.digest()}var s=r(0);r(5),r(8),r(14),r(9),r(1);var o=e.exports=s.ssh=s.ssh||{};o.privateKeyToPutty=function(e,t,r){r=r||"",t=t||"";var o="ssh-rsa",c=""===t?"none":"aes256-cbc",u="PuTTY-User-Key-File-2: "+o+"\r\n";u+="Encryption: "+c+"\r\n",u+="Comment: "+r+"\r\n";var l=s.util.createBuffer();n(l,o),a(l,e.e),a(l,e.n);var p=s.util.encode64(l.bytes(),64),h=Math.floor(p.length/66)+1;u+="Public-Lines: "+h+"\r\n",u+=p;var f=s.util.createBuffer();a(f,e.d),a(f,e.p),a(f,e.q),a(f,e.qInv);var d;if(t){var y=f.length()+16-1;y-=y%16;var g=i(f.bytes());g.truncate(g.length()-y+f.length()),f.putBuffer(g);var v=s.util.createBuffer();v.putBuffer(i("\0\0\0\0",t)),v.putBuffer(i("\0\0\0",t));var m=s.aes.createEncryptionCipher(v.truncate(8),"CBC");m.start(s.util.createBuffer().fillWithByte(0,16)),m.update(f.copy()),m.finish();var C=m.output;C.truncate(16),d=s.util.encode64(C.bytes(),64)}else d=s.util.encode64(f.bytes(),64);h=Math.floor(d.length/66)+1,u+="\r\nPrivate-Lines: "+h+"\r\n",u+=d;var E=i("putty-private-key-file-mac-key",t),S=s.util.createBuffer();n(S,o),n(S,c),n(S,r),S.putInt32(l.length()),S.putBuffer(l),S.putInt32(f.length()),S.putBuffer(f);var T=s.hmac.create();return T.start("sha1",E),T.update(S.bytes()),u+="\r\nPrivate-MAC: "+T.digest().toHex()+"\r\n"},o.publicKeyToOpenSSH=function(e,t){var r="ssh-rsa";t=t||"";var i=s.util.createBuffer();return n(i,r),a(i,e.e),a(i,e.n),r+" "+s.util.encode64(i.bytes())+" "+t},o.privateKeyToOpenSSH=function(e,t){return t?s.pki.encryptRsaPrivateKey(e,t,{legacy:!0,algorithm:"aes128"}):s.pki.privateKeyToPem(e)},o.getPublicKeyFingerprint=function(e,t){t=t||{};var r=t.md||s.md.md5.create(),i="ssh-rsa",o=s.util.createBuffer();n(o,i),a(o,e.e),a(o,e.n),r.start(),r.update(o.getBytes());var c=r.digest();if("hex"===t.encoding){var u=c.toHex();return t.delimiter?u.match(/.{2}/g).join(t.delimiter):u}if("binary"===t.encoding)return c.getBytes();if(t.encoding)throw new Error('Unknown encoding "'+t.encoding+'".');return c}},function(e,t,r){var a=r(0);r(19),r(20),r(1);var n="forge.task",i=0,s={},o=0;a.debug.set(n,"tasks",s);var c={};a.debug.set(n,"queues",c);var u="?",l=30,p=20,h="ready",f="running",d="blocked",y="sleeping",g="done",v="error",m="stop",C="start",E="block",S="unblock",T="sleep",I="wakeup",A="cancel",b="fail",B={};B[h]={},B[h][m]=h,B[h][C]=f,B[h][A]=g,B[h][b]=v,B[f]={},B[f][m]=h,B[f][C]=f,B[f][E]=d,B[f][S]=f,B[f][T]=y,B[f][I]=f,B[f][A]=g,B[f][b]=v,B[d]={},B[d][m]=d,B[d][C]=d,B[d][E]=d,B[d][S]=d,B[d][T]=d,B[d][I]=d,B[d][A]=g,B[d][b]=v,B[y]={},B[y][m]=y,B[y][C]=y,B[y][E]=y,B[y][S]=y,B[y][T]=y,B[y][I]=y,B[y][A]=g,B[y][b]=v,B[g]={},B[g][m]=g,B[g][C]=g,B[g][E]=g,B[g][S]=g,B[g][T]=g,B[g][I]=g,B[g][A]=g,B[g][b]=v,B[v]={},B[v][m]=v,B[v][C]=v,B[v][E]=v,B[v][S]=v,B[v][T]=v,B[v][I]=v,B[v][A]=v,B[v][b]=v;var N=function(e){this.id=-1,this.name=e.name||u,this.parent=e.parent||null,this.run=e.run,this.subtasks=[],this.error=!1,this.state=h,this.blocks=0,this.timeoutId=null,this.swapTime=null,this.userData=null,this.id=o++,s[this.id]=this,i>=1&&a.log.verbose(n,"[%s][%s] init",this.id,this.name,this)};N.prototype.debug=function(e){e=e||"",a.log.debug(n,e,"[%s][%s] task:",this.id,this.name,this,"subtasks:",this.subtasks.length,"queue:",c)},N.prototype.next=function(e,t){"function"==typeof e&&(t=e,e=this.name);var r=new N({run:t,name:e,parent:this});return r.state=f,r.type=this.type,r.successCallback=this.successCallback||null,r.failureCallback=this.failureCallback||null,this.subtasks.push(r),this},N.prototype.parallel=function(e,t){return a.util.isArray(e)&&(t=e,e=this.name),this.next(e,function(r){var n=r;n.block(t.length);for(var i=function(e,r){a.task.start({type:e,run:function(e){t[r](e)},success:function(e){n.unblock()},failure:function(e){n.unblock()}})},s=0;s<t.length;s++){var o=e+"__parallel-"+r.id+"-"+s,c=s;i(o,c)}})},N.prototype.stop=function(){this.state=B[this.state][m]},N.prototype.start=function(){this.error=!1,this.state=B[this.state][C],this.state===f&&(this.start=new Date,this.run(this),R(this,0))},N.prototype.block=function(e){e="undefined"==typeof e?1:e,this.blocks+=e,this.blocks>0&&(this.state=B[this.state][E])},N.prototype.unblock=function(e){return e="undefined"==typeof e?1:e,this.blocks-=e,0===this.blocks&&this.state!==g&&(this.state=f,R(this,0)),this.blocks},N.prototype.sleep=function(e){e="undefined"==typeof e?0:e,this.state=B[this.state][T];var t=this;this.timeoutId=setTimeout(function(){t.timeoutId=null,t.state=f,R(t,0)},e)},N.prototype.wait=function(e){e.wait(this)},N.prototype.wakeup=function(){this.state===y&&(cancelTimeout(this.timeoutId),this.timeoutId=null,this.state=f,R(this,0))},N.prototype.cancel=function(){this.state=B[this.state][A],this.permitsNeeded=0,null!==this.timeoutId&&(cancelTimeout(this.timeoutId),this.timeoutId=null),this.subtasks=[]},N.prototype.fail=function(e){if(this.error=!0,w(this,!0),e)e.error=this.error,e.swapTime=this.swapTime,e.userData=this.userData,R(e,0);else{if(null!==this.parent){for(var t=this.parent;null!==t.parent;)t.error=this.error,t.swapTime=this.swapTime,t.userData=this.userData,t=t.parent;w(t,!0)}this.failureCallback&&this.failureCallback(this)}};var k=function(e){e.error=!1,e.state=B[e.state][C],setTimeout(function(){e.state===f&&(e.swapTime=+new Date,e.run(e),R(e,0))},0)},R=function(e,t){var r=t>l||+new Date-e.swapTime>p,a=function(t){if(t++,e.state===f)if(r&&(e.swapTime=+new Date),e.subtasks.length>0){var a=e.subtasks.shift();a.error=e.error,a.swapTime=e.swapTime,a.userData=e.userData,a.run(a),a.error||R(a,t)}else w(e),e.error||null!==e.parent&&(e.parent.error=e.error,e.parent.swapTime=e.swapTime,e.parent.userData=e.userData,R(e.parent,t))};r?setTimeout(a,0):a(t)},w=function(e,t){e.state=g,delete s[e.id],i>=1&&a.log.verbose(n,"[%s][%s] finish",e.id,e.name,e),null===e.parent&&(e.type in c?0===c[e.type].length?a.log.error(n,"[%s][%s] task queue empty [%s]",e.id,e.name,e.type):c[e.type][0]!==e?a.log.error(n,"[%s][%s] task not first in queue [%s]",e.id,e.name,e.type):(c[e.type].shift(),0===c[e.type].length?(i>=1&&a.log.verbose(n,"[%s][%s] delete queue [%s]",e.id,e.name,e.type),delete c[e.type]):(i>=1&&a.log.verbose(n,"[%s][%s] queue start next [%s] remain:%s",e.id,e.name,e.type,c[e.type].length),c[e.type][0].start())):a.log.error(n,"[%s][%s] task queue missing [%s]",e.id,e.name,e.type),t||(e.error&&e.failureCallback?e.failureCallback(e):!e.error&&e.successCallback&&e.successCallback(e)))};e.exports=a.task=a.task||{},a.task.start=function(e){var t=new N({run:e.run,name:e.name||u});t.type=e.type,t.successCallback=e.success||null,t.failureCallback=e.failure||null,t.type in c?c[e.type].push(t):(i>=1&&a.log.verbose(n,"[%s][%s] create queue [%s]",t.id,t.name,t.type),c[t.type]=[t],k(t))},a.task.cancel=function(e){e in c&&(c[e]=[c[e][0]])},a.task.createCondition=function(){var e={tasks:{}};return e.wait=function(t){t.id in e.tasks||(t.block(),e.tasks[t.id]=t)},e.notify=function(){var t=e.tasks;e.tasks={};for(var r in t)t[r].unblock()},e}},function(e,t,r){e.exports=r(33)}])});
 //# sourceMappingURL=forge.min.js.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(25).setImmediate, __webpack_require__(2).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(26).setImmediate, __webpack_require__(2).Buffer))
 
 /***/ }),
 /* 78 */
@@ -66465,7 +66466,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 /* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(30);
+module.exports = __webpack_require__(31);
 
 
 /***/ }),
@@ -66479,14 +66480,14 @@ module.exports = __webpack_require__(10);
 /* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(29).Transform
+module.exports = __webpack_require__(30).Transform
 
 
 /***/ }),
 /* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(29).PassThrough
+module.exports = __webpack_require__(30).PassThrough
 
 
 /***/ }),
@@ -66986,10 +66987,10 @@ module.exports = function (password, salt, iterations, keylen, digest, callback)
 /***/ (function(module, exports, __webpack_require__) {
 
 var ebtk = __webpack_require__(21)
-var aes = __webpack_require__(33)
+var aes = __webpack_require__(34)
 var DES = __webpack_require__(112)
 var desModes = __webpack_require__(118)
-var aesModes = __webpack_require__(34)
+var aesModes = __webpack_require__(35)
 function createCipher (suite, password) {
   var keyLen, ivLen
   suite = suite.toLowerCase()
@@ -67319,7 +67320,7 @@ module.exports = HashBase
 /* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var MODES = __webpack_require__(34)
+var MODES = __webpack_require__(35)
 var AuthCipher = __webpack_require__(55)
 var Buffer = __webpack_require__(1).Buffer
 var StreamCipher = __webpack_require__(56)
@@ -67713,7 +67714,7 @@ module.exports = GHASH
 
 var AuthCipher = __webpack_require__(55)
 var Buffer = __webpack_require__(1).Buffer
-var MODES = __webpack_require__(34)
+var MODES = __webpack_require__(35)
 var StreamCipher = __webpack_require__(56)
 var Transform = __webpack_require__(9)
 var aes = __webpack_require__(22)
@@ -67839,7 +67840,7 @@ exports.createDecipheriv = createDecipheriv
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(9)
-var des = __webpack_require__(35)
+var des = __webpack_require__(36)
 var inherits = __webpack_require__(0)
 
 var modes = {
@@ -68305,7 +68306,7 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
 var assert = __webpack_require__(5);
 var inherits = __webpack_require__(0);
 
-var des = __webpack_require__(35);
+var des = __webpack_require__(36);
 var utils = des.utils;
 var Cipher = des.Cipher;
 
@@ -68527,7 +68528,7 @@ proto._update = function _update(inp, inOff, out, outOff) {
 var assert = __webpack_require__(5);
 var inherits = __webpack_require__(0);
 
-var des = __webpack_require__(35);
+var des = __webpack_require__(36);
 var Cipher = des.Cipher;
 var DES = des.DES;
 
@@ -68951,7 +68952,7 @@ module.exports = {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {// much of this based on https://github.com/indutny/self-signed/blob/gh-pages/lib/rsa.js
 var createHmac = __webpack_require__(46)
-var crt = __webpack_require__(36)
+var crt = __webpack_require__(37)
 var EC = __webpack_require__(4).ec
 var BN = __webpack_require__(3)
 var parseKeys = __webpack_require__(24)
@@ -71193,7 +71194,7 @@ Point.prototype.mixedAdd = Point.prototype.add;
 
 var curves = exports;
 
-var hash = __webpack_require__(37);
+var hash = __webpack_require__(38);
 var elliptic = __webpack_require__(4);
 
 var assert = elliptic.utils.assert;
@@ -72817,7 +72818,7 @@ EC.prototype.getKeyRecoveryParam = function(e, signature, Q, enc) {
 "use strict";
 
 
-var hash = __webpack_require__(37);
+var hash = __webpack_require__(38);
 var utils = __webpack_require__(61);
 var assert = __webpack_require__(5);
 
@@ -73205,7 +73206,7 @@ Signature.prototype.toDER = function toDER(enc) {
 "use strict";
 
 
-var hash = __webpack_require__(37);
+var hash = __webpack_require__(38);
 var elliptic = __webpack_require__(4);
 var utils = elliptic.utils;
 var assert = utils.assert;
@@ -74881,7 +74882,7 @@ var findProc = /Proc-Type: 4,ENCRYPTED\n\r?DEK-Info: AES-((?:128)|(?:192)|(?:256
 var startRegex = /^-----BEGIN ((?:.* KEY)|CERTIFICATE)-----\n/m
 var fullRegex = /^-----BEGIN ((?:.* KEY)|CERTIFICATE)-----\n\r?([0-9A-z\n\r\+\/\=]+)\n\r?-----END \1-----$/m
 var evp = __webpack_require__(21)
-var ciphers = __webpack_require__(33)
+var ciphers = __webpack_require__(34)
 module.exports = function (okey, password) {
   var key = okey.toString()
   var match = key.match(findProc)
@@ -75154,7 +75155,7 @@ var mgf = __webpack_require__(70);
 var xor = __webpack_require__(71);
 var bn = __webpack_require__(3);
 var withPublic = __webpack_require__(72);
-var crt = __webpack_require__(36);
+var crt = __webpack_require__(37);
 
 var constants = {
   RSA_PKCS1_OAEP_PADDING: 4,
@@ -75252,7 +75253,7 @@ function nonZero(len, crypto) {
 var mgf = __webpack_require__(70);
 var xor = __webpack_require__(71);
 var bn = __webpack_require__(3);
-var crt = __webpack_require__(36);
+var crt = __webpack_require__(37);
 var createHash = __webpack_require__(13);
 var withPublic = __webpack_require__(72);
 module.exports = function privateDecrypt(private_key, enc, reverse) {
