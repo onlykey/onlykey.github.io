@@ -368,7 +368,7 @@ window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
   _status = val;
   if (!skipBtn) button.textContent = val;
-  document.action.select_one.forEach(el => el.addEventListener('change', updateStatusFromSelection.bind(null, false)));
+  document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
 }
 
 button.onclick = function () {
