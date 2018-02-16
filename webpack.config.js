@@ -68,7 +68,8 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
     entry: ['./js/app.js'],
     externals: {
-      "u2f": "./u2f-api.js"
+      "u2f": "./u2f-api.js",
+      "kbpgp": "./kbpgp.js"
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),

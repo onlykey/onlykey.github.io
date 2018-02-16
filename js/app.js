@@ -1,6 +1,6 @@
 const url = require('url');
-const kbpgp = require('./kbpgp.js');
-require("exports-loader?kbpgp!./kbpgp.js");
+//const kbpgp = require('./kbpgp.js');
+//require("exports-loader?kbpgp!./kbpgp.js");
 const request = require('superagent');
 const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
