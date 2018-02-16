@@ -33,8 +33,7 @@ let plugins = [
       _status: './onlykey-api.js',
       poll_delay: './onlykey-api.js',
       poll_type: './onlykey-api.js',
-      custom_keyid: './onlykey-api.js',
-      kbpgp: './kbpgp.js'
+      custom_keyid: './onlykey-api.js'
     })
 ];
 

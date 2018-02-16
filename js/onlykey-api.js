@@ -191,7 +191,7 @@ async function msg_polling(params = {}, cb) {
  * Decrypt ciphertext via OnlyKey
  * @param {Array} ct
  */
-function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
+auth_decrypt = function(ct, cb) { //OnlyKey decrypt request to keyHandle
   if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -213,13 +213,13 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   msg("Generated PIN" + pin);
   return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
-}
+};
 
 /**
  * Sign message via OnlyKey
  * @param {Array} ct
  */
-function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
+auth_sign = function(ct, cb) { //OnlyKey sign request to keyHandle
   if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -230,7 +230,7 @@ function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
   console.info("Generated PIN", pin);
   return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
-}
+};
 
 /**
  * Parse custom U2F sign response
@@ -564,9 +564,9 @@ function string2bytes(s) {
   for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
   return bytes;
 }
-function hexStrToDec(hexStr) {
+hexStrToDec = function(hexStr) {
     return ~~(new Number('0x' + hexStr).toString(10));
-}
+};
 
 function bcat(buflist) {
   var len = 0;
