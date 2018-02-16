@@ -5717,9 +5717,304 @@ exports.shr64_lo = shr64_lo;
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(forge, nacl, auth_decrypt, auth_sign) {var userDict = {}           // UserId -> KeyHandle
+var Buffer = __webpack_require__(1).Buffer
+var Transform = __webpack_require__(20).Transform
+var StringDecoder = __webpack_require__(32).StringDecoder
+var inherits = __webpack_require__(0)
+
+function CipherBase (hashMode) {
+  Transform.call(this)
+  this.hashMode = typeof hashMode === 'string'
+  if (this.hashMode) {
+    this[hashMode] = this._finalOrDigest
+  } else {
+    this.final = this._finalOrDigest
+  }
+  if (this._final) {
+    this.__final = this._final
+    this._final = null
+  }
+  this._decoder = null
+  this._encoding = null
+}
+inherits(CipherBase, Transform)
+
+CipherBase.prototype.update = function (data, inputEnc, outputEnc) {
+  if (typeof data === 'string') {
+    data = Buffer.from(data, inputEnc)
+  }
+
+  var outData = this._update(data)
+  if (this.hashMode) return this
+
+  if (outputEnc) {
+    outData = this._toString(outData, outputEnc)
+  }
+
+  return outData
+}
+
+CipherBase.prototype.setAutoPadding = function () {}
+CipherBase.prototype.getAuthTag = function () {
+  throw new Error('trying to get auth tag in unsupported state')
+}
+
+CipherBase.prototype.setAuthTag = function () {
+  throw new Error('trying to set auth tag in unsupported state')
+}
+
+CipherBase.prototype.setAAD = function () {
+  throw new Error('trying to set aad in unsupported state')
+}
+
+CipherBase.prototype._transform = function (data, _, next) {
+  var err
+  try {
+    if (this.hashMode) {
+      this._update(data)
+    } else {
+      this.push(this._update(data))
+    }
+  } catch (e) {
+    err = e
+  } finally {
+    next(err)
+  }
+}
+CipherBase.prototype._flush = function (done) {
+  var err
+  try {
+    this.push(this.__final())
+  } catch (e) {
+    err = e
+  }
+
+  done(err)
+}
+CipherBase.prototype._finalOrDigest = function (outputEnc) {
+  var outData = this.__final() || Buffer.alloc(0)
+  if (outputEnc) {
+    outData = this._toString(outData, outputEnc, true)
+  }
+  return outData
+}
+
+CipherBase.prototype._toString = function (value, enc, fin) {
+  if (!this._decoder) {
+    this._decoder = new StringDecoder(enc)
+    this._encoding = enc
+  }
+
+  if (this._encoding !== enc) throw new Error('can\'t switch encodings')
+
+  var out = this._decoder.write(value)
+  if (fin) {
+    out += this._decoder.end()
+  }
+
+  return out
+}
+
+module.exports = CipherBase
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(forge, nacl) {var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};
 
@@ -5912,7 +6207,7 @@ async function msg_polling(params = {}, cb) {
  * Decrypt ciphertext via OnlyKey
  * @param {Array} ct
  */
-auth_decrypt = function(ct, cb) { //OnlyKey decrypt request to keyHandle
+var auth_decrypt = function(ct, cb) { //OnlyKey decrypt request to keyHandle
   if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -5940,7 +6235,7 @@ auth_decrypt = function(ct, cb) { //OnlyKey decrypt request to keyHandle
  * Sign message via OnlyKey
  * @param {Array} ct
  */
-auth_sign = function(ct, cb) { //OnlyKey sign request to keyHandle
+var auth_sign = function(ct, cb) { //OnlyKey sign request to keyHandle
   if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -6317,302 +6612,7 @@ function mkchallenge() {
 
 function noop() {}
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(77), __webpack_require__(81), __webpack_require__(8), __webpack_require__(8)))
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(20).Transform
-var StringDecoder = __webpack_require__(32).StringDecoder
-var inherits = __webpack_require__(0)
-
-function CipherBase (hashMode) {
-  Transform.call(this)
-  this.hashMode = typeof hashMode === 'string'
-  if (this.hashMode) {
-    this[hashMode] = this._finalOrDigest
-  } else {
-    this.final = this._finalOrDigest
-  }
-  if (this._final) {
-    this.__final = this._final
-    this._final = null
-  }
-  this._decoder = null
-  this._encoding = null
-}
-inherits(CipherBase, Transform)
-
-CipherBase.prototype.update = function (data, inputEnc, outputEnc) {
-  if (typeof data === 'string') {
-    data = Buffer.from(data, inputEnc)
-  }
-
-  var outData = this._update(data)
-  if (this.hashMode) return this
-
-  if (outputEnc) {
-    outData = this._toString(outData, outputEnc)
-  }
-
-  return outData
-}
-
-CipherBase.prototype.setAutoPadding = function () {}
-CipherBase.prototype.getAuthTag = function () {
-  throw new Error('trying to get auth tag in unsupported state')
-}
-
-CipherBase.prototype.setAuthTag = function () {
-  throw new Error('trying to set auth tag in unsupported state')
-}
-
-CipherBase.prototype.setAAD = function () {
-  throw new Error('trying to set aad in unsupported state')
-}
-
-CipherBase.prototype._transform = function (data, _, next) {
-  var err
-  try {
-    if (this.hashMode) {
-      this._update(data)
-    } else {
-      this.push(this._update(data))
-    }
-  } catch (e) {
-    err = e
-  } finally {
-    next(err)
-  }
-}
-CipherBase.prototype._flush = function (done) {
-  var err
-  try {
-    this.push(this.__final())
-  } catch (e) {
-    err = e
-  }
-
-  done(err)
-}
-CipherBase.prototype._finalOrDigest = function (outputEnc) {
-  var outData = this.__final() || Buffer.alloc(0)
-  if (outputEnc) {
-    outData = this._toString(outData, outputEnc, true)
-  }
-  return outData
-}
-
-CipherBase.prototype._toString = function (value, enc, fin) {
-  if (!this._decoder) {
-    this._decoder = new StringDecoder(enc)
-    this._encoding = enc
-  }
-
-  if (this._encoding !== enc) throw new Error('can\'t switch encodings')
-
-  var out = this._decoder.write(value)
-  if (fin) {
-    out += this._decoder.end()
-  }
-
-  return out
-}
-
-module.exports = CipherBase
-
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(77), __webpack_require__(81)))
 
 /***/ }),
 /* 11 */
@@ -6788,7 +6788,7 @@ function randomBytes (size, cb) {
   return bytes
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(8)))
 
 /***/ }),
 /* 13 */
@@ -6888,7 +6888,7 @@ var md5 = __webpack_require__(27)
 var RIPEMD160 = __webpack_require__(28)
 var sha = __webpack_require__(33)
 
-var Base = __webpack_require__(10)
+var Base = __webpack_require__(9)
 
 function HashNoConstructor (hash) {
   Base.call(this, 'digest')
@@ -7376,7 +7376,7 @@ function nextTick(fn, arg1, arg2, arg3) {
   }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
 /* 22 */
@@ -9305,7 +9305,7 @@ Writable.prototype._destroy = function (err, cb) {
   this.end();
   cb(err);
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(26).setImmediate, __webpack_require__(6)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(26).setImmediate, __webpack_require__(6)))
 
 /***/ }),
 /* 32 */
@@ -10782,7 +10782,7 @@ function indexOf(xs, x) {
   }
   return -1;
 }
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(8)))
 
 /***/ }),
 /* 42 */
@@ -11504,7 +11504,7 @@ module.exports = Sha512
 
 var inherits = __webpack_require__(0)
 var Legacy = __webpack_require__(97)
-var Base = __webpack_require__(10)
+var Base = __webpack_require__(9)
 var Buffer = __webpack_require__(1).Buffer
 var md5 = __webpack_require__(27)
 var RIPEMD160 = __webpack_require__(28)
@@ -11620,7 +11620,7 @@ if (process.browser) {
 }
 module.exports = defaultEncoding
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
 
 /***/ }),
 /* 52 */
@@ -11798,7 +11798,7 @@ module.exports = {"aes-128-ecb":{"cipher":"AES","key":128,"iv":0,"mode":"ECB","t
 
 var aes = __webpack_require__(23)
 var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(10)
+var Transform = __webpack_require__(9)
 var inherits = __webpack_require__(0)
 var GHASH = __webpack_require__(110)
 var xor = __webpack_require__(16)
@@ -11921,7 +11921,7 @@ module.exports = StreamCipher
 
 var aes = __webpack_require__(23)
 var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(10)
+var Transform = __webpack_require__(9)
 var inherits = __webpack_require__(0)
 
 function StreamCipher (mode, key, iv, decrypt) {
@@ -14100,7 +14100,7 @@ urlinputbox.onkeyup = function () {
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(76), __webpack_require__(8), __webpack_require__(8), __webpack_require__(8), __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(76), __webpack_require__(10), __webpack_require__(10), __webpack_require__(10), __webpack_require__(10)))
 
 /***/ }),
 /* 76 */
@@ -65633,7 +65633,7 @@ module.exports={
 },{}]},{},[29])(29)
 });
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(8), __webpack_require__(8), __webpack_require__(6), __webpack_require__(26).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(10), __webpack_require__(10), __webpack_require__(6), __webpack_require__(26).setImmediate))
 
 /***/ }),
 /* 77 */
@@ -65650,7 +65650,7 @@ value:[{name:"PBES2Algorithms.keyDerivationFunc",tagClass:u.Class.UNIVERSAL,type
 },findRecipient:function(t){for(var r=t.issuer.attributes,a=0;a<e.recipients.length;++a){var n=e.recipients[a],i=n.issuer;if(n.serialNumber===t.serialNumber&&i.length===r.length){for(var s=!0,o=0;o<r.length;++o)if(i[o].type!==r[o].type||i[o].value!==r[o].value){s=!1;break}if(s)return n}}return null},decrypt:function(t,r){if(void 0===e.encryptedContent.key&&void 0!==t&&void 0!==r)switch(t.encryptedContent.algorithm){case f.pki.oids.rsaEncryption:case f.pki.oids.desCBC:var a=r.decrypt(t.encryptedContent.content);e.encryptedContent.key=f.util.createBuffer(a);break;default:throw new Error("Unsupported asymmetric cipher, OID "+t.encryptedContent.algorithm)}h(e)},addRecipient:function(t){e.recipients.push({version:0,issuer:t.issuer.attributes,serialNumber:t.serialNumber,encryptedContent:{algorithm:f.pki.oids.rsaEncryption,key:t.publicKey}})},encrypt:function(t,r){if(void 0===e.encryptedContent.content){r=r||e.encryptedContent.algorithm,t=t||e.encryptedContent.key;var a,n,i;switch(r){case f.pki.oids["aes128-CBC"]:a=16,n=16,i=f.aes.createEncryptionCipher;break;case f.pki.oids["aes192-CBC"]:a=24,n=16,i=f.aes.createEncryptionCipher;break;case f.pki.oids["aes256-CBC"]:a=32,n=16,i=f.aes.createEncryptionCipher;break;case f.pki.oids["des-EDE3-CBC"]:a=24,n=8,i=f.des.createEncryptionCipher;break;default:throw new Error("Unsupported symmetric cipher, OID "+r)}if(void 0===t)t=f.util.createBuffer(f.random.getBytes(a));else if(t.length()!=a)throw new Error("Symmetric key has wrong length; got "+t.length()+" bytes, expected "+a+".");e.encryptedContent.algorithm=r,e.encryptedContent.key=t,e.encryptedContent.parameter=f.util.createBuffer(f.random.getBytes(n));var s=i(t);if(s.start(e.encryptedContent.parameter.copy()),s.update(e.content),!s.finish())throw new Error("Symmetric encryption failed.");e.encryptedContent.content=s.output}for(var o=0;o<e.recipients.length;++o){var c=e.recipients[o];if(void 0===c.encryptedContent.content)switch(c.encryptedContent.algorithm){case f.pki.oids.rsaEncryption:c.encryptedContent.content=c.encryptedContent.key.encrypt(e.encryptedContent.key.data);break;default:throw new Error("Unsupported asymmetric cipher, OID "+c.encryptedContent.algorithm)}}}}}},function(e,t,r){function a(){c=String.fromCharCode(128),c+=i.util.fillString(String.fromCharCode(0),128),l=[[1116352408,3609767458],[1899447441,602891725],[3049323471,3964484399],[3921009573,2173295548],[961987163,4081628472],[1508970993,3053834265],[2453635748,2937671579],[2870763221,3664609560],[3624381080,2734883394],[310598401,1164996542],[607225278,1323610764],[1426881987,3590304994],[1925078388,4068182383],[2162078206,991336113],[2614888103,633803317],[3248222580,3479774868],[3835390401,2666613458],[4022224774,944711139],[264347078,2341262773],[604807628,2007800933],[770255983,1495990901],[1249150122,1856431235],[1555081692,3175218132],[1996064986,2198950837],[2554220882,3999719339],[2821834349,766784016],[2952996808,2566594879],[3210313671,3203337956],[3336571891,1034457026],[3584528711,2466948901],[113926993,3758326383],[338241895,168717936],[666307205,1188179964],[773529912,1546045734],[1294757372,1522805485],[1396182291,2643833823],[1695183700,2343527390],[1986661051,1014477480],[2177026350,1206759142],[2456956037,344077627],[2730485921,1290863460],[2820302411,3158454273],[3259730800,3505952657],[3345764771,106217008],[3516065817,3606008344],[3600352804,1432725776],[4094571909,1467031594],[275423344,851169720],[430227734,3100823752],[506948616,1363258195],[659060556,3750685593],[883997877,3785050280],[958139571,3318307427],[1322822218,3812723403],[1537002063,2003034995],[1747873779,3602036899],[1955562222,1575990012],[2024104815,1125592928],[2227730452,2716904306],[2361852424,442776044],[2428436474,593698344],[2756734187,3733110249],[3204031479,2999351573],[3329325298,3815920427],[3391569614,3928383900],[3515267271,566280711],[3940187606,3454069534],[4118630271,4000239992],[116418474,1914138554],[174292421,2731055270],[289380356,3203993006],[460393269,320620315],[685471733,587496836],[852142971,1086792851],[1017036298,365543100],[1126000580,2618297676],[1288033470,3409855158],[1501505948,4234509866],[1607167915,987167468],[1816402316,1246189591]],p={},p["SHA-512"]=[[1779033703,4089235720],[3144134277,2227873595],[1013904242,4271175723],[2773480762,1595750129],[1359893119,2917565137],[2600822924,725511199],[528734635,4215389547],[1541459225,327033209]],p["SHA-384"]=[[3418070365,3238371032],[1654270250,914150663],[2438529370,812702999],[355462360,4144912697],[1731405415,4290775857],[2394180231,1750603025],[3675008525,1694076839],[1203062813,3204075428]],p["SHA-512/256"]=[[573645204,4230739756],[2673172387,3360449730],[596883563,1867755857],[2520282905,1497426621],[2519219938,2827943907],[3193839141,1401305490],[721525244,746961066],[246885852,2177182882]],p["SHA-512/224"]=[[2352822216,424955298],[1944164710,2312950998],[502970286,855612546],[1738396948,1479516111],[258812777,2077511080],[2011393907,79989058],[1067287976,1780299464],[286451373,2446758561]],u=!0}function n(e,t,r){for(var a,n,i,s,o,c,u,p,h,f,d,y,g,v,m,C,E,S,T,I,A,b,B,N,k,R,w,L,_,U,D,P,V,O,x,K=r.length();K>=128;){for(_=0;_<16;++_)t[_][0]=r.getInt32()>>>0,t[_][1]=r.getInt32()>>>0;for(;_<80;++_)P=t[_-2],U=P[0],D=P[1],a=((U>>>19|D<<13)^(D>>>29|U<<3)^U>>>6)>>>0,n=((U<<13|D>>>19)^(D<<3|U>>>29)^(U<<26|D>>>6))>>>0,O=t[_-15],U=O[0],D=O[1],i=((U>>>1|D<<31)^(U>>>8|D<<24)^U>>>7)>>>0,s=((U<<31|D>>>1)^(U<<24|D>>>8)^(U<<25|D>>>7))>>>0,V=t[_-7],x=t[_-16],D=n+V[1]+s+x[1],t[_][0]=a+V[0]+i+x[0]+(D/4294967296>>>0)>>>0,t[_][1]=D>>>0;for(g=e[0][0],v=e[0][1],m=e[1][0],C=e[1][1],E=e[2][0],S=e[2][1],T=e[3][0],I=e[3][1],A=e[4][0],b=e[4][1],B=e[5][0],N=e[5][1],k=e[6][0],R=e[6][1],w=e[7][0],L=e[7][1],_=0;_<80;++_)u=((A>>>14|b<<18)^(A>>>18|b<<14)^(b>>>9|A<<23))>>>0,p=((A<<18|b>>>14)^(A<<14|b>>>18)^(b<<23|A>>>9))>>>0,h=(k^A&(B^k))>>>0,f=(R^b&(N^R))>>>0,o=((g>>>28|v<<4)^(v>>>2|g<<30)^(v>>>7|g<<25))>>>0,c=((g<<4|v>>>28)^(v<<30|g>>>2)^(v<<25|g>>>7))>>>0,d=(g&m|E&(g^m))>>>0,y=(v&C|S&(v^C))>>>0,D=L+p+f+l[_][1]+t[_][1],a=w+u+h+l[_][0]+t[_][0]+(D/4294967296>>>0)>>>0,n=D>>>0,D=c+y,i=o+d+(D/4294967296>>>0)>>>0,s=D>>>0,w=k,L=R,k=B,R=N,B=A,N=b,D=I+n,A=T+a+(D/4294967296>>>0)>>>0,b=D>>>0,T=E,I=S,E=m,S=C,m=g,C=v,D=n+s,g=a+i+(D/4294967296>>>0)>>>0,v=D>>>0;D=e[0][1]+v,e[0][0]=e[0][0]+g+(D/4294967296>>>0)>>>0,e[0][1]=D>>>0,D=e[1][1]+C,e[1][0]=e[1][0]+m+(D/4294967296>>>0)>>>0,e[1][1]=D>>>0,D=e[2][1]+S,e[2][0]=e[2][0]+E+(D/4294967296>>>0)>>>0,e[2][1]=D>>>0,D=e[3][1]+I,e[3][0]=e[3][0]+T+(D/4294967296>>>0)>>>0,e[3][1]=D>>>0,D=e[4][1]+b,e[4][0]=e[4][0]+A+(D/4294967296>>>0)>>>0,e[4][1]=D>>>0,D=e[5][1]+N,e[5][0]=e[5][0]+B+(D/4294967296>>>0)>>>0,e[5][1]=D>>>0,D=e[6][1]+R,e[6][0]=e[6][0]+k+(D/4294967296>>>0)>>>0,e[6][1]=D>>>0,D=e[7][1]+L,e[7][0]=e[7][0]+w+(D/4294967296>>>0)>>>0,e[7][1]=D>>>0,K-=128}}var i=r(0);r(4),r(1);var s=e.exports=i.sha512=i.sha512||{};i.md.sha512=i.md.algorithms.sha512=s;var o=i.sha384=i.sha512.sha384=i.sha512.sha384||{};o.create=function(){return s.create("SHA-384")},i.md.sha384=i.md.algorithms.sha384=o,i.sha512.sha256=i.sha512.sha256||{create:function(){return s.create("SHA-512/256")}},i.md["sha512/256"]=i.md.algorithms["sha512/256"]=i.sha512.sha256,i.sha512.sha224=i.sha512.sha224||{create:function(){return s.create("SHA-512/224")}},i.md["sha512/224"]=i.md.algorithms["sha512/224"]=i.sha512.sha224,s.create=function(e){if(u||a(),"undefined"==typeof e&&(e="SHA-512"),!(e in p))throw new Error("Invalid SHA-512 algorithm: "+e);for(var t=p[e],r=null,s=i.util.createBuffer(),o=new Array(80),l=0;l<80;++l)o[l]=new Array(2);var h={algorithm:e.replace("-","").toLowerCase(),blockLength:128,digestLength:64,messageLength:0,fullMessageLength:null,messageLengthSize:16};return h.start=function(){h.messageLength=0,h.fullMessageLength=h.messageLength128=[];for(var e=h.messageLengthSize/4,a=0;a<e;++a)h.fullMessageLength.push(0);s=i.util.createBuffer(),r=new Array(t.length);for(var a=0;a<t.length;++a)r[a]=t[a].slice(0);return h},h.start(),h.update=function(e,t){"utf8"===t&&(e=i.util.encodeUtf8(e));var a=e.length;h.messageLength+=a,a=[a/4294967296>>>0,a>>>0];for(var c=h.fullMessageLength.length-1;c>=0;--c)h.fullMessageLength[c]+=a[1],a[1]=a[0]+(h.fullMessageLength[c]/4294967296>>>0),h.fullMessageLength[c]=h.fullMessageLength[c]>>>0,a[0]=a[1]/4294967296>>>0;return s.putBytes(e),n(r,o,s),(s.read>2048||0===s.length())&&s.compact(),h},h.digest=function(){var t=i.util.createBuffer();t.putBytes(s.bytes());var a=h.fullMessageLength[h.fullMessageLength.length-1]+h.messageLengthSize,u=a&h.blockLength-1;t.putBytes(c.substr(0,h.blockLength-u));for(var l,p,f=8*h.fullMessageLength[0],d=0;d<h.fullMessageLength.length-1;++d)l=8*h.fullMessageLength[d+1],p=l/4294967296>>>0,f+=p,t.putInt32(f>>>0),f=l>>>0;t.putInt32(f);for(var y=new Array(r.length),d=0;d<r.length;++d)y[d]=r[d].slice(0);n(y,o,t);var g,v=i.util.createBuffer();g="SHA-512"===e?y.length:"SHA-384"===e?y.length-2:y.length-4;for(var d=0;d<g;++d)v.putInt32(y[d][0]),d===g-1&&"SHA-512/224"===e||v.putInt32(y[d][1]);return v},h};var c=null,u=!1,l=null,p=null},function(e,t,r){function a(e,t){var r=t.toString(16);r[0]>="8"&&(r="00"+r);var a=s.util.hexToBytes(r);e.putInt32(a.length),e.putBytes(a)}function n(e,t){e.putInt32(t.length),e.putString(t)}function i(){for(var e=s.md.sha1.create(),t=arguments.length,r=0;r<t;++r)e.update(arguments[r]);return e.digest()}var s=r(0);r(5),r(8),r(14),r(9),r(1);var o=e.exports=s.ssh=s.ssh||{};o.privateKeyToPutty=function(e,t,r){r=r||"",t=t||"";var o="ssh-rsa",c=""===t?"none":"aes256-cbc",u="PuTTY-User-Key-File-2: "+o+"\r\n";u+="Encryption: "+c+"\r\n",u+="Comment: "+r+"\r\n";var l=s.util.createBuffer();n(l,o),a(l,e.e),a(l,e.n);var p=s.util.encode64(l.bytes(),64),h=Math.floor(p.length/66)+1;u+="Public-Lines: "+h+"\r\n",u+=p;var f=s.util.createBuffer();a(f,e.d),a(f,e.p),a(f,e.q),a(f,e.qInv);var d;if(t){var y=f.length()+16-1;y-=y%16;var g=i(f.bytes());g.truncate(g.length()-y+f.length()),f.putBuffer(g);var v=s.util.createBuffer();v.putBuffer(i("\0\0\0\0",t)),v.putBuffer(i("\0\0\0",t));var m=s.aes.createEncryptionCipher(v.truncate(8),"CBC");m.start(s.util.createBuffer().fillWithByte(0,16)),m.update(f.copy()),m.finish();var C=m.output;C.truncate(16),d=s.util.encode64(C.bytes(),64)}else d=s.util.encode64(f.bytes(),64);h=Math.floor(d.length/66)+1,u+="\r\nPrivate-Lines: "+h+"\r\n",u+=d;var E=i("putty-private-key-file-mac-key",t),S=s.util.createBuffer();n(S,o),n(S,c),n(S,r),S.putInt32(l.length()),S.putBuffer(l),S.putInt32(f.length()),S.putBuffer(f);var T=s.hmac.create();return T.start("sha1",E),T.update(S.bytes()),u+="\r\nPrivate-MAC: "+T.digest().toHex()+"\r\n"},o.publicKeyToOpenSSH=function(e,t){var r="ssh-rsa";t=t||"";var i=s.util.createBuffer();return n(i,r),a(i,e.e),a(i,e.n),r+" "+s.util.encode64(i.bytes())+" "+t},o.privateKeyToOpenSSH=function(e,t){return t?s.pki.encryptRsaPrivateKey(e,t,{legacy:!0,algorithm:"aes128"}):s.pki.privateKeyToPem(e)},o.getPublicKeyFingerprint=function(e,t){t=t||{};var r=t.md||s.md.md5.create(),i="ssh-rsa",o=s.util.createBuffer();n(o,i),a(o,e.e),a(o,e.n),r.start(),r.update(o.getBytes());var c=r.digest();if("hex"===t.encoding){var u=c.toHex();return t.delimiter?u.match(/.{2}/g).join(t.delimiter):u}if("binary"===t.encoding)return c.getBytes();if(t.encoding)throw new Error('Unknown encoding "'+t.encoding+'".');return c}},function(e,t,r){var a=r(0);r(19),r(20),r(1);var n="forge.task",i=0,s={},o=0;a.debug.set(n,"tasks",s);var c={};a.debug.set(n,"queues",c);var u="?",l=30,p=20,h="ready",f="running",d="blocked",y="sleeping",g="done",v="error",m="stop",C="start",E="block",S="unblock",T="sleep",I="wakeup",A="cancel",b="fail",B={};B[h]={},B[h][m]=h,B[h][C]=f,B[h][A]=g,B[h][b]=v,B[f]={},B[f][m]=h,B[f][C]=f,B[f][E]=d,B[f][S]=f,B[f][T]=y,B[f][I]=f,B[f][A]=g,B[f][b]=v,B[d]={},B[d][m]=d,B[d][C]=d,B[d][E]=d,B[d][S]=d,B[d][T]=d,B[d][I]=d,B[d][A]=g,B[d][b]=v,B[y]={},B[y][m]=y,B[y][C]=y,B[y][E]=y,B[y][S]=y,B[y][T]=y,B[y][I]=y,B[y][A]=g,B[y][b]=v,B[g]={},B[g][m]=g,B[g][C]=g,B[g][E]=g,B[g][S]=g,B[g][T]=g,B[g][I]=g,B[g][A]=g,B[g][b]=v,B[v]={},B[v][m]=v,B[v][C]=v,B[v][E]=v,B[v][S]=v,B[v][T]=v,B[v][I]=v,B[v][A]=v,B[v][b]=v;var N=function(e){this.id=-1,this.name=e.name||u,this.parent=e.parent||null,this.run=e.run,this.subtasks=[],this.error=!1,this.state=h,this.blocks=0,this.timeoutId=null,this.swapTime=null,this.userData=null,this.id=o++,s[this.id]=this,i>=1&&a.log.verbose(n,"[%s][%s] init",this.id,this.name,this)};N.prototype.debug=function(e){e=e||"",a.log.debug(n,e,"[%s][%s] task:",this.id,this.name,this,"subtasks:",this.subtasks.length,"queue:",c)},N.prototype.next=function(e,t){"function"==typeof e&&(t=e,e=this.name);var r=new N({run:t,name:e,parent:this});return r.state=f,r.type=this.type,r.successCallback=this.successCallback||null,r.failureCallback=this.failureCallback||null,this.subtasks.push(r),this},N.prototype.parallel=function(e,t){return a.util.isArray(e)&&(t=e,e=this.name),this.next(e,function(r){var n=r;n.block(t.length);for(var i=function(e,r){a.task.start({type:e,run:function(e){t[r](e)},success:function(e){n.unblock()},failure:function(e){n.unblock()}})},s=0;s<t.length;s++){var o=e+"__parallel-"+r.id+"-"+s,c=s;i(o,c)}})},N.prototype.stop=function(){this.state=B[this.state][m]},N.prototype.start=function(){this.error=!1,this.state=B[this.state][C],this.state===f&&(this.start=new Date,this.run(this),R(this,0))},N.prototype.block=function(e){e="undefined"==typeof e?1:e,this.blocks+=e,this.blocks>0&&(this.state=B[this.state][E])},N.prototype.unblock=function(e){return e="undefined"==typeof e?1:e,this.blocks-=e,0===this.blocks&&this.state!==g&&(this.state=f,R(this,0)),this.blocks},N.prototype.sleep=function(e){e="undefined"==typeof e?0:e,this.state=B[this.state][T];var t=this;this.timeoutId=setTimeout(function(){t.timeoutId=null,t.state=f,R(t,0)},e)},N.prototype.wait=function(e){e.wait(this)},N.prototype.wakeup=function(){this.state===y&&(cancelTimeout(this.timeoutId),this.timeoutId=null,this.state=f,R(this,0))},N.prototype.cancel=function(){this.state=B[this.state][A],this.permitsNeeded=0,null!==this.timeoutId&&(cancelTimeout(this.timeoutId),this.timeoutId=null),this.subtasks=[]},N.prototype.fail=function(e){if(this.error=!0,w(this,!0),e)e.error=this.error,e.swapTime=this.swapTime,e.userData=this.userData,R(e,0);else{if(null!==this.parent){for(var t=this.parent;null!==t.parent;)t.error=this.error,t.swapTime=this.swapTime,t.userData=this.userData,t=t.parent;w(t,!0)}this.failureCallback&&this.failureCallback(this)}};var k=function(e){e.error=!1,e.state=B[e.state][C],setTimeout(function(){e.state===f&&(e.swapTime=+new Date,e.run(e),R(e,0))},0)},R=function(e,t){var r=t>l||+new Date-e.swapTime>p,a=function(t){if(t++,e.state===f)if(r&&(e.swapTime=+new Date),e.subtasks.length>0){var a=e.subtasks.shift();a.error=e.error,a.swapTime=e.swapTime,a.userData=e.userData,a.run(a),a.error||R(a,t)}else w(e),e.error||null!==e.parent&&(e.parent.error=e.error,e.parent.swapTime=e.swapTime,e.parent.userData=e.userData,R(e.parent,t))};r?setTimeout(a,0):a(t)},w=function(e,t){e.state=g,delete s[e.id],i>=1&&a.log.verbose(n,"[%s][%s] finish",e.id,e.name,e),null===e.parent&&(e.type in c?0===c[e.type].length?a.log.error(n,"[%s][%s] task queue empty [%s]",e.id,e.name,e.type):c[e.type][0]!==e?a.log.error(n,"[%s][%s] task not first in queue [%s]",e.id,e.name,e.type):(c[e.type].shift(),0===c[e.type].length?(i>=1&&a.log.verbose(n,"[%s][%s] delete queue [%s]",e.id,e.name,e.type),delete c[e.type]):(i>=1&&a.log.verbose(n,"[%s][%s] queue start next [%s] remain:%s",e.id,e.name,e.type,c[e.type].length),c[e.type][0].start())):a.log.error(n,"[%s][%s] task queue missing [%s]",e.id,e.name,e.type),t||(e.error&&e.failureCallback?e.failureCallback(e):!e.error&&e.successCallback&&e.successCallback(e)))};e.exports=a.task=a.task||{},a.task.start=function(e){var t=new N({run:e.run,name:e.name||u});t.type=e.type,t.successCallback=e.success||null,t.failureCallback=e.failure||null,t.type in c?c[e.type].push(t):(i>=1&&a.log.verbose(n,"[%s][%s] create queue [%s]",t.id,t.name,t.type),c[t.type]=[t],k(t))},a.task.cancel=function(e){e in c&&(c[e]=[c[e][0]])},a.task.createCondition=function(){var e={tasks:{}};return e.wait=function(t){t.id in e.tasks||(t.block(),e.tasks[t.id]=t)},e.notify=function(){var t=e.tasks;e.tasks={};for(var r in t)t[r].unblock()},e}},function(e,t,r){e.exports=r(33)}])});
 //# sourceMappingURL=forge.min.js.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(26).setImmediate, __webpack_require__(2).Buffer))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(26).setImmediate, __webpack_require__(2).Buffer))
 
 /***/ }),
 /* 78 */
@@ -65843,7 +65843,7 @@ value:[{name:"PBES2Algorithms.keyDerivationFunc",tagClass:u.Class.UNIVERSAL,type
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(8)))
 
 /***/ }),
 /* 79 */
@@ -66873,7 +66873,7 @@ module.exports = Sha384
 var inherits = __webpack_require__(0)
 var Buffer = __webpack_require__(1).Buffer
 
-var Base = __webpack_require__(10)
+var Base = __webpack_require__(9)
 
 var ZEROS = Buffer.alloc(128)
 var blocksize = 64
@@ -67027,7 +67027,7 @@ module.exports = function (password, salt, iterations, keylen, digest, callback)
   }), callback)
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(8)))
 
 /***/ }),
 /* 100 */
@@ -67371,7 +67371,7 @@ var MODES = __webpack_require__(35)
 var AuthCipher = __webpack_require__(56)
 var Buffer = __webpack_require__(1).Buffer
 var StreamCipher = __webpack_require__(57)
-var Transform = __webpack_require__(10)
+var Transform = __webpack_require__(9)
 var aes = __webpack_require__(23)
 var ebtk = __webpack_require__(22)
 var inherits = __webpack_require__(0)
@@ -67763,7 +67763,7 @@ var AuthCipher = __webpack_require__(56)
 var Buffer = __webpack_require__(1).Buffer
 var MODES = __webpack_require__(35)
 var StreamCipher = __webpack_require__(57)
-var Transform = __webpack_require__(10)
+var Transform = __webpack_require__(9)
 var aes = __webpack_require__(23)
 var ebtk = __webpack_require__(22)
 var inherits = __webpack_require__(0)
@@ -67886,7 +67886,7 @@ exports.createDecipheriv = createDecipheriv
 /* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(10)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(9)
 var des = __webpack_require__(36)
 var inherits = __webpack_require__(0)
 
@@ -75520,7 +75520,7 @@ function randomFillSync (buf, offset, size) {
   return actualFill(buf, offset, size)
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(8)))
 
 /***/ }),
 /* 167 */
