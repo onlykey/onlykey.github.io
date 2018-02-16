@@ -28,8 +28,6 @@ let plugins = [
     new webpack.ProvidePlugin({
       nacl: './nacl.min.js',
       forge: './forge.min.js',
-      "window.auth_sign": './onlykey-api.js',
-      "window.auth_decrypt": './onlykey-api.js',
       _status: './onlykey-api.js',
       poll_delay: './onlykey-api.js',
       poll_type: './onlykey-api.js',
