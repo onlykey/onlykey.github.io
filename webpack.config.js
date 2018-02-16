@@ -32,8 +32,7 @@ let plugins = [
       auth_decrypt: './onlykey-api.js',
       _status: './onlykey-api.js',
       poll_delay: './onlykey-api.js',
-      poll_type: './onlykey-api.js',
-      kbpgp: './kbpgp.js'
+      poll_type: './onlykey-api.js'
     })
 ];
 
