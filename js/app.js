@@ -1,6 +1,5 @@
 const url = require('url');
 const kbpgp = require('./kbpgp.js');
-require("exports-loader?hexStrToDec!./onlykey-api.js");
 const request = require('superagent');
 const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
@@ -386,7 +385,7 @@ window.initapp = function(skipBtn) {
   _status = val;
   if (!skipBtn) button.textContent = val;
   document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
-}
+};
 
 button.onclick = function () {
     console.log("status:", _status);
@@ -412,4 +411,8 @@ button.onclick = function () {
 urlinputbox.onkeyup = function () {
     let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
+};
+
+hexStrToDec = function(hexStr) {
+    return ~~(new Number('0x' + hexStr).toString(10));
 };
