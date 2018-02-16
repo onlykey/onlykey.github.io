@@ -13703,6 +13703,7 @@ var recipient_public_key;
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: Mailvelope v1.8.0
 Comment: https://www.mailvelope.com
+
 xcaGBFms0QoBEAC9hQ0tnhwnSYlLQmVTsvVWyYnnS8woQnLLr0gz9gb2ZSxE
 gh7SMQewx5xff7zsxhcRoID00tarP4KueEOx2sPwFFgbK5jhN1UDEA0zG3oA
 /bkEet6c7Q4Y25wlp0eYRpW2KIEdVH9uzNyUS7S5Phw8QtvxWLI+rudmhrNk
@@ -13815,7 +13816,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-class ok2go {
+class Pgp2go {
     constructor() {
         document.getElementsByTagName('fieldset')[0].style.backgroundColor = randomColor({
             luminosity: 'bright',
@@ -13823,16 +13824,21 @@ class ok2go {
         });
     }
 
-	startDecryption() {
+	async startDecryption() {
 			button.classList.remove('error');
 			button.classList.add('working');
+      if (urlinputbox.value == "" && _status=='Decrypt and Verify') {
+          this.showError(new Error("I need senders's public pgp key to verify :("));
+          return;
+      } else if (urlinputbox.value != "") {
         let keyurl = url.parse(urlinputbox.value);
-        if (keyurl.hostname) { // Check if its a url
-            sender_public_key = this.downloadUrl();
-            this.decryptText(sender_public_key, messagebox.value);
-        } else {
-            this.decryptText(urlinputbox.value, messagebox.value);
-        }
+          if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+              sender_public_key = await this.downloadPublicKey(urlinputbox.value);
+            } else {
+              sender_public_key = urlinputbox.value;
+            }
+          }
+          this.decryptText(sender_public_key, messagebox.value);
 	}
 
 	decryptText(key, ct) {
@@ -13843,71 +13849,78 @@ class ok2go {
           break;
         case 'Decrypt Only':
           button.textContent = 'Decrypting message ...';
+          var Decrypt_Only = true;
           break;
         default:
       }
       this.loadPrivate();
-      button.textContent = "Decrypting message ...";
       kbpgp.unbox({
               keyfetch: ring,
               armored: ct
           }, (err, ct) => {
           if (err)
               return void this.showError(err);
-
+          if (Decrypt_Only) {
           button.textContent = "Done :)";
+          } else {
+            var ds = recipient_public_key = null;
+              ds = ct[0].get_data_signer();
+              if (ds == null) {
+                button.textContent = "Done :) Message has no signature ";
+              } else {
+                console.log(ds);
+                if (ds) { recipient_public_key = ds.get_key_manager(); }
+                if (recipient_public_key) {
+                  console.log("Signed by PGP Key");
+                  var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex').toUpperCase();
+                  keyid = keyid.slice(24, 40);
+                  var userid = recipient_public_key.userids[0].components.email.split("@")[0];
+                  console.log(keyid);
+                  console.log(userid);
+                  button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
+              }
+            }
+          }
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
-          var ds = recipient_public_key = null;
-            ds = ct[0].get_data_signer();
-            console.log(ds);
-            if (ds) { recipient_public_key = ds.get_key_manager(); }
-            if (recipient_public_key) {
-              console.log("Signed by PGP Key");
-              var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex').toUpperCase();
-              keyid = keyid.slice(24, 40);
-              var userid = recipient_public_key.userids[0].components.email.split("@")[0];
-              console.log(keyid);
-              console.log(userid);
-              button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
-            }
           button.classList.remove("working")
-
       });
   }
 
-  startEncryption() {
-      button.classList.remove('error');
-      button.classList.add('working');
+  async startEncryption() {
       if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
-          this.showError(new Error("I need recipient's public pgp key :("));
+          this.showError(new Error("I need recipient's public pgp key to encrypt :("));
           return;
       }
       if (urlinputbox2.value == "" && (_status=='Encrypt and Sign' || _status=='Sign Only')) {
-          this.showError(new Error("I need sender's public pgp key :("));
+          this.showError(new Error("I need sender's public pgp key to sign :("));
           return;
       }
-      let keyurl = url.parse(urlinputbox.value);
-      let keyurl2 = url.parse(urlinputbox2.value);
-      if (keyurl.hostname) { // Check if its a url
-        sender_public_key = this.downloadPublicKey(urlinputbox.value);
-                  console.info("sender_public_key" + sender_public_key);
+      if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+          console.info(urlinputbox.value.slice(0,10));
+          sender_public_key = await this.downloadPublicKey(urlinputbox.value);
+          console.info("sender_public_key" + sender_public_key);
           } else {
             sender_public_key = urlinputbox.value;
-      } if (keyurl2.hostname) { // Check if its a url
-        recipient_public_key = this.downloadPublicKey(urlinputbox2.value);
+      } if (urlinputbox2.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+        console.info(urlinputbox2.value.slice(0,10));
+        recipient_public_key = await this.downloadPublicKey(urlinputbox2.value);
                           console.info("recipient_public_key" + recipient_public_key);
           } else {
             recipient_public_key = urlinputbox2.value;
       }
-      setTimeout(() => {
         this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
-      }, 3000);
   }
 
   downloadPublicKey(url) {
+    return new Promise(resolve => {
       button.textContent = 'Downloading public key ...';
+      if (url.slice(0,8) != 'https://') {
+        console.info(url);
+        url = 'https://keybase.io/'.concat(url, '/pgp_keys.asc');
+        console.info(url);
+      }
       request
           .get(url)
           .end((err, key) => {
@@ -13916,11 +13929,15 @@ class ok2go {
                   this.showError(err);
                   return;
               }
+              resolve(key.text);
               return key.text;
           });
+        });
   }
 
   encryptText(key1, key2, msg) {
+    button.classList.remove('error');
+    button.classList.add('working');
       switch (_status) {
         case 'Encrypt and Sign':
           this.loadPublic(key1);
@@ -13957,7 +13974,7 @@ class ok2go {
               this.showError(err);
               return;
           }
-          button.textContent = 'Done :)  Encrypted message copied to clipboard you can paste into an email, IM, whatever.';
+          button.textContent = 'Done :)  You can paste encrypted message into an email, IM, whatever.';
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
@@ -14002,10 +14019,10 @@ loadPublicSignerID(key) {
           sender_public_key = sender;
           var keyids = sender_public_key.get_all_pgp_key_ids();
           if (typeof keyids[2] !== "undefined") {
-            poll_delay = 3;  //Assuming RSA 2048
+            poll_delay = 1;  //Assuming RSA 2048
             var subkey = 2;
           } else {
-            poll_delay = 11;  //Assuming RSA 4096 or 3072
+            poll_delay = 8;  //Assuming RSA 4096 or 3072
             var subkey = 0;
           }
           custom_keyid = keyids[subkey].toString('hex').toUpperCase();
@@ -14050,8 +14067,7 @@ loadPrivate() {
 
 }
 
-let p2g = new ok2go();
-
+let p2g = new Pgp2go();
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
@@ -14072,17 +14088,18 @@ button.onclick = function () {
         case 'Decrypt and Verify':
         case 'Decrypt Only':
             poll_type = 3;
-            poll_delay = 3;
+            poll_delay = 1;
             p2g.startDecryption();
             break;
         case 'pending_pin':
-            _status = 'done_pin';
-            break;
-        case 'done_pin':
-            //something
             break;
     }
     return false;
+};
+
+urlinputbox.onkeyup = function () {
+    let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
+    urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
 };
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25), __webpack_require__(25), __webpack_require__(25)))
