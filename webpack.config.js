@@ -53,7 +53,7 @@ if (process.env.NODE_ENV === 'production') {
           removeDebugger: true
         },
         pluginOpts={
-          exclude: ["./js/forge.min.js", "./js/nacl.min.js"]
+          exclude: ["./src/forge.min.js", "./src/nacl.min.js"]
         }
       ));
     plugins.push(new SriPlugin({
@@ -63,7 +63,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 module.exports = {
-    entry: ['./js/app.js'],
+    entry: ['./src/app.js'],
     externals: {
       u2f: './u2f-api.js'
     },
