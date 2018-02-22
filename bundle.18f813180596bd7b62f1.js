@@ -5952,7 +5952,7 @@ const button = document.getElementById('onlykey_start');
  * Performs NACL key exchange to encrypt all future packets
  * Receives hardware generated entropy for future use
  */
-window.okinit = async function() {
+async function okinit() {
   //Initialize OnlyKey
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
     browserid = 128; //Firefox
@@ -13687,8 +13687,7 @@ module.exports = __webpack_require__(166);
 /* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {if(!global["window"]) global["window"] = {};
-module.exports = global["window"]["okinit"] = __webpack_require__(9);
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["okinit"] = __webpack_require__(9);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
