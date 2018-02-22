@@ -24,26 +24,7 @@ let plugins = [
         hash: false,
         cache: false,
         showErrors: false
-    }),/*
-    new MinifyPlugin(
-      minifyOpts={
-        consecutiveAdds: false,
-        deadcode: false,
-        evaluate: false,
-        flipComparisons: false,
-        guards: false,
-        infinity: false,
-        mangle: false,
-        mergeVars: false,
-        numericLiterals: false,
-        propertyLiterals: false,
-        removeConsole: true,
-        removeDebugger: true
-      },
-      pluginOpts={
-        exclude: ["./js/forge.min.js", "./js/nacl.min.js"]
-      }
-    ),*/
+    }),
     new webpack.ProvidePlugin({
       nacl: './nacl.min.js',
       forge: './forge.min.js',
@@ -52,12 +33,34 @@ let plugins = [
       poll_delay: './app.js',
       poll_type: './app.js',
       custom_keyid: './app.js'
-    }),
-    new SriPlugin({
-        hashFuncNames: ['sha256', 'sha384'],
-        enabled: true
-    }),
+    })
 ];
+
+if (process.env.NODE_ENV === 'production') {
+    plugins.push(new MinifyPlugin(
+          minifyOpts={
+          consecutiveAdds: false,
+          deadcode: false,
+          evaluate: false,
+          flipComparisons: false,
+          guards: false,
+          infinity: false,
+          mangle: false,
+          mergeVars: false,
+          numericLiterals: false,
+          propertyLiterals: false,
+          removeConsole: true,
+          removeDebugger: true
+        },
+        pluginOpts={
+          exclude: ["./js/forge.min.js", "./js/nacl.min.js"]
+        }
+      ));
+    plugins.push(new SriPlugin({
+        hashFuncNames: ['sha256', 'sha384'],
+        enabled: process.env.NODE_ENV === 'production'
+    }));
+}
 
 module.exports = {
     entry: ['./js/app.js'],
@@ -66,7 +69,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
-        filename: 'bundle.[hash].js',
+        filename: (process.env.NODE_ENV === 'production') ? 'bundle.[hash].js' : 'bundle.js',
         crossOriginLoading: 'anonymous'
     },
     plugins: plugins
