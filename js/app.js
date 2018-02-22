@@ -127,6 +127,14 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
 
+window.onload = function(skipBtn) {
+  window.okinit();
+  const val = document.action.select_one.value;
+  _status = val;
+  if (!skipBtn) button.textContent = val;
+  document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
+};
+
 class Pgp2go {
     constructor() {
         document.getElementsByTagName('fieldset')[0].style.backgroundColor = randomColor({
@@ -379,13 +387,6 @@ loadPrivate() {
 }
 
 let p2g = new Pgp2go();
-
-window.initapp = function(skipBtn) {
-  const val = document.action.select_one.value;
-  _status = val;
-  if (!skipBtn) button.textContent = val;
-  document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
-};
 
 button.onclick = function () {
     console.log("status:", _status);

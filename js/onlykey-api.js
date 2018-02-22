@@ -41,7 +41,7 @@ const button = document.getElementById('onlykey_start');
  * Performs NACL key exchange to encrypt all future packets
  * Receives hardware generated entropy for future use
  */
-window.onload = async function() {
+window.okinit = async function() {
   //Initialize OnlyKey
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
     browserid = 128; //Firefox
@@ -53,9 +53,6 @@ window.onload = async function() {
     await wait(3000);
     if (typeof(sharedsec) === "undefined") {
     headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
-  } else {
-    //Initialize App
-     window.initapp();
   }
 }
 

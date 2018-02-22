@@ -60,7 +60,7 @@ let plugins = [
 ];
 
 module.exports = {
-    entry: ['./js/app.js', './js/onlykey-api.js'],
+    entry: ['./js/app.js'],
     externals: {
       u2f: './u2f-api.js'
     },

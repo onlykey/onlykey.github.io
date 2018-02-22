@@ -5909,6 +5909,111 @@ process.umask = function() { return 0; };
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var Buffer = __webpack_require__(1).Buffer
+var Transform = __webpack_require__(20).Transform
+var StringDecoder = __webpack_require__(32).StringDecoder
+var inherits = __webpack_require__(0)
+
+function CipherBase (hashMode) {
+  Transform.call(this)
+  this.hashMode = typeof hashMode === 'string'
+  if (this.hashMode) {
+    this[hashMode] = this._finalOrDigest
+  } else {
+    this.final = this._finalOrDigest
+  }
+  if (this._final) {
+    this.__final = this._final
+    this._final = null
+  }
+  this._decoder = null
+  this._encoding = null
+}
+inherits(CipherBase, Transform)
+
+CipherBase.prototype.update = function (data, inputEnc, outputEnc) {
+  if (typeof data === 'string') {
+    data = Buffer.from(data, inputEnc)
+  }
+
+  var outData = this._update(data)
+  if (this.hashMode) return this
+
+  if (outputEnc) {
+    outData = this._toString(outData, outputEnc)
+  }
+
+  return outData
+}
+
+CipherBase.prototype.setAutoPadding = function () {}
+CipherBase.prototype.getAuthTag = function () {
+  throw new Error('trying to get auth tag in unsupported state')
+}
+
+CipherBase.prototype.setAuthTag = function () {
+  throw new Error('trying to set auth tag in unsupported state')
+}
+
+CipherBase.prototype.setAAD = function () {
+  throw new Error('trying to set aad in unsupported state')
+}
+
+CipherBase.prototype._transform = function (data, _, next) {
+  var err
+  try {
+    if (this.hashMode) {
+      this._update(data)
+    } else {
+      this.push(this._update(data))
+    }
+  } catch (e) {
+    err = e
+  } finally {
+    next(err)
+  }
+}
+CipherBase.prototype._flush = function (done) {
+  var err
+  try {
+    this.push(this.__final())
+  } catch (e) {
+    err = e
+  }
+
+  done(err)
+}
+CipherBase.prototype._finalOrDigest = function (outputEnc) {
+  var outData = this.__final() || Buffer.alloc(0)
+  if (outputEnc) {
+    outData = this._toString(outData, outputEnc, true)
+  }
+  return outData
+}
+
+CipherBase.prototype._toString = function (value, enc, fin) {
+  if (!this._decoder) {
+    this._decoder = new StringDecoder(enc)
+    this._encoding = enc
+  }
+
+  if (this._encoding !== enc) throw new Error('can\'t switch encodings')
+
+  var out = this._decoder.write(value)
+  if (fin) {
+    out += this._decoder.end()
+  }
+
+  return out
+}
+
+module.exports = CipherBase
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(forge, nacl) {var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};
@@ -5952,7 +6057,7 @@ const button = document.getElementById('onlykey_start');
  * Performs NACL key exchange to encrypt all future packets
  * Receives hardware generated entropy for future use
  */
-window.onload = async function() {
+window.okinit = async function() {
   //Initialize OnlyKey
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
     browserid = 128; //Firefox
@@ -5964,9 +6069,6 @@ window.onload = async function() {
     await wait(3000);
     if (typeof(sharedsec) === "undefined") {
     headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
-  } else {
-    //Initialize App
-     window.initapp();
   }
 }
 
@@ -6510,111 +6612,6 @@ function noop() {}
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(76), __webpack_require__(80)))
 
 /***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(20).Transform
-var StringDecoder = __webpack_require__(32).StringDecoder
-var inherits = __webpack_require__(0)
-
-function CipherBase (hashMode) {
-  Transform.call(this)
-  this.hashMode = typeof hashMode === 'string'
-  if (this.hashMode) {
-    this[hashMode] = this._finalOrDigest
-  } else {
-    this.final = this._finalOrDigest
-  }
-  if (this._final) {
-    this.__final = this._final
-    this._final = null
-  }
-  this._decoder = null
-  this._encoding = null
-}
-inherits(CipherBase, Transform)
-
-CipherBase.prototype.update = function (data, inputEnc, outputEnc) {
-  if (typeof data === 'string') {
-    data = Buffer.from(data, inputEnc)
-  }
-
-  var outData = this._update(data)
-  if (this.hashMode) return this
-
-  if (outputEnc) {
-    outData = this._toString(outData, outputEnc)
-  }
-
-  return outData
-}
-
-CipherBase.prototype.setAutoPadding = function () {}
-CipherBase.prototype.getAuthTag = function () {
-  throw new Error('trying to get auth tag in unsupported state')
-}
-
-CipherBase.prototype.setAuthTag = function () {
-  throw new Error('trying to set auth tag in unsupported state')
-}
-
-CipherBase.prototype.setAAD = function () {
-  throw new Error('trying to set aad in unsupported state')
-}
-
-CipherBase.prototype._transform = function (data, _, next) {
-  var err
-  try {
-    if (this.hashMode) {
-      this._update(data)
-    } else {
-      this.push(this._update(data))
-    }
-  } catch (e) {
-    err = e
-  } finally {
-    next(err)
-  }
-}
-CipherBase.prototype._flush = function (done) {
-  var err
-  try {
-    this.push(this.__final())
-  } catch (e) {
-    err = e
-  }
-
-  done(err)
-}
-CipherBase.prototype._finalOrDigest = function (outputEnc) {
-  var outData = this.__final() || Buffer.alloc(0)
-  if (outputEnc) {
-    outData = this._toString(outData, outputEnc, true)
-  }
-  return outData
-}
-
-CipherBase.prototype._toString = function (value, enc, fin) {
-  if (!this._decoder) {
-    this._decoder = new StringDecoder(enc)
-    this._encoding = enc
-  }
-
-  if (this._encoding !== enc) throw new Error('can\'t switch encodings')
-
-  var out = this._decoder.write(value)
-  if (fin) {
-    out += this._decoder.end()
-  }
-
-  return out
-}
-
-module.exports = CipherBase
-
-
-/***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6888,7 +6885,7 @@ var md5 = __webpack_require__(27)
 var RIPEMD160 = __webpack_require__(28)
 var sha = __webpack_require__(33)
 
-var Base = __webpack_require__(10)
+var Base = __webpack_require__(9)
 
 function HashNoConstructor (hash) {
   Base.call(this, 'digest')
@@ -11504,7 +11501,7 @@ module.exports = Sha512
 
 var inherits = __webpack_require__(0)
 var Legacy = __webpack_require__(96)
-var Base = __webpack_require__(10)
+var Base = __webpack_require__(9)
 var Buffer = __webpack_require__(1).Buffer
 var md5 = __webpack_require__(27)
 var RIPEMD160 = __webpack_require__(28)
@@ -11798,7 +11795,7 @@ module.exports = {"aes-128-ecb":{"cipher":"AES","key":128,"iv":0,"mode":"ECB","t
 
 var aes = __webpack_require__(23)
 var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(10)
+var Transform = __webpack_require__(9)
 var inherits = __webpack_require__(0)
 var GHASH = __webpack_require__(109)
 var xor = __webpack_require__(16)
@@ -11921,7 +11918,7 @@ module.exports = StreamCipher
 
 var aes = __webpack_require__(23)
 var Buffer = __webpack_require__(1).Buffer
-var Transform = __webpack_require__(10)
+var Transform = __webpack_require__(9)
 var inherits = __webpack_require__(0)
 
 function StreamCipher (mode, key, iv, decrypt) {
@@ -13679,8 +13676,7 @@ module.exports = isObject;
 /* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(75);
-module.exports = __webpack_require__(9);
+module.exports = __webpack_require__(75);
 
 
 /***/ }),
@@ -13815,6 +13811,14 @@ W3Uv9O0FAWVecGfcb3FONGskgoaQNMQSr9bITRMB+6BDj8ut4HMnrRzhSANL
 AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
+
+window.onload = function(skipBtn) {
+  window.okinit();
+  const val = document.action.select_one.value;
+  _status = val;
+  if (!skipBtn) button.textContent = val;
+  document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
+};
 
 class Pgp2go {
     constructor() {
@@ -14069,13 +14073,6 @@ loadPrivate() {
 
 let p2g = new Pgp2go();
 
-window.initapp = function(skipBtn) {
-  const val = document.action.select_one.value;
-  _status = val;
-  if (!skipBtn) button.textContent = val;
-  document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
-};
-
 button.onclick = function () {
     console.log("status:", _status);
     switch (_status) {
@@ -14102,7 +14099,7 @@ urlinputbox.onkeyup = function () {
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(9), __webpack_require__(9), __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(10), __webpack_require__(10), __webpack_require__(10)))
 
 /***/ }),
 /* 76 */
@@ -15342,7 +15339,7 @@ module.exports = Sha384
 var inherits = __webpack_require__(0)
 var Buffer = __webpack_require__(1).Buffer
 
-var Base = __webpack_require__(10)
+var Base = __webpack_require__(9)
 
 var ZEROS = Buffer.alloc(128)
 var blocksize = 64
@@ -15840,7 +15837,7 @@ var MODES = __webpack_require__(35)
 var AuthCipher = __webpack_require__(56)
 var Buffer = __webpack_require__(1).Buffer
 var StreamCipher = __webpack_require__(57)
-var Transform = __webpack_require__(10)
+var Transform = __webpack_require__(9)
 var aes = __webpack_require__(23)
 var ebtk = __webpack_require__(22)
 var inherits = __webpack_require__(0)
@@ -16232,7 +16229,7 @@ var AuthCipher = __webpack_require__(56)
 var Buffer = __webpack_require__(1).Buffer
 var MODES = __webpack_require__(35)
 var StreamCipher = __webpack_require__(57)
-var Transform = __webpack_require__(10)
+var Transform = __webpack_require__(9)
 var aes = __webpack_require__(23)
 var ebtk = __webpack_require__(22)
 var inherits = __webpack_require__(0)
@@ -16355,7 +16352,7 @@ exports.createDecipheriv = createDecipheriv
 /* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(10)
+/* WEBPACK VAR INJECTION */(function(Buffer) {var CipherBase = __webpack_require__(9)
 var des = __webpack_require__(36)
 var inherits = __webpack_require__(0)
 
@@ -27899,8 +27896,8 @@ module.exports = function shouldRetry(err, res) {
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(custom_keyid, global, setImmediate) {var require;var require;/*** IMPORTS FROM imports-loader ***/
-var auth_sign = __webpack_require__(9);
-var auth_decrypt = __webpack_require__(9);
+var auth_sign = __webpack_require__(10);
+var auth_decrypt = __webpack_require__(10);
 
 !function(e){if(true)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.kbpgp=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return require(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // Generated by IcedCoffeeScript 1.7.1-c
@@ -79430,7 +79427,7 @@ module.exports={
 });
 
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(6), __webpack_require__(26).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(6), __webpack_require__(26).setImmediate))
 
 /***/ })
 /******/ ]);
