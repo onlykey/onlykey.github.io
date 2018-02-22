@@ -416,5 +416,5 @@ urlinputbox.onkeyup = function () {
 };
 
 window.onload = function() {
-  okinit();
+  init();
 };
