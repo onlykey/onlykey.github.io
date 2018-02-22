@@ -1,7 +1,7 @@
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
-const kbpgp = require("imports-loader?custom_keyid=./onlykey-api.js,auth_sign=./onlykey-api.js,auth_decrypt=./onlykey-api.js!./kbpgp.js");
+const kbpgp = require("imports-loader?auth_sign=./onlykey-api.js,auth_decrypt=./onlykey-api.js!./kbpgp.js");
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
@@ -12,6 +12,7 @@ var sender_public_key;
 var recipient_public_key;
 var poll_type, poll_delay;
 var _status;
+var custom_keyid;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: TEST KEY v1.0.0
@@ -128,6 +129,8 @@ W3Uv9O0FAWVecGfcb3FONGskgoaQNMQSr9bITRMB+6BDj8ut4HMnrRzhSANL
 AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
+
+window.custom_keyid = custom_keyid;
 
 window.initok = initok();
 

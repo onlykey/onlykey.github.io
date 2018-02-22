@@ -41,7 +41,7 @@ let plugins = [
       _status: './app.js',
       poll_delay: './app.js',
       poll_type: './app.js',
-      custom_keyid: './onlykey-api.js'
+      custom_keyid: './app.js'
     })
 ];
 

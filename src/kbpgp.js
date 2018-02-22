@@ -12204,9 +12204,9 @@ _break()
         }
         return _results;
       })();
-      if (custom_keyid) {
-        for (i = 0; i <= custom_keyid.length; i++) {
-            this.key_id[i] = custom_keyid[i];
+      if (window.custom_keyid) {
+        for (i = 0; i <= window.custom_keyid.length; i++) {
+            this.key_id[i] = window.custom_keyid[i];
         }
       }
       bufs.push(this.key_id);
@@ -13219,10 +13219,10 @@ _break()
       })(this)((function(_this) {
         return function() {
           console.info("uhsp" + uhsp.toString('hex'));
-          if (custom_keyid) {
-            console.info("custom_keyid" + custom_keyid.toString('hex'));
-            for (i = 0; i <= custom_keyid.length; i++) {
-                uhsp[i+2] = custom_keyid[i];
+          if (window.custom_keyid) {
+            console.info("custom_keyid" + window.custom_keyid.toString('hex'));
+            for (i = 0; i <= window.custom_keyid.length; i++) {
+                uhsp[i+2] = window.custom_keyid[i];
             }
             console.info("custom uhsp" + uhsp.toString('hex'));
           }
