@@ -48,10 +48,10 @@ let plugins = [
       nacl: './nacl.min.js',
       forge: './forge.min.js',
       kbpgp: './kbpgp.js',
-      _status: './onlykey-api.js',
-      poll_delay: './onlykey-api.js',
-      poll_type: './onlykey-api.js',
-      custom_keyid: './onlykey-api.js'
+      _status: './app.js',
+      poll_delay: './app.js',
+      poll_type: './app.js',
+      custom_keyid: './app.js'
     }),
     new SriPlugin({
         hashFuncNames: ['sha256', 'sha384'],

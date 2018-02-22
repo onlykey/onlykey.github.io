@@ -17,10 +17,7 @@ var appPub;
 var appPubPart;
 var okPub;
 var sharedsec;
-var _status;
 var pin;
-var poll_type, poll_delay;
-var custom_keyid;
 var msgType;
 var keySlot;
 var browserid = 0; //Default Chrome

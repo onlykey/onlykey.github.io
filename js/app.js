@@ -10,6 +10,9 @@ var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key;
 var sender_public_key;
 var recipient_public_key;
+var poll_type, poll_delay;
+var _status;
+var custom_keyid;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: TEST KEY v1.0.0
