@@ -27,11 +27,7 @@ let plugins = [
     }),
     new webpack.ProvidePlugin({
       nacl: './nacl.min.js',
-      forge: './forge.min.js',
-      _status: './onlykey-api.js',
-      poll_delay: './onlykey-api.js',
-      poll_type: './onlykey-api.js',
-      custom_keyid: './onlykey-api.js'
+      forge: './forge.min.js'
     })
 ];
 
@@ -67,7 +63,13 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
     entry: ['./js/app.js'],
     externals: {
-      "u2f": "./u2f-api.js"
+      "u2f": "./u2f-api.js",
+      "_status": './onlykey-api.js',
+      "poll_delay": './onlykey-api.js',
+      "poll_type": './onlykey-api.js',
+      "custom_keyid": './onlykey-api.js',
+      "auth_sign": './onlykey-api.js',
+      "auth_decrypt": './onlykey-api.js'
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
