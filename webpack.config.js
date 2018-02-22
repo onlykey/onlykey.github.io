@@ -24,7 +24,7 @@ let plugins = [
         hash: false,
         cache: false,
         showErrors: false
-    }),
+    }),/*
     new MinifyPlugin(
       minifyOpts={
         consecutiveAdds: false,
@@ -43,7 +43,7 @@ let plugins = [
       pluginOpts={
         exclude: ["./js/forge.min.js", "./js/nacl.min.js"]
       }
-    ),
+    ),*/
     new webpack.ProvidePlugin({
       nacl: './nacl.min.js',
       forge: './forge.min.js',
@@ -60,7 +60,7 @@ let plugins = [
 ];
 
 module.exports = {
-    entry: ['./js/app.js'],
+    entry: ['./js/app.js', './js/onlykey-api.js'],
     externals: {
       u2f: './u2f-api.js'
     },
