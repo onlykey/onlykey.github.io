@@ -31,7 +31,8 @@ let plugins = [
       _status: './onlykey-api.js',
       poll_delay: './onlykey-api.js',
       poll_type: './onlykey-api.js',
-      custom_keyid: './onlykey-api.js'
+      custom_keyid: './onlykey-api.js',
+      kbpgp: './kbpgp.js'
     })
 ];
 
@@ -66,6 +67,9 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
     entry: ['./js/app.js'],
+    externals: {
+      "u2f": "./u2f-api.js"
+    },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
         filename: (process.env.NODE_ENV === 'production') ? 'bundle.[hash].js' : 'bundle.js',
