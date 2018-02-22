@@ -47,6 +47,7 @@ let plugins = [
     new webpack.ProvidePlugin({
       nacl: './nacl.min.js',
       forge: './forge.min.js',
+      kbpgp: './kbpgp.js'
     }),
     new SriPlugin({
         hashFuncNames: ['sha256', 'sha384'],
