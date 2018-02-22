@@ -130,7 +130,9 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-window.initok() = initok();
+window.initok = function () {
+  initok();
+};
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
