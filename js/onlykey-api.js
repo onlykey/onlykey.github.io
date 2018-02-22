@@ -502,6 +502,7 @@ window.doPinTimer = async function (seconds) {
  * @param {number} delay
  */
 async function ping (delay) {
+  console.info(poll_type);
   return await msg_polling({ type: poll_type, delay: delay });
 }
 
