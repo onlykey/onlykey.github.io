@@ -25,19 +25,7 @@ let plugins = [
         cache: false,
         showErrors: false
     }),
-    new webpack.ProvidePlugin({
-      nacl: './nacl.min.js',
-      forge: './forge.min.js',
-      _status: './onlykey-api.js',
-      poll_delay: './onlykey-api.js',
-      poll_type: './onlykey-api.js',
-      custom_keyid: './onlykey-api.js',
-      kbpgp: './kbpgp.js'
-    })
-];
-
-if (process.env.NODE_ENV === 'production') {
-    /*new MinifyPlugin(
+    new MinifyPlugin(
       minifyOpts={
         consecutiveAdds: false,
         deadcode: false,
@@ -50,29 +38,30 @@ if (process.env.NODE_ENV === 'production') {
         numericLiterals: false,
         propertyLiterals: false,
         removeConsole: true,
-        removeDebugger: true,
-        removeUndefined: false,
-        simplifyComparisons: false,
-        undefinedToVoid: false
+        removeDebugger: true
       },
       pluginOpts={
         exclude: ["./js/forge.min.js", "./js/nacl.min.js"]
       }
-    ),*/
-    plugins.push(new SriPlugin({
+    ),
+    new webpack.ProvidePlugin({
+      nacl: './nacl.min.js',
+      forge: './forge.min.js',
+    }),
+    new SriPlugin({
         hashFuncNames: ['sha256', 'sha384'],
-        enabled: process.env.NODE_ENV === 'production'
-    }));
-}
+        enabled: true
+    }),
+];
 
 module.exports = {
     entry: ['./js/app.js'],
     externals: {
-      "u2f": "./u2f-api.js"
+      u2f: './u2f-api.js'
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
-        filename: (process.env.NODE_ENV === 'production') ? 'bundle.[hash].js' : 'bundle.js',
+        filename: 'bundle.[hash].js',
         crossOriginLoading: 'anonymous'
     },
     plugins: plugins
