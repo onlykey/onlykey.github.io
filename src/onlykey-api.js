@@ -95,9 +95,9 @@ async function msg_polling(params = {}, cb) {
     counter = 0;
   } else if (type == 2) { //OKGETPUB
       var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
-      msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
+      msg("Checking to see if this key is assigned to an OnlyKey Slot " + window.custom_keyid);
       var empty = new Array(50).fill(0);
-      Array.prototype.push.apply(message, custom_keyid);
+      Array.prototype.push.apply(message, window.custom_keyid);
       Array.prototype.push.apply(message, empty);
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);

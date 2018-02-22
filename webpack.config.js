@@ -40,8 +40,7 @@ let plugins = [
       kbpgp: './kbpgp.js',
       _status: './app.js',
       poll_delay: './app.js',
-      poll_type: './app.js',
-      custom_keyid: './app.js'
+      poll_type: './app.js'
     })
 ];
 

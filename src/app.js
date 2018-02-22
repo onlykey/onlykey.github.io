@@ -12,7 +12,6 @@ var sender_public_key;
 var recipient_public_key;
 var poll_type, poll_delay;
 var _status;
-var custom_keyid;
 
 var test_pgp_key = `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: TEST KEY v1.0.0
@@ -130,7 +129,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-window.custom_keyid = custom_keyid;
+window.custom_keyid;
 
 window.initok = initok();
 
@@ -350,9 +349,9 @@ loadPublicSignerID(key) {
             poll_delay = 8;  //Assuming RSA 4096 or 3072
             var subkey = 0;
           }
-          custom_keyid = keyids[subkey].toString('hex').toUpperCase();
-          custom_keyid = custom_keyid.match(/.{2}/g).map(hexStrToDec);
-          console.info("custom_keyid" + custom_keyid);
+          window.custom_keyid = keyids[subkey].toString('hex').toUpperCase();
+          window.custom_keyid = window.custom_keyid.match(/.{2}/g).map(hexStrToDec);
+          console.info("custom_keyid" + window.custom_keyid);
       }
   });
 }
