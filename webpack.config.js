@@ -60,7 +60,7 @@ let plugins = [
 ];
 
 module.exports = {
-    entry: ['./js/app.js'],
+    entry: ['expose-loader?window.okinit!./js/onlykey-api.js', './js/app.js'],
     externals: {
       u2f: './u2f-api.js'
     },
