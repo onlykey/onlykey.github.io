@@ -53,6 +53,9 @@ window.okinit = async function() {
     await wait(3000);
     if (typeof(sharedsec) === "undefined") {
     headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
+  } else {
+    //Initialize App
+     window.initapp();
   }
 }
 

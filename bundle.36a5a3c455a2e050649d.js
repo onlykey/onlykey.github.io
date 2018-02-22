@@ -6069,6 +6069,9 @@ window.okinit = async function() {
     await wait(3000);
     if (typeof(sharedsec) === "undefined") {
     headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
+  } else {
+    //Initialize App
+     window.initapp();
   }
 }
 
@@ -13811,11 +13814,6 @@ W3Uv9O0FAWVecGfcb3FONGskgoaQNMQSr9bITRMB+6BDj8ut4HMnrRzhSANL
 AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
-
-window.onload = function () {
-  window.okinit();
-  window.initapp();
-};
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
