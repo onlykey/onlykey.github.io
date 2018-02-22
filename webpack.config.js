@@ -11,7 +11,7 @@ let plugins = [
         filename: (process.env.NODE_ENV === 'production') ? './encrypt.html' : './encrypt-dev.html',
         template: './src/encrypt-src.html',
         inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? true : false,
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
         showErrors: false
@@ -20,7 +20,7 @@ let plugins = [
         filename: (process.env.NODE_ENV === 'production') ? './decrypt.html' : './decrypt-dev.html',
         template: './src/decrypt-src.html',
         inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? true : false,
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
         showErrors: false
@@ -29,7 +29,7 @@ let plugins = [
         filename: (process.env.NODE_ENV === 'production') ? './index.html' : './index-dev.html',
         template: './src/index-src.html',
         inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? true : false,
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
         showErrors: false

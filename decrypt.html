@@ -1,24 +1,4 @@
-<html>
-
-<head>
-    <title>OnlyKey Web Apps - Decrypt & verify messages in your browser using PGP</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
-    <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
-    <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
-    <link rel="stylesheet" href="css/gallerycss-cssform-min.css">
-    <link rel="stylesheet" href="css/cssnormalize-min.css">
-    <link rel="stylesheet" href="css/cssgrids-responsive-min.css">
-    <link rel="stylesheet" href="css/cssbutton-min.css">
-    <!-- Some custom styles to make things pretty. -->
-    <link rel="stylesheet" type="text/css" href="css/ui.css">
-    <!-- pgp2go styles -->
-    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-    <link href="css/style.css" rel="stylesheet">
-    <!-- Modify header colors here to customize the look and feel of the site-->
-    <style>
-        .header {
+<html><head><title>OnlyKey Web Apps - Decrypt & verify messages in your browser using PGP</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="css/gallerycss-csstable-min.css"><link rel="stylesheet" href="css/gallerycss-csslist-min.css"><link rel="stylesheet" href="css/gallerycss-cssform-min.css"><link rel="stylesheet" href="css/cssnormalize-min.css"><link rel="stylesheet" href="css/cssgrids-responsive-min.css"><link rel="stylesheet" href="css/cssbutton-min.css"><link rel="stylesheet" type="text/css" href="css/ui.css"><link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet"><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"><link href="css/style.css" rel="stylesheet"><style>.header {
             background: white;
         }
 
@@ -30,86 +10,10 @@
             font-weight: 300;
             margin: 0;
             color: rgb(137, 137, 137);
-        }
-    </style>
-</head>
-
-<body class="yui3-skin-sam">
-    <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
-        <span class="yui3-menu-heading">OnlyKey</span>
-        <ul>
-            <li class="yui3-menu-active">
-                <a href="https://apps.crp.to/decrypt">
-                    <i class="fa fa-unlock" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://apps.crp.to/encrypt">
-                    <i class="fa fa-lock" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://apps.crp.to">
-                    <i class="fa fa-home" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://docs.crp.to/webcrypt.html">
-                    <i class="fa fa-question" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://docs.crp.to/">
-                    <i class="fa fa-book" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://onlykey.io">
-                    <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-                </a>
-            </li>
-        </ul>
-    </div>
-    <div class="header yui3-u-1">
-        <p>
-            <img src="ok.jpg" alt="logo" align="middle">
-        </p>
-        <h1>
-            <i class="fa fa-unlock" aria-hidden="true"></i> Decrypt & Verify</h1>
-        <code data-language="javascript">
-            <div id="header_messages"></div>
-        </code>
-    </div>
-    <h5>Securely decrypt and verify messages in your browser using
-        <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a> and OnlyKey</h5>
-    <div id="container">
-        <fieldset>
-            <textarea placeholder="Sender's Keybase username or URL to thier public pgp key or paste thier key..." rows="1" id="pgpkeyurl"></textarea>
-            <textarea placeholder="PGP message to decrypt ..." id="message"></textarea>
-            <button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button>
-        </fieldset>
-        <center>
-            <form name="action">
-                <label>
-                    <input type="radio" name="select_one" id="decrypt_and_verify" value="Decrypt and Verify" checked="checked"> Decrypt and Verify </label>
-                <label>
-                    <input type="radio" name="select_one" id="decrypt_only" value="Decrypt Only"> Decrypt Only </label>
-            </form>
-        </center>
-    </div>
-    <div class="content">
-        <h2>OnlyKey Console Messages Appear Below</h2>
-        <pre>
+        }</style></head><body class="yui3-skin-sam"><div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed"><span class="yui3-menu-heading">OnlyKey</span><ul><li class="yui3-menu-active"><a href="https://apps.crp.to/decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a></li><li><a href="https://apps.crp.to/encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a></li><li><a href="https://apps.crp.to"><i class="fa fa-home" aria-hidden="true"></i></a></li><li><a href="https://docs.crp.to/webcrypt.html"><i class="fa fa-question" aria-hidden="true"></i></a></li><li><a href="https://docs.crp.to/"><i class="fa fa-book" aria-hidden="true"></i></a></li><li><a href="https://onlykey.io"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a></li></ul></div><div class="header yui3-u-1"><p><img src="ok.jpg" alt="logo" align="middle"></p><h1><i class="fa fa-unlock" aria-hidden="true"></i> Decrypt & Verify</h1><code data-language="javascript"><div id="header_messages"></div></code></div><h5>Securely decrypt and verify messages in your browser using <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a> and OnlyKey</h5><div id="container"><fieldset><textarea placeholder="Sender's Keybase username or URL to thier public pgp key or paste thier key..." rows="1" id="pgpkeyurl"></textarea><textarea placeholder="PGP message to decrypt ..." id="message"></textarea><button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button></fieldset><center><form name="action"><label><input type="radio" name="select_one" id="decrypt_and_verify" value="Decrypt and Verify" checked="checked"> Decrypt and Verify</label><label><input type="radio" name="select_one" id="decrypt_only" value="Decrypt Only"> Decrypt Only</label></form></center></div><div class="content"><h2>OnlyKey Console Messages Appear Below</h2><pre>
             <code data-language="javascript">
                 <font color="008700">
                     <div id="messages"></div>
                 </font>
             </code>
-        </pre>
-    </div>
-    <script src="js/u2f-api.js"></script>
-<script type="text/javascript" src="bundle.a5095c2560a0e03e0e0b.js" integrity="sha256-BbaGHtPzgCAO1tIm19S/5jijeccHwMgLmZDENWMKlUU= sha384-R5I2qfTQ26bkP9jlCiidofLKbQ4Ql+8IFcjyfSDf8Ew8uCoXKNSy0pPevlhfJvWs" crossorigin="anonymous"></script></body>
-<script>
-window.addEventListener("load", window.initok);
-</script>
-</html>
+        </pre></div><script src="js/u2f-api.js"></script><script type="text/javascript" src="bundle.3c35f9b2799643a0c8cb.js?3c35f9b2799643a0c8cb" integrity="sha256-BbaGHtPzgCAO1tIm19S/5jijeccHwMgLmZDENWMKlUU= sha384-R5I2qfTQ26bkP9jlCiidofLKbQ4Ql+8IFcjyfSDf8Ew8uCoXKNSy0pPevlhfJvWs" crossorigin="anonymous"></script></body><script>window.addEventListener("load", window.initok);</script></html>
