@@ -6089,7 +6089,7 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  */
 async function msg_polling(params = {}, cb) {
   var delay = params.delay || 0;
-  const type = params.type || 1; // default type to 1
+  var type = params.type || 1; // default type to 1
   if (OKversion == 'Original') {
     delay = delay*4;
   }
