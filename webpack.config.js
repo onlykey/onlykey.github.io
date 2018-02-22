@@ -41,7 +41,7 @@ let plugins = [
       _status: './app.js',
       poll_delay: './app.js',
       poll_type: './app.js',
-      custom_keyid: './app.js'
+      custom_keyid: './onlykey-api.js'
     })
 ];
 
@@ -78,7 +78,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
-        filename: (process.env.NODE_ENV === 'production') ? 'bundle.[hash].js' : 'bundle.js',
+        filename: 'bundle.[hash].js',
         crossOriginLoading: 'anonymous'
     },
     plugins: plugins

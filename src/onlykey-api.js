@@ -12,6 +12,7 @@ var sha256 = function(s) {
   return Array.from(md.digest().toHex().match(/.{2}/g).map(hexStrToDec));
 };
 
+var custom_keyid;
 var appKey;
 var appPub;
 var appPubPart;
