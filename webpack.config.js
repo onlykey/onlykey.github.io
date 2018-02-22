@@ -8,8 +8,8 @@ const SriPlugin = require('webpack-subresource-integrity');
 
 let plugins = [
     new HtmlWebpackPlugin({
-        filename: 'encrypt.html',
-        template: './encrypt-test.html',
+        filename: (process.env.NODE_ENV === 'production') ? './encrypt.html' : './encrypt-dev.html',
+        template: './src/encrypt-src.html',
         inject: 'body',
         minify: false,
         hash: false,
@@ -17,8 +17,8 @@ let plugins = [
         showErrors: false
     }),
     new HtmlWebpackPlugin({
-        filename: 'decrypt.html',
-        template: './decrypt-test.html',
+        filename: (process.env.NODE_ENV === 'production') ? './decrypt.html' : './decrypt-dev.html',
+        template: './src/decrypt-src.html',
         inject: 'body',
         minify: false,
         hash: false,
@@ -68,7 +68,7 @@ module.exports = {
       u2f: './u2f-api.js'
     },
     output: {
-        path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './build'),
+        path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
         filename: (process.env.NODE_ENV === 'production') ? 'bundle.[hash].js' : 'bundle.js',
         crossOriginLoading: 'anonymous'
     },
