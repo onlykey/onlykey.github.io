@@ -2,7 +2,6 @@ const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
 const kbpgp = require('./kbpgp.js');
-const onlykey = require('./onlykey-api.js');
 require("imports-loader?auth_sign=./onlykey-api.js!./kbpgp.js");
 require("imports-loader?auth_decrypt=./onlykey-api.js!./kbpgp.js");
 const urlinputbox = document.getElementById('pgpkeyurl');
