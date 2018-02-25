@@ -31245,7 +31245,7 @@ _break()
             }
             console.info("custom uhsp" + uhsp.toString('hex'));
           }
-          result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
+          result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, Buffer.from([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
           console.info("results" + results.toString('hex'));
           return cb(null, results);
@@ -41128,7 +41128,7 @@ Buffer.prototype.writeUInt8 = function (value, offset, noAssert) {
     assert(value !== undefined && value !== null, 'missing value')
     assert(offset !== undefined && offset !== null, 'missing offset')
     assert(offset < this.length, 'trying to write beyond buffer length')
-    //verifuint(value, 0xff)
+    verifuint(value, 0xff)
   }
 
   if (offset >= this.length) return
@@ -41143,7 +41143,7 @@ function writeUInt16 (buf, value, offset, littleEndian, noAssert) {
     assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
     assert(offset !== undefined && offset !== null, 'missing offset')
     assert(offset + 1 < buf.length, 'trying to write beyond buffer length')
-    //verifuint(value, 0xffff)
+    verifuint(value, 0xffff)
   }
 
   var len = buf.length
@@ -41172,7 +41172,7 @@ function writeUInt32 (buf, value, offset, littleEndian, noAssert) {
     assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
     assert(offset !== undefined && offset !== null, 'missing offset')
     assert(offset + 3 < buf.length, 'trying to write beyond buffer length')
-    //verifuint(value, 0xffffffff)
+    verifuint(value, 0xffffffff)
   }
 
   var len = buf.length
