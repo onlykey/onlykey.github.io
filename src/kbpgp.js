@@ -13229,7 +13229,7 @@ _break()
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
           console.info("results" + results.toString('hex'));
-          return cb(null, results);
+          return cb(null, results)
         };
       })(this));
     };
