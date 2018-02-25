@@ -12213,7 +12213,7 @@ _break()
       bufs.push(uint_to_buffer(8, this.is_final));
       console.info("buffs final", bufs);
       unframed = Buffer.concat(bufs);
-      return cb(null, unframed);
+      return cb(null, unframed)
     };
 
     OnePassSignature.prototype.write = function(cb) {
