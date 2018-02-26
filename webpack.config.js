@@ -41,8 +41,6 @@ let plugins = [
       _status: './app.js',
       poll_delay: './app.js',
       poll_type: './app.js',
-      'auth_sign()': './onlykey-api.js',
-      'auth_decrypt()': './onlykey-api.js',
       initok: './onlykey-api.js'
     }),
     new webpack.LoaderOptionsPlugin({
