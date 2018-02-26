@@ -39,7 +39,8 @@ let plugins = [
       forge: './forge.min.js',
       _status: './app.js',
       poll_delay: './app.js',
-      poll_type: './app.js'
+      poll_type: './app.js',
+      initok: './onlykey-api.js'
     })
 ];
 
@@ -73,7 +74,7 @@ module.exports = {
     entry: ['./src/app.js'],
     externals: {
       u2f: './u2f-api.js',
-      kbpgp: './u2f-api.js'
+      kbpgp: './kbpgp.js'
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
