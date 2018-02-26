@@ -10674,7 +10674,7 @@ _break()
     Packet.prototype.frame_packet = function(tag, body) {
       var bufs;
       bufs = [new Buffer([0xc0 | tag]), util.encode_length(body.length), body];
-      console.info(buffs);
+      console.info(bufs);
       return Buffer.concat(bufs);
     };
 
