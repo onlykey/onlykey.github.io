@@ -5,8 +5,6 @@ var hw_RNG = {};
 var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
-var poll_type, poll_delay;
-var _status;
 
 var sha256 = function(s) {
   var md = forge.md.sha256.create();

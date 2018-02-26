@@ -67,9 +67,9 @@ module.exports = {
     externals: {
       u2f: './u2f-api.js',
       kbpgp: './kbpgp.js',
-      nacl: './nacl.min.js',
-      onlykey: './onlykey-api.js',
-      forge: './forge.min.js'
+      nacl: 'nacl.min.js',
+      onlykey: 'onlykey-api.js',
+      forge: 'forge.min.js'
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
