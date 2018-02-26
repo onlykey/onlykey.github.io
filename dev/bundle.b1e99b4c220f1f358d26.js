@@ -6730,7 +6730,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 
 window.custom_keyid;
 
-window.initok = initok;
+window.initok = initok();
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
@@ -93250,4 +93250,4 @@ module.exports = __webpack_require__(19);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=bundle.a8cf2e111a3d5f40d89a.js.map
+//# sourceMappingURL=bundle.b1e99b4c220f1f358d26.js.map
