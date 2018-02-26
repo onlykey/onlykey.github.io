@@ -22,7 +22,7 @@
     "html-webpack-plugin": "^2.30.1",
     "uglify-js": "git://github.com/mishoo/UglifyJS2#harmony-v2.8.22",
     "uglifyjs-webpack-plugin": "^1.1.8",
-    "webpack": "^3.11.0",
+    "webpack": "^2.7.0",
     "webpack-subresource-integrity": "^0.9.0"
   },
   "dependencies": {
