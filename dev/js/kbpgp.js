@@ -23533,7 +23533,7 @@ function decodeUtf8Char (str) {
  */
 function verifuint (value, max) {
 
-  return // TESTING ONLY!!!!!!!!!!!!!!!!!!!
+  if (1)  return; // TESTING ONLY!!!!!!!!!!!!!!!!!!!
 
   assert(typeof value === 'number', 'cannot write a non-number as a number')
   assert(value >= 0, 'specified a negative value for writing an unsigned value')
