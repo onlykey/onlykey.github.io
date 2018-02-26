@@ -41,13 +41,18 @@ const button = document.getElementById('onlykey_start');
  * Receives hardware generated entropy for future use
  */
 async function init() {
-  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1) {
+  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
   browserid = 128; //Firefox
   console.info("Firefox browser");
 } else {
   console.info("Chrome browser (Default)");
 }
   msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+  await wait(3000);
+  if (typeof(sharedsec) === "undefined") {
+  headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
+}
+
 
   if (typeof(button) !== "undefined" && button !== null) {
     updateStatusFromSelection();
@@ -184,8 +189,8 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  * Type of response requested - OKSETTIME, OKGETPUBKEY, OKSIGN, OKDECRYPT
  */
 async function msg_polling(params = {}, cb) {
-  const delay = params.delay || 0; // no delay by default
-  const type = params.type || 1; // default type to 1
+  var delay = params.delay || 0;
+  var type = params.type || 1; // default type to 1
 
   setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
@@ -262,7 +267,6 @@ async function msg_polling(params = {}, cb) {
         console.info("AES Key", key);
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
       return;
     } else if (type == 2) {
@@ -312,6 +316,7 @@ function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   } else if (ct.length == 524) {
     poll_delay = 7; //7 Second delay for RSA 4096
   }
+
   var padded_ct = ct.slice(12, ct.length);
   var keyid = ct.slice(1, 8);
   var pin_hash = sha256(padded_ct);
@@ -573,10 +578,13 @@ window.doPinTimer = async function (seconds) {
 
     if (_status === 'done_challenge' || _status === 'waiting_ping') {
       _setStatus('done_challenge');
-      const btmsg = `Waiting ${poll_delay} seconds for OnlyKey to process message.`;
+      if (OKversion == 'Original') {
+        var delay = poll_delay*4;
+      }
+      const btmsg = `Waiting ${delay} seconds for OnlyKey to process message.`;
       button.textContent = btmsg;
-      console.info("Delay ", poll_delay);
-      await ping(poll_delay); //Delay
+      console.info("Delay ", delay);
+      await ping(delay); //Delay
     } else if (_status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
           const err = 'Time expired for PIN confirmation';

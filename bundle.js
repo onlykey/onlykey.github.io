@@ -69556,16 +69556,21 @@ class Pgp2go {
         });
     }
 
-	startDecryption() {
+	async startDecryption() {
 			button.classList.remove('error');
 			button.classList.add('working');
+      if (urlinputbox.value == "" && _status=='Decrypt and Verify') {
+          this.showError(new Error("I need senders's public pgp key to verify :("));
+          return;
+      } else if (urlinputbox.value != "") {
         let keyurl = url.parse(urlinputbox.value);
-        if (keyurl.hostname) { // Check if its a url
-            sender_public_key = this.downloadUrl();
-            this.decryptText(sender_public_key, messagebox.value);
-        } else {
-            this.decryptText(urlinputbox.value, messagebox.value);
-        }
+          if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+              sender_public_key = await this.downloadPublicKey(urlinputbox.value);
+            } else {
+              sender_public_key = urlinputbox.value;
+            }
+          }
+          this.decryptText(sender_public_key, messagebox.value);
 	}
 
 	decryptText(key, ct) {
@@ -69615,38 +69620,33 @@ class Pgp2go {
       });
   }
 
-  startEncryption() {
-      button.classList.remove('error');
-      button.classList.add('working');
+  async startEncryption() {
       if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
-          this.showError(new Error("I need recipient's public pgp key :("));
+          this.showError(new Error("I need recipient's public pgp key to encrypt :("));
           return;
       }
       if (urlinputbox2.value == "" && (_status=='Encrypt and Sign' || _status=='Sign Only')) {
-          this.showError(new Error("I need sender's public pgp key :("));
+          this.showError(new Error("I need sender's public pgp key to sign :("));
           return;
       }
       if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
-        console.info(urlinputbox.value.slice(0,10));
-        sender_public_key = this.downloadPublicKey(urlinputbox.value);
-                  console.info("sender_public_key" + sender_public_key);
+          console.info(urlinputbox.value.slice(0,10));
+          sender_public_key = await this.downloadPublicKey(urlinputbox.value);
+          console.info("sender_public_key" + sender_public_key);
           } else {
             sender_public_key = urlinputbox.value;
       } if (urlinputbox2.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
         console.info(urlinputbox2.value.slice(0,10));
-        recipient_public_key = this.downloadPublicKey(urlinputbox2.value);
+        recipient_public_key = await this.downloadPublicKey(urlinputbox2.value);
                           console.info("recipient_public_key" + recipient_public_key);
           } else {
             recipient_public_key = urlinputbox2.value;
       }
-      setTimeout(() => {
         this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
-      }, 3000);
   }
 
   downloadPublicKey(url) {
-      button.classList.remove('error');
-      button.classList.add('working');
+    return new Promise(resolve => {
       button.textContent = 'Downloading public key ...';
       if (url.slice(0,8) != 'https://') {
         console.info(url);
@@ -69661,11 +69661,15 @@ class Pgp2go {
                   this.showError(err);
                   return;
               }
+              resolve(key.text);
               return key.text;
           });
+        });
   }
 
   encryptText(key1, key2, msg) {
+    button.classList.remove('error');
+    button.classList.add('working');
       switch (_status) {
         case 'Encrypt and Sign':
           this.loadPublic(key1);
