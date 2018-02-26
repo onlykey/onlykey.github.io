@@ -40,11 +40,7 @@ let plugins = [
       kbpgp: './kbpgp.js',
       _status: './app.js',
       poll_delay: './app.js',
-      poll_type: './app.js',
-      initok: './onlykey-api.js'
-    }),
-    new webpack.LoaderOptionsPlugin({
-      debug: true
+      poll_type: './app.js'
     })
 ];
 

@@ -69827,8 +69827,6 @@ urlinputbox.onkeyup = function () {
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
 };
 
-window.initok = initok;
-
 /***/ }),
 /* 312 */
 /***/ (function(module, exports) {
