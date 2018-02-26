@@ -6730,7 +6730,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 
 window.custom_keyid;
 
-window.initok = initok();
+window.initok = initok;
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
@@ -7677,7 +7677,7 @@ initok = async function () {
     //Initialize App
      window.initapp();
   }
-}
+};
 
 /**
  * Use promise and setTimeout to wait x seconds
@@ -93250,4 +93250,4 @@ module.exports = __webpack_require__(19);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=bundle.572cc7eede6396be49bf.js.map
+//# sourceMappingURL=bundle.55b59aa8ed2bef448a09.js.map

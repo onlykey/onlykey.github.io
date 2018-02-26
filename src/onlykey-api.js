@@ -54,7 +54,7 @@ initok = async function () {
     //Initialize App
      window.initapp();
   }
-}
+};
 
 /**
  * Use promise and setTimeout to wait x seconds
