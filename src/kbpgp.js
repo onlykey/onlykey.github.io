@@ -20081,7 +20081,7 @@ _break()
         });
       })(this)((function(_this) {
         return function() {
-          return cb(null, sig.to_mpi_buffer());
+          //return cb(null, sig.to_mpi_buffer());
         };
       })(this));
     };
