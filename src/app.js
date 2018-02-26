@@ -133,6 +133,10 @@ window.custom_keyid;
 
 window.initok = initok();
 
+//window.auth_sign = auth_sign();
+
+//window.auth_decrypt = auth_decrypt();
+
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
   _status = val;
