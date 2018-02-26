@@ -33,14 +33,6 @@ let plugins = [
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
         showErrors: false
-    }),
-    new webpack.ProvidePlugin({
-      nacl: './nacl.min.js',
-      forge: './forge.min.js',
-      kbpgp: './kbpgp.js',
-      _status: './app.js',
-      poll_delay: './app.js',
-      poll_type: './app.js'
     })
 ];
 
@@ -73,7 +65,11 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
     entry: ['./src/app.js'],
     externals: {
-      u2f: './u2f-api.js'
+      u2f: './u2f-api.js',
+      kbpgp: './kbpgp.js',
+      nacl: 'nacl.min.js',
+      onlykey: 'onlykey-api.js',
+      forge: 'forge.min.js'
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
