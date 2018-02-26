@@ -10674,7 +10674,6 @@ _break()
     Packet.prototype.frame_packet = function(tag, body) {
       var bufs;
       bufs = [new Buffer([0xc0 | tag]), util.encode_length(body.length), body];
-      console.info(buffs);
       return Buffer.concat(bufs);
     };
 
@@ -11106,6 +11105,7 @@ _break()
             assign_fn: (function() {
               return function() {
                 err = arguments[0];
+                console.info(arguments[1]);
                 return unframed = arguments[1];
               };
             })(),
@@ -13250,7 +13250,6 @@ _break()
             assign_fn: (function() {
               return function() {
                 err = arguments[0];
-                console.info(arguments[1]);
                 return unframed = arguments[1];
               };
             })(),
@@ -13261,8 +13260,6 @@ _break()
       })(this)((function(_this) {
         return function() {
           if (typeof err === "undefined" || err === null) {
-            console.info(unframed);
-            console.info(C.packet_tags.signature);
             _this._framed_output = ret = _this.frame_packet(C.packet_tags.signature, unframed);
           }
           return cb(err, ret);
