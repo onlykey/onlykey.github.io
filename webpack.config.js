@@ -43,7 +43,7 @@ let plugins = [
       poll_type: './app.js',
       'auth_sign()': './onlykey-api.js',
       'auth_decrypt()': './onlykey-api.js',
-      'initok()': './onlykey-api.js'
+      initok: './onlykey-api.js'
     }),
     new webpack.LoaderOptionsPlugin({
       debug: true

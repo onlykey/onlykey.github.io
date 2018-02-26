@@ -131,7 +131,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 
 window.custom_keyid;
 
-window.initok = initok();
+window.initok = initok;
 
 //window.auth_sign = auth_sign();
 
