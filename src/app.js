@@ -1,3 +1,4 @@
+const onlykey = require('./onlykey-api.js');
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
