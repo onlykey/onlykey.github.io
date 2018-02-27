@@ -190,7 +190,7 @@ async function msg_polling(params = {}, cb) {
  * Decrypt ciphertext via OnlyKey
  * @param {Array} ct
  */
-auth_decrypt = function(ct, cb) { //OnlyKey decrypt request to keyHandle
+function auth_decrypt(ct, cb) { //OnlyKey decrypt request to keyHandle
   if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -218,7 +218,7 @@ auth_decrypt = function(ct, cb) { //OnlyKey decrypt request to keyHandle
  * Sign message via OnlyKey
  * @param {Array} ct
  */
-auth_sign = function(ct, cb) { //OnlyKey sign request to keyHandle
+function auth_sign(ct, cb) { //OnlyKey sign request to keyHandle
   if (typeof(sharedsec) === "undefined"){
     button.textContent = "Insert OnlyKey and reload page";
     return;
@@ -598,9 +598,3 @@ function mkchallenge() {
 }
 
 function noop() {}
-
-module.exports={
-    _status,
-    poll_delay,
-    poll_type
-  }
