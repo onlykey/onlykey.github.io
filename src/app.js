@@ -147,6 +147,9 @@ class Pgp2go {
     }
 
 	async startDecryption() {
+      poll_type = 3;
+      poll_delay = 1;
+      console.info(poll_type);
 			button.classList.remove('error');
 			button.classList.add('working');
       if (urlinputbox.value == "" && _status=='Decrypt and Verify') {
@@ -211,6 +214,8 @@ class Pgp2go {
   }
 
   async startEncryption() {
+      poll_type = 4;
+      console.info(poll_type);
       if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
           this.showError(new Error("I need recipient's public pgp key to encrypt :("));
           return;
@@ -397,15 +402,10 @@ button.onclick = function () {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
-            poll_type = 4;
-            console.info(poll_type);
             p2g.startEncryption();
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
-            poll_type = 3;
-            poll_delay = 1;
-            console.info(poll_type);
             p2g.startDecryption();
             break;
         case 'pending_pin':

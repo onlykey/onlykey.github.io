@@ -13685,7 +13685,7 @@ module.exports = isObject;
 /* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(_status, poll_delay, poll_type) {const url = __webpack_require__(170);
+/* WEBPACK VAR INJECTION */(function(_status, poll_type, poll_delay) {const url = __webpack_require__(170);
 const request = __webpack_require__(165);
 const randomColor = __webpack_require__(152);
 const kbpgp = __webpack_require__(136);
@@ -13834,6 +13834,9 @@ class Pgp2go {
     }
 
 	async startDecryption() {
+      poll_type = 3;
+      poll_delay = 1;
+      console.info(poll_type);
 			button.classList.remove('error');
 			button.classList.add('working');
       if (urlinputbox.value == "" && _status=='Decrypt and Verify') {
@@ -13898,6 +13901,8 @@ class Pgp2go {
   }
 
   async startEncryption() {
+      poll_type = 4;
+      console.info(poll_type);
       if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
           this.showError(new Error("I need recipient's public pgp key to encrypt :("));
           return;
@@ -14084,13 +14089,10 @@ button.onclick = function () {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
-            poll_type = 4;
             p2g.startEncryption();
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
-            poll_type = 3;
-            poll_delay = 1;
             p2g.startDecryption();
             break;
         case 'pending_pin':
@@ -79445,4 +79447,4 @@ module.exports = __webpack_require__(74);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=bundle.71b405e3459f7e845a0d.js.map
+//# sourceMappingURL=bundle.d494ae15afc45eb28d94.js.map
