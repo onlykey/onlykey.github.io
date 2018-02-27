@@ -1,6 +1,6 @@
-_status;
-poll_delay;
-poll_type;
+var _status;
+var poll_delay;
+var poll_type;
 
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
