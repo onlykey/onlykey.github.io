@@ -185,12 +185,12 @@ class Pgp2go {
           if (err)
               return void this.showError(err);
           if (Decrypt_Only) {
-          button.textContent = "Done :)";
+          button.textContent = "Done :) Click to copy message";
           } else {
             var ds = recipient_public_key = null;
               ds = ct[0].get_data_signer();
               if (ds == null) {
-                button.textContent = "Done :) Message has no signature ";
+                button.textContent = "Done :) Message has no signature, Click to copy message";
               } else {
                 console.log(ds);
                 if (ds) { recipient_public_key = ds.get_key_manager(); }
@@ -201,7 +201,7 @@ class Pgp2go {
                   var userid = recipient_public_key.userids[0].components.email.split("@")[0];
                   console.log(keyid);
                   console.log(userid);
-                  button.textContent = "Done :)    Signed by " + userid + " (Key ID: " + keyid + ")";
+                  button.textContent = "Done :) Signed by " + userid + " (Key ID: " + keyid + "), Click to copy message";
               }
             }
           }
@@ -302,7 +302,7 @@ class Pgp2go {
               this.showError(err);
               return;
           }
-          button.textContent = 'Done :)  You can paste encrypted message into an email, IM, whatever.';
+          button.textContent = 'Done :)  Click to copy message, then paste encrypted message into an email, IM, whatever.';
           messagebox.value =  results;
           messagebox.focus();
           messagebox.select();
@@ -403,19 +403,24 @@ button.addEventListener('click', async function() {
         case 'Encrypt Only':
         case 'Sign Only':
             await p2g.startEncryption();
-            try {
-               var successful = document.execCommand('copy');
-               var msg = successful ? 'successful' : 'unsuccessful';
-               console.info('Copying text command was ' + msg);
-             } catch (err) {
-               console.info('Oops, unable to copy');
-             }
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
             p2g.startDecryption();
             break;
         case 'pending_pin':
+            break;
+        case 'finished':
+            try {
+               var successful = document.execCommand('copy');
+               var msg = successful ? 'successful' : 'unsuccessful';
+               button.textContent = 'Done :)  Message copied to clipboard';
+               console.info('Copying text command was ' + msg);
+               if (!successful) button.textContent = 'Oops, unable to copy message to clipboard, try copying message manually';
+             } catch (err) {
+               button.textContent = 'Oops, unable to copy message to clipboard, try copying message manually';
+               console.info('Oops, unable to copy');
+             }
             break;
     }
 }, false);
