@@ -1,7 +1,6 @@
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
-require("exports-loader?auth_decrypt,auth_sign,_status,poll_delay,poll_type!./onlykey-api.js");
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
