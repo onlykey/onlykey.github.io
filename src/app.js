@@ -306,13 +306,6 @@ class Pgp2go {
           messagebox.value =  results;
           messagebox.focus();
           messagebox.select();
-          try {
-             var successful = document.execCommand('copy');
-             var msg = successful ? 'successful' : 'unsuccessful';
-             console.info('Copying text command was ' + msg);
-           } catch (err) {
-             console.info('Oops, unable to copy');
-           }
           button.classList.remove('working');
           return resolve();
       });
@@ -410,7 +403,13 @@ button.addEventListener('click', async function() {
         case 'Encrypt Only':
         case 'Sign Only':
             await p2g.startEncryption();
-            console.info("finished await");
+            try {
+               var successful = document.execCommand('copy');
+               var msg = successful ? 'successful' : 'unsuccessful';
+               console.info('Copying text command was ' + msg);
+             } catch (err) {
+               console.info('Oops, unable to copy');
+             }
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
