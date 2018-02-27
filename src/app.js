@@ -412,6 +412,8 @@ button.addEventListener('click', async function() {
             break;
         case 'finished':
             try {
+               messagebox.focus();
+               messagebox.select();
                var successful = document.execCommand('copy');
                var msg = successful ? 'successful' : 'unsuccessful';
                button.textContent = 'Done :)  Message copied to clipboard';
