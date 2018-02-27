@@ -205,6 +205,7 @@ class Pgp2go {
               }
             }
           }
+          console.info(ct);
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
@@ -304,8 +305,6 @@ class Pgp2go {
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
-          document.execCommand('SelectAll');
-          document.execCommand("Copy", false, null);
           button.classList.remove('working');
       });
   }
@@ -402,6 +401,8 @@ button.onclick = function () {
         case 'Encrypt Only':
         case 'Sign Only':
             p2g.startEncryption();
+            document.execCommand('SelectAll');
+            document.execCommand("Copy", false, null);
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
