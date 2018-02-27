@@ -134,7 +134,7 @@
     };
 
     BaseKeyPair.prototype.ekid = function() {
-      return Buffer.concat([new Buffer([K.kid.version, this.get_type()]), this.hash(), new Buffer([K.kid.trailer])]);
+      return Buffer.concat([Buffer.from([K.kid.version, this.get_type()]), this.hash(), Buffer.from([K.kid.trailer])]);
     };
 
     BaseKeyPair.prototype.can_sign = function() {
@@ -394,7 +394,7 @@
         }
       }
       start = i;
-      pad = new Buffer((function() {
+      pad = Buffer.from((function() {
         var _j, _results;
         _results = [];
         for (i = _j = 0; 0 <= start ? _j < start : _j > start; i = 0 <= start ? ++_j : --_j) {
@@ -411,7 +411,7 @@
         num = num.add(base.multiply(nbv(char_index)));
         base = base.multiply(this.basebn);
       }
-      return Buffer.concat([pad, new Buffer(num.toByteArray())]);
+      return Buffer.concat([pad, Buffer.from(num.toByteArray())]);
     };
 
     return BaseX;
@@ -454,9 +454,9 @@
     var ba, hdr, size;
     ba = bn.toByteArray();
     size = (ba.length - 1) * 8 + nbits(ba[0]);
-    hdr = new Buffer(2);
+    hdr = Buffer.from(2);
     hdr.writeUInt16BE(size, 0);
-    return Buffer.concat([hdr, new Buffer(ba)]);
+    return Buffer.concat([hdr, Buffer.from(ba)]);
   };
 
   mpi_from_buffer = function(raw) {
@@ -465,7 +465,7 @@
     if (raw.length < 2) {
       err = new Error("need at least 2 bytes; got " + raw.length);
     } else {
-      hdr = new Buffer(raw.slice(0, 2));
+      hdr = Buffer.from(raw.slice(0, 2));
       raw = raw.slice(2);
       n_bits = hdr.readUInt16BE(0);
       n_bytes = Math.ceil(n_bits / 8);
@@ -484,7 +484,7 @@
     n = base.mpi_byte_length();
     ba = bn.toByteArray();
     diff = n - ba.length;
-    pad = new Buffer((function() {
+    pad = Buffer.from((function() {
       var _i, _results;
       _results = [];
       for (i = _i = 0; 0 <= diff ? _i < diff : _i > diff; i = 0 <= diff ? ++_i : --_i) {
@@ -492,7 +492,7 @@
       }
       return _results;
     })());
-    return Buffer.concat([pad, new Buffer(ba)]);
+    return Buffer.concat([pad, Buffer.from(ba)]);
   };
 
   buffer_shift_right = function(buf, nbits) {
@@ -1091,7 +1091,7 @@
     BaseEccKey.prototype.serialize = function() {
       var oid;
       oid = this.curve.oid;
-      return Buffer.concat([new Buffer([oid.length]), oid, this.curve.point_to_mpi_buffer(this.R)]);
+      return Buffer.concat([Buffer.from([oid.length]), oid, this.curve.point_to_mpi_buffer(this.R)]);
     };
 
     BaseEccKey._alloc = function(klass, raw) {
@@ -1306,7 +1306,7 @@
     Curve.prototype.point_to_mpi_buffer = function(p) {
       var ret, sz;
       sz = this.mpi_coord_byte_size();
-      ret = Buffer.concat([uint_to_buffer(16, this.mpi_bit_size()), new Buffer([0x4]), p.affineX.toBuffer(sz), p.affineY.toBuffer(sz)]);
+      ret = Buffer.concat([uint_to_buffer(16, this.mpi_bit_size()), Buffer.from([0x4]), p.affineX.toBuffer(sz), p.affineY.toBuffer(sz)]);
       return ret;
     };
 
@@ -1461,7 +1461,7 @@
     Curve25519.prototype.point_to_mpi_buffer = function(p) {
       var ret, sz;
       sz = this.mpi_coord_byte_size();
-      ret = Buffer.concat([uint_to_buffer(16, this.mpi_bit_size()), new Buffer([0x40]), p]);
+      ret = Buffer.concat([uint_to_buffer(16, this.mpi_bit_size()), Buffer.from([0x40]), p]);
       return ret;
     };
 
@@ -1481,7 +1481,7 @@
       if (raw.length < 2) {
         err = new Error("need at least 2 bytes; got " + raw.length);
       } else {
-        hdr = new Buffer(raw.slice(0, 2));
+        hdr = Buffer.from(raw.slice(0, 2));
         raw = raw.slice(2);
         n_bits = hdr.readUInt16BE(0);
         n_bytes = Math.ceil(n_bits / 8);
@@ -1531,7 +1531,7 @@
 
     Curve25519.reverse_buf = function(buf) {
       var X, i, _i, _ref;
-      X = new Buffer(buf.length);
+      X = Buffer.from(buf.length);
       for (i = _i = 0, _ref = buf.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
         X[buf.length - 1 - i] = buf[i];
       }
@@ -1703,13 +1703,13 @@
   };
 
   OIDS = {
-    nist_p256: new Buffer([0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07]),
-    nist_p384: new Buffer([0x2b, 0x81, 0x04, 0x00, 0x22]),
-    nist_p521: new Buffer([0x2b, 0x81, 0x04, 0x00, 0x23]),
-    brainpool_p256: new Buffer([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x07]),
-    brainpool_p384: new Buffer([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0B]),
-    brainpool_p512: new Buffer([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0D]),
-    cv25519: new Buffer([0x2b, 0x06, 0x01, 0x04, 0x01, 0x97, 0x55, 0x01, 0x05, 0x01])
+    nist_p256: Buffer.from([0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07]),
+    nist_p384: Buffer.from([0x2b, 0x81, 0x04, 0x00, 0x22]),
+    nist_p521: Buffer.from([0x2b, 0x81, 0x04, 0x00, 0x23]),
+    brainpool_p256: Buffer.from([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x07]),
+    brainpool_p384: Buffer.from([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0B]),
+    brainpool_p512: Buffer.from([0x2b, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0D]),
+    cv25519: Buffer.from([0x2b, 0x06, 0x01, 0x04, 0x01, 0x97, 0x55, 0x01, 0x05, 0x01])
   };
 
   OID_LOOKUP = {};
@@ -1861,7 +1861,7 @@
     Pub.prototype.format_params = function(_arg) {
       var fingerprint;
       fingerprint = _arg.fingerprint;
-      return Buffer.concat([uint_to_buffer(8, this.curve.oid.length), this.curve.oid, uint_to_buffer(8, this.type), this.serialize_params(), new Buffer("Anonymous Sender    ", "utf8"), fingerprint]);
+      return Buffer.concat([uint_to_buffer(8, this.curve.oid.length), this.curve.oid, uint_to_buffer(8, this.type), this.serialize_params(), Buffer.from("Anonymous Sender    ", "utf8"), fingerprint]);
     };
 
     Pub.prototype.kdf = function(_arg) {
@@ -1869,7 +1869,7 @@
       X = _arg.X, params = _arg.params;
       o_bytes = this.cipher.key_size;
       X_compact = this.curve.point_to_mpi_buffer_compact(X);
-      buf = Buffer.concat([new Buffer([0, 0, 0, 1]), X_compact, params]);
+      buf = Buffer.concat([Buffer.from([0, 0, 0, 1]), X_compact, params]);
       hash = this.hasher(buf);
       return hash.slice(0, o_bytes);
     };
@@ -2584,11 +2584,11 @@
 
     Pub.prototype.type = Pub.type;
 
-    Pub.OID = new Buffer([0x2B, 0x06, 0x01, 0x04, 0x01, 0xDA, 0x47, 0x0F, 0x01]);
+    Pub.OID = Buffer.from([0x2B, 0x06, 0x01, 0x04, 0x01, 0xDA, 0x47, 0x0F, 0x01]);
 
     Pub.prototype.OID = Pub.OID;
 
-    Pub.MPI_LENGTH_HEADERS = new Buffer([0x1, 0x7, 0x40]);
+    Pub.MPI_LENGTH_HEADERS = Buffer.from([0x1, 0x7, 0x40]);
 
     Pub.prototype.MPI_LENGTH_HEADERS = Pub.MPI_LENGTH_HEADERS;
 
@@ -2608,7 +2608,7 @@
 
     Pub.prototype.serialize = function() {
       var ret;
-      ret = Buffer.concat([new Buffer([this.OID.length]), this.OID, this.MPI_LENGTH_HEADERS, this.key]);
+      ret = Buffer.concat([Buffer.from([this.OID.length]), this.OID, this.MPI_LENGTH_HEADERS, this.key]);
       return ret;
     };
 
@@ -2691,7 +2691,7 @@
       }
       priv = new Priv({
         seed: seed,
-        key: new Buffer(secretKey),
+        key: Buffer.from(secretKey),
         pub: pub
       });
       len = pre - sb.rem();
@@ -2719,7 +2719,7 @@
         payload: h
       });
       len = kbnacl.sign.signatureLength / 2;
-      return cb([new Buffer(ret.slice(0, len)), new Buffer(ret.slice(len, len * 2))]);
+      return cb([Buffer.from(ret.slice(0, len)), Buffer.from(ret.slice(len, len * 2))]);
     };
 
     Priv.prototype.serialize = function() {
@@ -2918,11 +2918,11 @@
             seed: seed
           }), publicKey = _ref1.publicKey, secretKey = _ref1.secretKey;
           pub = new Pub({
-            key: new Buffer(publicKey)
+            key: Buffer.from(publicKey)
           });
           priv = new Priv({
             seed: seed,
-            key: new Buffer(secretKey),
+            key: Buffer.from(secretKey),
             pub: pub
           });
           ret = new Pair({
@@ -3666,7 +3666,7 @@ _break()
 
   _ref1 = require('../util'), katch = _ref1.katch, obj_extract = _ref1.obj_extract, bufeq_secure = _ref1.bufeq_secure;
 
-  null_hash = new Buffer(0);
+  null_hash = Buffer.from(0);
 
   pack = function(x) {
     return purepack.pack(x, {
@@ -3703,7 +3703,7 @@ _break()
   read_base64 = function(raw) {
     var parts;
     parts = (raw.split(/\s+/)).join('');
-    return new Buffer(parts, 'base64');
+    return Buffer.from(parts, 'base64');
   };
 
   unseal = function(buf) {
@@ -3870,7 +3870,7 @@ _break()
       err = ret = null;
       if (hex != null) {
         try {
-          raw = new Buffer(hex, 'hex');
+          raw = Buffer.from(hex, 'hex');
         } catch (_error) {
           e = _error;
           return cb(e);
@@ -3916,7 +3916,7 @@ _break()
       err = ret = null;
       if (hex != null) {
         try {
-          raw = new Buffer(hex, 'hex');
+          raw = Buffer.from(hex, 'hex');
         } catch (_error) {
           e = _error;
           return cb(e);
@@ -4079,7 +4079,7 @@ _break()
       err = ret = null;
       if (hex != null) {
         try {
-          raw = new Buffer(hex, 'hex');
+          raw = Buffer.from(hex, 'hex');
         } catch (_error) {
           e = _error;
           return cb(e);
@@ -4122,7 +4122,7 @@ _break()
       err = ret = null;
       if (hex != null) {
         try {
-          raw = new Buffer(hex, 'hex');
+          raw = Buffer.from(hex, 'hex');
         } catch (_error) {
           e = _error;
           return cb(e);
@@ -4150,7 +4150,7 @@ _break()
       return [err, null];
     }
     if (armored != null) {
-      binary = new Buffer(armored, 'base64');
+      binary = Buffer.from(armored, 'base64');
     }
     if (binary != null) {
       try {
@@ -4309,7 +4309,7 @@ _break()
     var armored, decoded;
     armored = _arg.armored;
     decoded = {
-      body: new Buffer(armored, 'base64'),
+      body: Buffer.from(armored, 'base64'),
       type: C.message_types.generic,
       payload: armored
     };
@@ -5336,7 +5336,7 @@ _break()
       }
       return _results;
     })();
-    return new Buffer(arr);
+    return Buffer.from(arr);
   };
 
   exports.genseed = genseed = function(_arg, cb) {
@@ -5931,13 +5931,13 @@ _break()
   };
 
   u2b = function(u) {
-    return new Buffer(u);
+    return Buffer.from(u);
   };
 
   Pub = (function() {
-    Pub.HEADER = new Buffer([K.kid.version, TYPE]);
+    Pub.HEADER = Buffer.from([K.kid.version, TYPE]);
 
-    Pub.TRAILER = new Buffer([K.kid.trailer]);
+    Pub.TRAILER = Buffer.from([K.kid.trailer]);
 
     Pub.LEN = Pub.HEADER.length + Pub.TRAILER.length + box.publicKeyLength;
 
@@ -6270,13 +6270,13 @@ _break()
   };
 
   exports.u2b = u2b = function(u) {
-    return new Buffer(u);
+    return Buffer.from(u);
   };
 
   Pub = (function() {
-    Pub.HEADER = new Buffer([K.kid.version, TYPE]);
+    Pub.HEADER = Buffer.from([K.kid.version, TYPE]);
 
-    Pub.TRAILER = new Buffer([K.kid.trailer]);
+    Pub.TRAILER = Buffer.from([K.kid.trailer]);
 
     Pub.LEN = Pub.HEADER.length + Pub.TRAILER.length + kbnacl.sign.publicKeyLength;
 
@@ -6986,7 +6986,7 @@ _break()
 
   BaseBurner = require('./baseburner').BaseBurner;
 
-  dummy_key_id = new Buffer((function() {
+  dummy_key_id = Buffer.from((function() {
     var _i, _results;
     _results = [];
     for (_i = 0; _i < 16; _i++) {
@@ -7689,7 +7689,7 @@ _break()
   exports.make_simple_literals = make_simple_literals = function(msg) {
     return [
       new Literal({
-        data: new Buffer(msg),
+        data: Buffer.from(msg),
         format: C.literal_formats.utf8,
         date: unix_time()
       })
@@ -8136,7 +8136,7 @@ _break()
     block_cipher_class || (block_cipher_class = AES);
     cipher || (cipher = new block_cipher_class(WordArray.from_buffer(key)));
     block_size = cipher.blockSize;
-    iv || (iv = new Buffer((function() {
+    iv || (iv = Buffer.from((function() {
       var _i, _results;
       _results = [];
       for (i = _i = 0; 0 <= block_size ? _i < block_size : _i > block_size; i = 0 <= block_size ? ++_i : --_i) {
@@ -8800,7 +8800,7 @@ _break()
         unhashed_subpackets: [new Issuer(this.signing_key.get_key_id())],
         hasher: this.hash_streamer
       });
-      emptybuf = new Buffer([]);
+      emptybuf = Buffer.from([]);
       (function(_this) {
         return (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
@@ -8968,7 +8968,7 @@ _break()
     Verifier.prototype._make_literals = function(cb) {
       if (!this.literals.length) {
         this.literals.push(new Literal({
-          data: new Buffer([])
+          data: Buffer.from([])
         }));
       }
       this.literals[0].push_sig(new packetsigs.Data({
@@ -10527,7 +10527,7 @@ _break()
             }
             (function(__iced_k) {
               if (err == null) {
-                passphrase = new Buffer([]);
+                passphrase = Buffer.from([]);
                 (function(__iced_k) {
                   __iced_deferrals = new iced.Deferrals(__iced_k, {
                     parent: ___iced_passed_deferral,
@@ -11010,7 +11010,7 @@ _break()
         });
       })(this)((function(_this) {
         return function() {
-          return cb(null, (new SHA256(new Buffer(armored.trim()))).toString("hex"));
+          return cb(null, (new SHA256(Buffer.from(armored.trim()))).toString("hex"));
         };
       })(this));
     };
@@ -11582,7 +11582,7 @@ _continue()
 
     Encryptor.prototype._emit_sb = function(sb) {
       var buf, deficit, i, pad;
-      buf = (deficit = this.block_size - sb.rem()) > 0 ? (pad = new Buffer((function() {
+      buf = (deficit = this.block_size - sb.rem()) > 0 ? (pad = Buffer.from((function() {
         var _i, _results;
         _results = [];
         for (i = _i = 0; 0 <= deficit ? _i < deficit : _i > deficit; i = 0 <= deficit ? ++_i : --_i) {
@@ -11601,12 +11601,12 @@ _continue()
       });
       buf = wa.to_buffer();
       this.out_bufs.push(buf);
-      return this.FR = new Buffer(buf);
+      return this.FR = Buffer.from(buf);
     };
 
     Encryptor.prototype._init = function(prefixrandom) {
       var b, canary, ct, i, offset;
-      this.FR = new Buffer((function() {
+      this.FR = Buffer.from((function() {
         var _i, _ref, _results;
         _results = [];
         for (i = _i = 0, _ref = this.block_size; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
@@ -11619,7 +11619,7 @@ _continue()
       this._emit_buf(prefixrandom);
       this._enc();
       b = this.FRE.to_buffer();
-      canary = new Buffer((function() {
+      canary = Buffer.from((function() {
         var _i, _results;
         _results = [];
         for (i = _i = 0; _i < 2; i = ++_i) {
@@ -11643,7 +11643,7 @@ _continue()
       if (this.resync) {
         this._emit_sb(sb);
       } else {
-        buf = Buffer.concat([new Buffer([0, 0]), sb.read_buffer(this.block_size - 2)]);
+        buf = Buffer.concat([Buffer.from([0, 0]), sb.read_buffer(this.block_size - 2)]);
         wa = WordArray.from_buffer(buf);
         wa.xor(this.FRE, {});
         buf = wa.to_buffer().slice(2);
@@ -11946,9 +11946,9 @@ _continue()
 
   test = function() {
     var block_cipher_class, ct, key, plaintext, prefixrandom, pt;
-    plaintext = new Buffer("a man a plan a canal panama. and you know the rest");
+    plaintext = Buffer.from("a man a plan a canal panama. and you know the rest");
     key = rng(32);
-    prefixrandom = new Buffer([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+    prefixrandom = Buffer.from([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
     block_cipher_class = AES;
     ct = encrypt({
       block_cipher_class: block_cipher_class,
@@ -11999,7 +11999,7 @@ _continue()
 
     Packet.prototype.frame_packet = function(tag, body) {
       var bufs;
-      bufs = [new Buffer([0xc0 | tag]), util.encode_length(body.length), body];
+      bufs = [Buffer.from([0xc0 | tag]), util.encode_length(body.length), body];
       return Buffer.concat(bufs);
     };
 
@@ -12121,7 +12121,7 @@ _continue()
     var bufs, call_end, err, inflater, ___iced_passed_deferral, __iced_deferrals, __iced_k;
     __iced_k = __iced_k_noop;
     ___iced_passed_deferral = iced.findDeferral(arguments);
-    buf = Buffer.concat([new Buffer([0x78, 0x9c]), buf]);
+    buf = Buffer.concat([Buffer.from([0x78, 0x9c]), buf]);
     inflater = zlib.createInflate({
       flush: zlib.Z_FULL_FLUSH
     });
@@ -12572,12 +12572,12 @@ _continue()
 
     KeyMaterial.prototype._write_private_enc = function(bufs, priv, pp) {
       var c, ct, iv, ivlen, k, ks, plaintext, salt, sha1hash;
-      bufs.push(new Buffer([C.s2k_convention.sha1, C.symmetric_key_algorithms.AES256, C.s2k.salt_iter, C.hash_algorithms.SHA256]));
+      bufs.push(Buffer.from([C.s2k_convention.sha1, C.symmetric_key_algorithms.AES256, C.s2k.salt_iter, C.hash_algorithms.SHA256]));
       sha1hash = (new SHA1).bufhash(priv);
       salt = native_rng(8);
       bufs.push(salt);
       c = 96;
-      bufs.push(new Buffer([c]));
+      bufs.push(Buffer.from([c]));
       ks = AES.keySize;
       k = (new S2K).write(pp, salt, c, ks);
       ivlen = AES.blockSize;
@@ -12594,17 +12594,17 @@ _continue()
     };
 
     KeyMaterial.prototype._write_private_clear = function(bufs, priv) {
-      return bufs.push(new Buffer([C.s2k_convention.none]), priv, uint_to_buffer(16, calc_checksum(priv)));
+      return bufs.push(Buffer.from([C.s2k_convention.none]), priv, uint_to_buffer(16, calc_checksum(priv)));
     };
 
     KeyMaterial.prototype._write_public = function(bufs) {
       var pub;
       pub = this.key.serialize();
-      return bufs.push(new Buffer([C.versions.keymaterial.V4]), uint_to_buffer(32, this.timestamp), new Buffer([this.key.type]), pub);
+      return bufs.push(Buffer.from([C.versions.keymaterial.V4]), uint_to_buffer(32, this.timestamp), Buffer.from([this.key.type]), pub);
     };
 
     KeyMaterial.prototype._write_dummy = function(bufs) {
-      return bufs.push(new Buffer([C.s2k_convention.sha1, C.symmetric_key_algorithms.AES256, C.s2k.gnu, 0x2]), new Buffer("GNU", "utf8"), new Buffer([0x1]));
+      return bufs.push(Buffer.from([C.s2k_convention.sha1, C.symmetric_key_algorithms.AES256, C.s2k.gnu, 0x2]), Buffer.from("GNU", "utf8"), Buffer.from([0x1]));
     };
 
     KeyMaterial.prototype.add_flags = function(v) {
@@ -12646,7 +12646,7 @@ _continue()
     KeyMaterial.prototype.get_fingerprint = function() {
       var data;
       data = this.public_body();
-      return (new SHA1).bufhash(Buffer.concat([new Buffer([C.signatures.key]), uint_to_buffer(16, data.length), data]));
+      return (new SHA1).bufhash(Buffer.concat([Buffer.from([C.signatures.key]), uint_to_buffer(16, data.length), data]));
     };
 
     KeyMaterial.prototype.get_key_id = function() {
@@ -12686,7 +12686,7 @@ _continue()
     KeyMaterial.prototype.to_signature_payload = function() {
       var pk;
       pk = this.public_body();
-      return Buffer.concat([new Buffer([C.signatures.key]), uint_to_buffer(16, pk.length), pk]);
+      return Buffer.concat([Buffer.from([C.signatures.key]), uint_to_buffer(16, pk.length), pk]);
     };
 
     KeyMaterial.prototype.self_sign_key = function(_arg, cb) {
@@ -13548,8 +13548,8 @@ _continue()
 
     Literal.prototype.write_unframed = function(cb) {
       var bufs, ret;
-      this.filename || (this.filename = new Buffer([]));
-      bufs = [new Buffer([this.format]), uint_to_buffer(8, this.filename.length), this.filename, uint_to_buffer(32, this.date), this.data];
+      this.filename || (this.filename = Buffer.from([]));
+      bufs = [Buffer.from([this.format]), uint_to_buffer(8, this.filename.length), this.filename, uint_to_buffer(32, this.date), this.data];
       ret = Buffer.concat(bufs);
       return cb(null, ret);
     };
@@ -14282,7 +14282,7 @@ _continue()
   MDC = (function(_super) {
     __extends(MDC, _super);
 
-    MDC.header = new Buffer([0xc0 | C.packet_tags.MDC, SHA1.output_length]);
+    MDC.header = Buffer.from([0xc0 | C.packet_tags.MDC, SHA1.output_length]);
 
     MDC.prototype.header = MDC.header;
 
@@ -14524,7 +14524,7 @@ _continue()
     };
 
     Signature_v2_or_v3.prototype.gen_prefix = function() {
-      return Buffer.concat([new Buffer([C.versions.signature.V3, this.type], uint_to_buffer(32, this.time), this.key_id, new Buffer([this.key.type, this.hasher.type]))]);
+      return Buffer.concat([Buffer.from([C.versions.signature.V3, this.type], uint_to_buffer(32, this.time), this.key_id, Buffer.from([this.key.type, this.hasher.type]))]);
     };
 
     Signature_v2_or_v3.prototype.prepare_payload = function(data_packets) {
@@ -14538,7 +14538,7 @@ _continue()
         }
         return _results;
       })();
-      bufs.push(new Buffer([this.type]), uint_to_buffer(32, this.time));
+      bufs.push(Buffer.from([this.type]), uint_to_buffer(32, this.time));
       return Buffer.concat(bufs);
     };
 
@@ -14698,8 +14698,8 @@ _continue()
         }
         return _results;
       }).call(this));
-      prefix = Buffer.concat([new Buffer([C.versions.signature.V4, this.type, this.key.type, this.hasher.type]), uint_to_buffer(16, flatsp.length), flatsp]);
-      trailer = Buffer.concat([new Buffer([C.versions.signature.V4, 0xff]), uint_to_buffer(32, prefix.length)]);
+      prefix = Buffer.concat([Buffer.from([C.versions.signature.V4, this.type, this.key.type, this.hasher.type]), uint_to_buffer(16, flatsp.length), flatsp]);
+      trailer = Buffer.concat([Buffer.from([C.versions.signature.V4, 0xff]), uint_to_buffer(32, prefix.length)]);
       payload = Buffer.concat([data, prefix, trailer]);
       hvalue = this.hasher(payload);
       return {
@@ -14754,9 +14754,8 @@ _continue()
             }
             console.info("custom uhsp" + uhsp.toString('hex'));
           }
-          result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, new Buffer([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
+          result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, Buffer.from([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
-          console.info("results" + results.toString('hex'));
           return cb(null, results);
         };
       })(this));
@@ -15330,7 +15329,7 @@ _continue()
 
     Preference.prototype._v_to_buffer = function() {
       var e;
-      return new Buffer((function() {
+      return Buffer.from((function() {
         var _i, _len, _ref3, _results;
         _ref3 = this.v;
         _results = [];
@@ -15432,7 +15431,7 @@ _continue()
     };
 
     RegularExpression.prototype._v_to_buffer = function() {
-      return new Buffer(this.re, 'utf8');
+      return Buffer.from(this.re, 'utf8');
     };
 
     return RegularExpression;
@@ -15508,7 +15507,7 @@ _continue()
     };
 
     RevocationKey.prototype._v_to_buffer = function() {
-      return Buffer.concat([uint_to_buffer(8, this.key_class), uint_to_buffer(8, this.alg), new Buffer(this.fingerprint)]);
+      return Buffer.concat([uint_to_buffer(8, this.key_class), uint_to_buffer(8, this.alg), Buffer.from(this.fingerprint)]);
     };
 
     return RevocationKey;
@@ -15528,7 +15527,7 @@ _continue()
     };
 
     Issuer.prototype._v_to_buffer = function() {
-      return new Buffer(this.id);
+      return Buffer.from(this.id);
     };
 
     return Issuer;
@@ -15556,7 +15555,7 @@ _continue()
     };
 
     NotationData.prototype._v_to_buffer = function() {
-      return Buffer.concat([uint_to_buffer(32, this.flags), uint_to_buffer(16, this.name.length), uint_to_buffer(16, this.value.length), new Buffer(this.name), new Buffer(this.value)]);
+      return Buffer.concat([uint_to_buffer(32, this.flags), uint_to_buffer(16, this.name.length), uint_to_buffer(16, this.value.length), Buffer.from(this.name), Buffer.from(this.value)]);
     };
 
     return NotationData;
@@ -16056,7 +16055,7 @@ _continue()
     };
 
     UserAttribute.prototype.to_signature_payload = function() {
-      return Buffer.concat([new Buffer([C.signatures.user_attribute]), uint_to_buffer(32, this.data.length), this.data]);
+      return Buffer.concat([Buffer.from([C.signatures.user_attribute]), uint_to_buffer(32, this.data.length), this.data]);
     };
 
     return UserAttribute;
@@ -16139,7 +16138,7 @@ _continue()
     };
 
     UserID.prototype.to_signature_payload = function() {
-      return Buffer.concat([new Buffer([C.signatures.userid]), uint_to_buffer(32, this.userid.length), this.userid]);
+      return Buffer.concat([Buffer.from([C.signatures.userid]), uint_to_buffer(32, this.userid.length), this.userid]);
     };
 
     UserID.prototype._parse = function() {
@@ -16705,7 +16704,8 @@ _continue()
     }
 
     Message.prototype._get_session_key = function(cb) {
-      var enc, err, esk_packets, fingerprint, index, key_ids, key_material, km, p, packet, pkcs5, privk, sesskey, ___iced_passed_deferral, __iced_deferrals, __iced_k;      __iced_k = __iced_k_noop;
+      var enc, err, esk_packets, fingerprint, index, key_ids, key_material, km, p, packet, pkcs5, privk, sesskey, ___iced_passed_deferral, __iced_deferrals, __iced_k;
+      __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       key_ids = [];
       esk_packets = [];
@@ -16725,44 +16725,27 @@ _continue()
         return (function(__iced_k) {
           if (key_ids.length) {
             enc = true;
-            console.info("Key ID", key_ids[0]);
-/*
             (function(__iced_k) {
               __iced_deferrals = new iced.Deferrals(__iced_k, {
                 parent: ___iced_passed_deferral,
-                filename: "/home/michal/kbpgp/src/openpgp/processor.iced",
+                filename: "/home/zapu/kb_other/kbpgp/src/openpgp/processor.iced",
                 funcname: "Message._get_session_key"
               });
-
               _this.keyfetch.fetch(key_ids, konst.ops.decrypt, __iced_deferrals.defer({
                 assign_fn: (function() {
                   return function() {
-                    //err = arguments[0];
-                    //km = arguments[1];
-                    return index = 0;
-                  };
-                })(),
-                lineno: 171
-              }));
-
-              __iced_deferrals._fulfill();
-
-            })
-
-*/
-              packet = esk_packets[0];
-              //key_material = km.find_pgp_key_material(key_ids[index]);
-              //fingerprint = key_material.get_fingerprint();
-              //privk = key_material.key;
-              console.info("err", err);
-              err = null;
-              window.auth_decrypt(packet.raw, (ok_sesskey) => {
-                  sesskey = packet.raw.slice(0, ok_sesskey.length);
-                  sesskey = Object.assign(sesskey, ok_sesskey);
-                  console.info("sesskey from OnlyKey:", sesskey);
-                return cb(err, enc, sesskey, pkcs5);
-              });
-
+                    if (key_ids.length) {
+                      enc = true;
+                      console.info("Key ID", key_ids[0]);
+                      packet = esk_packets[0];
+                      console.info("err", err);
+                      err = null;
+                      window.auth_decrypt(packet.raw, (ok_sesskey) => {
+                          sesskey = packet.raw.slice(0, ok_sesskey.length);
+                          sesskey = Object.assign(sesskey, ok_sesskey);
+                          console.info("sesskey from OnlyKey:", sesskey);
+                        return cb(err, enc, sesskey, pkcs5);
+                      });
           } else {
             return __iced_k(enc = false);
           }
@@ -17646,7 +17629,7 @@ _continue()
               count: this.count
             });
             if ((numBytes != null) && (numBytes === 24 || numBytes === 32)) {
-              prefix = new Buffer([0]);
+              prefix = Buffer.from([0]);
               key2 = iterated_s2k({
                 alg: this.hash.algname,
                 seed: seed,
@@ -18006,7 +17989,7 @@ _continue()
   exports.make_time_packet = function(d) {
     var b;
     d || (d = Math.floor(Date.now() / 1000));
-    b = new Buffer(4);
+    b = Buffer.from(4);
     b.writeUInt32BE(d, 0);
     return b;
   };
@@ -18027,14 +18010,14 @@ _continue()
     }
     ret = null;
     if (l >= 8384 || five_byte) {
-      ret = new Buffer(5);
+      ret = Buffer.from(5);
       ret.writeUInt8(0xff, 0);
       ret.writeUInt32BE(l, 1);
     } else if (l < 192) {
-      ret = new Buffer(1);
+      ret = Buffer.from(1);
       ret.writeUInt8(l, 0);
     } else if (l >= 192 && l < 8384) {
-      ret = new Buffer(2);
+      ret = Buffer.from(2);
       ret.writeUInt16BE((l - 192) + (192 << 8), 0);
     }
     return ret;
@@ -18065,7 +18048,7 @@ _continue()
       return buf;
     } else if (l > 0) {
       return Buffer.concat([
-        new Buffer((function() {
+        Buffer.from((function() {
           var _i, _results;
           _results = [];
           for (i = _i = 1; 1 <= l ? _i <= l : _i >= l; i = 1 <= l ? ++_i : --_i) {
@@ -18186,14 +18169,14 @@ _continue()
     headers = hash_headers[hasher.algname];
     n = len - headers.length - 3 - hasher.output_length;
     buf = Buffer.concat([
-      new Buffer([0x00, 0x01]), new Buffer((function() {
+      Buffer.from([0x00, 0x01]), Buffer.from((function() {
         var _i, _results;
         _results = [];
         for (i = _i = 0; 0 <= n ? _i < n : _i > n; i = 0 <= n ? ++_i : --_i) {
           _results.push(0xff);
         }
         return _results;
-      })()), new Buffer([0x00]), new Buffer(headers), hashed_data
+      })()), Buffer.from([0x00]), Buffer.from(headers), hashed_data
     ]);
     return nbs(buffer_to_ui8a(buf), 256);
   };
@@ -18217,7 +18200,7 @@ _continue()
         } else {
           i++;
           header = hash_headers[hasher.algname];
-          if (!bufeq_secure(new Buffer(header), v.slice(i, header.length + i))) {
+          if (!bufeq_secure(Buffer.from(header), v.slice(i, header.length + i))) {
             err = new Error("Sig verify error: missing ASN header for " + hasher.algname);
           } else {
             i += header.length;
@@ -18285,7 +18268,7 @@ _continue()
       });
     })(this)((function(_this) {
       return function() {
-        return cb(new Buffer(bytes));
+        return cb(Buffer.from(bytes));
       };
     })(this));
   };
@@ -18317,7 +18300,7 @@ _continue()
             }));
             __iced_deferrals._fulfill();
           })(function() {
-            buf = Buffer.concat([new Buffer([0x00, 0x02]), PS, new Buffer([0x00]), v]);
+            buf = Buffer.concat([Buffer.from([0x00, 0x02]), PS, Buffer.from([0x00]), v]);
             return __iced_k(ret = nbs(buffer_to_ui8a(buf), 256));
           });
         }
@@ -18366,7 +18349,7 @@ _continue()
         }
         return _results;
       })();
-      ret = Buffer.concat([d, new Buffer(v)]);
+      ret = Buffer.concat([d, Buffer.from(v)]);
     }
     return [err, ret];
   };
@@ -20067,9 +20050,9 @@ _break()
                     sig = arguments[0].to_mpi_buffer();
                     console.info("signature from app:", sig);
                     size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
-                    hdr = new Buffer(2);
+                    hdr = Buffer.from(2);
                     hdr.writeUInt16BE(size, 0);
-                    sig = Buffer.concat([hdr, new Buffer(ok_sig)]);
+                    sig = Buffer.concat([hdr, Buffer.from(ok_sig)]);
                     console.info("sig:", sig);
                     return cb(null, sig);
                 });
@@ -20081,7 +20064,7 @@ _break()
         });
       })(this)((function(_this) {
         return function() {
-          //return cb(null, sig.to_mpi_buffer());
+          return cb(null, sig.to_mpi_buffer());
         };
       })(this));
     };
@@ -20472,7 +20455,7 @@ _break()
   exports.export_key_pgp = export_key_pgp = function(algo_id, key) {
     var csum;
     csum = checksum2(key);
-    return Buffer.concat([new Buffer([algo_id]), key, uint_to_buffer(16, csum)]);
+    return Buffer.concat([Buffer.from([algo_id]), key, uint_to_buffer(16, csum)]);
   };
 
 }).call(this);
@@ -20770,7 +20753,7 @@ exports.EncoderBuffer = EncoderBuffer;
 
 EncoderBuffer.prototype.join = function join(out, offset) {
   if (!out)
-    out = new Buffer(this.length);
+    out = Buffer.from(this.length);
   if (!offset)
     offset = 0;
 
@@ -22006,7 +21989,7 @@ PEMDecoder.prototype.decode = function decode(data, options) {
   // Remove excessive symbols
   base64.replace(/[^a-z0-9\+\/=]+/gi, '');
 
-  var input = new Buffer(base64, 'base64');
+  var input = Buffer.from(base64, 'base64');
   return DERDecoder.prototype.decode.call(this, input, options);
 };
 
@@ -22050,7 +22033,7 @@ DERNode.prototype._encodeComposite = function encodeComposite(tag,
 
   // Short form
   if (content.length < 0x80) {
-    var header = new Buffer(2);
+    var header = Buffer.from(2);
     header[0] = encodedTag;
     header[1] = content.length;
     return this._createEncoderBuffer([ header, content ]);
@@ -22062,7 +22045,7 @@ DERNode.prototype._encodeComposite = function encodeComposite(tag,
   for (var i = content.length; i >= 0x100; i >>= 8)
     lenOctets++;
 
-  var header = new Buffer(1 + 1 + lenOctets);
+  var header = Buffer.from(1 + 1 + lenOctets);
   header[0] = encodedTag;
   header[1] = 0x80 | lenOctets;
 
@@ -22076,7 +22059,7 @@ DERNode.prototype._encodeStr = function encodeStr(str, tag) {
   if (tag === 'bitstr') {
     return this._createEncoderBuffer([ str.unused | 0, str.data ]);
   } else if (tag === 'bmpstr') {
-    var buf = new Buffer(str.length * 2);
+    var buf = Buffer.from(str.length * 2);
     for (var i = 0; i < str.length; i++) {
       buf.writeUInt16BE(str.charCodeAt(i), i * 2);
     }
@@ -22141,7 +22124,7 @@ DERNode.prototype._encodeObjid = function encodeObjid(id, values, relative) {
       size++;
   }
 
-  var objid = new Buffer(size);
+  var objid = Buffer.from(size);
   var offset = objid.length - 1;
   for (var i = id.length - 1; i >= 0; i--) {
     var ident = id[i];
@@ -22212,7 +22195,7 @@ DERNode.prototype._encodeInt = function encodeInt(num, values) {
     if (!num.sign && numArray[0] & 0x80) {
       numArray.unshift(0);
     }
-    num = new Buffer(numArray);
+    num = Buffer.from(numArray);
   }
 
   if (Buffer.isBuffer(num)) {
@@ -22220,7 +22203,7 @@ DERNode.prototype._encodeInt = function encodeInt(num, values) {
     if (num.length === 0)
       size++;
 
-    var out = new Buffer(size);
+    var out = Buffer.from(size);
     num.copy(out);
     if (num.length === 0)
       out[0] = 0
@@ -22246,7 +22229,7 @@ DERNode.prototype._encodeInt = function encodeInt(num, values) {
     out.unshift(0);
   }
 
-  return this._createEncoderBuffer(new Buffer(out));
+  return this._createEncoderBuffer(Buffer.from(out));
 };
 
 DERNode.prototype._encodeBool = function encodeBool(value) {
@@ -26409,7 +26392,7 @@ for (var k in syms) {
 		} else if (typeof(a) == 'number') {
 			this._v = bigint(a);
 		} else if (typeof(a) == 'object' && Array.isArray(a)) {
-			this._v = bigint.fromBuffer(new Buffer(a));
+			this._v = bigint.fromBuffer(Buffer.from(a));
 		} else if (a.constructor != zed.constructor) {
 			throw new Error("failed to get valid inner object in constructor");
 		} else {
@@ -26552,7 +26535,7 @@ for (var k in syms) {
 	};
 
 	BigInteger.fromByteArrayUnsigned = function (b) {
-		return BigInteger.fromBuffer(new Buffer(b));
+		return BigInteger.fromBuffer(Buffer.from(b));
 	};
 
 	BigInteger.fromBuffer = function (x) {
@@ -26590,7 +26573,7 @@ for (var k in syms) {
 		var ret = null;
 		var s = this.signum();
 
-		if (s == 0) { ret = new Buffer([0]); }
+		if (s == 0) { ret = Buffer.from([0]); }
 		else if (s < 0) {
 			var z = this.compute_twos_complement();
 			ret = z.toBuffer();
@@ -26601,7 +26584,7 @@ for (var k in syms) {
 			// If the high bit is on, and we're unsigned, we have to prepend a \x00
 			// byte to show that we're positive.
 			if (this.bitLength() % 8 == 0) {
-				pad = new Buffer([0]);
+				pad = Buffer.from([0]);
 				ret = Buffer.concat([ pad, ret ]);
 			}
 		}
@@ -26646,10 +26629,10 @@ for (var k in syms) {
 	BigInteger.prototype.toBuffer = function (size) {
 		var ret = null;
 		if (!size) { size = 0; }
-		if (this.signum() == 0) { ret = new Buffer([]); }
+		if (this.signum() == 0) { ret = Buffer.from([]); }
 		else { ret = this._v.toBuffer(); }
 		if ((diff = size - ret.length) > 0) {
-			var pad = new Buffer(diff);
+			var pad = Buffer.from(diff);
 			pad.fill(0);
 			ret = Buffer.concat([pad, ret]);
 		}
@@ -26706,7 +26689,7 @@ for (var k in syms) {
 
 	BigInteger.random_nbit = function (nbits, rf) {
 		var nbytes = Math.ceil(nbits / 8);
-		var buf = new Buffer(nbytes);
+		var buf = Buffer.from(nbytes);
 		rf.nextBytes(buf);
 		var ret = bigint.fromBuffer(buf);
 		var mask = bigint(1).shiftLeft(nbits).sub(bigint(1));
@@ -28117,9 +28100,9 @@ for (var k in syms) {
 	 	var s = this.signum();
 	 	if (s == 0) { x = []; }
 	 	else {x = this.toByteArray(s < 0); }
-	 	var ret = new Buffer(x);
+	 	var ret = Buffer.from(x);
 	 	if ((diff = size - x.length) > 0) {
-	 		var pad = new Buffer(diff);
+	 		var pad = Buffer.from(diff);
 	 		pad.fill(0);
 	 		ret = Buffer.concat([pad,ret]);
 	 	}
@@ -28143,7 +28126,7 @@ for (var k in syms) {
 	 };
 
 	 BigInteger.fromByteArrayUnsigned = function (b) {
-	 	return BigInteger.fromBuffer(new Buffer(b));
+	 	return BigInteger.fromBuffer(Buffer.from(b));
 	 };
 
 	 BigInteger.prototype.toHex = function (size) {
@@ -29495,10 +29478,10 @@ function DES (opts) {
   })
 }
 DES.prototype._update = function (data) {
-  return new Buffer(this._des.update(data))
+  return Buffer.from(this._des.update(data))
 }
 DES.prototype._final = function () {
-  return new Buffer(this._des.final())
+  return Buffer.from(this._des.final())
 }
 
 }).call(this,require("buffer").Buffer)
@@ -29559,7 +29542,7 @@ function crt(msg, priv) {
   var h = m1.isub(m2).imul(qinv).umod(p);
   h.imul(q);
   m2.iadd(h);
-  return new Buffer(m2.imul(blinds.unblinder).umod(priv.modulus).toArray(false, len));
+  return Buffer.from(m2.imul(blinds.unblinder).umod(priv.modulus).toArray(false, len));
 }
 crt.getr = getr;
 function getr(priv) {
@@ -29749,7 +29732,7 @@ var verify = require('./verify')
 
 var algorithms = require('./algorithms.json')
 Object.keys(algorithms).forEach(function (key) {
-  algorithms[key].id = new Buffer(algorithms[key].id, 'hex')
+  algorithms[key].id = Buffer.from(algorithms[key].id, 'hex')
   algorithms[key.toLowerCase()] = algorithms[key]
 })
 
@@ -29772,7 +29755,7 @@ Sign.prototype._write = function _write (data, _, done) {
 }
 
 Sign.prototype.update = function update (data, enc) {
-  if (typeof data === 'string') data = new Buffer(data, enc)
+  if (typeof data === 'string') data = Buffer.from(data, enc)
 
   this._hash.update(data)
   return this
@@ -29804,14 +29787,14 @@ Verify.prototype._write = function _write (data, _, done) {
 }
 
 Verify.prototype.update = function update (data, enc) {
-  if (typeof data === 'string') data = new Buffer(data, enc)
+  if (typeof data === 'string') data = Buffer.from(data, enc)
 
   this._hash.update(data)
   return this
 }
 
 Verify.prototype.verify = function verifyMethod (key, sig, enc) {
-  if (typeof sig === 'string') sig = new Buffer(sig, enc)
+  if (typeof sig === 'string') sig = Buffer.from(sig, enc)
 
   this.end()
   var hash = this._hash.digest()
@@ -29876,7 +29859,7 @@ function ecSign (hash, priv) {
   var key = curve.keyFromPrivate(priv.privateKey)
   var out = key.sign(hash)
 
-  return new Buffer(out.toDER())
+  return Buffer.from(out.toDER())
 }
 
 function dsaSign (hash, priv, algo) {
@@ -29912,25 +29895,25 @@ function toDER (r, s) {
   var total = r.length + s.length + 4
   var res = [ 0x30, total, 0x02, r.length ]
   res = res.concat(r, [ 0x02, s.length ], s)
-  return new Buffer(res)
+  return Buffer.from(res)
 }
 
 function getKey (x, q, hash, algo) {
-  x = new Buffer(x.toArray())
+  x = Buffer.from(x.toArray())
   if (x.length < q.byteLength()) {
-    var zeros = new Buffer(q.byteLength() - x.length)
+    var zeros = Buffer.from(q.byteLength() - x.length)
     zeros.fill(0)
     x = Buffer.concat([ zeros, x ])
   }
   var hlen = hash.length
   var hbits = bits2octets(hash, q)
-  var v = new Buffer(hlen)
+  var v = Buffer.from(hlen)
   v.fill(1)
-  var k = new Buffer(hlen)
+  var k = Buffer.from(hlen)
   k.fill(0)
-  k = createHmac(algo, k).update(v).update(new Buffer([ 0 ])).update(x).update(hbits).digest()
+  k = createHmac(algo, k).update(v).update(Buffer.from([ 0 ])).update(x).update(hbits).digest()
   v = createHmac(algo, k).update(v).digest()
-  k = createHmac(algo, k).update(v).update(new Buffer([ 1 ])).update(x).update(hbits).digest()
+  k = createHmac(algo, k).update(v).update(Buffer.from([ 1 ])).update(x).update(hbits).digest()
   v = createHmac(algo, k).update(v).digest()
   return { k: k, v: v }
 }
@@ -29945,9 +29928,9 @@ function bits2int (obits, q) {
 function bits2octets (bits, q) {
   bits = bits2int(bits, q)
   bits = bits.mod(q)
-  var out = new Buffer(bits.toArray())
+  var out = Buffer.from(bits.toArray())
   if (out.length < q.byteLength()) {
-    var zeros = new Buffer(q.byteLength() - out.length)
+    var zeros = Buffer.from(q.byteLength() - out.length)
     zeros.fill(0)
     out = Buffer.concat([ zeros, out ])
   }
@@ -29959,7 +29942,7 @@ function makeKey (q, kv, algo) {
   var k
 
   do {
-    t = new Buffer(0)
+    t = Buffer.from(0)
 
     while (t.length * 8 < q.bitLength()) {
       kv.v = createHmac(algo, kv.k).update(kv.v).digest()
@@ -29967,7 +29950,7 @@ function makeKey (q, kv, algo) {
     }
 
     k = bits2int(t, q)
-    kv.k = createHmac(algo, kv.k).update(kv.v).update(new Buffer([ 0 ])).digest()
+    kv.k = createHmac(algo, kv.k).update(kv.v).update(Buffer.from([ 0 ])).digest()
     kv.v = createHmac(algo, kv.k).update(kv.v).digest()
   } while (k.cmp(q) !== -1)
 
@@ -30016,12 +29999,12 @@ function verify (sig, hash, key, signType, tag) {
   while (++i < hash.length) {
     pad.push(hash[i])
   }
-  pad = new Buffer(pad)
+  pad = Buffer.from(pad)
   var red = BN.mont(pub.modulus)
   sig = new BN(sig).toRed(red)
 
   sig = sig.redPow(new BN(pub.publicExponent))
-  sig = new Buffer(sig.fromRed().toArray())
+  sig = Buffer.from(sig.fromRed().toArray())
   var out = padNum < 8 ? 1 : 0
   len = Math.min(sig.length, pad.length)
   if (sig.length !== pad.length) out = 1
@@ -31098,7 +31081,7 @@ util.inherits(Unzip, Zlib);
 (function (Buffer){
 module.exports = function xor (a, b) {
   var length = Math.min(a.length, b.length)
-  var buffer = new Buffer(length)
+  var buffer = Buffer.from(length)
 
   for (var i = 0; i < length; ++i) {
     buffer[i] = a[i] ^ b[i]
@@ -32679,7 +32662,7 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
   } else {
     var bytes = Buffer.isBuffer(val)
       ? val
-      : new Buffer(val, encoding)
+      : Buffer.from(val, encoding)
     var len = bytes.length
     if (len === 0) {
       throw new TypeError('The value "' + val +
@@ -33186,7 +33169,7 @@ var ArchUtils = (function(){
 module.exports = function(buf) {
    s = buf.toString('binary');
    r = ArchUtils.bz2.decode(s);
-   return new Buffer(r, "binary");
+   return Buffer.from(r, "binary");
 };
 
 }).call(this,require("buffer").Buffer)
@@ -33467,7 +33450,7 @@ ECDH.prototype.generateKeys = function (enc, format) {
 ECDH.prototype.computeSecret = function (other, inenc, enc) {
 	inenc = inenc || 'utf8';
 	if (!Buffer.isBuffer(other)) {
-		other = new Buffer(other, inenc);
+		other = Buffer.from(other, inenc);
 	}
 	var otherPub = this.curve.keyFromPublic(other).getPublic();
 	var out = otherPub.mul(this.keys.getPrivate()).getX();
@@ -33493,7 +33476,7 @@ ECDH.prototype.getPrivateKey = function (enc) {
 ECDH.prototype.setPublicKey = function (pub, enc) {
 	enc = enc || 'utf8';
 	if (!Buffer.isBuffer(pub)) {
-		pub = new Buffer(pub, enc);
+		pub = Buffer.from(pub, enc);
 	}
 	this.keys._importPublic(pub);
 	return this;
@@ -33502,7 +33485,7 @@ ECDH.prototype.setPublicKey = function (pub, enc) {
 ECDH.prototype.setPrivateKey = function (priv, enc) {
 	enc = enc || 'utf8';
 	if (!Buffer.isBuffer(priv)) {
-		priv = new Buffer(priv, enc);
+		priv = Buffer.from(priv, enc);
 	}
 	var _priv = new BN(priv);
 	_priv = _priv.toString(16);
@@ -33514,9 +33497,9 @@ function formatReturnValue(bn, enc, len) {
 	if (!Array.isArray(bn)) {
 		bn = bn.toArray();
 	}
-	var buf = new Buffer(bn);
+	var buf = Buffer.from(bn);
 	if (len && buf.length < len) {
-		var zeros = new Buffer(len - buf.length);
+		var zeros = Buffer.from(len - buf.length);
 		zeros.fill(0);
 		buf = Buffer.concat([zeros, buf]);
 	}
@@ -33588,7 +33571,7 @@ module.exports = function createHash (alg) {
 (function (Buffer){
 'use strict'
 var intSize = 4
-var zeroBuffer = new Buffer(intSize)
+var zeroBuffer = Buffer.from(intSize)
 zeroBuffer.fill(0)
 
 var charSize = 8
@@ -33610,7 +33593,7 @@ function toArray (buf) {
 
 module.exports = function hash (buf, fn) {
   var arr = fn(toArray(buf), buf.length * charSize)
-  buf = new Buffer(hashSize)
+  buf = Buffer.from(hashSize)
   for (var i = 0; i < arr.length; i++) {
     buf.writeInt32LE(arr[i], i << 2, true)
   }
@@ -34669,8 +34652,8 @@ var primes = require('./lib/primes.json')
 var DH = require('./lib/dh')
 
 function getDiffieHellman (mod) {
-  var prime = new Buffer(primes[mod].prime, 'hex')
-  var gen = new Buffer(primes[mod].gen, 'hex')
+  var prime = Buffer.from(primes[mod].prime, 'hex')
+  var gen = Buffer.from(primes[mod].gen, 'hex')
 
   return new DH(prime, gen)
 }
@@ -34686,10 +34669,10 @@ function createDiffieHellman (prime, enc, generator, genc) {
 
   enc = enc || 'binary'
   genc = genc || 'binary'
-  generator = generator || new Buffer([2])
+  generator = generator || Buffer.from([2])
 
   if (!Buffer.isBuffer(generator)) {
-    generator = new Buffer(generator, genc)
+    generator = Buffer.from(generator, genc)
   }
 
   if (typeof prime === 'number') {
@@ -34697,7 +34680,7 @@ function createDiffieHellman (prime, enc, generator, genc) {
   }
 
   if (!Buffer.isBuffer(prime)) {
-    prime = new Buffer(prime, enc)
+    prime = Buffer.from(prime, enc)
   }
 
   return new DH(prime, generator, true)
@@ -34724,7 +34707,7 @@ module.exports = DH;
 function setPublicKey(pub, enc) {
   enc = enc || 'utf8';
   if (!Buffer.isBuffer(pub)) {
-    pub = new Buffer(pub, enc);
+    pub = Buffer.from(pub, enc);
   }
   this._pub = new BN(pub);
   return this;
@@ -34733,7 +34716,7 @@ function setPublicKey(pub, enc) {
 function setPrivateKey(priv, enc) {
   enc = enc || 'utf8';
   if (!Buffer.isBuffer(priv)) {
-    priv = new Buffer(priv, enc);
+    priv = Buffer.from(priv, enc);
   }
   this._priv = new BN(priv);
   return this;
@@ -34829,10 +34812,10 @@ DH.prototype.computeSecret = function (other) {
   other = new BN(other);
   other = other.toRed(this._prime);
   var secret = other.redPow(this._priv).fromRed();
-  var out = new Buffer(secret.toArray());
+  var out = Buffer.from(secret.toArray());
   var prime = this.getPrime();
   if (out.length < prime.length) {
-    var front = new Buffer(prime.length - out.length);
+    var front = Buffer.from(prime.length - out.length);
     front.fill(0);
     out = Buffer.concat([front, out]);
   }
@@ -34858,7 +34841,7 @@ DH.prototype.getGenerator = function (enc) {
 DH.prototype.setGenerator = function (gen, enc) {
   enc = enc || 'utf8';
   if (!Buffer.isBuffer(gen)) {
-    gen = new Buffer(gen, enc);
+    gen = Buffer.from(gen, enc);
   }
   this.__gen = gen;
   this._gen = new BN(gen);
@@ -34866,7 +34849,7 @@ DH.prototype.setGenerator = function (gen, enc) {
 };
 
 function formatReturnValue(bn, enc) {
-  var buf = new Buffer(bn.toArray());
+  var buf = Buffer.from(bn.toArray());
   if (!enc) {
     return buf;
   } else {
@@ -39357,7 +39340,7 @@ var inherits = require('inherits')
 function HashBase (blockSize) {
   Transform.call(this)
 
-  this._block = new Buffer(blockSize)
+  this._block = Buffer.from(blockSize)
   this._blockSize = blockSize
   this._blockOffset = 0
   this._length = [0, 0, 0, 0]
@@ -39370,7 +39353,7 @@ inherits(HashBase, Transform)
 HashBase.prototype._transform = function (chunk, encoding, callback) {
   var error = null
   try {
-    if (encoding !== 'buffer') chunk = new Buffer(chunk, encoding)
+    if (encoding !== 'buffer') chunk = Buffer.from(chunk, encoding)
     this.update(chunk)
   } catch (err) {
     error = err
@@ -39393,7 +39376,7 @@ HashBase.prototype._flush = function (callback) {
 HashBase.prototype.update = function (data, encoding) {
   if (!Buffer.isBuffer(data) && typeof data !== 'string') throw new TypeError('Data must be a string or a buffer')
   if (this._finalized) throw new Error('Digest already called')
-  if (!Buffer.isBuffer(data)) data = new Buffer(data, encoding || 'binary')
+  if (!Buffer.isBuffer(data)) data = Buffer.from(data, encoding || 'binary')
 
   // consume data
   var block = this._block
@@ -42365,7 +42348,7 @@ Point.prototype.multiplyTwo = function(j, x, k) {
 
 Point.prototype.getEncoded = function(compressed) {
   if (compressed == undefined) compressed = this.compressed
-  if (this.curve.isInfinity(this)) return new Buffer('00', 'hex') // Infinity point encoded is simply '00'
+  if (this.curve.isInfinity(this)) return Buffer.from('00', 'hex') // Infinity point encoded is simply '00'
 
   var x = this.affineX
   var y = this.affineY
@@ -42377,12 +42360,12 @@ Point.prototype.getEncoded = function(compressed) {
 
   // 0x02/0x03 | X
   if (compressed) {
-    buffer = new Buffer(1 + byteLength)
+    buffer = Buffer.from(1 + byteLength)
     buffer.writeUInt8(y.isEven() ? 0x02 : 0x03, 0)
 
   // 0x04 | X | Y
   } else {
-    buffer = new Buffer(1 + byteLength + byteLength)
+    buffer = Buffer.from(1 + byteLength + byteLength)
     buffer.writeUInt8(0x04, 0)
 
     y.toBuffer(byteLength).copy(buffer, 1 + byteLength)
@@ -42439,7 +42422,7 @@ module.exports = Point
   };
 
   exports.u2b = u2b = function(u) {
-    return new Buffer(u);
+    return Buffer.from(u);
   };
 
   exports.Base = Base = (function() {
@@ -42655,11 +42638,11 @@ module.exports = Point
     };
 
     Sodium.prototype.scalarmult_base = function(n) {
-      return new Buffer(this.lib.c.crypto_scalarmult_base(n));
+      return Buffer.from(this.lib.c.crypto_scalarmult_base(n));
     };
 
     Sodium.prototype.scalarmult = function(n, P) {
-      return new Buffer(this.lib.c.crypto_scalarmult(n, P));
+      return Buffer.from(this.lib.c.crypto_scalarmult(n, P));
     };
 
     return Sodium;
@@ -42694,7 +42677,7 @@ module.exports = Point
       err = null;
       if (detached) {
         if (payload == null) {
-          payload = new Buffer([]);
+          payload = Buffer.from([]);
         }
         if (!this.lib.js.sign.detached.verify(b2u(payload), b2u(sig), b2u(this.publicKey))) {
           err = new Error("Signature failed to verify");
@@ -42773,11 +42756,11 @@ module.exports = Point
     };
 
     TweetNaCl.prototype.scalarmult_base = function(n) {
-      return new Buffer(this.lib.js.scalarMult.base(n));
+      return Buffer.from(this.lib.js.scalarMult.base(n));
     };
 
     TweetNaCl.prototype.scalarmult = function(n, P) {
-      return new Buffer(this.lib.js.scalarMult(n, P));
+      return Buffer.from(this.lib.js.scalarMult(n, P));
     };
 
     return TweetNaCl;
@@ -42931,7 +42914,7 @@ MD5.prototype._digest = function () {
   this._update()
 
   // produce result
-  var buffer = new Buffer(16)
+  var buffer = Buffer.from(16)
   buffer.writeInt32LE(this._a, 0)
   buffer.writeInt32LE(this._b, 4)
   buffer.writeInt32LE(this._c, 8)
@@ -43956,7 +43939,7 @@ function putShortMSB(s, b) {
 
 
 /* ===========================================================================
- * Read a new buffer from the current input stream, update the adler32
+ * Read a Buffer.from from the current input stream, update the adler32
  * and total number of bytes read.  All deflate() input goes through
  * this function so some applications may wish to modify it to avoid
  * allocating a large strm->input buffer and copying from it.
@@ -49438,11 +49421,11 @@ module.exports = function (okey, password) {
   var decrypted
   if (!match) {
     var match2 = key.match(fullRegex)
-    decrypted = new Buffer(match2[2].replace(/\r?\n/g, ''), 'base64')
+    decrypted = Buffer.from(match2[2].replace(/\r?\n/g, ''), 'base64')
   } else {
     var suite = 'aes' + match[1]
-    var iv = new Buffer(match[2], 'hex')
-    var cipherText = new Buffer(match[3].replace(/\r?\n/g, ''), 'base64')
+    var iv = Buffer.from(match[2], 'hex')
+    var cipherText = Buffer.from(match[3].replace(/\r?\n/g, ''), 'base64')
     var cipherKey = evp(password, iv.slice(0, 8), parseInt(match[1], 10)).key
     var out = []
     var cipher = ciphers.createDecipheriv(suite, cipherKey, iv)
@@ -49474,7 +49457,7 @@ function parseKeys (buffer) {
     buffer = buffer.key
   }
   if (typeof buffer === 'string') {
-    buffer = new Buffer(buffer)
+    buffer = Buffer.from(buffer)
   }
 
   var stripped = fixProc(buffer, password)
@@ -50063,7 +50046,7 @@ module.exports = pbkdf2
       var dat;
       this.ret.payload = this.payload.join("\n");
       dat = this.payload.join('');
-      return this.ret.body = new Buffer(dat, 'base64');
+      return this.ret.body = Buffer.from(dat, 'base64');
     };
 
     Parser.prototype.check_checksum = function() {
@@ -50303,15 +50286,15 @@ module.exports = pbkdf2
     ret = null;
     switch (nbits) {
       case 16:
-        ret = new Buffer(2);
+        ret = Buffer.from(2);
         ret.writeUInt16BE(i, 0);
         break;
       case 32:
-        ret = new Buffer(4);
+        ret = Buffer.from(4);
         ret.writeUInt32BE(i, 0);
         break;
       case 8:
-        ret = new Buffer(1);
+        ret = Buffer.from(1);
         ret.writeUInt8(i, 0);
         break;
       default:
@@ -50485,7 +50468,7 @@ module.exports = pbkdf2
     if (Buffer.isBuffer(s)) {
       return s;
     } else if (typeof s === 'string') {
-      return new Buffer(s, 'utf8');
+      return Buffer.from(s, 'utf8');
     } else {
       throw new Error("Cannot convert to buffer: " + s);
     }
@@ -50653,7 +50636,7 @@ module.exports = pbkdf2
     },
     decode: function(b) {
       b = (b + Array(5 - b.length % 4).join('=')).replace(/\-/g, '+').replace(/\_/g, '/');
-      return new Buffer(b, 'base64');
+      return Buffer.from(b, 'base64');
     },
     verify: function(b) {
       return /^[A-Za-z0-9\-_]+$/.test(b);
@@ -51061,7 +51044,7 @@ exports.publicDecrypt = function publicDecrypt(key, buf) {
 (function (Buffer){
 var createHash = require('create-hash');
 module.exports = function (seed, len) {
-  var t = new Buffer('');
+  var t = Buffer.from('');
   var  i = 0, c;
   while (t.length < len) {
     c = i2ops(i++);
@@ -51071,7 +51054,7 @@ module.exports = function (seed, len) {
 };
 
 function i2ops(c) {
-  var out = new Buffer(4);
+  var out = Buffer.from(4);
   out.writeUInt32BE(c,0);
   return out;
 }
@@ -51106,7 +51089,7 @@ module.exports = function privateDecrypt(private_key, enc, reverse) {
   } else {
     msg = crt(enc, key);
   }
-  var zBuffer = new Buffer(k - msg.length);
+  var zBuffer = Buffer.from(k - msg.length);
   zBuffer.fill(0);
   msg = Buffer.concat([zBuffer, msg], k);
   if (padding === 4) {
@@ -51124,7 +51107,7 @@ function oaep(key, msg){
   var n = key.modulus;
   var k = key.modulus.byteLength();
   var mLen = msg.length;
-  var iHash = createHash('sha1').update(new Buffer('')).digest();
+  var iHash = createHash('sha1').update(Buffer.from('')).digest();
   var hLen = iHash.length;
   var hLen2 = 2 * hLen;
   if (msg[0] !== 0) {
@@ -51172,8 +51155,8 @@ function pkcs1(key, msg, reverse){
   return  msg.slice(i);
 }
 function compare(a, b){
-  a = new Buffer(a);
-  b = new Buffer(b);
+  a = Buffer.from(a);
+  b = Buffer.from(b);
   var dif = 0;
   var len = a.length;
   if (a.length !== b.length) {
@@ -51237,19 +51220,19 @@ module.exports = function publicEncrypt(public_key, msg, reverse) {
 function oaep(key, msg){
   var k = key.modulus.byteLength();
   var mLen = msg.length;
-  var iHash = createHash('sha1').update(new Buffer('')).digest();
+  var iHash = createHash('sha1').update(Buffer.from('')).digest();
   var hLen = iHash.length;
   var hLen2 = 2 * hLen;
   if (mLen > k - hLen2 - 2) {
     throw new Error('message too long');
   }
-  var ps = new Buffer(k - mLen - hLen2 - 2);
+  var ps = Buffer.from(k - mLen - hLen2 - 2);
   ps.fill(0);
   var dblen = k - hLen - 1;
   var seed = randomBytes(hLen);
-  var maskedDb = xor(Buffer.concat([iHash, ps, new Buffer([1]), msg], dblen), mgf(seed, dblen));
+  var maskedDb = xor(Buffer.concat([iHash, ps, Buffer.from([1]), msg], dblen), mgf(seed, dblen));
   var maskedSeed = xor(seed, mgf(maskedDb, hLen));
-  return new bn(Buffer.concat([new Buffer([0]), maskedSeed, maskedDb], k));
+  return new bn(Buffer.concat([Buffer.from([0]), maskedSeed, maskedDb], k));
 }
 function pkcs1(key, msg, reverse){
   var mLen = msg.length;
@@ -51259,15 +51242,15 @@ function pkcs1(key, msg, reverse){
   }
   var ps;
   if (reverse) {
-    ps = new Buffer(k - mLen - 3);
+    ps = Buffer.from(k - mLen - 3);
     ps.fill(0xff);
   } else {
     ps = nonZero(k - mLen - 3);
   }
-  return new bn(Buffer.concat([new Buffer([0, reverse?1:2]), ps, new Buffer([0]), msg], k));
+  return new bn(Buffer.concat([Buffer.from([0, reverse?1:2]), ps, Buffer.from([0]), msg], k));
 }
 function nonZero(len, crypto) {
-  var out = new Buffer(len);
+  var out = Buffer.from(len);
   var i = 0;
   var cache = randomBytes(len*2);
   var cur = 0;
@@ -51289,7 +51272,7 @@ function nonZero(len, crypto) {
 (function (Buffer){
 var bn = require('bn.js');
 function withPublic(paddedMsg, key) {
-  return new Buffer(paddedMsg
+  return Buffer.from(paddedMsg
     .toRed(bn.mont(key.modulus))
     .redPow(new bn(key.publicExponent))
     .fromRed()
@@ -52770,7 +52753,7 @@ function ReadableState(options, stream) {
   // A linked list is used to store data chunks instead of an array because the
   // linked list can remove elements from the beginning faster than
   // array.shift()
-  this.buffer = new BufferList();
+  this.buffer = Buffer.fromList();
   this.length = 0;
   this.pipes = null;
   this.pipesCount = 0;
@@ -54984,7 +54967,7 @@ RIPEMD160.prototype._digest = function () {
   this._update()
 
   // produce result
-  var buffer = new Buffer(20)
+  var buffer = Buffer.from(20)
   buffer.writeInt32LE(this._a, 0)
   buffer.writeInt32LE(this._b, 4)
   buffer.writeInt32LE(this._c, 8)
@@ -56538,7 +56521,7 @@ function simpleEnd(buf) {
 
     BufferedBlockAlgorithm.prototype.clone = function() {
       var obj;
-      obj = new BufferedBlockAlgorithm();
+      obj = Buffer.fromedBlockAlgorithm();
       this.copy_to(obj);
       return obj;
     };
@@ -57488,7 +57471,7 @@ function simpleEnd(buf) {
       var i, n, seed_material;
       seed_material = entropy.concat(personalization_string);
       n = 64;
-      this.K = WordArray.from_buffer(new Buffer((function() {
+      this.K = WordArray.from_buffer(Buffer.from((function() {
         var _i, _results;
         _results = [];
         for (i = _i = 0; 0 <= n ? _i < n : _i > n; i = 0 <= n ? ++_i : --_i) {
@@ -57496,7 +57479,7 @@ function simpleEnd(buf) {
         }
         return _results;
       })()));
-      this.V = WordArray.from_buffer(new Buffer((function() {
+      this.V = WordArray.from_buffer(Buffer.from((function() {
         var _i, _results;
         _results = [];
         for (i = _i = 0; 0 <= n ? _i < n : _i > n; i = 0 <= n ? ++_i : --_i) {
@@ -59120,7 +59103,7 @@ function simpleEnd(buf) {
     var v;
     v = new Uint8Array(n);
     _browser_rng_primitive(v);
-    return new Buffer(v);
+    return Buffer.from(v);
   };
 
   _browser_rng_primitive = (m = typeof window !== "undefined" && window !== null ? (_ref = window.crypto) != null ? _ref.getRandomValues : void 0 : void 0) != null ? m.bind(window.crypto) : (m = typeof window !== "undefined" && window !== null ? (_ref1 = window.msCrypto) != null ? _ref1.getRandomValues : void 0 : void 0) != null ? m.bind(window.msCrypto) : null;
@@ -59160,7 +59143,7 @@ function simpleEnd(buf) {
       d = Date.now();
       ms = d % 1000;
       s = Math.floor(d / 1000);
-      buf = new Buffer(8);
+      buf = Buffer.from(8);
       buf.writeUInt32BE(s, 0);
       buf.writeUInt32BE(ms, 4);
       return buf;
@@ -59194,7 +59177,7 @@ function simpleEnd(buf) {
         return function() {
           var _i, _len;
           bufs.push(_this.now_to_buffer());
-          bufs.push(new Buffer(words));
+          bufs.push(Buffer.from(words));
           bufs.push(native_rng(nbytes));
           bufs.push(_this.now_to_buffer());
           cat = Buffer.concat(bufs);
@@ -59545,9 +59528,9 @@ function simpleEnd(buf) {
   Salsa20Core = (function(_super) {
     __extends(Salsa20Core, _super);
 
-    Salsa20Core.prototype.sigma = WordArray.from_buffer_le(new Buffer("expand 32-byte k"));
+    Salsa20Core.prototype.sigma = WordArray.from_buffer_le(Buffer.from("expand 32-byte k"));
 
-    Salsa20Core.prototype.tau = WordArray.from_buffer_le(new Buffer("expand 16-byte k"));
+    Salsa20Core.prototype.tau = WordArray.from_buffer_le(Buffer.from("expand 16-byte k"));
 
     Salsa20Core.blockSize = 64;
 
@@ -59727,7 +59710,7 @@ function simpleEnd(buf) {
 
     Salsa20.prototype._generateBlockBuffer = function() {
       var e, i, v, _i, _len;
-      this._buf = new Buffer(this.blockSize);
+      this._buf = Buffer.from(this.blockSize);
       v = this._generateBlock();
       for (i = _i = 0, _len = v.length; _i < _len; i = ++_i) {
         e = v[i];
@@ -61537,7 +61520,7 @@ function simpleEnd(buf) {
 
   exports.copy_buffer = function(b) {
     var i, ret, _i, _ref;
-    ret = new Buffer(b.length);
+    ret = Buffer.from(b.length);
     for (i = _i = 0, _ref = b.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
       ret.writeUInt8(b.readUInt8(i), i);
     }
@@ -61702,7 +61685,7 @@ function simpleEnd(buf) {
 
   ui8a_to_buffer = function(v) {
     var i, ret, _i, _ref;
-    ret = new Buffer(v.length);
+    ret = Buffer.from(v.length);
     for (i = _i = 0, _ref = v.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
       ret.writeUInt8(v[i], i);
     }
@@ -61748,7 +61731,7 @@ function simpleEnd(buf) {
 
     WordArray.prototype.to_buffer = function() {
       var ch, out, p, w, _i, _len, _ref;
-      out = new Buffer(this.sigBytes);
+      out = Buffer.from(this.sigBytes);
       p = 0;
       _ref = this.words;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -61862,19 +61845,19 @@ function simpleEnd(buf) {
     };
 
     WordArray.from_utf8 = function(s) {
-      return WordArray.from_buffer(new Buffer(s, 'utf8'));
+      return WordArray.from_buffer(Buffer.from(s, 'utf8'));
     };
 
     WordArray.from_utf8_le = function(s) {
-      return WordArray.from_buffer_le(new Buffer(s, 'utf8'));
+      return WordArray.from_buffer_le(Buffer.from(s, 'utf8'));
     };
 
     WordArray.from_hex = function(s) {
-      return WordArray.from_buffer(new Buffer(s, 'hex'));
+      return WordArray.from_buffer(Buffer.from(s, 'hex'));
     };
 
     WordArray.from_hex_le = function(s) {
-      return WordArray.from_buffer_le(new Buffer(s, 'hex'));
+      return WordArray.from_buffer_le(Buffer.from(s, 'hex'));
     };
 
     WordArray.from_ui8a = function(v) {
@@ -64223,7 +64206,7 @@ nacl.util.encodeUTF8 = function(arr) {
 
 nacl.util.encodeBase64 = function(arr) {
   if (typeof btoa === 'undefined') {
-    return (new Buffer(arr)).toString('base64');
+    return (Buffer.from(arr)).toString('base64');
   } else {
     var i, s = [], len = arr.length;
     for (i = 0; i < len; i++) s.push(String.fromCharCode(arr[i]));
@@ -64233,7 +64216,7 @@ nacl.util.encodeBase64 = function(arr) {
 
 nacl.util.decodeBase64 = function(s) {
   if (typeof atob === 'undefined') {
-    return new Uint8Array(Array.prototype.slice.call(new Buffer(s, 'base64'), 0));
+    return new Uint8Array(Array.prototype.slice.call(Buffer.from(s, 'base64'), 0));
   } else {
     var i, d = atob(s), b = new Uint8Array(d.length);
     for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
