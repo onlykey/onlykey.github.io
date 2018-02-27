@@ -1,4 +1,4 @@
-const onlykey = require('./onlykey-api.js');
+require('./onlykey-api.js');
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
@@ -395,14 +395,18 @@ loadPrivate() {
 let p2g = new Pgp2go();
 
 button.onclick = function () {
-    console.log("status:", window._status);
     switch (window._status) {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
             p2g.startEncryption();
-            document.execCommand('SelectAll');
-            document.execCommand("Copy", false, null);
+            try {
+               var successful = document.execCommand('copy');
+               var msg = successful ? 'successful' : 'unsuccessful';
+               console.info('Copying text command was ' + msg);
+             } catch (err) {
+               console.info('Oops, unable to copy');
+             }
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
