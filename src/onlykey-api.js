@@ -445,7 +445,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
           cb().then(skey => {
             console.info("skey ", skey);
             mainCallback(skey);
-          }).catch(err => msg(err));
+          }).catch(err => console.info(err));
         } else {
           cb();
         }
@@ -522,7 +522,10 @@ function get_pin (byte) {
 
 function id(s) { return document.getElementById(s); }
 
-function msg(s) { id('messages').innerHTML += "<br>" + s; }
+function msg(s) {
+  console.info(s);
+  id('messages').innerHTML += "<br>" + s;
+}
 
 function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
 
