@@ -12,6 +12,8 @@ var sha256 = function(s) {
   return Array.from(md.digest().toHex().match(/.{2}/g).map(hexStrToDec));
 };
 
+var poll_type, poll_delay;
+var _status;
 var appKey;
 var appPub;
 var appPubPart;
@@ -479,7 +481,7 @@ window.doPinTimer = async function (seconds) {
     }
 
     if (_status === 'finished') {
-      if(browserid == 128 && encrypted_data.length != 64) counter-=2;
+      if(browserid == 128 && encrypted_data.length != 64) counter-=1;
       var decrypted_data = await aesgcm_decrypt(encrypted_data);
       if (decrypted_data.length == 64) {
         var entropy = decrypted_data.slice(36, 64);
