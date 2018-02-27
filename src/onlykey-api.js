@@ -1,6 +1,6 @@
-window._status;
-window.poll_delay;
-window.poll_type;
+_status;
+poll_delay;
+poll_type;
 
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
@@ -107,8 +107,8 @@ async function msg_polling(params = {}, cb) {
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } else { //Ping and get Response From OKSIGN or OKDECRYPT
-      if (window._status == 'done_challenge') counter++;
-      if (window._status == 'finished') return encrypted_data;
+      if (_status == 'done_challenge') counter++;
+      if (_status == 'finished') return encrypted_data;
       console.info("Sending Ping Request to OnlyKey");
       var message = [255, 255, 255, 255]; //Add header and message type
       var ciphertext = new Uint8Array(60).fill(0);
@@ -125,9 +125,9 @@ async function msg_polling(params = {}, cb) {
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
     var data = await Promise;
-    if (window._status === 'finished') {
+    if (_status === 'finished') {
       console.info("Finished");
-    } else if (window._status === 'waiting_ping') {
+    } else if (_status === 'waiting_ping') {
       console.info("Ping Successful");
       _setStatus('pending_challenge');
       data = 1;
@@ -167,14 +167,14 @@ async function msg_polling(params = {}, cb) {
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
       return pubkey;
-    } else if (type == 3 && window._status == 'finished') {
+    } else if (type == 3 && _status == 'finished') {
       if (result) {
         data = result;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
-    } else if (type == 4 && window._status == 'finished') {
+    } else if (type == 4 && _status == 'finished') {
       if (result) {
         var oksignature = result.slice(0, result.length); //4+32+2+32
         data = oksignature;
@@ -199,12 +199,12 @@ auth_decrypt = function (ct, cb) { //OnlyKey decrypt request to keyHandle
   }
   cb = cb || noop;
   if (ct.length == 396) {
-    window.poll_delay = 5; //5 Second delay for RSA 3072
+    poll_delay = 5; //5 Second delay for RSA 3072
   } else if (ct.length == 524) {
-    window.poll_delay = 7; //7 Second delay for RSA 4096
+    poll_delay = 7; //7 Second delay for RSA 4096
   }
   if (OKversion == 'Original') {
-    window.poll_delay = window.poll_delay*4;
+    poll_delay = poll_delay*4;
   }
   var padded_ct = ct.slice(12, ct.length);
   var keyid = ct.slice(1, 8);
@@ -248,7 +248,7 @@ async function custom_auth_response(response) {
       if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
         console.info("Ack message received");
       } else if (errMes === "device status code: -80") { //incorrect challenge code entered
-          if (window._status === 'waiting_ping') {
+          if (_status === 'waiting_ping') {
           console.info("incorrect challenge code entered");
           button.textContent = "Incorrect challenge code entered";
           _setStatus('wrong_challenge');
@@ -465,13 +465,13 @@ window.doPinTimer = async function (seconds) {
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
 
-    if (window._status === 'done_challenge' || window._status === 'waiting_ping') {
+    if (_status === 'done_challenge' || _status === 'waiting_ping') {
       _setStatus('done_challenge');
-      const btmsg = `Waiting ${window.poll_delay} seconds for OnlyKey to process message.`;
+      const btmsg = `Waiting ${poll_delay} seconds for OnlyKey to process message.`;
       button.textContent = btmsg;
-      console.info("Delay ", window.poll_delay);
-      await ping(window.poll_delay); //Delay
-    } else if (window._status === 'pending_challenge') {
+      console.info("Delay ", poll_delay);
+      await ping(poll_delay); //Delay
+    } else if (_status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
           const err = 'Time expired for PIN confirmation';
           return reject(err);
@@ -482,7 +482,7 @@ window.doPinTimer = async function (seconds) {
         await ping(0);
     }
 
-    if (window._status === 'finished') {
+    if (_status === 'finished') {
       if(browserid == 128 && encrypted_data.length != 64) counter+=1;
       var decrypted_data = await aesgcm_decrypt(encrypted_data);
       if (decrypted_data.length == 64) {
@@ -503,8 +503,8 @@ window.doPinTimer = async function (seconds) {
  * @param {number} delay
  */
 async function ping (delay) {
-  console.info(window.poll_type);
-  return await msg_polling({ type: window.poll_type, delay: delay });
+  console.info(poll_type);
+  return await msg_polling({ type: poll_type, delay: delay });
 }
 
 IntToByteArray = function(int) {
@@ -534,8 +534,8 @@ function msg(s) {
 function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
 
 function _setStatus(newStatus) {
-  window._status = newStatus;
-  console.info("Changed window._status to ", newStatus);
+  _status = newStatus;
+  console.info("Changed _status to ", newStatus);
 }
 
 function userId() {
