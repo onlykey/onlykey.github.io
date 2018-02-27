@@ -417,7 +417,7 @@ button.addEventListener('click', async function() {
         case 'Encrypt Only':
         case 'Sign Only':
             p2g.startEncryption();
-            await this.waitwhileworking();
+            await p2g.waitwhileworking();
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
