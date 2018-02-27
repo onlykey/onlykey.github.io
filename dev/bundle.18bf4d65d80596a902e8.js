@@ -13212,7 +13212,7 @@ window.custom_keyid;
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
-  onlykey._status = val;
+  window._status = val;
   if (!skipBtn) button.textContent = val;
   document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
 };
@@ -13226,12 +13226,12 @@ class Pgp2go {
     }
 
 	async startDecryption() {
-      onlykey.poll_type = 3;
+      window.poll_type = 3;
       window.poll_delay = 1;
-      console.info(onlykey.poll_type);
+      console.info(window.poll_type);
 			button.classList.remove('error');
 			button.classList.add('working');
-      if (urlinputbox.value == "" && onlykey._status=='Decrypt and Verify') {
+      if (urlinputbox.value == "" && window._status=='Decrypt and Verify') {
           this.showError(new Error("I need senders's public pgp key to verify :("));
           return;
       } else if (urlinputbox.value != "") {
@@ -13246,7 +13246,7 @@ class Pgp2go {
 	}
 
 	decryptText(key, ct) {
-      switch (onlykey._status) {
+      switch (window._status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
           button.textContent = 'Decrypting and verifying message ...';
@@ -13285,6 +13285,7 @@ class Pgp2go {
               }
             }
           }
+          console.info(ct);
           messagebox.value = ct;
           messagebox.focus();
           messagebox.select();
@@ -13293,13 +13294,13 @@ class Pgp2go {
   }
 
   async startEncryption() {
-      onlykey.poll_type = 4;
-      console.info(onlykey.poll_type);
-      if (urlinputbox.value == "" && (onlykey._status=='Encrypt and Sign' || onlykey._status=='Encrypt Only')) {
+      window.poll_type = 4;
+      console.info(window.poll_type);
+      if (urlinputbox.value == "" && (window._status=='Encrypt and Sign' || window._status=='Encrypt Only')) {
           this.showError(new Error("I need recipient's public pgp key to encrypt :("));
           return;
       }
-      if (urlinputbox2.value == "" && (onlykey._status=='Encrypt and Sign' || onlykey._status=='Sign Only')) {
+      if (urlinputbox2.value == "" && (window._status=='Encrypt and Sign' || window._status=='Sign Only')) {
           this.showError(new Error("I need sender's public pgp key to sign :("));
           return;
       }
@@ -13344,7 +13345,7 @@ class Pgp2go {
   encryptText(key1, key2, msg) {
     button.classList.remove('error');
     button.classList.add('working');
-      switch (onlykey._status) {
+      switch (window._status) {
         case 'Encrypt and Sign':
           this.loadPublic(key1);
           this.loadPublicSignerID(key2);
@@ -13384,8 +13385,6 @@ class Pgp2go {
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
-          document.execCommand('SelectAll');
-          document.execCommand("Copy", false, null);
           button.classList.remove('working');
       });
   }
@@ -13433,7 +13432,7 @@ loadPublicSignerID(key) {
           }
           window.custom_keyid = keyids[subkey].toString('hex').toUpperCase();
           window.custom_keyid = window.custom_keyid.match(/.{2}/g).map(hexStrToDec);
-          console.info("custom_keyid" + window.custom_keyid);
+          console.info("window.custom_keyid" + window.custom_keyid);
       }
   });
 }
@@ -13476,12 +13475,14 @@ loadPrivate() {
 let p2g = new Pgp2go();
 
 button.onclick = function () {
-    console.log("status:", onlykey._status);
-    switch (onlykey._status) {
+    console.log("status:", window._status);
+    switch (window._status) {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
             p2g.startEncryption();
+            document.execCommand('SelectAll');
+            document.execCommand("Copy", false, null);
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
@@ -78811,9 +78812,9 @@ module.exports={
 /* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(forge, nacl) {_status;
-poll_delay;
-poll_type;
+/* WEBPACK VAR INJECTION */(function(forge, nacl) {window._status;
+window.poll_delay;
+window.poll_type;
 
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
@@ -78912,16 +78913,16 @@ async function msg_polling(params = {}, cb) {
     counter = 0;
   } else if (type == 2) { //OKGETPUB
       var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
-      msg("Checking to see if this key is assigned to an OnlyKey Slot " + custom_keyid);
+      msg("Checking to see if this key is assigned to an OnlyKey Slot " + window.custom_keyid);
       var empty = new Array(50).fill(0);
-      Array.prototype.push.apply(message, custom_keyid);
+      Array.prototype.push.apply(message, window.custom_keyid);
       Array.prototype.push.apply(message, empty);
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } else { //Ping and get Response From OKSIGN or OKDECRYPT
-      if (_status == 'done_challenge') counter++;
-      if (_status == 'finished') return encrypted_data;
+      if (window._status == 'done_challenge') counter++;
+      if (window._status == 'finished') return encrypted_data;
       console.info("Sending Ping Request to OnlyKey");
       var message = [255, 255, 255, 255]; //Add header and message type
       var ciphertext = new Uint8Array(60).fill(0);
@@ -78938,9 +78939,9 @@ async function msg_polling(params = {}, cb) {
   u2f.sign(appId, challenge, [req], async function(response) {
     var result = await custom_auth_response(response);
     var data = await Promise;
-    if (_status === 'finished') {
+    if (window._status === 'finished') {
       console.info("Finished");
-    } else if (_status === 'waiting_ping') {
+    } else if (window._status === 'waiting_ping') {
       console.info("Ping Successful");
       _setStatus('pending_challenge');
       data = 1;
@@ -78980,14 +78981,14 @@ async function msg_polling(params = {}, cb) {
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
       return pubkey;
-    } else if (type == 3 && _status == 'finished') {
+    } else if (type == 3 && window._status == 'finished') {
       if (result) {
         data = result;
       } else {
         msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
         headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       }
-    } else if (type == 4 && _status == 'finished') {
+    } else if (type == 4 && window._status == 'finished') {
       if (result) {
         var oksignature = result.slice(0, result.length); //4+32+2+32
         data = oksignature;
@@ -79012,12 +79013,12 @@ auth_decrypt = function (ct, cb) { //OnlyKey decrypt request to keyHandle
   }
   cb = cb || noop;
   if (ct.length == 396) {
-    poll_delay = 5; //5 Second delay for RSA 3072
+    window.poll_delay = 5; //5 Second delay for RSA 3072
   } else if (ct.length == 524) {
-    poll_delay = 7; //7 Second delay for RSA 4096
+    window.poll_delay = 7; //7 Second delay for RSA 4096
   }
   if (OKversion == 'Original') {
-    poll_delay = poll_delay*4;
+    window.poll_delay = window.poll_delay*4;
   }
   var padded_ct = ct.slice(12, ct.length);
   var keyid = ct.slice(1, 8);
@@ -79061,7 +79062,7 @@ async function custom_auth_response(response) {
       if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
         console.info("Ack message received");
       } else if (errMes === "device status code: -80") { //incorrect challenge code entered
-          if (_status === 'waiting_ping') {
+          if (window._status === 'waiting_ping') {
           console.info("incorrect challenge code entered");
           button.textContent = "Incorrect challenge code entered";
           _setStatus('wrong_challenge');
@@ -79278,13 +79279,13 @@ window.doPinTimer = async function (seconds) {
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
     secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
 
-    if (_status === 'done_challenge' || _status === 'waiting_ping') {
+    if (window._status === 'done_challenge' || window._status === 'waiting_ping') {
       _setStatus('done_challenge');
-      const btmsg = `Waiting ${poll_delay} seconds for OnlyKey to process message.`;
+      const btmsg = `Waiting ${window.poll_delay} seconds for OnlyKey to process message.`;
       button.textContent = btmsg;
-      console.info("Delay ", poll_delay);
-      await ping(poll_delay); //Delay
-    } else if (_status === 'pending_challenge') {
+      console.info("Delay ", window.poll_delay);
+      await ping(window.poll_delay); //Delay
+    } else if (window._status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
           const err = 'Time expired for PIN confirmation';
           return reject(err);
@@ -79295,8 +79296,8 @@ window.doPinTimer = async function (seconds) {
         await ping(0);
     }
 
-    if (_status === 'finished') {
-      if(browserid == 128 && encrypted_data.length != 64) counter+=1;
+    if (window._status === 'finished') {
+      //if(browserid == 128 && encrypted_data.length != 64) counter+=1;
       var decrypted_data = await aesgcm_decrypt(encrypted_data);
       if (decrypted_data.length == 64) {
         var entropy = decrypted_data.slice(36, 64);
@@ -79316,8 +79317,8 @@ window.doPinTimer = async function (seconds) {
  * @param {number} delay
  */
 async function ping (delay) {
-  console.info(poll_type);
-  return await msg_polling({ type: poll_type, delay: delay });
+  console.info(window.poll_type);
+  return await msg_polling({ type: window.poll_type, delay: delay });
 }
 
 IntToByteArray = function(int) {
@@ -79347,8 +79348,8 @@ function msg(s) {
 function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
 
 function _setStatus(newStatus) {
-  _status = newStatus;
-  console.info("Changed _status to ", newStatus);
+  window._status = newStatus;
+  console.info("Changed window._status to ", newStatus);
 }
 
 function userId() {
@@ -79443,4 +79444,4 @@ module.exports = __webpack_require__(73);
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=bundle.7214dab8352b74f0334a.js.map
+//# sourceMappingURL=bundle.18bf4d65d80596a902e8.js.map
