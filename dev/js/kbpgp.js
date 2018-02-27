@@ -14756,6 +14756,7 @@ _continue()
           }
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, Buffer.from([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
           results = Buffer.concat([prefix, result2]);
+          console.info("results" + results.toString('hex'));
           return cb(null, results);
         };
       })(this));
@@ -20064,7 +20065,7 @@ _break()
         });
       })(this)((function(_this) {
         return function() {
-          return cb(null, sig.to_mpi_buffer());
+          //return cb(null, sig.to_mpi_buffer());
         };
       })(this));
     };
