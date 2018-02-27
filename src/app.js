@@ -2,7 +2,7 @@ const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
 const kbpgp = require("imports-loader?auth_sign=./onlykey-api.js,auth_decrypt=./onlykey-api.js!./kbpgp.js");
-const onlykey = require('./onlykey-api.js');
+require("exports-loader?_status!./onlykey-api.js,poll_delay!./onlykey-api.js,poll_type!./onlykey-api.js");
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
@@ -134,7 +134,7 @@ window.initok = initok();
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
-  onlykey._status = val;
+  _status = val;
   if (!skipBtn) button.textContent = val;
   document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
 };
@@ -148,12 +148,12 @@ class Pgp2go {
     }
 
 	async startDecryption() {
-      onlykey.poll_type = 3;
-      onlykey.poll_delay = 1;
-      console.info(onlykey.poll_type);
+      poll_type = 3;
+      poll_delay = 1;
+      console.info(poll_type);
 			button.classList.remove('error');
 			button.classList.add('working');
-      if (urlinputbox.value == "" && onlykey._status=='Decrypt and Verify') {
+      if (urlinputbox.value == "" && _status=='Decrypt and Verify') {
           this.showError(new Error("I need senders's public pgp key to verify :("));
           return;
       } else if (urlinputbox.value != "") {
@@ -168,7 +168,7 @@ class Pgp2go {
 	}
 
 	decryptText(key, ct) {
-      switch (onlykey._status) {
+      switch (_status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
           button.textContent = 'Decrypting and verifying message ...';
@@ -215,13 +215,13 @@ class Pgp2go {
   }
 
   async startEncryption() {
-      onlykey.poll_type = 4;
-      console.info(onlykey.poll_type);
-      if (urlinputbox.value == "" && (onlykey._status=='Encrypt and Sign' || onlykey._status=='Encrypt Only')) {
+      poll_type = 4;
+      console.info(poll_type);
+      if (urlinputbox.value == "" && (_status=='Encrypt and Sign' || _status=='Encrypt Only')) {
           this.showError(new Error("I need recipient's public pgp key to encrypt :("));
           return;
       }
-      if (urlinputbox2.value == "" && (onlykey._status=='Encrypt and Sign' || onlykey._status=='Sign Only')) {
+      if (urlinputbox2.value == "" && (_status=='Encrypt and Sign' || _status=='Sign Only')) {
           this.showError(new Error("I need sender's public pgp key to sign :("));
           return;
       }
@@ -266,7 +266,7 @@ class Pgp2go {
   encryptText(key1, key2, msg) {
     button.classList.remove('error');
     button.classList.add('working');
-      switch (onlykey._status) {
+      switch (_status) {
         case 'Encrypt and Sign':
           this.loadPublic(key1);
           this.loadPublicSignerID(key2);
@@ -347,10 +347,10 @@ loadPublicSignerID(key) {
           sender_public_key = sender;
           var keyids = sender_public_key.get_all_pgp_key_ids();
           if (typeof keyids[2] !== "undefined") {
-            onlykey.poll_delay = 1;  //Assuming RSA 2048
+            poll_delay = 1;  //Assuming RSA 2048
             var subkey = 2;
           } else {
-            onlykey.poll_delay = 8;  //Assuming RSA 4096 or 3072
+            poll_delay = 8;  //Assuming RSA 4096 or 3072
             var subkey = 0;
           }
           window.custom_keyid = keyids[subkey].toString('hex').toUpperCase();
@@ -398,8 +398,8 @@ loadPrivate() {
 let p2g = new Pgp2go();
 
 button.onclick = function () {
-    console.log("status:", onlykey._status);
-    switch (onlykey._status) {
+    console.log("status:", _status);
+    switch (_status) {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
