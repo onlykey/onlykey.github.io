@@ -207,9 +207,8 @@ class Pgp2go {
           }
           console.info(ct);
           messagebox.value = ct;
-          var range = document.createRange();
-          range.selectNodeContents(messagebox);
-          window.getSelection().addRange(range);
+          messagebox.focus();
+          messagebox.select();
           button.classList.remove("working")
       });
   }
@@ -305,9 +304,8 @@ class Pgp2go {
           }
           button.textContent = 'Done :)  Click to copy message, then paste encrypted message into an email, IM, whatever.';
           messagebox.value =  results;
-          var range = document.createRange();
-          range.selectNodeContents(messagebox);
-          window.getSelection().addRange(range);
+          messagebox.focus();
+          messagebox.select();
           button.classList.remove('working');
           return resolve();
       });
