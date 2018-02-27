@@ -126,7 +126,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-custom_keyid;
+custom_keyid = 0;
 
 window.initok = initok();
 

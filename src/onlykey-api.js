@@ -1,3 +1,7 @@
+poll_type = 0;
+poll_delay = 0;
+_status = 0;
+
 var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};
@@ -12,9 +16,6 @@ var sha256 = function(s) {
   return Array.from(md.digest().toHex().match(/.{2}/g).map(hexStrToDec));
 };
 
-poll_type;
-poll_delay;
-_status;
 var appKey;
 var appPub;
 var appPubPart;
