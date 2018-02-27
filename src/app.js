@@ -305,13 +305,6 @@ class Pgp2go {
           messagebox.value = results;
           messagebox.focus();
           messagebox.select();
-          try {
-             var successful = document.execCommand('copy');
-             var msg = successful ? 'successful' : 'unsuccessful';
-             console.info('Copying text command was ' + msg);
-           } catch (err) {
-             console.info('Oops, unable to copy');
-           }
           button.classList.remove('working');
       });
   }
@@ -401,12 +394,27 @@ loadPrivate() {
 
 let p2g = new Pgp2go();
 
-button.addEventListener('click', function() {
+button.addEventListener('click', async function() {
     switch (window._status) {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
             p2g.startEncryption();
+            return new Promise(resolve => {
+              while (1) {
+                var working = button.classList.contains('working');
+                  if (!working) {
+                  try {
+                     var successful = document.execCommand('copy');
+                     var msg = successful ? 'successful' : 'unsuccessful';
+                     console.info('Copying text command was ' + msg);
+                   } catch (err) {
+                     console.info('Oops, unable to copy');
+                   }
+                   resolve();
+                 }
+              }
+            });
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
@@ -417,6 +425,11 @@ button.addEventListener('click', function() {
     }
     return false;
 }, false);
+
+/**
+ * Use promise and setTimeout to wait x seconds
+ */
+let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 urlinputbox.onkeyup = function () {
     let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
