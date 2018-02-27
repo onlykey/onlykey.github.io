@@ -416,9 +416,6 @@ button.addEventListener('click', async function() {
             try {
                var successful = document.execCommand('copy');
                var msg = successful ? 'successful' : 'unsuccessful';
-               var range = document.createRange();
-               range.selectNodeContents(textToCopy);
-               window.getSelection().addRange(range);
                button.textContent = 'Done :)  Message copied to clipboard';
                console.info('Copying text command was ' + msg);
                if (!successful) button.textContent = 'Oops, unable to copy message to clipboard, try copying message manually';
