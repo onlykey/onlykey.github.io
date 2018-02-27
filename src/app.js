@@ -265,6 +265,7 @@ class Pgp2go {
   }
 
   async encryptText(key1, key2, msg) {
+      return new Promise(resolve => {
       switch (window._status) {
         case 'Encrypt and Sign':
           this.loadPublic(key1);
@@ -296,7 +297,7 @@ class Pgp2go {
           break;
         default:
       }
-      await kbpgp.box(params, (err, results) => {
+      kbpgp.box(params, (err, results) => {
           if (err) {
               this.showError(err);
               return;
@@ -313,7 +314,9 @@ class Pgp2go {
              console.info('Oops, unable to copy');
            }
           button.classList.remove('working');
+          return resolve();
       });
+  });
 }
 
 loadPublic(key) {
