@@ -207,8 +207,9 @@ class Pgp2go {
           }
           console.info(ct);
           messagebox.value = ct;
-          messagebox.focus();
-          messagebox.select();
+          var range = document.createRange();
+          range.selectNodeContents(messagebox);
+          window.getSelection().addRange(range);
           button.classList.remove("working")
       });
   }
@@ -304,8 +305,9 @@ class Pgp2go {
           }
           button.textContent = 'Done :)  Click to copy message, then paste encrypted message into an email, IM, whatever.';
           messagebox.value =  results;
-          messagebox.focus();
-          messagebox.select();
+          var range = document.createRange();
+          range.selectNodeContents(messagebox);
+          window.getSelection().addRange(range);
           button.classList.remove('working');
           return resolve();
       });
@@ -414,6 +416,9 @@ button.addEventListener('click', async function() {
             try {
                var successful = document.execCommand('copy');
                var msg = successful ? 'successful' : 'unsuccessful';
+               var range = document.createRange();
+               range.selectNodeContents(textToCopy);
+               window.getSelection().addRange(range);
                button.textContent = 'Done :)  Message copied to clipboard';
                console.info('Copying text command was ' + msg);
                if (!successful) button.textContent = 'Oops, unable to copy message to clipboard, try copying message manually';
