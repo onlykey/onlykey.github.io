@@ -38,9 +38,7 @@ let plugins = [
       nacl: './nacl.min.js',
       forge: './forge.min.js',
       kbpgp: './kbpgp.js',
-      _status: './onlykey-api.js',
-      poll_delay: './onlykey-api.js',
-      poll_type: './onlykey-api.js'
+      onlykey: './onlykey-api.js'
     })
 ];
 
