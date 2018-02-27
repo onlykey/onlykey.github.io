@@ -42,7 +42,8 @@ let plugins = [
       poll_delay: './onlykey-api.js',
       _status: './onlykey-api.js',
       auth_sign: './onlykey-api.js',
-      auth_decrypt: './onlykey-api.js'
+      auth_decrypt: './onlykey-api.js',
+      custom_keyid: './app.js'
     })
 ];
 
