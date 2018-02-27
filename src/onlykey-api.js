@@ -598,3 +598,9 @@ function mkchallenge() {
 }
 
 function noop() {}
+
+module.exports={
+    _status,
+    poll_delay,
+    poll_type
+  }
