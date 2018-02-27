@@ -214,6 +214,8 @@ class Pgp2go {
   }
 
   async startEncryption() {
+      button.classList.remove('error');
+      button.classList.add('working');
       window.poll_type = 4;
       console.info(window.poll_type);
       if (urlinputbox.value == "" && (window._status=='Encrypt and Sign' || window._status=='Encrypt Only')) {
@@ -260,6 +262,23 @@ class Pgp2go {
               return key.text;
           });
         });
+  }
+
+  waitwhileworking() {
+    return new Promise(resolve => {
+        var done =  button.textContent.includes('Done :)');
+        if (done) {
+          try {
+             var successful = document.execCommand('copy');
+             var msg = successful ? 'successful' : 'unsuccessful';
+             console.info('Copying text command was ' + msg);
+           } catch (err) {
+             console.info('Oops, unable to copy');
+           }
+          return resolve();
+        }
+        this.waitwhileworking();
+    });
   }
 
   encryptText(key1, key2, msg) {
@@ -397,25 +416,9 @@ button.addEventListener('click', async function() {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
-            button.classList.remove('error');
-            button.classList.add('working');
             p2g.startEncryption();
-            return new Promise(function (resolve, reject) {
-                (function waitwhileworking(){
-                    var working = button.classList.contains('working');
-                    if (!working) {
-                      try {
-                         var successful = document.execCommand('copy');
-                         var msg = successful ? 'successful' : 'unsuccessful';
-                         console.info('Copying text command was ' + msg);
-                       } catch (err) {
-                         console.info('Oops, unable to copy');
-                       }
-                      return resolve();
-                    }
-                    setTimeout(waitwhileworking, 30);
-                })();
-            });
+            await this.waitwhileworking();
+            break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
             p2g.startDecryption();
