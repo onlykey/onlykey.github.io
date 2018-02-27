@@ -398,12 +398,14 @@ button.onclick = function () {
         case 'Encrypt Only':
         case 'Sign Only':
             poll_type = 4;
+            console.info(poll_type);
             p2g.startEncryption();
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
             poll_type = 3;
             poll_delay = 1;
+            console.info(poll_type);
             p2g.startDecryption();
             break;
         case 'pending_pin':
