@@ -239,7 +239,7 @@ class Pgp2go {
           } else {
             recipient_public_key = urlinputbox2.value;
       }
-        this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
+        await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
   }
 
   downloadPublicKey(url) {
@@ -264,24 +264,7 @@ class Pgp2go {
         });
   }
 
-  waitwhileworking() {
-    return new Promise(resolve => {
-        var done =  button.textContent.includes('Done :)');
-        if (done) {
-          try {
-             var successful = document.execCommand('copy');
-             var msg = successful ? 'successful' : 'unsuccessful';
-             console.info('Copying text command was ' + msg);
-           } catch (err) {
-             console.info('Oops, unable to copy');
-           }
-          return resolve();
-        }
-        this.waitwhileworking();
-    });
-  }
-
-  encryptText(key1, key2, msg) {
+  async encryptText(key1, key2, msg) {
       switch (window._status) {
         case 'Encrypt and Sign':
           this.loadPublic(key1);
@@ -313,18 +296,25 @@ class Pgp2go {
           break;
         default:
       }
-      kbpgp.box(params, (err, results) => {
+      await kbpgp.box(params, (err, results) => {
           if (err) {
               this.showError(err);
               return;
           }
           button.textContent = 'Done :)  You can paste encrypted message into an email, IM, whatever.';
-          messagebox.value = results;
+          messagebox.value =  results;
           messagebox.focus();
           messagebox.select();
+          try {
+             var successful = document.execCommand('copy');
+             var msg = successful ? 'successful' : 'unsuccessful';
+             console.info('Copying text command was ' + msg);
+           } catch (err) {
+             console.info('Oops, unable to copy');
+           }
           button.classList.remove('working');
       });
-  }
+}
 
 loadPublic(key) {
   button.textContent = "Checking recipient's public key...";
@@ -416,8 +406,8 @@ button.addEventListener('click', async function() {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
-            p2g.startEncryption();
-            await p2g.waitwhileworking();
+            await p2g.startEncryption();
+            console.info("finished await");
             break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
