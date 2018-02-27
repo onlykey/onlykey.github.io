@@ -263,8 +263,6 @@ class Pgp2go {
   }
 
   encryptText(key1, key2, msg) {
-    button.classList.remove('error');
-    button.classList.add('working');
       switch (window._status) {
         case 'Encrypt and Sign':
           this.loadPublic(key1);
@@ -399,6 +397,8 @@ button.addEventListener('click', async function() {
         case 'Encrypt and Sign':
         case 'Encrypt Only':
         case 'Sign Only':
+            button.classList.remove('error');
+            button.classList.add('working');
             p2g.startEncryption();
             return new Promise(resolve => {
               while (1) {
@@ -423,7 +423,6 @@ button.addEventListener('click', async function() {
         case 'pending_pin':
             break;
     }
-    return false;
 }, false);
 
 /**
