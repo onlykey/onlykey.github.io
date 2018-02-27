@@ -400,22 +400,22 @@ button.addEventListener('click', async function() {
             button.classList.remove('error');
             button.classList.add('working');
             p2g.startEncryption();
-            return new Promise(resolve => {
-              while (1) {
-                var working = button.classList.contains('working');
-                  if (!working) {
-                  try {
-                     var successful = document.execCommand('copy');
-                     var msg = successful ? 'successful' : 'unsuccessful';
-                     console.info('Copying text command was ' + msg);
-                   } catch (err) {
-                     console.info('Oops, unable to copy');
-                   }
-                   resolve();
-                 }
-              }
+            return new Promise(function (resolve, reject) {
+                (function waitwhileworking(){
+                    var working = button.classList.contains('working');
+                    if (!working) {
+                      try {
+                         var successful = document.execCommand('copy');
+                         var msg = successful ? 'successful' : 'unsuccessful';
+                         console.info('Copying text command was ' + msg);
+                       } catch (err) {
+                         console.info('Oops, unable to copy');
+                       }
+                      return resolve();
+                    }
+                    setTimeout(waitwhileworking, 30);
+                })();
             });
-            break;
         case 'Decrypt and Verify':
         case 'Decrypt Only':
             p2g.startDecryption();
