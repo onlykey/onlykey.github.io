@@ -154,7 +154,7 @@ class Pgp2go {
       if (urlinputbox.value == "" && window._status=='Decrypt and Verify') {
           this.showError(new Error("I need senders's public pgp key to verify :("));
           return;
-      } else if (urlinputbox.value != "") {
+      } else if (urlinputbox.value != "" && window._status=='Decrypt and Verify') {
         let keyurl = url.parse(urlinputbox.value);
           if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
               sender_public_key = await this.downloadPublicKey(urlinputbox.value);
@@ -180,7 +180,8 @@ class Pgp2go {
       this.loadPrivate();
       kbpgp.unbox({
               keyfetch: ring,
-              armored: ct
+              armored: ct,
+              strict : Decrypt_Only ? false : true
           }, (err, ct) => {
           if (err)
               return void this.showError(err);
