@@ -304,6 +304,7 @@ class Pgp2go {
               return;
           }
           button.textContent = 'Done :)  Click to copy message, then paste encrypted message into an email, IM, whatever.';
+          window._status = "finished";
           messagebox.value =  results;
           messagebox.focus();
           messagebox.select();
