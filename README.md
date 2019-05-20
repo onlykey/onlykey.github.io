@@ -13,7 +13,7 @@ Supports Google Chrome and Firefox!
 
 ## How it works
 
-With Keybase user/key management is made easy and with OnlyKey private keys remain offline and protected. Private keys are not accessible to the browser or even the local computer. By using U2F as a secure communication channel the web application can send messages to OnlyKey that are decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports U2F and an OnlyKey to send secure messages using Windows, Mac, Linux, Chromebook, and Android (with additional Android app coming soon).
+With Keybase user/key management is made easy and with OnlyKey private keys remain offline and protected. Private keys are not accessible to the browser or even the local computer. By using U2F as a secure communication channel the web application can send messages to OnlyKey that are decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports U2F and an OnlyKey to send secure messages using Windows, Mac, Linux, Chromebook, and Android (with OnlyKey Android app [here](https://play.google.com/store/apps/details?id=to.crp.android.onlykeyu2f&hl=en_US)).
 
 ## Setup
 
