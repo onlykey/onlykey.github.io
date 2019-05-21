@@ -78964,15 +78964,15 @@ async function msg_polling(params = {}, cb) {
       timeout: 1000,
   }
 
-   var cred = navigator.credentials.get({
+   navigator.credentials.get({
     publicKey: req
-  }, async function(assertion) {
+   }).then(assertion => {
     console.log("GOT ASSERTION", assertion);
     console.log("RESPONSE", assertion.response);
     let response = decode_ctaphid_response_from_signature(assertion.response);
     console.log("DECODED RESPONSE:", response);
     var result = response.data;
-    var data = await Promise;
+    var data; // = await Promise;
     if (window._status === 'finished') {
       console.info("Finished");
     } else if (window._status === 'waiting_ping') {
@@ -79295,7 +79295,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var cred = navigator.credentials.get({
      publicKey: req
-   }, async function(assertion) {
+    }).then(assertion => {
      console.log("GOT ASSERTION", assertion);
      console.log("RESPONSE", assertion.response);
      let response = decode_ctaphid_response_from_signature(assertion.response);
