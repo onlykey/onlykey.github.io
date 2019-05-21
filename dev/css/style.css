@@ -5,9 +5,16 @@ body {
     font-family: 'Share Tech Mono', monospace;
 }
 
+ul { margin-left: 0; padding-left: 0; }
+
 h1,h2,h3,h4,h5,h6 {
     font-family: 'Share Tech Mono', monospace;
     font-weight: 300;
+}
+
+h4 {
+    font-family: 'Share Tech Mono', monospace;
+    text-align: center;
 }
 
 h5 {

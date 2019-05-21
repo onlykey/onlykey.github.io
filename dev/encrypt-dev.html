@@ -81,8 +81,16 @@
             <div id="header_messages"></div>
         </code>
     </div>
-    <h5>Securely encrypt and sign messages in your browser using
-        <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a> and OnlyKey</h5>
+    <h4>Wait for message above "OnlyKey Connected", then proceed to securely encrypt and sign messages using
+        <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a> and <a href="https://onlykey.io" target="_blank">OnlyKey</a><br><br>
+    </h4>
+    <h5>
+        <ul>
+          <li>Everything is processed on local device, no messages are sent over the Internet</li>
+          <li>Messages are signed with private key stored securely on OnlyKey</li>
+          <li>Communication between local browser and OnlyKey is end-to-end encrypted</li>
+        </ul>
+    </h5>
     <div id="container">
         <fieldset>
             <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
@@ -107,7 +115,9 @@
             </code>
         </pre>
     </div>
-    <script src="js/u2f-api.js"></script>
+
+<script src="js/cbor.js"></script>
+<script src="js/u2f-api.js"></script>
 <script type="text/javascript" src="bundle.2c2495da80da458b6476.js"></script></body>
 <script>
 window.addEventListener("load", window.initok);

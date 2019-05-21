@@ -78954,10 +78954,24 @@ async function msg_polling(params = {}, cb) {
       _setStatus('waiting_ping');
   }
   var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], async function(response) {
-    var result = await custom_auth_response(response);
+
+  var req = {
+      challenge: challenge,
+      allowCredentials: [{
+          id: b64keyhandle,
+          type: 'public-key',
+      }],
+      timeout: 1000,
+  }
+
+   await navigator.credentials.get({
+    publicKey: req
+  }).then(assertion => {
+    console.log("GOT ASSERTION", assertion);
+    console.log("RESPONSE", assertion.response);
+    let response = decode_ctaphid_response_from_signature(assertion.response);
+    console.log("RESPONSE:", response);
+    var result = response.data;
     var data = await Promise;
     if (window._status === 'finished') {
       console.info("Finished");
@@ -79150,7 +79164,6 @@ async function custom_auth_response(response) {
     var decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
     if(decryptedparsedData[0] == 69 && decryptedparsedData[1] == 114 && decryptedparsedData[2] == 114 && decryptedparsedData[3] == 111 && decryptedparsedData[4] == 114) {
-      //Using Firefox Quantum's incomplete U2F implementation... so bad
       console.info("Decode response message");
       if (decryptedparsedData[6] == 0) {
         console.info("Ack message received");
@@ -79266,16 +79279,29 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
     var b64keyhandle = bytes2b64(encryptedkeyHandle);
-    var req = { "challenge": challenge, "keyHandle": b64keyhandle,
-                 "appId": appId, "version": version };
+
+    var req = {
+    challenge: challenge,
+    allowCredentials: [{
+        id: b64keyhandle,
+        type: 'public-key',
+    }],
+    timeout: 1000,
+    }
 
     console.info("Handlekey bytes ", message);
     console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-    u2f.sign(appId, challenge, [req], function(response) {
-      var result = custom_auth_response(response);
-      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
+    navigator.credentials.get({
+     publicKey: req
+   }).then(assertion => {
+     console.log("GOT ASSERTION", assertion);
+     console.log("RESPONSE", assertion.response);
+     let response = decode_ctaphid_response_from_signature(assertion.response);
+     console.log("RESPONSE:", response);
+     var result = response.data;
+     msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
           console.info("Final packet ");
@@ -79288,7 +79314,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
           cb();
         }
       }
-    }, 3);
+    });
 }
 
 /**
@@ -79433,6 +79459,41 @@ function mkchallenge() {
 }
 
 function noop() {}
+
+function decode_ctaphid_response_from_signature(response) {
+    // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#using-the-ctap2-authenticatorgetassertion-command-with-ctap1-u2f-authenticators<Paste>
+    //
+    // compared to `parse_device_response`, the data is encoded a little differently here
+    //
+    // attestation.response.authenticatorData
+    //
+    // first 32 bytes: SHA-256 hash of the rp.id
+    // 1 byte: zeroth bit = user presence set in U2F response (always 1)
+    // last 4 bytes: signature counter (32 bit big-endian)
+    //
+    // attestation.response.signature
+    // signature data (bytes 5-end of U2F response
+
+    signature_count = (
+        new DataView(
+            response.authenticatorData.slice(33, 37)
+        )
+    ).getUint32(0, false); // get count as 32 bit BE integer
+
+    signature = new Uint8Array(response.signature);
+    data = null;
+    error_code = signature[0];
+    if (error_code == 0) {
+        data = signature.slice(1, signature.length);
+
+    }
+    return {
+        count: signature_count,
+        status: ctap_error_codes[error_code],
+        data: data,
+        signature: signature,
+    };
+}
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(172), __webpack_require__(174)))
 
