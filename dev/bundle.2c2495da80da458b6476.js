@@ -78954,7 +78954,7 @@ async function msg_polling(params = {}, cb) {
       _setStatus('waiting_ping');
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, NULL, b64keyhandle);
+  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, b64keyhandle);
 
   var req = {
       challenge: challenge,
@@ -79280,7 +79280,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
     var b64keyhandle = bytes2b64(encryptedkeyHandle);
-    var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, NULL, b64keyhandle);
+    var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, b64keyhandle);
 
     var req = {
     challenge: challenge,
@@ -79470,10 +79470,10 @@ function noop() {}
 // the four "magic" bytes set with a special signature,
 // which can then be decoded
 
-function encode_ctaphid_request_as_keyhandle(cmd, addr, data) {
+function encode_ctaphid_request_as_keyhandle(cmd, data) {
     console.log('REQUEST CMD', cmd, '(', command_codes[cmd], ')');
-    console.log('REQUEST ADDR', addr);
     console.log('REQUEST DATA', data);
+    var addr = NULL;
 
     // should we check that `data` is either null or an Uint8Array?
     data = data || new Uint8Array();
