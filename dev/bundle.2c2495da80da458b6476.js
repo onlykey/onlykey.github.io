@@ -78964,9 +78964,9 @@ async function msg_polling(params = {}, cb) {
       timeout: 1000,
   }
 
-   await navigator.credentials.get({
+   navigator.credentials.get({
     publicKey: req
-  }).then( async function processresponse (assertion) {
+  }).then( function (assertion) {
     console.log("GOT ASSERTION", assertion);
     console.log("RESPONSE", assertion.response);
     let response = decode_ctaphid_response_from_signature(assertion.response);
