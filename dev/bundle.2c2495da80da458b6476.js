@@ -79471,7 +79471,7 @@ function noop() {}
 // which can then be decoded
 
 function encode_ctaphid_request_as_keyhandle(cmd, data) {
-    console.log('REQUEST CMD', cmd, '(', command_codes[cmd], ')');
+    console.log('REQUEST CMD', cmd);
     console.log('REQUEST DATA', data);
     var addr = NULL;
 
