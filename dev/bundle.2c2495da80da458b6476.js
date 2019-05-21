@@ -78953,7 +78953,7 @@ async function msg_polling(params = {}, cb) {
       _setStatus('waiting_ping');
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, encryptedkeyHandle;
+  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, encryptedkeyHandle);
 
   var req = {
       challenge: challenge,
