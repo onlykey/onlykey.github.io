@@ -78953,7 +78953,7 @@ async function msg_polling(params = {}, cb) {
       _setStatus('waiting_ping');
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, encryptedkeyHandle);
+  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, new Uint8Array.from(encryptedkeyHandle));
 
   var req = {
       challenge: challenge,
@@ -78964,9 +78964,9 @@ async function msg_polling(params = {}, cb) {
       timeout: 2000,
   }
 
-   navigator.credentials.get({
+    navigator.credentials.get({
     publicKey: req
-   }).then(assertion => {
+    }, async function(assertion) {
     console.log("GOT ASSERTION", assertion);
     console.log("RESPONSE", assertion.response);
     let response = decode_ctaphid_response_from_signature(assertion.response);
@@ -79278,7 +79278,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
-    var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, encryptedkeyHandle);
+    var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, new Uint8Array.from(encryptedkeyHandle));
 
     var req = {
     challenge: challenge,
@@ -79293,9 +79293,9 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     console.info("Sending Handlekey ", keyhandle);
     console.info("Sending challenge ", challenge);
 
-    var cred = navigator.credentials.get({
+     navigator.credentials.get({
      publicKey: req
-    }).then(assertion => {
+     }, async function(assertion) {
      console.log("GOT ASSERTION", assertion);
      console.log("RESPONSE", assertion.response);
      let response = decode_ctaphid_response_from_signature(assertion.response);
