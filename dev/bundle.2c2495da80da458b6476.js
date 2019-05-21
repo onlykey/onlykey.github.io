@@ -79473,7 +79473,7 @@ function noop() {}
 function encode_ctaphid_request_as_keyhandle(cmd, data) {
     console.log('REQUEST CMD', cmd);
     console.log('REQUEST DATA', data);
-    var addr = NULL;
+    var addr = 0;
 
     // should we check that `data` is either null or an Uint8Array?
     data = data || new Uint8Array();
