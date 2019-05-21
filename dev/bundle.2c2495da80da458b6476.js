@@ -78966,7 +78966,7 @@ async function msg_polling(params = {}, cb) {
 
    await navigator.credentials.get({
     publicKey: req
-  }).then(assertion => { async function (assertion) {
+  }).then( async (assertion) => {
     console.log("GOT ASSERTION", assertion);
     console.log("RESPONSE", assertion.response);
     let response = decode_ctaphid_response_from_signature(assertion.response);
@@ -79032,7 +79032,6 @@ async function msg_polling(params = {}, cb) {
       }
     }
     if (typeof cb === 'function') cb(null, data);
-  }
   });
 }, (delay * 1000));
 }
