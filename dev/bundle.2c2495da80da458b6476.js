@@ -78929,6 +78929,7 @@ async function msg_polling(params = {}, cb) {
     console.info("Application ECDH Public Key: ", appKey.publicKey);
     Array.prototype.push.apply(message, appKey.publicKey);
     Array.prototype.push.apply(message, empty);
+    var encryptedkeyHandle = message;
     //var b64keyhandle = bytes2b64(message);
     counter = 0;
   } else if (type == 2) { //OKGETPUB
