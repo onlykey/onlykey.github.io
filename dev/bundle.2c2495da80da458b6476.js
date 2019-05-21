@@ -79295,7 +79295,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     navigator.credentials.get({
      publicKey: req
-   }).then(assertion => {
+   }, async function(assertion) {
      console.log("GOT ASSERTION", assertion);
      console.log("RESPONSE", assertion.response);
      let response = decode_ctaphid_response_from_signature(assertion.response);
