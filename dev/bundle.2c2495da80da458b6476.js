@@ -79256,7 +79256,7 @@ function aesgcm_encrypt(plaintext) {
     cipher.finish();
     var ciphertext = cipher.output;
     ciphertext = ciphertext.toHex();
-    resolve(ciphertext.match(/.{2}/g).map(hexStrToDec));
+    resolve(ciphertext);
   });
 }
 
