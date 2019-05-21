@@ -78959,7 +78959,7 @@ async function msg_polling(params = {}, cb) {
   var req = {
       challenge: challenge,
       allowCredentials: [{
-          id: b64keyhandle,
+          id: keyhandle,
           type: 'public-key',
       }],
       timeout: 1000,
