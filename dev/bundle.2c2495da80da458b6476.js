@@ -78964,13 +78964,13 @@ async function msg_polling(params = {}, cb) {
       timeout: 1000,
   }
 
-   navigator.credentials.get({
+   var cred = navigator.credentials.get({
     publicKey: req
   }, async function(assertion) {
     console.log("GOT ASSERTION", assertion);
     console.log("RESPONSE", assertion.response);
     let response = decode_ctaphid_response_from_signature(assertion.response);
-    console.log("RESPONSE:", response);
+    console.log("DECODED RESPONSE:", response);
     var result = response.data;
     var data = await Promise;
     if (window._status === 'finished') {
@@ -79293,13 +79293,13 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-    navigator.credentials.get({
+    var cred = navigator.credentials.get({
      publicKey: req
    }, async function(assertion) {
      console.log("GOT ASSERTION", assertion);
      console.log("RESPONSE", assertion.response);
      let response = decode_ctaphid_response_from_signature(assertion.response);
-     console.log("RESPONSE:", response);
+     console.log("DECODED RESPONSE:", response);
      var result = response.data;
      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
