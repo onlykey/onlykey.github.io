@@ -79462,6 +79462,56 @@ function mkchallenge() {
 
 function noop() {}
 
+// The idea is to encode CTAPHID_VENDOR commands
+// in the keyhandle, that is sent via WebAuthn or U2F
+// as signature request to the authenticator.
+//
+// The authenticator reacts to signature requests with
+// the four "magic" bytes set with a special signature,
+// which can then be decoded
+
+function encode_ctaphid_request_as_keyhandle(cmd, addr, data) {
+    console.log('REQUEST CMD', cmd, '(', command_codes[cmd], ')');
+    console.log('REQUEST ADDR', addr);
+    console.log('REQUEST DATA', data);
+
+    // should we check that `data` is either null or an Uint8Array?
+    data = data || new Uint8Array();
+
+    const offset = 10;
+
+    if (offset + data.length > 255) {
+        throw new Error("Max size exceeded");
+    }
+
+    // on Solo side, `is_extension_request` expects at least 16 bytes of data
+    const data_pad = data.length < 16 ? 16 - data.length : 0;
+    var array = new Uint8Array(offset + data.length + data_pad);
+
+    array[0] = cmd & 0xff;
+
+    array[1] = (addr >> 0) & 0xff;
+    array[2] = (addr >> 8) & 0xff;
+    array[3] = (addr >> 16) & 0xff;
+
+    // magic values, telling bootloader U2F interface
+    // to interpret `data` as encoded U2F APDU command,
+    // when passed as keyhandle in u2f.sign.
+    // yes, there can theoretically be clashes :)
+    array[4] = 0x8C;  // 140
+    array[5] = 0x27;  //  39
+    array[6] = 0x90;  // 144
+    array[7] = 0xf6;  // 246
+
+    array[8] = 0;
+    array[9] = data.length & 0xff;
+
+    array.set(data, offset);
+
+    console.log('FORMATTED REQUEST:', array);
+    return array;
+}
+
 function decode_ctaphid_response_from_signature(response) {
     // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#using-the-ctap2-authenticatorgetassertion-command-with-ctap1-u2f-authenticators<Paste>
     //
