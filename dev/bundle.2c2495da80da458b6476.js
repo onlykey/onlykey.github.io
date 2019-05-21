@@ -78962,7 +78962,7 @@ async function msg_polling(params = {}, cb) {
           id: keyhandle,
           type: 'public-key',
       }],
-      timeout: 1000,
+      timeout: 2000,
   }
 
    navigator.credentials.get({
@@ -79288,7 +79288,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
         id: keyhandle,
         type: 'public-key',
     }],
-    timeout: 1000,
+    timeout: 2000,
     }
 
     console.info("Handlekey bytes ", message);
@@ -79452,13 +79452,6 @@ function bcat(buflist) {
 function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
 function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
 function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
-
-//Generate a random number for challenge value
-function mkchallenge() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  return u2f_b64(s.join());
-}
 
 function noop() {}
 
