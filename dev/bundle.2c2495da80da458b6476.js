@@ -78929,7 +78929,7 @@ async function msg_polling(params = {}, cb) {
     console.info("Application ECDH Public Key: ", appKey.publicKey);
     Array.prototype.push.apply(message, appKey.publicKey);
     Array.prototype.push.apply(message, empty);
-    var b64keyhandle = bytes2b64(message);
+    //var b64keyhandle = bytes2b64(message);
     counter = 0;
   } else if (type == 2) { //OKGETPUB
       var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
@@ -78939,7 +78939,7 @@ async function msg_polling(params = {}, cb) {
       Array.prototype.push.apply(message, empty);
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
-      var b64keyhandle = bytes2b64(encryptedkeyHandle);
+      //var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } else { //Ping and get Response From OKSIGN or OKDECRYPT
       if (window._status == 'done_challenge') counter++;
       if (window._status == 'finished') return encrypted_data;
@@ -78950,11 +78950,10 @@ async function msg_polling(params = {}, cb) {
       Array.prototype.push.apply(message, ciphertext);
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
-      var b64keyhandle = bytes2b64(encryptedkeyHandle);
       _setStatus('waiting_ping');
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, b64keyhandle);
+  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, encryptedkeyHandle;
 
   var req = {
       challenge: challenge,
@@ -79279,8 +79278,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
-    var b64keyhandle = bytes2b64(encryptedkeyHandle);
-    var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, b64keyhandle);
+    var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, encryptedkeyHandle);
 
     var req = {
     challenge: challenge,
@@ -79416,9 +79414,9 @@ function b64EncodeUnicode(str) {
     }));
 }
 
-function u2f_b64(s) {
-  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
+//function u2f_b64(s) {
+//  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+//}
 
 function u2f_unb64(s) {
   s = s.replace(/-/g, '+').replace(/_/g, '/');
@@ -79451,7 +79449,7 @@ function bcat(buflist) {
 
 function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
 function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
-function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
+//function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
 
 function noop() {}
 
