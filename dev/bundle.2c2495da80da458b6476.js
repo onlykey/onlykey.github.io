@@ -79411,7 +79411,7 @@ function noop() {}
 // the four "magic" bytes set with a special signature,
 // which can then be decoded
 
-function encode_ctaphid_request_as_keyhandle(cmd, data) {
+function encode_ctaphid_request_as_keyhandle(cmd, addr, data) {
     console.log('REQUEST CMD', cmd);
     console.log('REQUEST DATA', data);
     var addr = 0;
@@ -79511,7 +79511,7 @@ async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
       }],
       timeout: timeout,
   }
-  
+
   return navigator.credentials.get({
     publicKey: request_options
   }).then(assertion => {
