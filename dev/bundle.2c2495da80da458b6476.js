@@ -78958,8 +78958,7 @@ async function msg_polling(params = {}, cb) {
 
   await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000, ).then( async function (response) {
     console.log("DECODED RESPONSE:", response);
-    var result = response.data;
-    var data = await Promise;
+    var data = response.data;
     if (window._status === 'finished') {
       console.info("Finished");
     } else if (window._status === 'waiting_ping') {
@@ -78967,56 +78966,35 @@ async function msg_polling(params = {}, cb) {
       _setStatus('pending_challenge');
       data = 1;
     }
-    if (result == 2) {
-        msg("Polling succeeded but no data was received");
-        data = 1;
-    } else if (result <= 5) {
-      data = 1;
-    }
-    if (type == 1) {
-      if (result) {
-        okPub = result.slice(21, 53);
-        console.info("OnlyKey Public Key: ", okPub );
-        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-        console.info("NACL shared secret: ", sharedsec );
-        OKversion = result[19] == 99 ? 'Color' : 'Original';
-        var FWversion = bytes2string(result.slice(8, 20));
-        msg("OnlyKey " + OKversion + " " + FWversion);
-        headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
-        hw_RNG.entropy = result.slice(53, result.length);
-        msg("HW generated entropy: " + hw_RNG.entropy);
-        var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
-        console.info("AES Key", key);
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
+
+    if (!response) {
+      msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+    } else if (type == 1) {
+          okPub = result.slice(21, 53);
+          console.info("OnlyKey Public Key: ", okPub );
+          sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+          console.info("NACL shared secret: ", sharedsec );
+          OKversion = result[19] == 99 ? 'Color' : 'Original';
+          var FWversion = bytes2string(result.slice(8, 20));
+          msg("OnlyKey " + OKversion + " " + FWversion);
+          headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
+          hw_RNG.entropy = result.slice(53, result.length);
+          msg("HW generated entropy: " + hw_RNG.entropy);
+          var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+          console.info("AES Key", key);
       return;
     } else if (type == 2) {
-      if (result) {
-        var pubkey = result.slice(0, 1); //slot number containing matching key
-        msg("Public Key found in slot" + pubkey);
-        var entropy = result.slice(2, result.length);
-        msg("HW generated entropy" + entropy);
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
+          var pubkey = result.slice(0, 1); //slot number containing matching key
+          msg("Public Key found in slot" + pubkey);
+          var entropy = result.slice(2, result.length);
+          msg("HW generated entropy" + entropy);
       return pubkey;
     } else if (type == 3 && window._status == 'finished') {
-      if (result) {
-        data = result;
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
+          data = result;
     } else if (type == 4 && window._status == 'finished') {
-      if (result) {
         var oksignature = result.slice(0, result.length); //4+32+2+32
         data = oksignature;
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
     }
     if (typeof cb === 'function') cb(null, data);
   });
