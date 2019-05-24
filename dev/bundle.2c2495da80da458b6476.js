@@ -78956,7 +78956,7 @@ async function msg_polling(params = {}, cb) {
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
-  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000, ).then( async function (response) {
+  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000, ).then(response => {
     console.log("DECODED RESPONSE:", response);
     var data = response.data;
     if (window._status === 'finished') {
