@@ -78958,7 +78958,7 @@ async function msg_polling(params = {}, cb) {
 
   await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000, ).then(response => {
     console.log("DECODED RESPONSE:", response);
-    var data = response.data;
+    var data = response;
     if (window._status === 'finished') {
       console.info("Finished");
     } else if (window._status === 'waiting_ping') {
@@ -78967,7 +78967,7 @@ async function msg_polling(params = {}, cb) {
       data = 1;
     }
 
-    if (!response) {
+    if (typeof response == "undefined") {
       msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
     } else if (type == 1) {
