@@ -78959,7 +78959,7 @@ async function msg_polling(params = {}, cb) {
   await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000).then(response => {
     console.log("DECODED RESPONSE:", response);
     var result = response.data;
-    var data; // = await Promise;
+    var data = await Promise;
     if (window._status === 'finished') {
       console.info("Finished");
     } else if (window._status === 'waiting_ping') {
