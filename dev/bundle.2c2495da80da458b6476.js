@@ -79533,6 +79533,7 @@ async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
       }],
       timeout: timeout,
   }
+}
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(172), __webpack_require__(174)))
 
