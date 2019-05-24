@@ -78879,7 +78879,7 @@ const button = document.getElementById('onlykey_start');
 initok = async function () {
   //Initialize OnlyKey
   //  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
-    browserid = 128; //Firefox
+    //browserid = 128; //Firefox
   //  console.info("Firefox browser");
   //} else {
   //  console.info("Chrome browser (Default)");
@@ -78916,7 +78916,7 @@ async function msg_polling(params = {}, cb) {
   setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
   if (type == 1) { //OKSETTIME
-    var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
+    var message = [255, 255, 255, 255, OKSETTIME]; //Same header and message type used in App
     var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
     msg("Setting current time on OnlyKey to " + new Date());
     var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
@@ -78933,7 +78933,7 @@ async function msg_polling(params = {}, cb) {
     //var b64keyhandle = bytes2b64(message);
     counter = 0;
   } else if (type == 2) { //OKGETPUB
-      var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
+      var message = [255, 255, 255, 255, OKGETPUBKEY]; //Add header and message type
       msg("Checking to see if this key is assigned to an OnlyKey Slot " + window.custom_keyid);
       var empty = new Array(50).fill(0);
       Array.prototype.push.apply(message, window.custom_keyid);
@@ -78947,14 +78947,15 @@ async function msg_polling(params = {}, cb) {
       console.info("Sending Ping Request to OnlyKey");
       var message = [255, 255, 255, 255]; //Add header and message type
       var ciphertext = new Uint8Array(60).fill(0);
-      ciphertext[0] = (OKPING-browserid);
+      ciphertext[0] = OKPING;
       Array.prototype.push.apply(message, ciphertext);
       while (message.length < 64) message.push(0);
-      var encryptedkeyHandle = await aesgcm_encrypt(message);
+      //var encryptedkeyHandle = await aesgcm_encrypt(message);
+      var encryptedkeyHandle = Uint8Array.from(message);
       _setStatus('waiting_ping');
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-  var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, encryptedkeyHandle);
+  var keyhandle = encode_ctaphid_request_as_keyhandle(OKSETTIME, encryptedkeyHandle);
 
   var req = {
       challenge: challenge,
@@ -79266,7 +79267,7 @@ function aesgcm_encrypt(plaintext) {
  */
 async function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN-browserid) : (OKDECRYPT-browserid), slotId()]; //Add header, message type, and key to use
+    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var ctChunk = cipherText.slice(0, maxPacketSize);
@@ -79278,7 +79279,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
-    var keyhandle = encode_ctaphid_request_as_keyhandle(0x10, encryptedkeyHandle);
+    var keyhandle = encode_ctaphid_request_as_keyhandle(message[4], encryptedkeyHandle);
 
     var req = {
     challenge: challenge,
@@ -79300,6 +79301,8 @@ async function u2fSignBuffer(cipherText, mainCallback) {
      console.log("RESPONSE", assertion.response);
      let response = decode_ctaphid_response_from_signature(assertion.response);
      console.log("DECODED RESPONSE:", response);
+     //decrypt data
+     //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      var result = response.data;
      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
