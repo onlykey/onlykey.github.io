@@ -78956,7 +78956,7 @@ async function msg_polling(params = {}, cb) {
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
-  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle), 2000).then(response => {
+  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000).then(response => {
     console.log("DECODED RESPONSE:", response);
     var result = response.data;
     var data; // = await Promise;
@@ -79269,7 +79269,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     console.info("Sending Handlekey ", keyhandle);
     console.info("Sending challenge ", challenge);
 
-     await ctaphid_via_webauthn(message[4], null, encryptedkeyHandle), 2000).then(response => {
+     await ctaphid_via_webauthn(message[4], null, encryptedkeyHandle, 2000).then(response => {
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      var result = response.data;
