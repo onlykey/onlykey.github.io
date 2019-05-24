@@ -79511,6 +79511,20 @@ async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
       }],
       timeout: timeout,
   }
+  
+  return navigator.credentials.get({
+    publicKey: request_options
+  }).then(assertion => {
+    console.log("GOT ASSERTION", assertion);
+    console.log("RESPONSE", assertion.response);
+    let response = decode_ctaphid_response_from_signature(assertion.response);
+    console.log("RESPONSE:", response);
+    return response.data;
+  }).catch(error => {
+    console.log("ERROR CALLING:", cmd, addr, data);
+    console.log("THE ERROR:", error);
+    return Promise.resolve();  // error;
+  });
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(172), __webpack_require__(174)))
