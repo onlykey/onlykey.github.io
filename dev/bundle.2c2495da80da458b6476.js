@@ -78955,23 +78955,8 @@ async function msg_polling(params = {}, cb) {
       _setStatus('waiting_ping');
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-  var keyhandle = encode_ctaphid_request_as_keyhandle(OKSETTIME, encryptedkeyHandle);
 
-  var req = {
-      challenge: challenge,
-      allowCredentials: [{
-          id: keyhandle,
-          type: 'public-key',
-      }],
-      timeout: 2000,
-  }
-
-    navigator.credentials.get({
-    publicKey: req
-    }, async function(assertion) {
-    console.log("GOT ASSERTION", assertion);
-    console.log("RESPONSE", assertion.response);
-    let response = decode_ctaphid_response_from_signature(assertion.response);
+  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle), 2000).then(response => {
     console.log("DECODED RESPONSE:", response);
     var result = response.data;
     var data; // = await Promise;
@@ -79279,28 +79264,12 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     while (message.length < 64) message.push(0);
     var encryptedkeyHandle = await aesgcm_encrypt(message);
-    var keyhandle = encode_ctaphid_request_as_keyhandle(message[4], encryptedkeyHandle);
-
-    var req = {
-    challenge: challenge,
-    allowCredentials: [{
-        id: keyhandle,
-        type: 'public-key',
-    }],
-    timeout: 2000,
-    }
 
     console.info("Handlekey bytes ", message);
     console.info("Sending Handlekey ", keyhandle);
     console.info("Sending challenge ", challenge);
 
-     navigator.credentials.get({
-     publicKey: req
-     }, async function(assertion) {
-     console.log("GOT ASSERTION", assertion);
-     console.log("RESPONSE", assertion.response);
-     let response = decode_ctaphid_response_from_signature(assertion.response);
-     console.log("DECODED RESPONSE:", response);
+     await ctaphid_via_webauthn(message[4], null, encryptedkeyHandle), 2000).then(response => {
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      var result = response.data;
@@ -79520,6 +79489,8 @@ function decode_ctaphid_response_from_signature(response) {
     // attestation.response.signature
     // signature data (bytes 5-end of U2F response
 
+    console.log('UNFORMATTED RESPONSE:', response);
+
     signature_count = (
         new DataView(
             response.authenticatorData.slice(33, 37)
@@ -79540,6 +79511,28 @@ function decode_ctaphid_response_from_signature(response) {
         signature: signature,
     };
 }
+
+async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
+  // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
+  // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
+  //
+  // the bootloader only supports CTAP1, so the idea is to drop
+  // u2f-api.js and the Firefox about:config fiddling
+  //
+  // problem: the popup to press button flashes up briefly :(
+  //
+
+  var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, addr, data);
+  var challenge = window.crypto.getRandomValues(new Uint8Array(32));
+
+  var request_options = {
+      challenge: challenge,
+      allowCredentials: [{
+          id: keyhandle,
+          type: 'public-key',
+      }],
+      timeout: timeout,
+  }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(172), __webpack_require__(174)))
 
