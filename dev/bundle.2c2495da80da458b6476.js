@@ -78998,7 +78998,6 @@ async function msg_polling(params = {}, cb) {
         data = oksignature;
     }
     if (typeof cb === 'function') cb(null, data);
-  });
 }, (delay * 1000));
 }
 
