@@ -79241,13 +79241,13 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     while (message.length < 64) message.push(0);
-    var encryptedkeyHandle = await aesgcm_encrypt(message);
+    //var encryptedkeyHandle = await aesgcm_encrypt(message);
 
     console.info("Handlekey bytes ", message);
-    console.info("Sending Handlekey ", keyhandle);
+    //console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-     await ctaphid_via_webauthn(message[4], null, encryptedkeyHandle, 2000).then(response => {
+     await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      var result = response.data;
