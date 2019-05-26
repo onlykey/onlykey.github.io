@@ -78956,9 +78956,9 @@ async function msg_polling(params = {}, cb) {
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
-  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000, ).then(response => {
+  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000, async function(response) {
     console.log("DECODED RESPONSE:", response);
-    var data = response;
+    var data = await Promise;
     if (window._status === 'finished') {
       console.info("Finished");
     } else if (window._status === 'waiting_ping') {
@@ -78971,24 +78971,25 @@ async function msg_polling(params = {}, cb) {
       msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
       headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
     } else if (type == 1) {
-          okPub = result.slice(21, 53);
+          okPub = response.slice(21, 53);
           console.info("OnlyKey Public Key: ", okPub );
           sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
           console.info("NACL shared secret: ", sharedsec );
-          OKversion = result[19] == 99 ? 'Color' : 'Original';
-          var FWversion = bytes2string(result.slice(8, 20));
+          OKversion = response[19] == 99 ? 'Color' : 'Original';
+          var FWversion = bytes2string(response.slice(8, 20));
           msg("OnlyKey " + OKversion + " " + FWversion);
           headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
-          hw_RNG.entropy = result.slice(53, result.length);
+          hw_RNG.entropy = response.slice(53, response.length);
           msg("HW generated entropy: " + hw_RNG.entropy);
           var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
           console.info("AES Key", key);
       return;
     } else if (type == 2) {
-          var pubkey = result.slice(0, 1); //slot number containing matching key
+          var pubkey = response.slice(0, 1); //slot number containing matching key
           msg("Public Key found in slot" + pubkey);
-          var entropy = result.slice(2, result.length);
+          var entropy = response.slice(2, response.length);
           msg("HW generated entropy" + entropy);
+          //Todo finish implementing this
       return pubkey;
     } else if (type == 3 && window._status == 'finished') {
           data = result;
