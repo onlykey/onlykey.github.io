@@ -133,7 +133,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 window.initok = initok();
 window.custom_keyid;
 window.TransportU2F = TransportU2F;
-window.TransportU2F = TransportWebAuthn;
+window.TransportWebAuthn = TransportWebAuthn;
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
