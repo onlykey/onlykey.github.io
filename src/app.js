@@ -1,5 +1,5 @@
+import 'babel-polyfill';
 require('./onlykey-api.js');
-require('babel-polyfill');
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
