@@ -7,6 +7,8 @@ const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
 const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
+import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
+import TransportU2F from "@ledgerhq/hw-transport-u2f";
 var sender_private_key; //Placeholder key
 var sender_public_key;
 var recipient_public_key;
