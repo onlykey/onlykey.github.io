@@ -73,7 +73,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 module.exports = {
-    entry: ['./src/app.js'],
+    entry: ['babel-polyfill', './src/app.js'],
     externals: {
       u2f: './u2f-api.js'
     },
