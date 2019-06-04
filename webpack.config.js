@@ -36,8 +36,6 @@ let plugins = [
         showErrors: false
     }),
     new webpack.ProvidePlugin({
-      TransportU2F: '@ledgerhq/hw-transport-u2f',
-      TransportWebAuthn: '@ledgerhq/hw-transport-webauthn',
       nacl: './nacl.min.js',
       forge: './forge.min.js',
       kbpgp: './kbpgp.js',
@@ -75,7 +73,9 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
     entry: ['babel-polyfill', './src/app.js'],
     externals: {
-      u2f: './u2f-api.js'
+      u2f: './u2f-api.js',
+      TransportU2F: '@ledgerhq/hw-transport-u2f',
+      TransportWebAuthn: '@ledgerhq/hw-transport-webauthn'
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
