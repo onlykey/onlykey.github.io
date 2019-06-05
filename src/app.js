@@ -3,8 +3,6 @@ require('./onlykey-api.js');
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
-const TransportU2F = require('@ledgerhq/hw-transport-u2f');
-const TransportWebAuthn = require('@ledgerhq/hw-transport-webauthn');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
@@ -132,8 +130,6 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 
 window.initok = initok();
 window.custom_keyid;
-window.TransportU2F = TransportU2F;
-window.TransportWebAuthn = TransportWebAuthn;
 
 window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
