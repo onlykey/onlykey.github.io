@@ -1,4 +1,6 @@
 import 'babel-polyfill';
+import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
+import TransportU2F from "@ledgerhq/hw-transport-u2f";
 require('./onlykey-api.js');
 const url = require('url');
 const request = require('superagent');
