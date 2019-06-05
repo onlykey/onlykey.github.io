@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-require("@babel/polyfill");
 const MinifyPlugin = require("babel-minify-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -73,9 +72,7 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
     entry: ['babel-polyfill', './src/app.js'],
     externals: {
-      u2f: './u2f-api.js',
-      TransportU2F: '@ledgerhq/hw-transport-u2f',
-      TransportWebAuthn: '@ledgerhq/hw-transport-webauthn'
+      u2f: './u2f-api.js'
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
