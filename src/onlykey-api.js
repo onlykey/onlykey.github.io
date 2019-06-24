@@ -122,7 +122,7 @@ async function msg_polling(params = {}, cb) {
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
-  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000).then( async (response) => {
+  await ctaphid_via_webauthn(OKSETTIME, null, null, null, encryptedkeyHandle, 2000).then( async (response) => {
   console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
@@ -414,7 +414,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     //console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-     await ctaphid_via_webauthn(OKSETTIME, null, message, 2000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
+     await ctaphid_via_webauthn(OKSETTIME, null, null, null, message, 2000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      var result = response.data;
@@ -655,7 +655,7 @@ function decode_ctaphid_response_from_signature(response) {
     };
 }
 
-async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
+async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
   // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
   //
@@ -665,7 +665,7 @@ async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
   // problem: the popup to press button flashes up briefly :(
   //
 
-  var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, addr, data);
+  var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data);
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
   var request_options = {
