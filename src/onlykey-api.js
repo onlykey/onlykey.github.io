@@ -578,8 +578,11 @@ function noop() {}
 // the four "magic" bytes set with a special signature,
 // which can then be decoded
 
-function encode_ctaphid_request_as_keyhandle(cmd, addr, data) {
+function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
     console.log('REQUEST CMD', cmd);
+    console.log('REQUEST OPT1', opt1);
+    console.log('REQUEST OPT1', opt2);
+    console.log('REQUEST OPT1', opt3);
     console.log('REQUEST DATA', data);
     var addr = 0;
 
@@ -592,20 +595,15 @@ function encode_ctaphid_request_as_keyhandle(cmd, addr, data) {
         throw new Error("Max size exceeded");
     }
 
-    // on Solo side, `is_extension_request` expects at least 16 bytes of data
+    // `is_extension_request` expects at least 16 bytes of data
     const data_pad = data.length < 16 ? 16 - data.length : 0;
     var array = new Uint8Array(offset + data.length + data_pad);
 
     array[0] = cmd & 0xff;
 
-    array[1] = (addr >> 0) & 0xff;
-    array[2] = (addr >> 8) & 0xff;
-    array[3] = (addr >> 16) & 0xff;
-
-    // magic values, telling bootloader U2F interface
-    // to interpret `data` as encoded U2F APDU command,
-    // when passed as keyhandle in u2f.sign.
-    // yes, there can theoretically be clashes :)
+    array[1] = opt1 & 0xff;
+    array[2] = opt2 & 0xff;
+    array[3] = opt3 & 0xff;
     array[4] = 0x8C;  // 140
     array[5] = 0x27;  //  39
     array[6] = 0x90;  // 144
@@ -667,54 +665,6 @@ async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
   // problem: the popup to press button flashes up briefly :(
   //
 
-  const issupported = window.TransportWebAuthn.isSupported();
-  if (issupported) { //Send settime and get response
-    window.TransportWebAuthn.create().then(transport => {
-      let buffer = new Uint8Array(50);
-      buffer.fill(0, 0, 57);
-      buffer[0] = 0x5C;
-      buffer[1] = 0xEF;
-      buffer[2] = 0x0C;
-      buffer[3] = 0xB9;
-      transport.send(0xE4, 0, 0, 0, buffer).then(response => {
-        console.log("GOT RESPONSE", response);
-        return response;
-      }).catch(error => {
-        console.log("ERROR CALLING:", cmd, addr, data);
-        return Promise.resolve();  // error;
-      });
-    });
-  } else {
-    console.log("WebAuthn Transport Not Supported");
-  }
-
-  /*
-
-  const issupported = window.window.TransportWebAuthn.isSupported();
-  if (issupported) { //Send settime and get response
-    window.window.TransportWebAuthn.create().then(transport => {
-      let buffer = new Uint8Array(50);
-      buffer.fill(0, 0, 57);
-      buffer[0] = 0x5C;
-      buffer[1] = 0xEF;
-      buffer[2] = 0x0C;
-      buffer[3] = 0xB9;
-      transport.send(0xE4, 0, 0, 0, buffer).then(response => {
-        console.log("GOT RESPONSE", response);
-        return response;
-      }).catch(error => {
-        console.log("ERROR CALLING:", cmd, addr, data);
-        return Promise.resolve();  // error;
-      });
-    });
-  } else {
-    console.log("U2F Transport Not Supported");
-  }
-
-
-
-
-
   var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, addr, data);
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
@@ -740,8 +690,6 @@ async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
     console.log("THE ERROR:", error);
     return Promise.resolve();  // error;
   });
-  */
-
 }
 
 const ctap_error_codes = {
