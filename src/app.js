@@ -1,4 +1,4 @@
-import 'babel-polyfill';
+import "regenerator-runtime/runtime";
 import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
 require('./onlykey-api.js');
@@ -129,6 +129,9 @@ W3Uv9O0FAWVecGfcb3FONGskgoaQNMQSr9bITRMB+6BDj8ut4HMnrRzhSANL
 AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
+
+document.TransportWebAuthn = TransportWebAuthn;
+document.TransportU2F = TransportU2F;
 
 window.initok = initok();
 window.custom_keyid;

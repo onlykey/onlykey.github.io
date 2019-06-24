@@ -44,12 +44,12 @@ const button = document.getElementById('onlykey_start');
  */
 initok = async function () {
   //Initialize OnlyKey
-    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
-    browserid = 128; //Firefox
-    console.info("Firefox browser");
-  } else {
-    console.info("Chrome browser (Default)");
-  }
+  //  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
+    //browserid = 128; //Firefox
+  //  console.info("Firefox browser");
+  //} else {
+  //  console.info("Chrome browser (Default)");
+  //}
     msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
     await wait(3000);
     if (typeof(sharedsec) === "undefined") {
@@ -82,7 +82,7 @@ async function msg_polling(params = {}, cb) {
   setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
   if (type == 1) { //OKSETTIME
-    var message = [255, 255, 255, 255, (OKSETTIME-browserid)]; //Same header and message type used in App
+    var message = [255, 255, 255, 255, OKSETTIME]; //Same header and message type used in App
     var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
     msg("Setting current time on OnlyKey to " + new Date());
     var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
@@ -95,35 +95,35 @@ async function msg_polling(params = {}, cb) {
     console.info("Application ECDH Public Key: ", appKey.publicKey);
     Array.prototype.push.apply(message, appKey.publicKey);
     Array.prototype.push.apply(message, empty);
-    var b64keyhandle = bytes2b64(message);
+    var encryptedkeyHandle = Uint8Array.from(message);
+    //var b64keyhandle = bytes2b64(message);
     counter = 0;
   } else if (type == 2) { //OKGETPUB
-      var message = [255, 255, 255, 255, (OKGETPUBKEY-browserid)]; //Add header and message type
+      var message = [255, 255, 255, 255, OKGETPUBKEY]; //Add header and message type
       msg("Checking to see if this key is assigned to an OnlyKey Slot " + window.custom_keyid);
       var empty = new Array(50).fill(0);
       Array.prototype.push.apply(message, window.custom_keyid);
       Array.prototype.push.apply(message, empty);
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
-      var b64keyhandle = bytes2b64(encryptedkeyHandle);
+      //var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } else { //Ping and get Response From OKSIGN or OKDECRYPT
       if (window._status == 'done_challenge') counter++;
       if (window._status == 'finished') return encrypted_data;
       console.info("Sending Ping Request to OnlyKey");
       var message = [255, 255, 255, 255]; //Add header and message type
       var ciphertext = new Uint8Array(60).fill(0);
-      ciphertext[0] = (OKPING-browserid);
+      ciphertext[0] = OKPING;
       Array.prototype.push.apply(message, ciphertext);
       while (message.length < 64) message.push(0);
-      var encryptedkeyHandle = await aesgcm_encrypt(message);
-      var b64keyhandle = bytes2b64(encryptedkeyHandle);
+      //var encryptedkeyHandle = await aesgcm_encrypt(message);
+      var encryptedkeyHandle = Uint8Array.from(message);
       _setStatus('waiting_ping');
   }
-  var challenge = mkchallenge();
-  var req = { "challenge": challenge, "keyHandle": b64keyhandle,
-               "appId": appId, "version": version };
-  u2f.sign(appId, challenge, [req], async function(response) {
-    var result = await custom_auth_response(response);
+  var challenge = window.crypto.getRandomValues(new Uint8Array(32));
+
+  await ctaphid_via_webauthn(OKSETTIME, null, encryptedkeyHandle, 2000).then( async (response) => {
+  console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
       console.info("Finished");
@@ -132,56 +132,36 @@ async function msg_polling(params = {}, cb) {
       _setStatus('pending_challenge');
       data = 1;
     }
-    if (result == 2) {
-        msg("Polling succeeded but no data was received");
-        data = 1;
-    } else if (result <= 5) {
-      data = 1;
-    }
-    if (type == 1) {
-      if (result) {
-        okPub = result.slice(21, 53);
-        console.info("OnlyKey Public Key: ", okPub );
-        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-        console.info("NACL shared secret: ", sharedsec );
-        OKversion = result[19] == 99 ? 'Color' : 'Original';
-        var FWversion = bytes2string(result.slice(8, 20));
-        msg("OnlyKey " + OKversion + " " + FWversion);
-        headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
-        hw_RNG.entropy = result.slice(53, result.length);
-        msg("HW generated entropy: " + hw_RNG.entropy);
-        var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
-        console.info("AES Key", key);
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
+
+    if (typeof response == "undefined") {
+      msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+      headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
+    } else if (type == 1) {
+          okPub = response.slice(21, 53);
+          console.info("OnlyKey Public Key: ", okPub );
+          sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+          console.info("NACL shared secret: ", sharedsec );
+          OKversion = response[19] == 99 ? 'Color' : 'Original';
+          var FWversion = bytes2string(response.slice(8, 20));
+          msg("OnlyKey " + OKversion + " " + FWversion);
+          headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
+          hw_RNG.entropy = response.slice(53, response.length);
+          msg("HW generated entropy: " + hw_RNG.entropy);
+          var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+          console.info("AES Key", key);
       return;
     } else if (type == 2) {
-      if (result) {
-        var pubkey = result.slice(0, 1); //slot number containing matching key
-        msg("Public Key found in slot" + pubkey);
-        var entropy = result.slice(2, result.length);
-        msg("HW generated entropy" + entropy);
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
+          var pubkey = response.slice(0, 1); //slot number containing matching key
+          msg("Public Key found in slot" + pubkey);
+          var entropy = response.slice(2, response.length);
+          msg("HW generated entropy" + entropy);
+          //Todo finish implementing this
       return pubkey;
     } else if (type == 3 && window._status == 'finished') {
-      if (result) {
-        data = result;
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
+          data = result;
     } else if (type == 4 && window._status == 'finished') {
-      if (result) {
         var oksignature = result.slice(0, result.length); //4+32+2+32
         data = oksignature;
-      } else {
-        msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-        headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      }
     }
     if (typeof cb === 'function') cb(null, data);
   });
@@ -316,7 +296,6 @@ async function custom_auth_response(response) {
     var decryptedparsedData = await aesgcm_decrypt(parsedData);
     console.info("Parsed Data: ", decryptedparsedData);
     if(decryptedparsedData[0] == 69 && decryptedparsedData[1] == 114 && decryptedparsedData[2] == 114 && decryptedparsedData[3] == 111 && decryptedparsedData[4] == 114) {
-      //Using Firefox Quantum's incomplete U2F implementation... so bad
       console.info("Decode response message");
       if (decryptedparsedData[6] == 0) {
         console.info("Ack message received");
@@ -407,9 +386,8 @@ function aesgcm_encrypt(plaintext) {
     console.log("Plaintext", plaintext);
     cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
     cipher.finish();
-    var ciphertext = cipher.output;
-    ciphertext = ciphertext.toHex();
-    resolve(ciphertext.match(/.{2}/g).map(hexStrToDec));
+    var ciphertext = cipher.output.getBytes;
+    resolve(Uint8Array.from(ciphertext));
   });
 }
 
@@ -419,7 +397,7 @@ function aesgcm_encrypt(plaintext) {
  */
 async function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? (OKSIGN-browserid) : (OKDECRYPT-browserid), slotId()]; //Add header, message type, and key to use
+    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId()]; //Add header, message type, and key to use
     var maxPacketSize = 57;
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var ctChunk = cipherText.slice(0, maxPacketSize);
@@ -428,20 +406,19 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
-    var challenge = mkchallenge();
+    var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     while (message.length < 64) message.push(0);
-    var encryptedkeyHandle = await aesgcm_encrypt(message);
-    var b64keyhandle = bytes2b64(encryptedkeyHandle);
-    var req = { "challenge": challenge, "keyHandle": b64keyhandle,
-                 "appId": appId, "version": version };
+    //var encryptedkeyHandle = await aesgcm_encrypt(message);
 
     console.info("Handlekey bytes ", message);
-    console.info("Sending Handlekey ", encryptedkeyHandle);
+    //console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-    u2f.sign(appId, challenge, [req], function(response) {
-      var result = custom_auth_response(response);
-      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
+     await ctaphid_via_webauthn(OKSETTIME, null, message, 2000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
+     //decrypt data
+     //var decryptedparsedData = await aesgcm_decrypt(parsedData);
+     var result = response.data;
+     msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
         if (finalPacket) {
           console.info("Final packet ");
@@ -454,7 +431,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
           cb();
         }
       }
-    }, 3);
+    });
 }
 
 /**
@@ -554,9 +531,9 @@ function b64EncodeUnicode(str) {
     }));
 }
 
-function u2f_b64(s) {
-  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
+//function u2f_b64(s) {
+//  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+//}
 
 function u2f_unb64(s) {
   s = s.replace(/-/g, '+').replace(/_/g, '/');
@@ -589,13 +566,229 @@ function bcat(buflist) {
 
 function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
 function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
-function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
-
-//Generate a random number for challenge value
-function mkchallenge() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  return u2f_b64(s.join());
-}
+//function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
 
 function noop() {}
+
+// The idea is to encode CTAPHID_VENDOR commands
+// in the keyhandle, that is sent via WebAuthn or U2F
+// as signature request to the authenticator.
+//
+// The authenticator reacts to signature requests with
+// the four "magic" bytes set with a special signature,
+// which can then be decoded
+
+function encode_ctaphid_request_as_keyhandle(cmd, addr, data) {
+    console.log('REQUEST CMD', cmd);
+    console.log('REQUEST DATA', data);
+    var addr = 0;
+
+    // should we check that `data` is either null or an Uint8Array?
+    data = data || new Uint8Array();
+
+    const offset = 10;
+
+    if (offset + data.length > 255) {
+        throw new Error("Max size exceeded");
+    }
+
+    // on Solo side, `is_extension_request` expects at least 16 bytes of data
+    const data_pad = data.length < 16 ? 16 - data.length : 0;
+    var array = new Uint8Array(offset + data.length + data_pad);
+
+    array[0] = cmd & 0xff;
+
+    array[1] = (addr >> 0) & 0xff;
+    array[2] = (addr >> 8) & 0xff;
+    array[3] = (addr >> 16) & 0xff;
+
+    // magic values, telling bootloader U2F interface
+    // to interpret `data` as encoded U2F APDU command,
+    // when passed as keyhandle in u2f.sign.
+    // yes, there can theoretically be clashes :)
+    array[4] = 0x8C;  // 140
+    array[5] = 0x27;  //  39
+    array[6] = 0x90;  // 144
+    array[7] = 0xf6;  // 246
+
+    array[8] = 0;
+    array[9] = data.length & 0xff;
+
+    array.set(data, offset);
+
+    console.log('FORMATTED REQUEST:', array);
+    return array;
+}
+
+function decode_ctaphid_response_from_signature(response) {
+    // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#using-the-ctap2-authenticatorgetassertion-command-with-ctap1-u2f-authenticators<Paste>
+    //
+    // compared to `parse_device_response`, the data is encoded a little differently here
+    //
+    // attestation.response.authenticatorData
+    //
+    // first 32 bytes: SHA-256 hash of the rp.id
+    // 1 byte: zeroth bit = user presence set in U2F response (always 1)
+    // last 4 bytes: signature counter (32 bit big-endian)
+    //
+    // attestation.response.signature
+    // signature data (bytes 5-end of U2F response
+
+    console.log('UNFORMATTED RESPONSE:', response);
+
+    signature_count = (
+        new DataView(
+            response.authenticatorData.slice(33, 37)
+        )
+    ).getUint32(0, false); // get count as 32 bit BE integer
+
+    signature = new Uint8Array(response.signature);
+    data = null;
+    error_code = signature[0];
+    if (error_code == 0) {
+        data = signature.slice(1, signature.length);
+
+    }
+    return {
+        count: signature_count,
+        status: ctap_error_codes[error_code],
+        data: data,
+        signature: signature,
+    };
+}
+
+async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
+  // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
+  // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
+  //
+  // the bootloader only supports CTAP1, so the idea is to drop
+  // u2f-api.js and the Firefox about:config fiddling
+  //
+  // problem: the popup to press button flashes up briefly :(
+  //
+
+  const issupported = document.TransportU2F.isSupported();
+  if (issupported) { //Send settime and get response
+    document.TransportU2F.create().then(transport => {
+      let buffer = new Uint8Array(50);
+      buffer.fill(0, 0, 57);
+      buffer[0] = 0x5C;
+      buffer[1] = 0xEF;
+      buffer[2] = 0x0C;
+      buffer[3] = 0xB9;
+      transport.send(0xE4, 0, 0, 0, buffer).then(response => {
+        console.log("GOT RESPONSE", response);
+        return response;
+      }).catch(error => {
+        console.log("ERROR CALLING:", cmd, addr, data);
+        return Promise.resolve();  // error;
+      });
+    });
+  } else {
+    console.log("WebAuthn Transport Not Supported");
+  }
+
+  /*
+
+  const issupported = window.document.TransportU2F.isSupported();
+  if (issupported) { //Send settime and get response
+    window.document.TransportU2F.create().then(transport => {
+      let buffer = new Uint8Array(50);
+      buffer.fill(0, 0, 57);
+      buffer[0] = 0x5C;
+      buffer[1] = 0xEF;
+      buffer[2] = 0x0C;
+      buffer[3] = 0xB9;
+      transport.send(0xE4, 0, 0, 0, buffer).then(response => {
+        console.log("GOT RESPONSE", response);
+        return response;
+      }).catch(error => {
+        console.log("ERROR CALLING:", cmd, addr, data);
+        return Promise.resolve();  // error;
+      });
+    });
+  } else {
+    console.log("U2F Transport Not Supported");
+  }
+
+
+
+
+
+  var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, addr, data);
+  var challenge = window.crypto.getRandomValues(new Uint8Array(32));
+
+  var request_options = {
+      challenge: challenge,
+      allowCredentials: [{
+          id: keyhandle,
+          type: 'public-key',
+      }],
+      timeout: timeout,
+  }
+
+  return navigator.credentials.get({
+    publicKey: request_options
+  }).then(assertion => {
+    console.log("GOT ASSERTION", assertion);
+    console.log("RESPONSE", assertion.response);
+    let response = decode_ctaphid_response_from_signature(assertion.response);
+    console.log("RESPONSE:", response);
+    return response.data;
+  }).catch(error => {
+    console.log("ERROR CALLING:", cmd, addr, data);
+    console.log("THE ERROR:", error);
+    return Promise.resolve();  // error;
+  });
+  */
+
+}
+
+const ctap_error_codes = {
+    0x00: 'CTAP1_SUCCESS',
+    0x01: 'CTAP1_ERR_INVALID_COMMAND',
+    0x02: 'CTAP1_ERR_INVALID_PARAMETER',
+    0x03: 'CTAP1_ERR_INVALID_LENGTH',
+    0x04: 'CTAP1_ERR_INVALID_SEQ',
+    0x05: 'CTAP1_ERR_TIMEOUT',
+    0x06: 'CTAP1_ERR_CHANNEL_BUSY',
+    0x0A: 'CTAP1_ERR_LOCK_REQUIRED',
+    0x0B: 'CTAP1_ERR_INVALID_CHANNEL',
+
+    0x10: 'CTAP2_ERR_CBOR_PARSING',
+    0x11: 'CTAP2_ERR_CBOR_UNEXPECTED_TYPE',
+    0x12: 'CTAP2_ERR_INVALID_CBOR',
+    0x13: 'CTAP2_ERR_INVALID_CBOR_TYPE',
+    0x14: 'CTAP2_ERR_MISSING_PARAMETER',
+    0x15: 'CTAP2_ERR_LIMIT_EXCEEDED',
+    0x16: 'CTAP2_ERR_UNSUPPORTED_EXTENSION',
+    0x17: 'CTAP2_ERR_TOO_MANY_ELEMENTS',
+    0x18: 'CTAP2_ERR_EXTENSION_NOT_SUPPORTED',
+    0x19: 'CTAP2_ERR_CREDENTIAL_EXCLUDED',
+    0x20: 'CTAP2_ERR_CREDENTIAL_NOT_VALID',
+    0x21: 'CTAP2_ERR_PROCESSING',
+    0x22: 'CTAP2_ERR_INVALID_CREDENTIAL',
+    0x23: 'CTAP2_ERR_USER_ACTION_PENDING',
+    0x24: 'CTAP2_ERR_OPERATION_PENDING',
+    0x25: 'CTAP2_ERR_NO_OPERATIONS',
+    0x26: 'CTAP2_ERR_UNSUPPORTED_ALGORITHM',
+    0x27: 'CTAP2_ERR_OPERATION_DENIED',
+    0x28: 'CTAP2_ERR_KEY_STORE_FULL',
+    0x29: 'CTAP2_ERR_NOT_BUSY',
+    0x2A: 'CTAP2_ERR_NO_OPERATION_PENDING',
+    0x2B: 'CTAP2_ERR_UNSUPPORTED_OPTION',
+    0x2C: 'CTAP2_ERR_INVALID_OPTION',
+    0x2D: 'CTAP2_ERR_KEEPALIVE_CANCEL',
+    0x2E: 'CTAP2_ERR_NO_CREDENTIALS',
+    0x2F: 'CTAP2_ERR_USER_ACTION_TIMEOUT',
+    0x30: 'CTAP2_ERR_NOT_ALLOWED',
+    0x31: 'CTAP2_ERR_PIN_INVALID',
+    0x32: 'CTAP2_ERR_PIN_BLOCKED',
+    0x33: 'CTAP2_ERR_PIN_AUTH_INVALID',
+    0x34: 'CTAP2_ERR_PIN_AUTH_BLOCKED',
+    0x35: 'CTAP2_ERR_PIN_NOT_SET',
+    0x36: 'CTAP2_ERR_PIN_REQUIRED',
+    0x37: 'CTAP2_ERR_PIN_POLICY_VIOLATION',
+    0x38: 'CTAP2_ERR_PIN_TOKEN_EXPIRED',
+    0x39: 'CTAP2_ERR_REQUEST_TOO_LARGE',
+}

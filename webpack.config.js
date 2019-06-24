@@ -72,7 +72,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 module.exports = {
-    entry: ['babel-polyfill', '@ledgerhq/hw-transport-webauthn', '@ledgerhq/hw-transport-u2f', './src/app.js'],
+    entry: ['babel-polyfill', './src/app.js'],
     externals: {
       u2f: './u2f-api.js'
     },
