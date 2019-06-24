@@ -130,8 +130,8 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
 
-document.TransportWebAuthn = TransportWebAuthn;
-document.TransportU2F = TransportU2F;
+window.TransportWebAuthn = TransportWebAuthn;
+window.TransportU2F = TransportU2F;
 
 window.initok = initok();
 window.custom_keyid;

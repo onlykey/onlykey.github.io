@@ -667,9 +667,9 @@ async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
   // problem: the popup to press button flashes up briefly :(
   //
 
-  const issupported = document.TransportU2F.isSupported();
+  const issupported = window.TransportWebAuthn.isSupported();
   if (issupported) { //Send settime and get response
-    document.TransportU2F.create().then(transport => {
+    window.TransportWebAuthn.create().then(transport => {
       let buffer = new Uint8Array(50);
       buffer.fill(0, 0, 57);
       buffer[0] = 0x5C;
@@ -690,9 +690,9 @@ async function ctaphid_via_webauthn(cmd, addr, data, timeout) {
 
   /*
 
-  const issupported = window.document.TransportU2F.isSupported();
+  const issupported = window.window.TransportWebAuthn.isSupported();
   if (issupported) { //Send settime and get response
-    window.document.TransportU2F.create().then(transport => {
+    window.window.TransportWebAuthn.create().then(transport => {
       let buffer = new Uint8Array(50);
       buffer.fill(0, 0, 57);
       buffer[0] = 0x5C;
