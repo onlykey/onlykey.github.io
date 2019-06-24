@@ -81,12 +81,13 @@ async function msg_polling(params = {}, cb) {
 
   setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
+  var cmd;
   if (type == 1) { //OKSETTIME
-    var message = [255, 255, 255, 255, OKSETTIME]; //Same header and message type used in App
+    cmd = OKSETTIME;
+    var message = [];
     var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
     msg("Setting current time on OnlyKey to " + new Date());
     var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-    var empty = new Array(23).fill(0);
     Array.prototype.push.apply(message, timePart);
     appKey = nacl.box.keyPair();
     console.info(appKey);
@@ -94,11 +95,9 @@ async function msg_polling(params = {}, cb) {
     console.info(appKey.secretKey);
     console.info("Application ECDH Public Key: ", appKey.publicKey);
     Array.prototype.push.apply(message, appKey.publicKey);
-    Array.prototype.push.apply(message, empty);
-    var encryptedkeyHandle = Uint8Array.from(message);
-    //var b64keyhandle = bytes2b64(message);
-    counter = 0;
-  } else if (type == 2) { //OKGETPUB
+    var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
+  } /*
+  else if (type == 2) { //OKGETPUB
       var message = [255, 255, 255, 255, OKGETPUBKEY]; //Add header and message type
       msg("Checking to see if this key is assigned to an OnlyKey Slot " + window.custom_keyid);
       var empty = new Array(50).fill(0);
@@ -107,22 +106,21 @@ async function msg_polling(params = {}, cb) {
       while (message.length < 64) message.push(0);
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       //var b64keyhandle = bytes2b64(encryptedkeyHandle);
-  } else { //Ping and get Response From OKSIGN or OKDECRYPT
-      if (window._status == 'done_challenge') counter++;
+  } */else { //Ping and get Response From OKSIGN or OKDECRYPT
+      if (window._status == 'done_challenge') //counter++;
       if (window._status == 'finished') return encrypted_data;
       console.info("Sending Ping Request to OnlyKey");
-      var message = [255, 255, 255, 255]; //Add header and message type
-      var ciphertext = new Uint8Array(60).fill(0);
-      ciphertext[0] = OKPING;
+      var message = [];
+      var ciphertext = new Uint8Array(64).fill(0);
       Array.prototype.push.apply(message, ciphertext);
-      while (message.length < 64) message.push(0);
       //var encryptedkeyHandle = await aesgcm_encrypt(message);
       var encryptedkeyHandle = Uint8Array.from(message);
       _setStatus('waiting_ping');
+      cmd = OKPING;
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
-  await ctaphid_via_webauthn(OKSETTIME, null, null, null, encryptedkeyHandle, 2000).then( async (response) => {
+  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 2000).then( async (response) => {
   console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
@@ -145,18 +143,17 @@ async function msg_polling(params = {}, cb) {
           var FWversion = bytes2string(response.slice(8, 20));
           msg("OnlyKey " + OKversion + " " + FWversion + " secure end-to-end encrypted connection established using AES256 GCM\n");
           headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-          msg("HW generated entropy: " + hw_RNG.entropy);
           var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
           console.info("AES Key", key);
       return;
-    } else if (type == 2) {
+    } /*else if (type == 2) {
           var pubkey = response.slice(0, 1); //slot number containing matching key
           msg("Public Key found in slot" + pubkey);
           var entropy = response.slice(2, response.length);
           msg("HW generated entropy" + entropy);
           //Todo finish implementing this
       return pubkey;
-    } else if (type == 3 && window._status == 'finished') {
+    }*/ else if (type == 3 && window._status == 'finished') {
           data = result;
     } else if (type == 4 && window._status == 'finished') {
         var oksignature = result.slice(0, result.length); //4+32+2+32
@@ -396,24 +393,23 @@ function aesgcm_encrypt(plaintext) {
  */
 async function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255, type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId()]; //Add header, message type, and key to use
-    var maxPacketSize = 57;
+    var message = [];
+    var maxPacketSize = 228; //57 (OK packet size) * 4, has to be less than 255 - header
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     var ctChunk = cipherText.slice(0, maxPacketSize);
-    message.push(finalPacket ? ctChunk.length : 255); // 'FF'
     Array.prototype.push.apply(message, ctChunk);
 
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-    while (message.length < 64) message.push(0);
+    while (message.length < 228) message.push(0);
     //var encryptedkeyHandle = await aesgcm_encrypt(message);
 
     console.info("Handlekey bytes ", message);
     //console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-     await ctaphid_via_webauthn(OKSETTIME, null, null, null, message, 2000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
+     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 2000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      var result = response.data;
