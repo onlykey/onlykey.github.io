@@ -143,9 +143,8 @@ async function msg_polling(params = {}, cb) {
           console.info("NACL shared secret: ", sharedsec );
           OKversion = response[19] == 99 ? 'Color' : 'Original';
           var FWversion = bytes2string(response.slice(8, 20));
-          msg("OnlyKey " + OKversion + " " + FWversion);
-          headermsg("OnlyKey " + OKversion + " Connected\n" + FWversion);
-          hw_RNG.entropy = response.slice(53, response.length);
+          msg("OnlyKey " + OKversion + " " + FWversion + " secure end-to-end encrypted connection established using AES256 GCM\n");
+          headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
           msg("HW generated entropy: " + hw_RNG.entropy);
           var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
           console.info("AES Key", key);
@@ -686,7 +685,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     console.log("RESPONSE:", response);
     return response.data;
   }).catch(error => {
-    console.log("ERROR CALLING:", cmd, addr, data);
+    console.log("ERROR CALLING:", cmd, apt1, opt2, opt3, data);
     console.log("THE ERROR:", error);
     return Promise.resolve();  // error;
   });
