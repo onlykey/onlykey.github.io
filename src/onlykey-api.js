@@ -407,7 +407,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-    while (message.length < 228) message.push(0);
+    //while (message.length < 228) message.push(0);
     //var encryptedkeyHandle = await aesgcm_encrypt(message);
 
     console.info("Handlekey bytes ", message);
@@ -420,8 +420,8 @@ async function u2fSignBuffer(cipherText, mainCallback) {
      console.log("DECODED RESPONSE:", response);
      console.log("DECODED RESPONSE:", response.toString('ascii'));
      if ((response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) || (response[0]==84 && response[1]==104 && response[2]==101 && response[3]==114)) {
-       button.textContent = bytes2string(response.slice(0,64));
-       throw new Error(bytes2string(response.slice(0,64)));
+       button.textContent = bytes2string(response.slice(0,53));
+       throw new Error(bytes2string(response.slice(0,53)));
      }
      var result = response;
      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
