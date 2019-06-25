@@ -415,6 +415,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
      console.log("DECODED RESPONSE:", response);
      console.log("DECODED RESPONSE:", response.toString('ascii'));
      if (response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) {
+       button.textContent = bytes2string(response.toString('ascii'));
        throw new Error(bytes2string(response));
      }
      var result = response;
