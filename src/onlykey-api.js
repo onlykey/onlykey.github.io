@@ -126,17 +126,9 @@ async function msg_polling(params = {}, cb) {
     if (window._status === 'finished') {
       console.info("Finished");
     } else if (window._status === 'waiting_ping') {
-
-
-      // If CTAP2_ERR_USER_ACTION_PENDING
-      //0x23
       console.info("Ping Successful");
       _setStatus('pending_challenge');
       data = 1;
-
-      // else if data string matches error display error
-
-      //else get data sig
     }
 
     if (typeof response == "undefined") {
@@ -217,123 +209,6 @@ auth_sign = function (ct, cb) { //OnlyKey sign request to keyHandle
   return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
 };
 
-/**
- * Parse custom U2F sign response
- * @param {Array} response
- */
-async function custom_auth_response(response) {
-  console.info("Response", response);
-  var err = response['errorCode'];
-  var errMes = response['errorMessage'];
-  console.info("Response code ", err);
-  console.info(errMes);
-  if (browserid != 128) { //Chrome
-    if (err) {
-      if (errMes === "device status code: -7f") { //OnlyKey uses err 127 as ping reply, ack
-        console.info("Ack message received");
-      } else if (errMes === "device status code: -80") { //incorrect challenge code entered
-          if (window._status === 'waiting_ping') {
-          console.info("incorrect challenge code entered");
-          button.textContent = "Incorrect challenge code entered";
-          _setStatus('wrong_challenge');
-        }
-      } else if (errMes === "device status code: -81") { //key type not set as signature/decrypt
-        console.info("key type not set as signature/decrypt");
-        button.textContent = "key type not set as signature/decrypt";
-        _setStatus('wrong_type');
-      } else if (errMes === "device status code: -82") { //no key set in this slot
-        console.info("no key set in this slot");
-        button.textContent = "no key set in this slot";
-        _setStatus('no_key');
-      } else if (errMes === "device status code: -83") { //invalid key, key check failed
-        console.info("invalid key, key check failed");
-        button.textContent = "invalid key, key check failed";
-        _setStatus('bad_key');
-      } else if (errMes === "device status code: -84") { //invalid data, or data does not match key
-        console.info("invalid data, or data does not match key");
-        button.textContent = "invalid data, or data does not match key";
-        _setStatus('bad_data');
-      } else if (errMes === "device status code: -85") { //no data ready
-        console.info("no data ready");
-        button.textContent = "no data ready";
-      } else if (errMes === "device status code: -b") {
-        console.info("Timeout or challenge pin entered ");
-        _setStatus('done_challenge');
-        ping(0);
-      } else if (err == 5) { //Ping failed meaning correct challenge entered
-        console.info("Timeout or challenge pin entered ");
-        _setStatus('done_challenge');
-        counter-=2;
-        return 1;
-      } else if (err) {
-        console.info("Failed with error code ", err);
-        counter--;
-        //other error
-        return 1;
-      }
-    counter++;
-    return 1;
-    }
-  } else if (err) {
-    _setStatus('done_challenge');
-    return 1;
-  }
-  var sigData = string2bytes(u2f_unb64(response['signatureData']));
-  console.info("Data Received: ", sigData);
-  var U2Fcounter = sigData.slice(1,5);
-  console.info("U2Fcounter: ", U2Fcounter);
-  var parsedData = [];
-  var halflen;
-  if (sigData[8] == 0) {
-    halflen = 256;
-  } else {
-    halflen = sigData[8];
-  }
-  Array.prototype.push.apply(parsedData, sigData.slice(9,(halflen+9)));
-  Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen)));
-  if (U2Fcounter[0] + U2Fcounter[1] + U2Fcounter[2] + U2Fcounter[3] == 0) { //unencrypted data
-    console.info("Parsed Data: ", parsedData);
-    return parsedData;
-  }
-  else { //encrypted data
-    var decryptedparsedData = await aesgcm_decrypt(parsedData);
-    console.info("Parsed Data: ", decryptedparsedData);
-    if(decryptedparsedData[0] == 69 && decryptedparsedData[1] == 114 && decryptedparsedData[2] == 114 && decryptedparsedData[3] == 111 && decryptedparsedData[4] == 114) {
-      console.info("Decode response message");
-      if (decryptedparsedData[6] == 0) {
-        console.info("Ack message received");
-      } else if(decryptedparsedData[6] == 1) {
-        console.info("incorrect challenge code entered");
-        button.textContent = "Incorrect challenge code entered";
-        _setStatus('wrong_challenge');
-      } else if (decryptedparsedData[6] == 2) {
-        console.info("key type not set as signature/decrypt");
-        button.textContent = "key type not set as signature/decrypt";
-        _setStatus('wrong_type');
-      } else if (decryptedparsedData[6] == 3) {
-        console.info("no key set in this slot");
-        button.textContent = "no key set in this slot";
-        _setStatus('no_key');
-      } else if (decryptedparsedData[6] == 4) {
-        console.info("invalid key, key check failed");
-        button.textContent = "invalid key, key check failed";
-        _setStatus('bad_key');
-      } else if (decryptedparsedData[6] == 5) {
-        console.info("invalid data, or data does not match key");
-        button.textContent = "invalid data, or data does not match key";
-        _setStatus('bad_data');
-      } else if (decryptedparsedData[6] == 6) {
-        console.info("no data ready");
-        button.textContent = "no data ready";
-        return 6;
-      }
-      return 1;
-    }
-    _setStatus('finished');
-    encrypted_data = parsedData;
-    return parsedData;
-  }
-}
 
 /**
  * Perform AES_256_GCM decryption using NACL shared secret
@@ -654,7 +529,7 @@ function decode_ctaphid_response_from_signature(response) {
     error_code = signature[0];
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
-        if (data[0]==0 && data[1]==0 && data[2]==0 && data[3]==0) { 
+        if (data[0]==0 && data[1]==0 && data[2]==0 && data[3]==0) {
           // ping success
         } else if ((data[0]==69 && data[1]==114 && data[2]==114 && data[3]==111) || (data[0]==84 && data[1]==104 && data[2]==101 && data[3]==114)) {
           // got error
@@ -664,9 +539,10 @@ function decode_ctaphid_response_from_signature(response) {
           // got data
           _setStatus('done_challenge');
         }
+    } else if (error_code == 0x2A) {
+      button.textContent = bytes2string('no data received');
+      _setStatus('finished');
     }
-
-
 
     return {
         count: signature_count,
