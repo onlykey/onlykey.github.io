@@ -654,15 +654,19 @@ function decode_ctaphid_response_from_signature(response) {
     error_code = signature[0];
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
+        if (data[0]==0 && data[1]==0 && data[2]==0 && data[3]==0) { 
+          // ping success
+        } else if ((data[0]==69 && data[1]==114 && data[2]==114 && data[3]==111) || (data[0]==84 && data[1]==104 && data[2]==101 && data[3]==114)) {
+          // got error
+          button.textContent = bytes2string(data.slice(0,63));
+          throw new Error(bytes2string(data.slice(0,63)));
+        } else if (window._status === 'waiting_ping') {
+          // got data
+          _setStatus('done_challenge');
+        }
     }
 
-    if (response[0]==0 && response[1]==0 && response[2]==0 && response[3]==0) { 
-    } else if ((response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) || (response[0]==84 && response[1]==104 && response[2]==101 && response[3]==114)) {
-      button.textContent = bytes2string(response.slice(0,63));
-      throw new Error(bytes2string(response.slice(0,63)));
-    } else if (window._status === 'waiting_ping') {
-      _setStatus('done_challenge');
-    }
+
 
     return {
         count: signature_count,
