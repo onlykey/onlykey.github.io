@@ -126,9 +126,17 @@ async function msg_polling(params = {}, cb) {
     if (window._status === 'finished') {
       console.info("Finished");
     } else if (window._status === 'waiting_ping') {
+
+
+      // If CTAP2_ERR_USER_ACTION_PENDING
+      //0x23
       console.info("Ping Successful");
       _setStatus('pending_challenge');
       data = 1;
+
+      // else if data string matches error display error
+
+      //else get data sig
     }
 
     if (typeof response == "undefined") {
@@ -250,7 +258,6 @@ async function custom_auth_response(response) {
         button.textContent = "no data ready";
       } else if (errMes === "device status code: -b") {
         console.info("Timeout or challenge pin entered ");
-        counter-=3;
         _setStatus('done_challenge');
         ping(0);
       } else if (err == 5) { //Ping failed meaning correct challenge entered
@@ -419,10 +426,6 @@ async function u2fSignBuffer(cipherText, mainCallback) {
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      console.log("DECODED RESPONSE:", response);
      console.log("DECODED RESPONSE:", response.toString('ascii'));
-     if ((response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) || (response[0]==84 && response[1]==104 && response[2]==101 && response[3]==114)) {
-       button.textContent = bytes2string(response.slice(0,53));
-       throw new Error(bytes2string(response.slice(0,53)));
-     }
      var result = response;
      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
@@ -651,8 +654,19 @@ function decode_ctaphid_response_from_signature(response) {
     error_code = signature[0];
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
-
     }
+
+    if (error_code == 0x23) { //CTAP2_ERR_USER_ACTION_PENDING
+      _setStatus('waiting_ping');
+    } else if (error_code == 0x2A) { //CTAP2_ERR_NO_OPERATION_PENDING
+      _setStatus('finished');
+      button.textContent = "An unknown error occurred";
+      throw new Error("An unknown error occurred");
+    } else if ((response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) || (response[0]==84 && response[1]==104 && response[2]==101 && response[3]==114)) {
+      button.textContent = bytes2string(response.slice(0,63));
+      throw new Error(bytes2string(response.slice(0,63)));
+    }
+
     return {
         count: signature_count,
         status: ctap_error_codes[error_code],
