@@ -419,7 +419,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      console.log("DECODED RESPONSE:", response);
      console.log("DECODED RESPONSE:", response.toString('ascii'));
-     if (response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) {
+     if ((response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) || (response[0]==84 && response[1]==104 && response[2]==101 && response[3]==114)) {
        button.textContent = bytes2string(response.toString('ascii'));
        throw new Error(bytes2string(response));
      }
