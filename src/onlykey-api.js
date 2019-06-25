@@ -396,7 +396,12 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var message = [];
     var maxPacketSize = 228; //57 (OK packet size) * 4, has to be less than 255 - header
     var finalPacket = cipherText.length - maxPacketSize <= 0;
-    var ctChunk = cipherText.slice(0, maxPacketSize);
+    if (cipherText.length < maxPacketSize) {
+      var ctChunk = cipherText;
+    } else {
+      var ctChunk = cipherText.slice(0, maxPacketSize);
+    }
+
     Array.prototype.push.apply(message, ctChunk);
 
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
