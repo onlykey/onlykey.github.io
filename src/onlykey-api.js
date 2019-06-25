@@ -129,11 +129,6 @@ async function msg_polling(params = {}, cb) {
       console.info("Ping Successful");
       _setStatus('pending_challenge');
       data = 1;
-    }
-
-    if (typeof response == "undefined") {
-      msg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
-      headermsg("OnlyKey Not Connected\n" + "Remove and Reinsert OnlyKey");
     } else if (type == 1) {
           okPub = response.slice(21, 53);
           console.info("OnlyKey Public Key: ", okPub );
@@ -154,9 +149,9 @@ async function msg_polling(params = {}, cb) {
           //Todo finish implementing this
       return pubkey;
     }*/ else if (type == 3 && window._status == 'finished') {
-          data = result;
+          data = response;
     } else if (type == 4 && window._status == 'finished') {
-        var oksignature = result.slice(0, result.length); //4+32+2+32
+        var oksignature = response.slice(0, result.length); //4+32+2+32
         data = oksignature;
     }
     if (typeof cb === 'function') cb(null, data);
@@ -534,6 +529,7 @@ function decode_ctaphid_response_from_signature(response) {
         } else if ((data[0]==69 && data[1]==114 && data[2]==114 && data[3]==111) || (data[0]==84 && data[1]==104 && data[2]==101 && data[3]==114)) {
           // got error
           button.textContent = bytes2string(data.slice(0,63));
+          _setStatus('finished');
           throw new Error(bytes2string(data.slice(0,63)));
         } else if (window._status === 'waiting_ping') {
           // got data
@@ -542,6 +538,7 @@ function decode_ctaphid_response_from_signature(response) {
     } else if (error_code == 0x2A) {
       button.textContent = bytes2string('no data received');
       _setStatus('finished');
+      throw new Error(bytes2string('no data received'));
     }
 
     return {
