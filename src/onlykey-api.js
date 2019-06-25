@@ -656,12 +656,7 @@ function decode_ctaphid_response_from_signature(response) {
         data = signature.slice(1, signature.length);
     }
 
-    if (error_code == 0x23) { //CTAP2_ERR_USER_ACTION_PENDING
-      _setStatus('waiting_ping');
-    } else if (error_code == 0x2A) { //CTAP2_ERR_NO_OPERATION_PENDING
-      _setStatus('finished');
-      button.textContent = "An unknown error occurred";
-      throw new Error("An unknown error occurred");
+    if (response[0]==0 && response[1]==0 && response[2]==0 && response[3]==0) { 
     } else if ((response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) || (response[0]==84 && response[1]==104 && response[2]==101 && response[3]==114)) {
       button.textContent = bytes2string(response.slice(0,63));
       throw new Error(bytes2string(response.slice(0,63)));
