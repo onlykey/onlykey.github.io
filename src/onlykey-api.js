@@ -665,6 +665,8 @@ function decode_ctaphid_response_from_signature(response) {
     } else if ((response[0]==69 && response[1]==114 && response[2]==114 && response[3]==111) || (response[0]==84 && response[1]==104 && response[2]==101 && response[3]==114)) {
       button.textContent = bytes2string(response.slice(0,63));
       throw new Error(bytes2string(response.slice(0,63)));
+    } else if (window._status === 'waiting_ping') {
+      _setStatus('done_challenge');
     }
 
     return {
