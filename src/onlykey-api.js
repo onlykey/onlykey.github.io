@@ -151,7 +151,7 @@ async function msg_polling(params = {}, cb) {
     }*/ else if (type == 3 && window._status == 'finished') {
           data = response;
     } else if (type == 4 && window._status == 'finished') {
-        var oksignature = response.slice(0, result.length); //4+32+2+32
+        var oksignature = response.slice(0, response.length); //4+32+2+32
         data = oksignature;
     }
     if (typeof cb === 'function') cb(null, data);
@@ -530,7 +530,6 @@ function decode_ctaphid_response_from_signature(response) {
           _setStatus(document.getElementById('onlykey_start').value);
         } else if (signature.length==73) {
           // Something went wrong, read the ascii response and display to user
-          data = signature.slice(1, signature.length);
           const btmsg = `${bytes2string(data.slice(0,63))}. Refresh this page and try again.`;
           button.textContent = btmsg;
           button.classList.remove('working');
@@ -539,6 +538,7 @@ function decode_ctaphid_response_from_signature(response) {
           throw new Error(bytes2string(data.slice(0,63)));
         } else if (window._status === 'waiting_ping') {
           // got data
+          encrypted_data = data;
           _setStatus('finished');
         }
     } else if (error_code == ctap_error_codes['CTAP2_ERR_NO_OPERATION_PENDING']) {
