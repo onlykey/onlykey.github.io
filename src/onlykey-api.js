@@ -130,16 +130,16 @@ async function msg_polling(params = {}, cb) {
       _setStatus('pending_challenge');
       data = 1;
     } else if (type == 1) {
-          okPub = response.slice(21, 53);
-          console.info("OnlyKey Public Key: ", okPub );
-          sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-          console.info("NACL shared secret: ", sharedsec );
-          OKversion = response[19] == 99 ? 'Color' : 'Original';
-          var FWversion = bytes2string(response.slice(8, 20));
-          msg("OnlyKey " + OKversion + " " + FWversion + " secure end-to-end encrypted connection established using AES256 GCM\n");
-          headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-          var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
-          console.info("AES Key", key);
+      okPub = response.slice(21, 53);
+      console.info("OnlyKey Public Key: ", okPub );
+      sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+      console.info("NACL shared secret: ", sharedsec );
+      OKversion = response[19] == 99 ? 'Color' : 'Original';
+      var FWversion = bytes2string(response.slice(8, 20));
+      msg("OnlyKey " + OKversion + " " + FWversion + " secure end-to-end encrypted connection established using AES256 GCM\n");
+      headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
+      var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+      console.info("AES Key", key);
       return;
     } /*else if (type == 2) {
           var pubkey = response.slice(0, 1); //slot number containing matching key
@@ -329,13 +329,15 @@ window.doPinTimer = async function (seconds) {
       await ping(window.poll_delay); //Delay
     } else if (window._status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
-          const err = 'Time expired for PIN confirmation';
-          return reject(err);
-        }
+          const btmsg = 'Time expired for PIN confirmation';
+          button.textContent = btmsg;
+          return reject(btmsg);
+        } else {
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
         await ping(0);
+        }
     }
 
     if (window._status === 'finished') {
@@ -527,7 +529,7 @@ function decode_ctaphid_response_from_signature(response) {
         data = signature.slice(1, signature.length);
          if (window._status === 'waiting_ping') {
           // got data
-          _setStatus('done_challenge');
+          _setStatus('finished');
         }
     } else if (error_code == ctap_error_codes['CTAP2_ERR_NO_OPERATION_PENDING']) {
       // No data received, data has already been retreived or wiped due to 5 second timeout
