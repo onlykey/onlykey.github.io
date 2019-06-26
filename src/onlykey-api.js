@@ -527,7 +527,14 @@ function decode_ctaphid_response_from_signature(response) {
 
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
-         if (window._status === 'waiting_ping') {
+        if (signature.length==72) {
+          // Something went wrong, read the ascii response and display to user
+          data = signature.slice(1, signature.length);
+          const btmsg = `${bytes2string(data.slice(0,63))}. Refresh this page and try again.`;
+          button.textContent = btmsg;
+          _setStatus('finished');
+          throw new Error(bytes2string(data.slice(0,63)));
+        } else if (window._status === 'waiting_ping') {
           // got data
           _setStatus('finished');
         }
@@ -537,15 +544,6 @@ function decode_ctaphid_response_from_signature(response) {
       button.textContent = bytes2string('no data received');
       _setStatus('finished');
       throw new Error(bytes2string('no data received'));
-
-    } else if (error_code == ctap_error_codes['CTAP2_ERR_OPERATION_DENIED']) {
-      // Something went wrong, read the ascii response and display to user
-
-      data = signature.slice(1, signature.length);
-      const btmsg = `${bytes2string(data.slice(0,63))}. Refresh this page and try again.`;
-      button.textContent = btmsg;
-      _setStatus('finished');
-      throw new Error(bytes2string(data.slice(0,63)));
 
     } else if (error_code == ctap_error_codes['CTAP2_ERR_USER_ACTION_PENDING']) {
       // Waiting for user to press button or enter challenge
