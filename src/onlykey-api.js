@@ -331,6 +331,8 @@ window.doPinTimer = async function (seconds) {
         if (secondsRemaining <= 4) {
           const btmsg = 'Time expired for PIN confirmation';
           button.textContent = btmsg;
+          button.classList.remove('working');
+          button.classList.add('error');
           return reject(btmsg);
         } else {
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
@@ -341,12 +343,8 @@ window.doPinTimer = async function (seconds) {
     }
 
     if (window._status === 'finished') {
-      var decrypted_data = await aesgcm_decrypt(encrypted_data);
-      if (decrypted_data.length == 64) {
-        var entropy = decrypted_data.slice(36, 64);
-        decrypted_data = decrypted_data.slice(0, 35);
-        console.info("HW generated entropy =", entropy);
-      }
+      //var decrypted_data = await aesgcm_decrypt(encrypted_data);
+      var decrypted_data = encrypted_data;
       console.info("Parsed Decrypted Data: ", decrypted_data);
       return resolve(decrypted_data);
     }
