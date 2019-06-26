@@ -120,7 +120,7 @@ async function msg_polling(params = {}, cb) {
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
-  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 2000).then( async (response) => {
+  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 1000).then( async (response) => {
   console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
@@ -291,7 +291,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     //console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 2000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
+     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 1000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      console.log("DECODED RESPONSE:", response);
@@ -522,24 +522,38 @@ function decode_ctaphid_response_from_signature(response) {
     signature = new Uint8Array(response.signature);
     data = null;
     error_code = signature[0];
+
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
-        if (data[0]==0 && data[1]==0 && data[2]==0 && data[3]==0) {
-          // ping success
-        } else if ((data[0]==69 && data[1]==114 && data[2]==114 && data[3]==111) || (data[0]==84 && data[1]==104 && data[2]==101 && data[3]==114)) {
-          // got error
-          button.textContent = bytes2string(data.slice(0,63));
-          _setStatus('finished');
-          throw new Error(bytes2string(data.slice(0,63)));
-        } else if (window._status === 'waiting_ping') {
+         if (window._status === 'waiting_ping') {
           // got data
           _setStatus('done_challenge');
         }
-    } else if (error_code == 0x2A) {
+    } else if (error_code == ctap_error_codes['CTAP2_ERR_NO_OPERATION_PENDING']) {
+      // No data received, data has already been retreived or wiped due to 5 second timeout
+
+      button.textContent = bytes2string('no data received');
+      _setStatus('finished');
+      throw new Error(bytes2string('no data received'));
+
+    } else if (error_code == ctap_error_codes['CTAP2_ERR_OPERATION_DENIED']) {
+      // Something went wrong, read the ascii response and display to user
+
+      data = signature.slice(1, signature.length);
+      const btmsg = `${bytes2string(data.slice(0,63))}. Refresh this page and try again.`;
+      button.textContent = btmsg;
+      _setStatus('finished');
+      throw new Error(bytes2string(data.slice(0,63)));
+
+    } else if (error_code == ctap_error_codes['CTAP2_ERR_USER_ACTION_PENDING']) {
+      // Waiting for user to press button or enter challenge
+
       button.textContent = bytes2string('no data received');
       _setStatus('finished');
       throw new Error(bytes2string('no data received'));
     }
+
+
 
     return {
         count: signature_count,
