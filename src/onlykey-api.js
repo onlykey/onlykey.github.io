@@ -344,9 +344,9 @@ window.doPinTimer = async function (seconds) {
 
     if (window._status === 'finished') {
       //var decrypted_data = await aesgcm_decrypt(encrypted_data);
-      var decrypted_data = encrypted_data;
-      console.info("Parsed Decrypted Data: ", decrypted_data);
-      return resolve(decrypted_data);
+
+      console.info("Parsed Decrypted Data: ", encrypted_data);
+      return resolve(encrypted_data);
     }
 
     setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
