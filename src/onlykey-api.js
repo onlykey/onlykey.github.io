@@ -321,10 +321,12 @@ window.doPinTimer = async function (seconds) {
 
     if (window._status === 'done_challenge' || window._status === 'waiting_ping') {
       _setStatus('done_challenge');
-      const btmsg = `Waiting ${window.poll_delay} seconds while OnlyKey processes request.`;
+      const btmsg = `Waiting ${window.poll_delay} seconds for OnlyKey to process message.`;
       button.textContent = btmsg;
+      console.info("Delay ", window.poll_delay);
+      await ping(window.poll_delay-2); //Delay
     } else if (window._status === 'pending_challenge') {
-        if (secondsRemaining <= 4) {
+        if (secondsRemaining < 4) {
           const btmsg = 'Time expired for PIN confirmation';
           button.textContent = btmsg;
           button.classList.remove('working');
