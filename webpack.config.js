@@ -26,6 +26,24 @@ let plugins = [
         showErrors: false
     }),
     new HtmlWebpackPlugin({
+        filename: (process.env.NODE_ENV === 'production') ? './encrypt-file.html' : './encrypt-file-dev.html',
+        template: './src/encrypt-file-src.html',
+        inject: 'body',
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
+        hash: (process.env.NODE_ENV === 'production') ? true : false,
+        cache: false,
+        showErrors: false
+    }),
+    new HtmlWebpackPlugin({
+        filename: (process.env.NODE_ENV === 'production') ? './decrypt-file.html' : './decrypt-file-dev.html',
+        template: './src/decrypt-file-src.html',
+        inject: 'body',
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
+        hash: (process.env.NODE_ENV === 'production') ? true : false,
+        cache: false,
+        showErrors: false
+    }),
+    new HtmlWebpackPlugin({
         filename: (process.env.NODE_ENV === 'production') ? './index.html' : './index-dev.html',
         template: './src/index-src.html',
         inject: 'body',
