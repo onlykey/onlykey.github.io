@@ -120,7 +120,7 @@ async function msg_polling(params = {}, cb) {
   }
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
-  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 15000).then( async (response) => {
+  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 20000).then( async (response) => {
   console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
@@ -291,7 +291,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     //console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 15000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
+     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 20000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      console.log("DECODED RESPONSE:", response);
@@ -326,6 +326,7 @@ window.doPinTimer = async function (seconds) {
       button.textContent = btmsg;
       console.info("Delay ", window.poll_delay);
       await ping(window.poll_delay); //Delay
+      if (window._status === 'done_challenge' && window.poll_delay > 7) throw new Error("Timeout");
     } else if (window._status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
           const btmsg = 'Time expired for PIN confirmation';
@@ -596,11 +597,12 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }).catch(error => {
     console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
     console.log("THE ERROR:", error);
-    if (error == 'DOMException') {
+    if (error == 'Timeout') {
       // Timeout waiting for RESPONSE
       return 1;
-    }
+    } else {
     return Promise.resolve();  // error;
+    }
   });
 }
 
