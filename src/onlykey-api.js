@@ -550,7 +550,6 @@ function decode_ctaphid_response_from_signature(response) {
     } else if (error_code == ctap_error_codes['CTAP2_ERR_OPERATION_PENDING']) {
       // Waiting for user to press button or enter challenge
       console.log('CTAP2_ERR_OPERATION_PENDING');
-      _setStatus('done_challenge');
     }
 
 
@@ -596,6 +595,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     console.log("RESPONSE:", response);
     if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING') return response.status;
     if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
+      _setStatus('done_challenge');
       return response.status;
     }
     return response.data;
