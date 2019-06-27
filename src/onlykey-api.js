@@ -596,6 +596,10 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }).catch(error => {
     console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
     console.log("THE ERROR:", error);
+    if (error == 'DOMException') {
+      // Timeout waiting for RESPONSE
+      return 1;
+    }
     return Promise.resolve();  // error;
   });
 }
