@@ -535,7 +535,7 @@ function decode_ctaphid_response_from_signature(response) {
           button.classList.add('error');
           _setStatus('finished');
           throw new Error(bytes2string(data.slice(0,63)));
-        } else if (signature.length>=65 && window._status === 'waiting_ping') {
+        } else if (window._status === 'waiting_ping') {
           // got data
           encrypted_data = data;
           _setStatus('finished');
