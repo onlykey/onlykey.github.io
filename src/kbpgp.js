@@ -20126,9 +20126,9 @@ _break()
                     sig = arguments[0].to_mpi_buffer();
                     console.info("signature from app:", sig);
                     size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
-                    hdr = Buffer.from(new Uint8Array(2));
+                    hdr = new Uint8Array(2);
                     hdr.writeUInt16BE(size, 0);
-                    sig = Buffer.concat([hdr, Buffer.from(ok_sig)]);
+                    sig = hdr.concat(Uint8Array.from(ok_sig));
                     console.info("sig:", sig);
                     return cb(null, sig);
                 });
