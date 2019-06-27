@@ -451,12 +451,12 @@
   };
 
   toMPI = function(bn) {
-    var ba, hdr, size;
+    var ba, size;
     ba = bn.toByteArray();
     size = (ba.length - 1) * 8 + nbits(ba[0]);
-    hdr = Buffer.alloc(2);
+    var hdr = new Uint8Array(2);
     hdr.writeUInt16BE(size, 0);
-    return Buffer.concat([hdr, Buffer.from(ba)]);
+    return Buffer.concat([Buffer.from(hdr), Buffer.from(ba)]);
   };
 
   mpi_from_buffer = function(raw) {
