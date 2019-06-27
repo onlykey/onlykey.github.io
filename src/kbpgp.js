@@ -20129,7 +20129,10 @@ _break()
                     hdr = new Uint8Array(2);
                     hdr[0] = (size >>> 8);
                     hdr[1] = (size & 0xff);
-                    sig = hdr.concat(Uint8Array.from(ok_sig));
+                    ok_sig = Uint8Array.from(ok_sig);
+                    sig = new Uint8Array(hdr.length + ok_sig.length);
+                    sig.set(hdr);
+                    sig.set(ok_sig, hdr.length);
                     console.info("sig:", sig);
                     return cb(null, sig);
                 });
