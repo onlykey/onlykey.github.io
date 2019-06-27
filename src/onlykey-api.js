@@ -295,7 +295,6 @@ async function u2fSignBuffer(cipherText, mainCallback) {
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      console.log("DECODED RESPONSE:", response);
-     console.log("DECODED RESPONSE:", response.toString('ascii'));
      var result = response;
      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
