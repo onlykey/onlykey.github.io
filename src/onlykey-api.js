@@ -604,7 +604,10 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }).catch(error => {
     console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
     console.log("THE ERROR:", error);
-    if (error.name == 'NS_ERROR_ABORT') return 1;
+    if (error.name == 'NS_ERROR_ABORT')  {
+      _setStatus('done_challenge');
+      return 1;
+    }
     return Promise.resolve();  // error;
   });
 }
