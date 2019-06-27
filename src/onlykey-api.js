@@ -592,6 +592,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     console.log("RESPONSE", assertion.response);
     let response = decode_ctaphid_response_from_signature(assertion.response);
     console.log("RESPONSE:", response);
+    if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING') return response.status;
     return response.data;
   }).catch(error => {
     console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
