@@ -136,7 +136,7 @@ async function msg_polling(params = {}, cb) {
       console.info("NACL shared secret: ", sharedsec );
       OKversion = response[19] == 99 ? 'Color' : 'Original';
       var FWversion = bytes2string(response.slice(8, 20));
-      msg("OnlyKey " + OKversion + " " + FWversion + " secure end-to-end encrypted connection established using AES256 GCM\n");
+      msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
       headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
       var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
       console.info("AES Key", key);
@@ -525,10 +525,10 @@ function decode_ctaphid_response_from_signature(response) {
 
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
-        if (signature.length==73 && bytes2string(data.slice(0,9))=='UNLOCKEDv') {
+        if (signature.length<73 && bytes2string(data.slice(0,9))=='UNLOCKEDv') {
           // Reset shared secret and start over
           _setStatus(document.getElementById('onlykey_start').value);
-        } else if (signature.length==73) {
+        } else if (signature.length<73) {
           // Something went wrong, read the ascii response and display to user
           const btmsg = `${bytes2string(data.slice(0,63))}. Refresh this page and try again.`;
           button.textContent = btmsg;
