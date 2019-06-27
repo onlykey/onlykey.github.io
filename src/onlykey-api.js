@@ -107,7 +107,6 @@ async function msg_polling(params = {}, cb) {
       var encryptedkeyHandle = await aesgcm_encrypt(message);
       //var b64keyhandle = bytes2b64(encryptedkeyHandle);
   } */else { //Ping and get Response From OKSIGN or OKDECRYPT
-      if (window._status == 'done_challenge') //counter++;
       if (window._status == 'finished') return encrypted_data;
       console.info("Sending Ping Request to OnlyKey");
       var message = [];
@@ -535,7 +534,7 @@ function decode_ctaphid_response_from_signature(response) {
           button.classList.add('error');
           _setStatus('finished');
           throw new Error(bytes2string(data.slice(0,63)));
-        } else if (window._status === 'waiting_ping') {
+        } else if (window._status === 'waiting_ping' || window._status === 'done_challenge') {
           // got data
           encrypted_data = data;
           _setStatus('finished');
@@ -592,6 +591,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     let response = decode_ctaphid_response_from_signature(assertion.response);
     console.log("RESPONSE:", response);
     if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING') return response.status;
+    if (response.status == 'CTAP2_ERR_PROCESSING') return response.status;
     return response.data;
   }).catch(error => {
     console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
