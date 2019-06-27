@@ -16790,7 +16790,9 @@ _continue()
               (function(__iced_k) {
                 if (err == null) {
 */
-                  packet = esk_packets[index];
+                  console.info(esk_packets);
+                  packet = esk_packets[0];
+                  console.info(packet);
                   //key_material = km.find_pgp_key_material(key_ids[index]);
                   //fingerprint = key_material.get_fingerprint();
                   //privk = key_material.key;
