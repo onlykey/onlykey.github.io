@@ -326,7 +326,6 @@ window.doPinTimer = async function (seconds) {
       button.textContent = btmsg;
       console.info("Delay ", window.poll_delay);
       await ping(window.poll_delay); //Delay
-      if (window._status === 'done_challenge' && window.poll_delay > 7) return reject('Timeout');
     } else if (window._status === 'pending_challenge') {
         if (secondsRemaining <= 4) {
           const btmsg = 'Time expired for PIN confirmation';
@@ -597,12 +596,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }).catch(error => {
     console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
     console.log("THE ERROR:", error);
-    if (error == 'Timeout') {
-      // Timeout waiting for RESPONSE
-      return 1;
-    } else {
     return Promise.resolve();  // error;
-    }
   });
 }
 
