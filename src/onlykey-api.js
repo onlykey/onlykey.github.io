@@ -525,10 +525,10 @@ function decode_ctaphid_response_from_signature(response) {
 
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
-        if (signature.length<=64 && bytes2string(data.slice(0,9))=='UNLOCKEDv') {
+        if (signature.length<65 && bytes2string(data.slice(0,9))=='UNLOCKEDv') {
           // Reset shared secret and start over
           _setStatus(document.getElementById('onlykey_start').value);
-        } else if (signature.length<=64 && bytes2string(data.slice(0,6))=='ERROR ') {
+        } else if (signature.length<65 && bytes2string(data.slice(0,6))=='ERROR ') {
           // Something went wrong, read the ascii response and display to user
           const btmsg = `${bytes2string(data.slice(0,63))}. Refresh this page and try again.`;
           button.textContent = btmsg;
@@ -536,7 +536,7 @@ function decode_ctaphid_response_from_signature(response) {
           button.classList.add('error');
           _setStatus('finished');
           throw new Error(bytes2string(data.slice(0,63)));
-        } else if (window._status === 'waiting_ping') {
+        } else if (signature.length>=65 && window._status === 'waiting_ping') {
           // got data
           encrypted_data = data;
           _setStatus('finished');
