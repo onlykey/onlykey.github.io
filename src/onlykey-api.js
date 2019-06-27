@@ -543,13 +543,13 @@ function decode_ctaphid_response_from_signature(response) {
     } else if (error_code == ctap_error_codes['CTAP2_ERR_NO_OPERATION_PENDING']) {
       // No data received, data has already been retreived or wiped due to 5 second timeout
 
-      button.textContent = bytes2string('no data received');
+      button.textContent = 'no data received';
       _setStatus('finished');
-      throw new Error(bytes2string('no data received'));
+      throw new Error('no data received');
 
     } else if (error_code == ctap_error_codes['CTAP2_ERR_USER_ACTION_PENDING']) {
       // Waiting for user to press button or enter challenge
-      data = signature.slice(1, signature.length);
+      data = 'CTAP2_ERR_USER_ACTION_PENDING';
       console.log('CTAP2_ERR_USER_ACTION_PENDING', data);
     }
 
