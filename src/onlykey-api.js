@@ -9,6 +9,7 @@ var hw_RNG = {};
 var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
+var browser = "chrome";
 
 var sha256 = function(s) {
   var md = forge.md.sha256.create();
@@ -44,16 +45,13 @@ const button = document.getElementById('onlykey_start');
  */
 initok = async function () {
   //Initialize OnlyKey
-  //  if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 || navigator.userAgent.toLowerCase().indexOf('android') > -1) {
-    //browserid = 128; //Firefox
-  //  console.info("Firefox browser");
-  //} else {
-  //  console.info("Chrome browser (Default)");
-  //}
+    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ) browser = "firefox";
+    if (navigator.userAgent.toLowerCase().indexOf('android') > -1 ) browser = "android";
     msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
     await wait(3000);
     if (typeof(sharedsec) === "undefined") {
-    headermsg("OnlyKey not connected! Remove/reinsert OnlyKey and then refresh page");
+      if (browser=='firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
+      else headermsg("OnlyKey not connected! Refresh this page to try again.");
   } else {
     //Initialize App
      window.initapp();

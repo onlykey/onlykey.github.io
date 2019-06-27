@@ -192,12 +192,12 @@ class Pgp2go {
           if (err)
               return void this.showError(err);
           if (Decrypt_Only) {
-          button.textContent = "Done :) Click to copy message";
+          button.textContent = "Done :) Click here to copy message";
           } else {
             var ds = recipient_public_key = null;
               ds = ct[0].get_data_signer();
               if (ds == null) {
-                button.textContent = "Done :) Message has no signature, Click to copy message";
+                button.textContent = "Done :) Message has no signature, Click here to copy message";
               } else {
                 console.log(ds);
                 if (ds) { recipient_public_key = ds.get_key_manager(); }
@@ -208,7 +208,7 @@ class Pgp2go {
                   var userid = recipient_public_key.userids[0].components.email.split("@")[0];
                   console.log(keyid);
                   console.log(userid);
-                  button.textContent = "Done :) Signed by " + userid + " (Key ID: " + keyid + "), Click to copy message";
+                  button.textContent = "Done :) Signed by " + userid + " (Key ID: " + keyid + "), Click here to copy message";
               }
             }
           }
@@ -309,7 +309,8 @@ class Pgp2go {
               this.showError(err);
               return;
           }
-          button.textContent = 'Done :)  Click to copy message, then paste encrypted message into an email, IM, whatever.';
+          if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  Click here to copy message, then paste signed message into an email, IM, whatever.';
+          else button.textContent = 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.';
           window._status = "finished";
           messagebox.value =  results;
           messagebox.focus();
