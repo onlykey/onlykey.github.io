@@ -550,6 +550,7 @@ function decode_ctaphid_response_from_signature(response) {
     } else if (error_code == ctap_error_codes['CTAP2_ERR_USER_ACTION_PENDING']) {
       // Waiting for user to press button or enter challenge
       data = signature.slice(1, signature.length);
+      console.log('CTAP2_ERR_USER_ACTION_PENDING', data);
     }
 
 
