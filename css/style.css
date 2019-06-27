@@ -72,7 +72,11 @@ button:hover {
 }
 
 #message {
-    min-height: 70%;
+    min-height: 35%;
+}
+
+#file {
+    min-height: 20%;
 }
 
 fieldset {

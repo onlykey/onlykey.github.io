@@ -8,6 +8,7 @@ const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
+const infile = document.getElementById('file');
 const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key; //Placeholder key
@@ -168,7 +169,8 @@ class Pgp2go {
               sender_public_key = urlinputbox.value;
             }
           }
-          this.decryptText(sender_public_key, messagebox.value);
+          if (typeof messagebox !== "undefined") this.decryptText(sender_public_key, messagebox.value);
+          else this.decryptFile(sender_public_key, infile.value);
 	}
 
 	decryptText(key, ct) {
@@ -220,6 +222,57 @@ class Pgp2go {
       });
   }
 
+  decryptFile(key, ct) {
+      switch (window._status) {
+        case 'Decrypt and Verify':
+          this.loadPublic(key);
+          button.textContent = 'Decrypting and verifying message ...';
+          break;
+        case 'Decrypt Only':
+          button.textContent = 'Decrypting message ...';
+          var Decrypt_Only = true;
+          break;
+        default:
+      }
+      this.loadPrivate();
+      kbpgp.unbox({
+              keyfetch: ring,
+              armored: ct,
+              strict : Decrypt_Only ? false : true
+          }, (err, ct) => {
+          if (err)
+              return void this.showError(err);
+          if (Decrypt_Only) {
+          button.textContent = "Done :) Click here to copy message";
+          } else {
+            var ds = recipient_public_key = null;
+              ds = ct[0].get_data_signer();
+              if (ds == null) {
+                button.textContent = "Done :) Message has no signature, Click here to copy message";
+              } else {
+                console.log(ds);
+                if (ds) { recipient_public_key = ds.get_key_manager(); }
+                if (recipient_public_key) {
+                  console.log("Signed by PGP Key");
+                  var keyid = recipient_public_key.get_pgp_fingerprint().toString('hex').toUpperCase();
+                  keyid = keyid.slice(24, 40);
+                  var userid = recipient_public_key.userids[0].components.email.split("@")[0];
+                  console.log(keyid);
+                  console.log(userid);
+                  button.textContent = "Done :) Signed by " + userid + " (Key ID: " + keyid + "), Click here to copy message";
+              }
+            }
+          }
+          console.info(ct);
+
+          //messagebox.value = ct;
+          //messagebox.focus();
+          //messagebox.select();
+
+          button.classList.remove("working")
+      });
+  }
+
   async startEncryption() {
       button.classList.remove('error');
       button.classList.add('working');
@@ -246,7 +299,8 @@ class Pgp2go {
           } else {
             recipient_public_key = urlinputbox2.value;
       }
-        await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
+      if (typeof messagebox !== "undefined") await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
+      else await this.encryptFile(sender_public_key, recipient_public_key, infile.value);
   }
 
   downloadPublicKey(url) {
@@ -319,6 +373,56 @@ class Pgp2go {
           return resolve();
       });
   });
+}
+
+async encryptFile(key1, key2, msg) {
+    return new Promise(resolve => {
+    switch (window._status) {
+      case 'Encrypt and Sign':
+        this.loadPublic(key1);
+        this.loadPublicSignerID(key2);
+        this.loadPrivate();
+        var params = {
+          msg: msg,
+          encrypt_for: recipient_public_key,
+          sign_with: sender_private_key
+        };
+        button.textContent = 'Encrypting and signing message ...';
+        break;
+      case 'Encrypt Only':
+        this.loadPublic(key1);
+        var params = {
+          msg: msg,
+          encrypt_for: recipient_public_key
+        };
+        button.textContent = 'Encrypting message ...';
+        break;
+      case 'Sign Only':
+        this.loadPublicSignerID(key2);
+        this.loadPrivate();
+        var params = {
+          msg: msg,
+          sign_with: sender_private_key
+        };
+        button.textContent = 'Signing message ...';
+        break;
+      default:
+    }
+    kbpgp.box(params, (err, results) => {
+        if (err) {
+            this.showError(err);
+            return;
+        }
+        if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  Click here to copy message, then paste signed message into an email, IM, whatever.';
+        else button.textContent = 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.';
+        window._status = "finished";
+        //messagebox.value =  results;
+        //messagebox.focus();
+        //messagebox.select();
+        button.classList.remove('working');
+        return resolve();
+    });
+});
 }
 
 loadPublic(key) {
@@ -420,18 +524,23 @@ button.addEventListener('click', async function() {
         case 'pending_pin':
             break;
         case 'finished':
-            try {
-               messagebox.focus();
-               messagebox.select();
-               var successful = document.execCommand('copy');
-               var msg = successful ? 'successful' : 'unsuccessful';
-               button.textContent = 'Done :)  Message copied to clipboard';
-               console.info('Copying text command was ' + msg);
-               if (!successful) button.textContent = 'Oops, unable to copy message to clipboard, try copying message manually';
-             } catch (err) {
-               button.textContent = 'Oops, unable to copy message to clipboard, try copying message manually';
-               console.info('Oops, unable to copy');
+          if (typeof messagebox !== "undefined") {
+              try {
+                 messagebox.focus();
+                 messagebox.select();
+                 var successful = document.execCommand('copy');
+                 var msg = successful ? 'successful' : 'unsuccessful';
+                 button.textContent = 'Done :)  Message copied to clipboard';
+                 console.info('Copying text command was ' + msg);
+                 if (!successful) button.textContent = 'Oops, unable to copy message to clipboard, try copying message manually';
+               } catch (err) {
+                 button.textContent = 'Oops, unable to copy message to clipboard, try copying message manually';
+                 console.info('Oops, unable to copy');
+               }
              }
+            else {
+              // send file to user
+            }
             break;
     }
 }, false);
