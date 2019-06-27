@@ -20127,8 +20127,8 @@ _break()
                     console.info("signature from app:", sig);
                     size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
                     hdr = new Uint8Array(2);
-                    hdr[0] = (size >>> 8)
-                    hdr[1] = (size & 0xff)
+                    hdr[0] = (size >>> 8);
+                    hdr[1] = (size & 0xff);
                     sig = hdr.concat(Uint8Array.from(ok_sig));
                     console.info("sig:", sig);
                     return cb(null, sig);
