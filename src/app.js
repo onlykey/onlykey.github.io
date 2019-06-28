@@ -170,7 +170,7 @@ class Pgp2go {
             }
           }
           if (messagebox != null) this.decryptText(sender_public_key, messagebox.value);
-          else this.decryptFile(sender_public_key, infile.value);
+          else this.decryptFile(sender_public_key, infile);
 	}
 
 	decryptText(key, ct) {
@@ -223,6 +223,11 @@ class Pgp2go {
   }
 
   decryptFile(key, ct) {
+    var reader = new FileReader();
+    reader.filename = ct.name;
+    reader.readAsBinaryString(ct);
+    reader.onloadend = function(file) {
+      var buffer = kbpgp.Buffer.from(reader.result);
       switch (window._status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
@@ -237,7 +242,7 @@ class Pgp2go {
       this.loadPrivate();
       kbpgp.unbox({
               keyfetch: ring,
-              armored: ct,
+              armored: buffer,
               strict : Decrypt_Only ? false : true
           }, (err, ct) => {
           if (err)
@@ -271,6 +276,7 @@ class Pgp2go {
 
           button.classList.remove("working")
       });
+    };
   }
 
   async startEncryption() {
@@ -300,7 +306,7 @@ class Pgp2go {
             recipient_public_key = urlinputbox2.value;
       }
       if (messagebox != null) await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
-      else await this.encryptFile(sender_public_key, recipient_public_key, infile.value);
+      else await this.encryptFile(sender_public_key, recipient_public_key, infile);
   }
 
   downloadPublicKey(url) {
@@ -375,53 +381,59 @@ class Pgp2go {
   });
 }
 
-async encryptFile(key1, key2, msg) {
+async encryptFile(key1, key2, f) {
     return new Promise(resolve => {
-    switch (window._status) {
-      case 'Encrypt and Sign':
-        this.loadPublic(key1);
-        this.loadPublicSignerID(key2);
-        this.loadPrivate();
-        var params = {
-          msg: msg,
-          encrypt_for: recipient_public_key,
-          sign_with: sender_private_key
-        };
-        button.textContent = 'Encrypting and signing message ...';
-        break;
-      case 'Encrypt Only':
-        this.loadPublic(key1);
-        var params = {
-          msg: msg,
-          encrypt_for: recipient_public_key
-        };
-        button.textContent = 'Encrypting message ...';
-        break;
-      case 'Sign Only':
-        this.loadPublicSignerID(key2);
-        this.loadPrivate();
-        var params = {
-          msg: msg,
-          sign_with: sender_private_key
-        };
-        button.textContent = 'Signing message ...';
-        break;
-      default:
-    }
-    kbpgp.box(params, (err, results) => {
-        if (err) {
-            this.showError(err);
-            return;
+      var reader = new FileReader();
+      reader.filename = f.name;
+      reader.readAsBinaryString(f);
+      reader.onloadend = function(file) {
+        var buffer = kbpgp.Buffer.from(rreader.result);
+        switch (window._status) {
+          case 'Encrypt and Sign':
+            this.loadPublic(key1);
+            this.loadPublicSignerID(key2);
+            this.loadPrivate();
+            var params = {
+              msg: buffer,
+              encrypt_for: recipient_public_key,
+              sign_with: sender_private_key
+            };
+            button.textContent = 'Encrypting and signing message ...';
+            break;
+          case 'Encrypt Only':
+            this.loadPublic(key1);
+            var params = {
+              msg: msg,
+              encrypt_for: recipient_public_key
+            };
+            button.textContent = 'Encrypting message ...';
+            break;
+          case 'Sign Only':
+            this.loadPublicSignerID(key2);
+            this.loadPrivate();
+            var params = {
+              msg: msg,
+              sign_with: sender_private_key
+            };
+            button.textContent = 'Signing message ...';
+            break;
+          default:
         }
-        if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  Click here to copy message, then paste signed message into an email, IM, whatever.';
-        else button.textContent = 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.';
-        window._status = "finished";
-        //messagebox.value =  results;
-        //messagebox.focus();
-        //messagebox.select();
-        button.classList.remove('working');
-        return resolve();
-    });
+        kbpgp.box(params, (err, results) => {
+            if (err) {
+                this.showError(err);
+                return;
+            }
+            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  Click here to copy message, then paste signed message into an email, IM, whatever.';
+            else button.textContent = 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.';
+            window._status = "finished";
+            //messagebox.value =  results;
+            //messagebox.focus();
+            //messagebox.select();
+            button.classList.remove('working');
+            return resolve();
+        });
+    };
 });
 }
 
