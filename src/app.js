@@ -437,18 +437,15 @@ async encryptFile(key1, key2, f) {
                 this.showError(err);
                 return;
             }
-            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  Click here to copy message, then paste signed message into an email, IM, whatever.';
-            else button.textContent = 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.';
+            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+reader.filename+'.zip';
+            else button.textContent = 'Done :)  downloading encrypted file '+reader.filename+'.zip';
             window._status = "finished";
             var zip = new JSZip();
-            zip.file(reader.filename, "Hello[p my)6cxsw2q");
+            zip.file(reader.filename, results);
             zip.generateAsync({type:"blob"})
             .then(function (blob) {
                 saveAs(blob, reader.filename+".zip");
             });
-            //messagebox.value =  results;
-            //messagebox.focus();
-            //messagebox.select();
             button.classList.remove('working');
             return resolve();
         });
