@@ -62,8 +62,6 @@ let plugins = [
         showErrors: false
     }),
     new webpack.ProvidePlugin({
-      TransportU2F: '@ledgerhq/hw-transport-u2f',
-      TransportWebAuthn: '@ledgerhq/hw-transport-webauthn',
       nacl: './nacl.min.js',
       forge: './forge.min.js',
       kbpgp: './kbpgp.js',

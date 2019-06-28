@@ -1,10 +1,9 @@
 import "regenerator-runtime/runtime";
-import TransportWebAuthn from "@ledgerhq/hw-transport-webauthn";
-import TransportU2F from "@ledgerhq/hw-transport-u2f";
 require('./onlykey-api.js');
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
+const JSZip = require('jszip');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
@@ -444,6 +443,12 @@ async encryptFile(key1, key2, f) {
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  Click here to copy message, then paste signed message into an email, IM, whatever.';
             else button.textContent = 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.';
             window._status = "finished";
+            var zip = new JSZip();
+            zip.file(reader.filename, "Hello[p my)6cxsw2q");
+            zip.generateAsync({type:"blob"})
+            .then(function (blob) {
+                saveAs(blob, reader.filename+".zip");
+            });
             //messagebox.value =  results;
             //messagebox.focus();
             //messagebox.select();
