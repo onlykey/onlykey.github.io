@@ -8,7 +8,7 @@ const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
-const infile = document.getElementById('file');
+const infile = document.getElementById('file').files[0];
 const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key; //Placeholder key
@@ -387,7 +387,7 @@ async encryptFile(key1, key2, f) {
       reader.filename = f.name;
       reader.readAsBinaryString(f);
       reader.onloadend = function(file) {
-        var buffer = kbpgp.Buffer.from(rreader.result);
+        var buffer = kbpgp.Buffer.from(reader.result);
         switch (window._status) {
           case 'Encrypt and Sign':
             this.loadPublic(key1);
