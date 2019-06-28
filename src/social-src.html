@@ -1,0 +1,157 @@
+<html>
+
+<head>
+    <title>OnlyKey Web Apps - Test Search for Social Media Accounts</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/jqueryui-editable/css/jqueryui-editable.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/jqueryui-editable/js/jqueryui-editable.min.js"></script>
+    <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
+    <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
+    <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
+    <link rel="stylesheet" href="css/gallerycss-cssform-min.css">
+    <link rel="stylesheet" href="css/cssnormalize-min.css">
+    <link rel="stylesheet" href="css/cssgrids-responsive-min.css">
+    <link rel="stylesheet" href="css/cssbutton-min.css">
+
+    <!-- Some custom styles to make things pretty. -->
+    <link rel="stylesheet" type="text/css" href="css/ui.css">
+
+    <!-- pgp2go styles -->
+    <link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+        crossorigin="anonymous">
+    <link href="css/ShareTechMono.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <!-- Modify header colors here to customize the look and feel of the site-->
+    <style>
+        .header {
+            background: white;
+        }
+
+        .header h1 {
+            color: rgb(97, 97, 97);
+        }
+
+        .header h2 {
+            font-weight: 300;
+            margin: 0;
+            color: rgb(137, 137, 137);
+        }
+    </style>
+
+    <script>
+    function searchKeybase(sites, user) {
+    $.ajax({
+        url: 'https://keybase.io/_/api/1.0/user/discover.json?' + 'twitter' + '=' + 'cr7pt0',
+        async: true,
+        dataType: 'json',
+        success: function(data) {
+            console.info(data);
+            //$("#searchresults").append("<img src='"+data.status.name+"' />");
+            //data = data.matches.twitter[0];
+            //console.info(data);
+            $("#searchresults").append("Found a Match");
+            $("#searchresults").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='200' height='200'/>");
+            $("#searchresults").append("Keybase User "+data.matches.twitter[0][0].username);
+            //data = JSON.stringify(data);
+        }
+    });
+    }
+
+    $(document).ready(function() {
+    $('#submit').click(function() {
+        var sites = {
+            q: $('#site').val(),
+            rpp: 5
+        };
+        var users = {
+            q: $('#user').val(),
+            rpp: 5
+        };
+        // alert(jQuery.param(params));
+        searchKeybase(sites, users);
+    });
+    });
+    </script>
+</head>
+<body class="yui3-skin-sam">
+    <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
+      <span class="yui3-menu-heading">Apps</span>
+      <ul>
+          <li>
+              <a href="https://apps.crp.to/decrypt">
+                  <i class="fa fa-unlock" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://apps.crp.to/encrypt">
+                  <i class="fa fa-lock" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://apps.crp.to/decrypt-file">
+                  <i class="fa fa-file-text" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li class="yui3-menu-active">
+              <a href="https://apps.crp.to/encrypt-file">
+                  <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+              </a>
+          </li>
+        </ul>
+     <span class="yui3-menu-heading">Links</span>
+      <ul>
+          <li>
+              <a href="https://apps.crp.to">
+                  <i class="fa fa-home" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://docs.crp.to/webcrypt.html">
+                  <i class="fa fa-question" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://docs.crp.to/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://onlykey.io">
+                  <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+              </a>
+          </li>
+      </ul>
+  </div>
+  <div class="header yui3-u-1">
+        <p>
+        <img src="ok.jpg" alt="logo" align="middle">
+        </p>
+        <h1>Search for Keybase User<br>
+        <i class="fa fa-search" aria-hidden="true"></i>
+        </h1>
+        <code data-language="javascript">
+            <div id="header_messages"></div>
+        </code>
+    </div>
+
+        <div id="container">
+        <fieldset>
+            <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
+
+               <div>
+                    <input id="user" type="text" value="cr7pt0" />
+                    <input id="site" type="text" value="twitter" />
+                    <input id="submit" type="button" value="Search" />
+                </div>
+                <div id="searchresults">
+                    Results go here
+                </div>
+            </div>
+        </fieldset>
+        </div>
+  </body>
+
+</html>
