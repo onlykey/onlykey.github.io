@@ -44,7 +44,7 @@
     <script>
     function searchKeybase(sites, user) {
     $.ajax({
-        url: 'https://keybase.io/_/api/1.0/user/discover.json?' + 'twitter' + '=' + 'cr7pt0',
+        url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites + '=' + user,
         async: true,
         dataType: 'json',
         success: function(data) {
@@ -52,9 +52,9 @@
             //$("#searchresults").append("<img src='"+data.status.name+"' />");
             //data = data.matches.twitter[0];
             //console.info(data);
-            $("#searchresults").append("Found a Match");
-            $("#searchresults").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='200' height='200'/>");
-            $("#searchresults").append("Keybase User "+data.matches.twitter[0][0].username);
+            $("#searchresults").append("Found a Match!");
+            $("#searchresults").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='50' height: auto/>");
+            $("#searchresults").append("Keybase Username = "+data.matches.twitter[0][0].username);
             //data = JSON.stringify(data);
         }
     });
@@ -132,9 +132,6 @@
         <h1>Search for Keybase User<br>
         <i class="fa fa-search" aria-hidden="true"></i>
         </h1>
-        <code data-language="javascript">
-            <div id="header_messages"></div>
-        </code>
     </div>
 
         <div id="container">
@@ -144,6 +141,6 @@
             <button type="submit" id="submit" value="Search">Search For User<p id="searchresults"></p></button>
         </fieldset>
         </div>
-  <script type="text/javascript" src="bundle.668dc1b5f8273d4b99d4.js"></script></body>
+  <script type="text/javascript" src="bundle.b4be301e1baa5922f1f5.js"></script></body>
 
 </html>
