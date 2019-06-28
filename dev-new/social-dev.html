@@ -49,7 +49,7 @@
       console.info(user);
 
     $.ajax({
-        url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites + '=' + user,
+        url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
         async: true,
         dataType: 'json',
         success: function(data) {
@@ -149,6 +149,6 @@
             <button type="submit" id="submit" value="Search">Search For User</button>
         </fieldset>
         </div>
-  <script type="text/javascript" src="bundle.6e38779c6ae7fde91389.js"></script></body>
+  <script type="text/javascript" src="bundle.5f83db80dbe94b1dbe54.js"></script></body>
 
 </html>
