@@ -66,15 +66,6 @@ button {
     background-color: #FFFAFA;
 }
 
-form {
-  font-size: 18px;
-  padding: 12px;
-  border: none;
-  border: solid 2px #c9c9c9;
-  transition: all 0.4s;
-  background-color: #FFFFFF;
-}
-
 button:active,
 button:hover {
     border: solid 2px #969696;

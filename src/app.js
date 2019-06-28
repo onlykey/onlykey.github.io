@@ -383,6 +383,7 @@ class Pgp2go {
 async encryptFile(key1, key2, f) {
     return new Promise(resolve => {
       console.info(f);
+      console.info(f.files[0]);
       var txt = "";
       var file;
       if ('files' in f) {
