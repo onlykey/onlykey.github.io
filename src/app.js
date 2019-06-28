@@ -169,7 +169,7 @@ class Pgp2go {
               sender_public_key = urlinputbox.value;
             }
           }
-          if (typeof messagebox !== "undefined") this.decryptText(sender_public_key, messagebox.value);
+          if (messagebox != null) this.decryptText(sender_public_key, messagebox.value);
           else this.decryptFile(sender_public_key, infile.value);
 	}
 
@@ -299,7 +299,7 @@ class Pgp2go {
           } else {
             recipient_public_key = urlinputbox2.value;
       }
-      if (typeof messagebox !== "undefined") await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
+      if (messagebox != null) await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
       else await this.encryptFile(sender_public_key, recipient_public_key, infile.value);
   }
 
