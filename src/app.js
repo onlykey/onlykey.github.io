@@ -381,31 +381,30 @@ class Pgp2go {
 }
 
 async encryptFile(key1, key2, f) {
-    return new Promise(resolve => {
-      console.info(f);
-      console.info(f.files[0]);
-      var txt = "";
-      var file = f.files[0];
-      if (!file.size) {
-        this.showError(new Error("No file selected :("));
-        return;
-      } else {
-          if ('name' in file) {
-            txt += "file name: " + file.name;
-          }
-          if ('size' in file) {
-            txt += " file size: " + file.size;
-          }
-          if ('type' in file) {
-            txt += " file type: " + file.type;
-          }
+  console.info(f);
+  console.info(f.files[0]);
+  var txt = "";
+  var file = f.files[0];
+  if (!file.size) {
+    this.showError(new Error("No file selected :("));
+    return;
+  } else {
+      if ('name' in file) {
+        txt += "file name: " + file.name;
       }
-      button.textContent = 'Processing ' + txt;
-      var reader = new FileReader();
-      reader.filename = file.name;
-      reader.readAsBinaryString(file);
-      this.reader.onloadend = function(file) {
-        var buffer = kbpgp.Buffer.from(reader.result);
+      if ('size' in file) {
+        txt += " file size: " + file.size;
+      }
+      if ('type' in file) {
+        txt += " file type: " + file.type;
+      }
+  }
+  button.textContent = 'Processing ' + txt;
+  var reader = new FileReader();
+  reader.filename = file.name;
+  reader.readAsBinaryString(file);
+  var buffer = await this.myreaderload(reader);
+    return new Promise(resolve => {
         switch (window._status) {
           case 'Encrypt and Sign':
             this.loadPublic(key1);
@@ -451,8 +450,15 @@ async encryptFile(key1, key2, f) {
             button.classList.remove('working');
             return resolve();
         });
-    };
-});
+      });
+}
+
+async myreaderload(reader) {
+  return new Promise(resolve => {
+    reader.onloadend = function () {
+      return resolve(kbpgp.Buffer.from(reader.result));
+    }
+  });
 }
 
 loadPublic(key) {
@@ -473,6 +479,7 @@ loadPublic(key) {
       }
   });
 }
+
 
 loadPublicSignerID(key) {
   button.textContent = "Checking sender's public key...";
