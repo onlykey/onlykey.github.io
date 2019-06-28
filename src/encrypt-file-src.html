@@ -37,10 +37,21 @@
 
 <body class="yui3-skin-sam">
     <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
-        <ul>
+      <span class="yui3-menu-heading">Apps</span>
+      <ul>
+          <li>
+              <a href="https://apps.crp.to/decrypt">
+                  <i class="fa fa-unlock" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://apps.crp.to/encrypt">
+                  <i class="fa fa-lock" aria-hidden="true"></i>
+              </a>
+          </li>
           <li>
               <a href="https://apps.crp.to/decrypt-file">
-                  <i class="fa fa-file-o" aria-hidden="true"></i>
+                  <i class="fa fa-file-text" aria-hidden="true"></i>
               </a>
           </li>
           <li class="yui3-menu-active">
@@ -48,44 +59,38 @@
                   <i class="fa fa-file-archive-o" aria-hidden="true"></i>
               </a>
           </li>
-            <li>
-                <a href="https://apps.crp.to/decrypt">
-                    <i class="fa fa-unlock" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li class="yui3-menu-active">
-                <a href="https://apps.crp.to/encrypt">
-                    <i class="fa fa-lock" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://apps.crp.to">
-                    <i class="fa fa-home" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://docs.crp.to/webcrypt.html">
-                    <i class="fa fa-question" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://docs.crp.to/">
-                    <i class="fa fa-book" aria-hidden="true"></i>
-                </a>
-            </li>
-            <li>
-                <a href="https://onlykey.io">
-                    <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-                </a>
-            </li>
         </ul>
-    </div>
-    <div class="header yui3-u-1">
+     <span class="yui3-menu-heading">Links</span>
+      <ul>
+          <li>
+              <a href="https://apps.crp.to">
+                  <i class="fa fa-home" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://docs.crp.to/webcrypt.html">
+                  <i class="fa fa-question" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://docs.crp.to/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://onlykey.io">
+                  <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+              </a>
+          </li>
+      </ul>
+  </div>
+  <div class="header yui3-u-1">
         <p>
             <img src="ok.jpg" alt="logo" align="middle">
         </p>
-        <h1>
-            <i class="fa fa-lock" aria-hidden="true"></i> Encrypt & Sign</h1>
+        <h1>Encrypt & Sign File<br>
+        <i class="fa fa-file-archive-o" aria-hidden="true"></i></i> <i class="fa fa-long-arrow-right" aria-hidden="true"></i> <i class="fa fa-unlock" aria-hidden="true"></i>
+        </h1>
         <code data-language="javascript">
             <div id="header_messages"></div>
         </code>
@@ -96,7 +101,10 @@
         <fieldset>
             <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
             <textarea placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
+            <textarea placeholder="" rows="1" id="filebox">
             <input type="file" id="file">
+            <p id="filedetails"></p>
+            </textarea>
             <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
         </fieldset>
         <center>

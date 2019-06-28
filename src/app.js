@@ -8,7 +8,7 @@ const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
-const infile = document.getElementById('file').files[0];
+const infile = document.getElementById('file');
 const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key; //Placeholder key
@@ -383,9 +383,29 @@ class Pgp2go {
 
 async encryptFile(key1, key2, f) {
     return new Promise(resolve => {
+      if ('files' in f) {
+        if (f.files.length == 0) {
+          this.showError(new Error("No file selected :("));
+          return;
+        } else {
+          for (var i = 0; i < f.files.length; i++) {
+            txt += "<br><strong>" + (i+1) + ". file</strong><br>";
+            var file = f.files[i];
+            if ('name' in file) {
+              txt += "name: " + file.name + "<br>";
+            }
+            if ('size' in file) {
+              txt += "size: " + file.size + " bytes <br>";
+            }
+          }
+        }
+        this.showError(new Error("No file selected :("));
+        return;
+      }
+      document.getElementById ("filedetails").innerHTML = txt;
       var reader = new FileReader();
-      reader.filename = f.name;
-      reader.readAsBinaryString(f);
+      reader.filename = file.name;
+      reader.readAsBinaryString(file);
       reader.onloadend = function(file) {
         var buffer = kbpgp.Buffer.from(reader.result);
         switch (window._status) {
