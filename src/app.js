@@ -404,7 +404,7 @@ async encryptFile(key1, key2, f) {
       var reader = new FileReader();
       reader.filename = file.name;
       reader.readAsBinaryString(file);
-      reader.onloadend = function(file) {
+      this.reader.onloadend = function(file) {
         var buffer = kbpgp.Buffer.from(reader.result);
         switch (window._status) {
           case 'Encrypt and Sign':
