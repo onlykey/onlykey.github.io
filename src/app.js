@@ -383,6 +383,7 @@ class Pgp2go {
 
 async encryptFile(key1, key2, f) {
     return new Promise(resolve => {
+      var txt = "";
       if ('files' in f) {
         if (f.files.length == 0) {
           this.showError(new Error("No file selected :("));
