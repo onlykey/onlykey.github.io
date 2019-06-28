@@ -8,7 +8,6 @@ const randomColor = require('randomcolor');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
-const infile = document.getElementById('file');
 const button = document.getElementById('onlykey_start');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key; //Placeholder key
@@ -170,7 +169,7 @@ class Pgp2go {
             }
           }
           if (messagebox != null) this.decryptText(sender_public_key, messagebox.value);
-          else this.decryptFile(sender_public_key, infile);
+          else this.decryptFile(sender_public_key, document.getElementById('inputfile'));
 	}
 
 	decryptText(key, ct) {
@@ -306,7 +305,7 @@ class Pgp2go {
             recipient_public_key = urlinputbox2.value;
       }
       if (messagebox != null) await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
-      else await this.encryptFile(sender_public_key, recipient_public_key, infile);
+      else await this.encryptFile(sender_public_key, recipient_public_key, document.getElementById('inputfile'));
   }
 
   downloadPublicKey(url) {
