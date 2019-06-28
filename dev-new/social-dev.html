@@ -59,7 +59,7 @@
             //data = data.matches.twitter[0];
             //console.info(data);
             $("#submit").append("Found a Match!");
-            $("#submit").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='50' height='50'/>");
+            $("#submit").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='50'/>");
             $("#submit").append("Keybase Username = "+data.matches.twitter[0][0].username);
             $("#submit").append("<a href='https://keybase.io/"+data.matches.twitter[0][0].username+"'>View this user's profile</a>");
             //data = JSON.stringify(data);
@@ -144,11 +144,11 @@
 
         <div id="container">
         <fieldset>
-            <input id="user" type="text" value="cr7pt0" />
-            <input id="site" type="text" value="twitter" />
+            <textarea placeholder="Enter username to search for..." rows="1" id="user"></textarea>
+            <textarea placeholder="Enter site to search, valid options are twitter, github, reddit and hackernews" rows="1" id="site"></textarea>
             <button type="submit" id="submit" value="Search">Search For User</button>
         </fieldset>
         </div>
-  <script type="text/javascript" src="bundle.f9329f3afb489c2d75c1.js"></script></body>
+  <script type="text/javascript" src="bundle.2700f183484d7d633706.js"></script></body>
 
 </html>
