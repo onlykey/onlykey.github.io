@@ -384,26 +384,26 @@ async encryptFile(key1, key2, f) {
     return new Promise(resolve => {
       console.info(f);
       var txt = "";
+      var file;
       if ('files' in f) {
         if (f.files.length == 0) {
           this.showError(new Error("No file selected :("));
           return;
         } else {
           for (var i = 0; i < f.files.length; i++) {
-            txt += "<br><strong>" + (i+1) + ". file</strong><br>";
-            var file = f.files[i];
+            file = f.files[i];
             if ('name' in file) {
-              txt += "name: " + file.name + "<br>";
+              txt += "file name: " + file.name;
             }
             if ('size' in file) {
-              txt += "size: " + file.size + " bytes <br>";
+              txt += " file size: " + file.size;
             }
           }
         }
         this.showError(new Error("No file selected :("));
         return;
       }
-      document.getElementById ("filedetails").innerHTML = txt;
+      button.textContent = 'Processing ' + txt;
       var reader = new FileReader();
       reader.filename = file.name;
       reader.readAsBinaryString(file);
