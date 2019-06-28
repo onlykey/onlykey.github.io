@@ -69,9 +69,6 @@ button {
 form {
   font-size: 18px;
   padding: 12px;
-  border: none;
-  border: solid 2px #969696;
-  transition: border 0.4s;
   background-color: #FFFFFF;
 }
 
@@ -89,6 +86,14 @@ button:hover {
 
 #message {
     min-height: 35%;
+}
+
+#searchresults {
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 18px;
+  padding: 12px;
+  background-color: #FFFFFF;
 }
 
 #file {
