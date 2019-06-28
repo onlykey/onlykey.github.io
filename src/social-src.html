@@ -43,12 +43,18 @@
 
     <script>
     function searchKeybase(sites, user) {
+      console.info("sites");
+      console.info(sites);
+      console.info("user");
+      console.info(user);
+
     $.ajax({
         url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites + '=' + user,
         async: true,
         dataType: 'json',
         success: function(data) {
-            console.info(data);
+          console.info(data);
+
             //$("#searchresults").append("<img src='"+data.status.name+"' />");
             //data = data.matches.twitter[0];
             //console.info(data);
@@ -59,6 +65,7 @@
             //data = JSON.stringify(data);
         }
     });
+    console.info(data);
     }
 
     $(document).ready(function() {
@@ -137,7 +144,8 @@
 
         <div id="container">
         <fieldset>
-            <input id="user" type="text" value="cr7pt0" />
+            <textarea placeholder="Enter the username to search for..." rows="1" id="user"></textarea>
+            <textarea placeholder="Select site, valid options are: twitter, github, reddit, hackernews" rows="1" id="user"></textarea>
             <input id="site" type="text" value="twitter" />
             <button type="submit" id="submit" value="Search">Search For User</button>
         </fieldset>
