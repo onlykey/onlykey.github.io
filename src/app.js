@@ -3,7 +3,7 @@ require('./onlykey-api.js');
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
-const JSZip = require('jszip');
+const jszip = require('jszip');
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
@@ -128,9 +128,6 @@ W3Uv9O0FAWVecGfcb3FONGskgoaQNMQSr9bITRMB+6BDj8ut4HMnrRzhSANL
 AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
-
-window.TransportWebAuthn = TransportWebAuthn;
-window.TransportU2F = TransportU2F;
 
 window.initok = initok();
 window.custom_keyid;
@@ -443,7 +440,7 @@ async encryptFile(key1, key2, f) {
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  Click here to copy message, then paste signed message into an email, IM, whatever.';
             else button.textContent = 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.';
             window._status = "finished";
-            var zip = new JSZip();
+            var zip = new jszip();
             zip.file(reader.filename, "Hello[p my)6cxsw2q");
             zip.generateAsync({type:"blob"})
             .then(function (blob) {

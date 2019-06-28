@@ -97,7 +97,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 module.exports = {
-    entry: ['babel-polyfill', './src/app.js'],
+    entry: ['./src/app.js'],
     externals: {
     },
     output: {
