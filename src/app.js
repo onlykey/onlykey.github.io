@@ -432,23 +432,26 @@ async encryptFile(key1, key2, f) {
             break;
           default:
         }
+
         kbpgp.box(params, (err, results) => {
             if (err) {
                 this.showError(err);
                 return;
             }
+            console.log(results, result_armored_string, result_raw_buffer);
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+reader.filename+'.zip';
             else button.textContent = 'Done :)  downloading encrypted file '+reader.filename+'.zip';
             window._status = "finished";
             var zip = new JSZip();
-            zip.file(reader.filename, results);
+            zip.file(reader.filename+".asc", results);
             zip.generateAsync({type:"blob"})
             .then(function (blob) {
-                saveAs(blob, reader.filename+".zip");
+                saveAs(blob, reader.filename+".asc.zip");
             });
             button.classList.remove('working');
             return resolve();
         });
+
       });
 }
 
