@@ -401,6 +401,10 @@ async encryptFile(key1, key2, f) {
   reader.readAsBinaryString(file);
   var buffer = await this.myreaderload(reader);
     return new Promise(resolve => {
+      var zip = new JSZip();
+      zip.file(reader.filename, buffer);
+      zip.generateAsync({type:"blob"})
+      .then(function (blob) {
         switch (window._status) {
           case 'Encrypt and Sign':
             this.loadPublic(key1);
@@ -438,21 +442,18 @@ async encryptFile(key1, key2, f) {
                 this.showError(err);
                 return;
             }
-            console.log(result_armored_string, result_raw_buffer);
-            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+reader.filename+'.zip';
-            else button.textContent = 'Done :)  downloading encrypted file '+reader.filename+'.zip';
+            console.log(result_string);
+            console.log(result_buffer);
+            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+reader.filename+'.zip.gpg';
+            else button.textContent = 'Done :)  downloading encrypted file '+reader.filename+'.zip.gpg';
             window._status = "finished";
-            var zip = new JSZip();
-            zip.file(reader.filename+".asc", results);
-            zip.generateAsync({type:"blob"})
-            .then(function (blob) {
-                saveAs(blob, reader.filename+".asc.zip");
-            });
+            saveAs(result_buffer, reader.filename+".zip.gpg");
             button.classList.remove('working');
             return resolve();
         });
+    });
 
-      });
+  });
 }
 
 async myreaderload(reader) {
