@@ -433,12 +433,12 @@ async encryptFile(key1, key2, f) {
           default:
         }
 
-        kbpgp.box(params, (err, results) => {
+        kbpgp.box(params, (err, result_string, result_buffer) => {
             if (err) {
                 this.showError(err);
                 return;
             }
-            console.log(results, result_armored_string, result_raw_buffer);
+            console.log(result_armored_string, result_raw_buffer);
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+reader.filename+'.zip';
             else button.textContent = 'Done :)  downloading encrypted file '+reader.filename+'.zip';
             window._status = "finished";
