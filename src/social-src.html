@@ -58,10 +58,10 @@
             //$("#searchresults").append("<img src='"+data.status.name+"' />");
             //data = data.matches.twitter[0];
             //console.info(data);
-            $("#submit").append("<br>Found a Match!");
-            $("#submit").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='10' height='auto'/>");
-            $("#submit").append("Keybase Username = "+data.matches.twitter[0][0].username);
-            $("#submit").append("<a href='https://keybase.io/"+data.matches.twitter[0][0].username+"'>View this user's profile</a>");
+            $("#results").append("<br>Found a Match!");
+            $("#results").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='10' height='auto'/>");
+            $("#results").append("Keybase Username = "+data.matches.twitter[0][0].username);
+            $("#results").append("<a href='https://keybase.io/"+data.matches.twitter[0][0].username+"'>View this user's profile</a>");
             //data = JSON.stringify(data);
         }
     });
@@ -147,6 +147,7 @@
             <textarea placeholder="Enter username to search for..." rows="1" id="user"></textarea>
             <textarea placeholder="Enter site to search, valid options are twitter, github, reddit and hackernews" rows="1" id="site"></textarea>
             <button type="submit" id="submit" value="Search">Search For User</button>
+            <textarea placeholder="Results go here..." rows="1" id="results"></textarea>
         </fieldset>
         </div>
   </body>
