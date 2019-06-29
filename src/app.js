@@ -433,7 +433,7 @@ async encryptFile(key1, key2, f) {
           default:
         }
 
-        kbpgp.box(params, (err, result_string, result_buffer) => {
+        kbpgp.box(params, function(err, result_string, result_buffer) {
             if (err) {
                 this.showError(err);
                 return;
