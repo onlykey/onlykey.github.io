@@ -4,6 +4,7 @@ const request = require('superagent');
 const randomColor = require('randomcolor');
 import { saveAs } from 'file-saver';
 const JSZip = require('jszip');
+var $ = require("jquery");
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
@@ -379,6 +380,7 @@ class Pgp2go {
 async encryptFile(key1, key2, f) {
   console.info(f);
   console.info(f.files[0]);
+  //await readfiles(infile);
   var txt = "";
   var file = f.files[0];
   if (!file.size) {
@@ -399,12 +401,11 @@ async encryptFile(key1, key2, f) {
   var reader = new FileReader();
   reader.filename = file.name;
   reader.readAsBinaryString(file);
-  var buffer = await this.myreaderload(reader);
-    return new Promise(resolve => {
-      var zip = new JSZip();
-      zip.file(reader.filename, buffer);
-      zip.generateAsync({type:"blob"})
-      .then(function (blob) {
+  var zip = new JSZip();
+  var blob = await this.myreaderload(reader);
+  zip.file(reader.filename, blob);
+  var buffer = await this.zip.generateAsync({type:"blob"});
+      return new Promise(resolve => {
         switch (window._status) {
           case 'Encrypt and Sign':
             this.loadPublic(key1);
@@ -452,8 +453,6 @@ async encryptFile(key1, key2, f) {
             return resolve();
         });
     });
-
-  });
 }
 
 async myreaderload(reader) {
@@ -463,6 +462,47 @@ async myreaderload(reader) {
     }
   });
 }
+
+
+async readfiles(infile) {
+  return new Promise(resolve => {
+  for (var i = 0; i < infile.length; i++) {
+          var f = infile[i];
+          var $title = $("<h4>", {
+              text : f.name
+          });
+          var $fileContent = $("<ul>");
+          $result.append($title);
+          $result.append($fileContent);
+
+          var dateBefore = new Date();
+          JSZip.loadAsync(f)                                   // 1) read the Blob
+          .then(function(zip) {
+              var dateAfter = new Date();
+              $title.append($("<span>", {
+                  "class": "small",
+                  text:" (loaded in " + (dateAfter - dateBefore) + "ms)"
+              }));
+
+              zip.forEach(function (relativePath, zipEntry) {  // 2) print entries
+                  $fileContent.append($("<li>", {
+                      text : zipEntry.name
+                  }));
+              });
+          }, function (e) {
+              $result.append($("<div>", {
+                  "class" : "alert alert-danger",
+                  text : "Error reading " + f.name + ": " + e.message
+              }));
+          });
+      }
+      resolve();
+  });
+}
+
+
+
+
 
 loadPublic(key) {
   button.textContent = "Checking recipient's public key...";

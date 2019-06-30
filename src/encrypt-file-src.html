@@ -101,10 +101,14 @@
         <fieldset>
             <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
             <textarea placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
+            <h3>Choose the local(s) zip file(s)</h3>
             <form name="fileform">
-              <input type="file" id="inputfile">
+              <input type="file" id="inputfile" multiple />
             </form>
             <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
+            <div id="result_block" class="hidden">
+            <h3>Content :</h3>
+            <div id="result"></div>
         </fieldset>
         <center>
             <form name="action">

@@ -48,7 +48,8 @@
     "uglify-js-harmony": "^2.7.7",
     "uglifyjs-webpack-plugin2": "^1.0.3",
     "file-saver": "^2.0.0",
-    "jszip": "^3.1.5"
+    "jszip": "^3.1.5",
+    "jquery": "^3.4.0"
   },
   "bugs": {
     "url": "https://github.com/onlykey/onlykey.github.io/issues"
