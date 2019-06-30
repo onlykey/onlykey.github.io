@@ -447,13 +447,13 @@ async encryptFile(key1, key2, f) {
             }
             console.log(result_string);
             console.log(result_buffer);
-            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+file.name+'.zip.gpg';
-            else button.textContent = 'Done :)  downloading encrypted file '+file.name+'.zip.gpg';
+            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+file.name+'.gpg';
+            else button.textContent = 'Done :)  downloading encrypted file '+file.name+'.gpg';
             window._status = "finished";
             var finalfile = new Blob([result_buffer], {type: "text/plain;charset=utf-8"});
             //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
             //new var blob = new Blob([xhr.response], {type: "octet/stream"});
-            saveAs(finalfile, "1"+file.name+".zip.gpg");
+            saveAs(finalfile, file.name+".gpg");
             button.classList.remove('working');
             return resolve();
         });
@@ -610,7 +610,7 @@ button.addEventListener('click', async function() {
         case 'pending_pin':
             break;
         case 'finished':
-          if (typeof messagebox !== "undefined") {
+          if (messagebox != null) {
               try {
                  messagebox.focus();
                  messagebox.select();
