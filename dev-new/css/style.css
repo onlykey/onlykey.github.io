@@ -81,10 +81,13 @@ button:hover {
 #result_block {
     margin-left: auto;
     margin-right: auto;
-    max-width: 70%;
-    min-width: 0;
+    max-width: none;
+    min-width: none;
     background-color: #FFFFFF;
     padding: 12px;
+    border: none;
+    border: solid 2px #c9c9c9;
+    transition: border 0.4s;
 }
 
 #message {
