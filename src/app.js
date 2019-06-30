@@ -406,7 +406,7 @@ async encryptFile(key1, key2, f) {
   return new Promise(resolve => {
     var zip = new JSZip();
     zip.file(file.name+".zip", file);
-    zip.generateAsync({type:"binarystring"})
+    zip.generateAsync({type:"blob"})
     .then(function (zip) {
         switch (window._status) {
           case 'Encrypt and Sign':
