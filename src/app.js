@@ -399,14 +399,14 @@ async encryptFile(key1, key2, f) {
       }
   }
   button.textContent = 'Processing ' + txt;
-  var reader = new FileReader();
-  reader.filename = file.name;
-  reader.readAsBinaryString(file);
-  var data = await this.myreaderload(reader);
+  //var reader = new FileReader();
+  //reader.filename = file.name;
+  //reader.readAsBinaryString(file);
+  //var data = await this.myreaderload(reader);
   return new Promise(resolve => {
     var zip = new JSZip();
-    zip.file(reader.filename, data);
-    zip.generateAsync({type:"blob"})
+    zip.file(file.name, file);
+    zip.generateAsync({type:"binarystring"})
     .then(function (blob) {
         switch (window._status) {
           case 'Encrypt and Sign':
