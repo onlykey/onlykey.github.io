@@ -407,14 +407,14 @@ async encryptFile(key1, key2, f) {
     var zip = new JSZip();
     zip.file(file.name, file);
     zip.generateAsync({type:"binarystring"})
-    .then(function (blob) {
+    .then(function (zip) {
         switch (window._status) {
           case 'Encrypt and Sign':
             this.loadPublic(key1);
             this.loadPublicSignerID(key2);
             this.loadPrivate();
             var params = {
-              msg: kbpgp.Buffer.from(blob),
+              msg: kbpgp.Buffer.from(zip),
               encrypt_for: recipient_public_key,
               sign_with: sender_private_key
             };
@@ -450,7 +450,7 @@ async encryptFile(key1, key2, f) {
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+reader.filename+'.zip.gpg';
             else button.textContent = 'Done :)  downloading encrypted file '+reader.filename+'.zip.gpg';
             window._status = "finished";
-            saveAs(result_buffer, reader.filename+".zip.gpg");
+            saveAs(result_buffer, file.name+".zip.gpg");
             button.classList.remove('working');
             return resolve();
         });
