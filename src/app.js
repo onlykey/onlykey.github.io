@@ -326,7 +326,7 @@ class Pgp2go {
             recipient_public_key = urlinputbox2.value;
       }
       if (messagebox != null) await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
-      else await this.encryptFile(sender_public_key, recipient_public_key, document.getElementById('inputfile'));
+      else await this.encryptFile(sender_public_key, recipient_public_key, document.getElementById('file'));
   }
 
   downloadPublicKey(url) {
