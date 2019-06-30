@@ -450,7 +450,9 @@ async encryptFile(key1, key2, f) {
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+file.name+'.zip.gpg';
             else button.textContent = 'Done :)  downloading encrypted file '+file.name+'.zip.gpg';
             window._status = "finished";
-            saveAs(result_buffer, file.name+".zip.gpg");
+            var finalfile = new Blob([result_buffer], {type: "text/plain;charset=utf-8"});
+            //new var blob = new Blob([xhr.response], {type: "octet/stream"});
+            saveAs(finalfile, file.name+".zip.gpg");
             button.classList.remove('working');
             return resolve();
         });
