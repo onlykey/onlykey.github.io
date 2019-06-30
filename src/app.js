@@ -380,7 +380,8 @@ class Pgp2go {
 async encryptFile(key1, key2, f) {
   console.info(f);
   console.info(f.files[0]);
-  //await readfiles(infile);
+  // todo process multiple files
+  // await readfiles(infile);
   var txt = "";
   var file = f.files[0];
   if (!file.size) {
@@ -401,10 +402,10 @@ async encryptFile(key1, key2, f) {
   var reader = new FileReader();
   reader.filename = file.name;
   reader.readAsBinaryString(file);
-  var blob = await this.myreaderload(reader);
+  var data = await this.myreaderload(reader);
   return new Promise(resolve => {
     var zip = new JSZip();
-    zip.file(reader.filename, blob);
+    zip.file(reader.filename, data);
     zip.generateAsync({type:"blob"})
     .then(function (blob) {
         switch (window._status) {
@@ -413,7 +414,7 @@ async encryptFile(key1, key2, f) {
             this.loadPublicSignerID(key2);
             this.loadPrivate();
             var params = {
-              msg: buffer,
+              msg: kbpgp.Buffer.from(blob),
               encrypt_for: recipient_public_key,
               sign_with: sender_private_key
             };
@@ -460,7 +461,7 @@ async encryptFile(key1, key2, f) {
 async myreaderload(reader) {
   return new Promise(resolve => {
     reader.onloadend = function () {
-      return resolve(kbpgp.Buffer.from(reader.result));
+      return resolve(reader.result);
     }
   });
 }
