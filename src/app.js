@@ -261,7 +261,7 @@ class Pgp2go {
       this.loadPrivate();
       kbpgp.unbox({
               keyfetch: ring,
-              armored: buffer,
+              raw: buffer,
               strict : Decrypt_Only ? false : true
           }, (err, ct) => {
           if (err)
