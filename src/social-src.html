@@ -60,12 +60,13 @@
                 //$("#searchresults").append("<img src='"+data.status.name+"' />");
                 //data = data.matches.twitter[0];
                 //console.info(data);
+                var result = data.matches.twitter[0][0];
                 $("#results").append("<br>Found a Match!");
-                $("#results").append("<img src='"+data.matches.twitter[0][0].thumbnail+"' width='10' height='auto'/>");
-                $("#results").append("Keybase Username = "+data.matches.twitter[0][0].username);
-                $("#results").append("View this user's profile <a href='https://keybase.io/"+data.matches.twitter[0][0].username+"'>here</a>");
-                $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html.html#recipients="+data.matches.twitter[0][0].username+"'>message</a>");
-                $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html.html#recipients="+data.matches.twitter[0][0].username+"'>file</a>");
+                $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/>");
+                $("#results").append("<br>Keybase Username = "+result.username);
+                $("#results").append("<br>View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a>");
+                $("#results").append("<br>Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html.html#recipients="+result.username+"'>message</a>");
+                $("#results").append("<br>Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html.html#recipients="+result.username+"'>file</a>");
                 //data = JSON.stringify(data);
             }
         });
@@ -82,17 +83,64 @@
                 //$("#searchresults").append("<img src='"+data.status.name+"' />");
                 //data = data.matches.twitter[0];
                 //console.info(data);
+                var result = data.matches.github[0][0];
                 $("#results").append("<br>Found a Match!");
-                $("#results").append("<img src='"+data.matches.$('sites.q')[0][0].thumbnail+"' width='10' height='auto'/>");
-                $("#results").append("Keybase Username = "+data.matches.github[0][0].username);
-                $("#results").append("View this user's profile <a href='https://keybase.io/"+data.matches.github[0][0].username+"'>here</a>");
-                $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html.html#recipients="+data.matches.twitter[0][0].username+"'>message</a>");
-                $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html.html#recipients="+data.matches.twitter[0][0].username+"'>file</a>");
+                $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/>");
+                $("#results").append("<br>Keybase Username = "+result.username);
+                $("#results").append("<br>View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a>");
+                $("#results").append("<br>Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html.html#recipients="+result.username+"'>message</a>");
+                $("#results").append("<br>Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html.html#recipients="+result.username+"'>file</a>");
                 //data = JSON.stringify(data);
             }
         });
         console.info(data);
-        }
+      } else if (sites.q=='reddit') {
+
+          $.ajax({
+              url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
+              async: true,
+              dataType: 'json',
+              success: function(data) {
+                console.info(data);
+
+                  //$("#searchresults").append("<img src='"+data.status.name+"' />");
+                  //data = data.matches.twitter[0];
+                  //console.info(data);
+                  var result = data.matches.reddit[0][0];
+                  $("#results").append("<br>Found a Match!");
+                  $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/>");
+                  $("#results").append("<br>Keybase Username = "+result.username);
+                  $("#results").append("<br>View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a>");
+                  $("#results").append("<br>Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html.html#recipients="+result.username+"'>message</a>");
+                  $("#results").append("<br>Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html.html#recipients="+result.username+"'>file</a>");
+                  //data = JSON.stringify(data);
+              }
+          });
+          console.info(data);
+        } else if (sites.q=='hackernews') {
+
+              $.ajax({
+                  url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
+                  async: true,
+                  dataType: 'json',
+                  success: function(data) {
+                    console.info(data);
+
+                      //$("#searchresults").append("<img src='"+data.status.name+"' />");
+                      //data = data.matches.twitter[0];
+                      //console.info(data);
+                      var result = data.matches.hackernews[0][0];
+                      $("#results").append("<br>Found a Match!");
+                      $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/>");
+                      $("#results").append("<br>Keybase Username = "+result.username);
+                      $("#results").append("<br>View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a>");
+                      $("#results").append("<br>Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html.html#recipients="+result.username+"'>message</a>");
+                      $("#results").append("<br>Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html.html#recipients="+result.username+"'>file</a>");
+                      //data = JSON.stringify(data);
+                  }
+              });
+              console.info(data);
+            }
       }
 
     $(document).ready(function() {
