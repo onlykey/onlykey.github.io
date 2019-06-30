@@ -78,6 +78,13 @@ button:hover {
     min-width: 100;
 }
 
+#result_block {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 70%;
+    min-width: 0;
+}
+
 #message {
     min-height: 35%;
 }
