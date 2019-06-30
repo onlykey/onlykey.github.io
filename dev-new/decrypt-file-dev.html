@@ -33,6 +33,51 @@
             color: rgb(137, 137, 137);
         }
     </style>
+    <script>
+        var $result = $("#result");
+    $("#file").on("change", function(evt) {
+        // remove content
+        $result.html("");
+        // be sure to show the results
+        $("#result_block").removeClass("hidden").addClass("show");
+
+        // Closure to capture the file information.
+        function handleFile(f) {
+            var $title = $("<h4>", {
+                text : f.name
+            });
+            var $fileContent = $("<ul>");
+            $result.append($title);
+            $result.append($fileContent);
+
+            var dateBefore = new Date();
+            JSZip.loadAsync(f)                                   // 1) read the Blob
+            .then(function(zip) {
+                var dateAfter = new Date();
+                $title.append($("<span>", {
+                    "class": "small",
+                    text:" (loaded in " + (dateAfter - dateBefore) + "ms)"
+                }));
+
+                zip.forEach(function (relativePath, zipEntry) {  // 2) print entries
+                    $fileContent.append($("<li>", {
+                        text : zipEntry.name
+                    }));
+                });
+            }, function (e) {
+                $result.append($("<div>", {
+                    "class" : "alert alert-danger",
+                    text : "Error reading " + f.name + ": " + e.message
+                }));
+            });
+        }
+
+        var files = evt.target.files;
+        for (var i = 0; i < files.length; i++) {
+            handleFile(files[i]);
+        }
+    });
+</script>
 </head>
 
 <body class="yui3-skin-sam">
@@ -100,9 +145,12 @@
     <div id="container">
         <fieldset>
             <textarea placeholder="Sender's Keybase username or URL to their public pgp key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
-              <form name="fileform">
-                <input type="file" id="inputfile">
-              </form>
+            <form name="fileform">
+              <div id="block">
+              <h3>Choose the file to decrypt</h3>
+              <input type="file" id="file" name="file" /><br />
+              </div>
+            </form>
             <button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button>
         </fieldset>
         <center>
@@ -124,7 +172,7 @@
             </code>
         </pre>
     </div>
-<script type="text/javascript" src="bundle.a7391af310a6e623a2e1.js"></script></body>
+<script type="text/javascript" src="bundle.0d897d876a4d1e816a04.js"></script></body>
 <script>
 window.addEventListener("load", window.initok);
 </script>

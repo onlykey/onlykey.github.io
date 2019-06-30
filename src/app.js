@@ -166,7 +166,7 @@ class Pgp2go {
             }
           }
           if (messagebox != null) this.decryptText(sender_public_key, messagebox.value);
-          else this.decryptFile(sender_public_key, document.getElementById('inputfile'));
+          else this.decryptFile(sender_public_key, document.getElementById('file'));
 	}
 
 	decryptText(key, ct) {
@@ -218,12 +218,35 @@ class Pgp2go {
       });
   }
 
-  decryptFile(key, ct) {
+  async decryptFile(key, ct) {
+
+    if ('files' in ct) {
+        var file = ct.files[0];
+        if (!file.size) {
+          this.showError(new Error("No files selected :("));
+          return;
+        } else {
+            if ('name' in file) {
+              txt += "file name: " + file.name;
+            }
+            if ('size' in file) {
+              txt += " file size: " + file.size;
+            }
+            if ('type' in file) {
+              txt += " file type: " + file.type;
+            }
+        }
+    } else {
+      this.showError(new Error("No files selected :("));
+    }
+
     var reader = new FileReader();
-    reader.filename = ct.name;
-    reader.readAsBinaryString(ct);
-    reader.onloadend = function(file) {
-      var buffer = kbpgp.Buffer.from(reader.result);
+    reader.filename = file.name;
+    var filename = reader.filename;
+    filename = filename.slice(0, filename.length-4);
+    reader.readAsBinaryString(file);
+    var parsedfile = await myreaderload(reader);
+      var buffer = kbpgp.Buffer.from(parsedfile);
       switch (window._status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
@@ -244,12 +267,12 @@ class Pgp2go {
           if (err)
               return void this.showError(err);
           if (Decrypt_Only) {
-          button.textContent = "Done :) Click here to copy message";
+          button.textContent = 'Done :)  downloading decrypted file '+filename+'.zip';
           } else {
             var ds = recipient_public_key = null;
               ds = ct[0].get_data_signer();
               if (ds == null) {
-                button.textContent = "Done :) Message has no signature, Click here to copy message";
+                button.textContent = 'Done :) file has no signature, downloading decrypted file '+filename+'.zip';
               } else {
                 console.log(ds);
                 if (ds) { recipient_public_key = ds.get_key_manager(); }
@@ -260,19 +283,20 @@ class Pgp2go {
                   var userid = recipient_public_key.userids[0].components.email.split("@")[0];
                   console.log(keyid);
                   console.log(userid);
-                  button.textContent = "Done :) Signed by " + userid + " (Key ID: " + keyid + "), Click here to copy message";
+                  button.textContent = 'Done :) Signed by ' + userid + ' (Key ID: ' + keyid + '), downloading decrypted file '+filename+'.zip';
               }
             }
           }
           console.info(ct);
-
-          //messagebox.value = ct;
-          //messagebox.focus();
-          //messagebox.select();
+          var finalfile = new Blob([ct], {type: "text/plain;charset=utf-8"});
+          //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
+          //new var blob = new Blob([xhr.response], {type: "octet/stream"});
+          saveAs(finalfile, filename+".zip");
+          button.classList.remove('working');
+          return resolve();
 
           button.classList.remove("working")
-      });
-    };
+    });
   }
 
   async startEncryption() {
