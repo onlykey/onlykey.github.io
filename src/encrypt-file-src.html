@@ -103,12 +103,11 @@
             <textarea placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
             <h3>Choose the file(s) to encrypt</h3>
             <form name="fileform">
+              <div id="fileinput">
               <input type="file" id="inputfile" multiple />
+              </div>
             </form>
             <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
-            <div id="result_block" class="hidden">
-            <h3>Content :</h3>
-            <div id="result"></div>
         </fieldset>
         <center>
             <form name="action">
