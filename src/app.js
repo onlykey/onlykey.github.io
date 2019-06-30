@@ -401,11 +401,12 @@ async encryptFile(key1, key2, f) {
   var reader = new FileReader();
   reader.filename = file.name;
   reader.readAsBinaryString(file);
-  var zip = new JSZip();
   var blob = await this.myreaderload(reader);
-  zip.file(reader.filename, blob);
-  var buffer = await this.zip.generateAsync({type:"blob"});
-      return new Promise(resolve => {
+  return new Promise(resolve => {
+    var zip = new JSZip();
+    zip.file(reader.filename, blob);
+    zip.generateAsync({type:"blob"})
+    .then(function (blob) {
         switch (window._status) {
           case 'Encrypt and Sign':
             this.loadPublic(key1);
@@ -452,6 +453,7 @@ async encryptFile(key1, key2, f) {
             button.classList.remove('working');
             return resolve();
         });
+      }.bind(this));
     });
 }
 
