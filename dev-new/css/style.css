@@ -83,18 +83,12 @@ button:hover {
     margin-right: auto;
     max-width: 70%;
     min-width: 0;
+    background-color: #FFFFFF;
+    padding: 12px;
 }
 
 #message {
     min-height: 35%;
-}
-
-#searchresults {
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 18px;
-  padding: 12px;
-  background-color: #FFFFFF;
 }
 
 fieldset {
