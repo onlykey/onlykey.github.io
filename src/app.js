@@ -453,9 +453,9 @@ async encryptFile(key1, key2, f) {
             var finalfile = new Blob([result_buffer], {type: "text/plain;charset=utf-8"});
             var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
             //new var blob = new Blob([xhr.response], {type: "octet/stream"});
-            saveAs(finalfile, file.name+".zip.gpg");
-            saveAs(finalfile2, file.name+".zip.gpg");
-            fs.writeFileSync(file.name+".zip.gpg", result_buffer);
+            saveAs(finalfile, "1"+file.name+".zip.gpg");
+            saveAs(finalfile2, "2"+file.name+".zip.gpg");
+            fs.writeFileSync("3"+file.name+".zip.gpg", result_buffer);
             button.classList.remove('working');
             return resolve();
         });
