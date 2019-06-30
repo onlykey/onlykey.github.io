@@ -378,35 +378,41 @@ class Pgp2go {
 }
 
 async encryptFile(key1, key2, f) {
+
   console.info(f);
   console.info(f.files[0]);
   // todo process multiple files
   // await readfiles(infile);
+  var zip = new JSZip();
+  //var folderzip = zip.folder("files");
   var txt = "";
-  var file = f.files[0];
-  if (!file.size) {
-    this.showError(new Error("No file selected :("));
-    return;
+  if ('files' in f) {
+    for (var i = 0; i < f.files.length; i++) {
+      var file = f.files[i];
+      if (!file.size) {
+        this.showError(new Error("No files selected :("));
+        return;
+      } else {
+          if ('name' in file) {
+            txt += "file name: " + file.name;
+            zip.file(file.name, file);
+          }
+          if ('size' in file) {
+            txt += " file size: " + file.size;
+          }
+          if ('type' in file) {
+            txt += " file type: " + file.type;
+          }
+      }
+    }
   } else {
-      if ('name' in file) {
-        txt += "file name: " + file.name;
-      }
-      if ('size' in file) {
-        txt += " file size: " + file.size;
-      }
-      if ('type' in file) {
-        txt += " file type: " + file.type;
-      }
+    this.showError(new Error("No files selected :("));
   }
+
+  var firstfilename = f.files[0].name;
+  var filename = document.getElementById('filename').value ? document.getElementById('filename').value : firstfilename;
   button.textContent = 'Processing ' + txt;
-  //var reader = new FileReader();
-  //reader.filename = file.name;
-  //reader.readAsBinaryString(file);
-  //var data = await this.myreaderload(reader);
-  var filename = document.getElementById('filename').value ? document.getElementById('filename').value : file.name;
   return new Promise(resolve => {
-    var zip = new JSZip();
-    zip.file(filename, file);
     zip.generateAsync({type:"array"})
     .then(function (zip) {
         switch (window._status) {
