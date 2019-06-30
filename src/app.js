@@ -405,7 +405,7 @@ async encryptFile(key1, key2, f) {
   //var data = await this.myreaderload(reader);
   return new Promise(resolve => {
     var zip = new JSZip();
-    zip.file(file.name, file);
+    zip.file(file.name+".zip", file);
     zip.generateAsync({type:"binarystring"})
     .then(function (zip) {
         switch (window._status) {
@@ -451,8 +451,10 @@ async encryptFile(key1, key2, f) {
             else button.textContent = 'Done :)  downloading encrypted file '+file.name+'.zip.gpg';
             window._status = "finished";
             var finalfile = new Blob([result_buffer], {type: "text/plain;charset=utf-8"});
+            var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
             //new var blob = new Blob([xhr.response], {type: "octet/stream"});
             saveAs(finalfile, file.name+".zip.gpg");
+            saveAs(finalfile2, file.name+".zip.gpg");
             button.classList.remove('working');
             return resolve();
         });
