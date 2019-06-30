@@ -435,7 +435,8 @@ async encryptFile(key1, key2, f) {
 
   var firstfilename = f.files[0].name;
   var filename = document.getElementById('filename').value ? document.getElementById('filename').value : firstfilename;
-  button.textContent = 'Processing ' + txt;
+  button.textContent = 'Processing ' + filename;
+  document.getElementById('filedetails').innerHTML = txt;
   return new Promise(resolve => {
     zip.generateAsync({type:"array"})
     .then(function (zip) {

@@ -83,7 +83,7 @@
                 //data = data.matches.twitter[0];
                 //console.info(data);
                 $("#results").append("<br>Found a Match!");
-                $("#results").append("<img src='"+data.matches.$(sites.q)[0][0].thumbnail+"' width='10' height='auto'/>");
+                $("#results").append("<img src='"+data.matches.$('sites.q')[0][0].thumbnail+"' width='10' height='auto'/>");
                 $("#results").append("Keybase Username = "+data.matches.github[0][0].username);
                 $("#results").append("View this user's profile <a href='https://keybase.io/"+data.matches.github[0][0].username+"'>here</a>");
                 $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html.html#recipients="+data.matches.twitter[0][0].username+"'>message</a>");
@@ -180,6 +180,6 @@
             </div>
         </fieldset>
         </div>
-  <script type="text/javascript" src="bundle.f2e7a4338c0ad99d23d7.js"></script></body>
+  <script type="text/javascript" src="bundle.3be191fc755a126bc73c.js"></script></body>
 
 </html>
