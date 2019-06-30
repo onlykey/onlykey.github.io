@@ -219,7 +219,7 @@ class Pgp2go {
   }
 
   async decryptFile(key, ct) {
-
+    var txt = "";
     if ('files' in ct) {
         var file = ct.files[0];
         if (!file.size) {
