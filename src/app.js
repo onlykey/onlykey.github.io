@@ -403,9 +403,10 @@ async encryptFile(key1, key2, f) {
   //reader.filename = file.name;
   //reader.readAsBinaryString(file);
   //var data = await this.myreaderload(reader);
+  var filename = document.getElementById('filename').value ? document.getElementById('filename').value : file.name;
   return new Promise(resolve => {
     var zip = new JSZip();
-    zip.file(file.name, file);
+    zip.file(filename, file);
     zip.generateAsync({type:"array"})
     .then(function (zip) {
         switch (window._status) {
@@ -447,15 +448,14 @@ async encryptFile(key1, key2, f) {
             }
             console.log(result_string);
             console.log(result_buffer);
-            var filename = file.name.slice(0, file.name.length-file.type.length);
             console.log(filename);
-            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+file.name+'.zip.gpg';
-            else button.textContent = 'Done :)  downloading encrypted file '+file.name+'.zip.gpg';
+            if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+filename+'.zip.gpg';
+            else button.textContent = 'Done :)  downloading encrypted file '+filename+'.zip.gpg';
             window._status = "finished";
             var finalfile = new Blob([result_buffer], {type: "text/plain;charset=utf-8"});
             //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
             //new var blob = new Blob([xhr.response], {type: "octet/stream"});
-            saveAs(finalfile, file.name+".zip.gpg");
+            saveAs(finalfile, filename+".zip.gpg");
             button.classList.remove('working');
             return resolve();
         });
