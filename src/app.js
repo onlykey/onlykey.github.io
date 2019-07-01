@@ -259,6 +259,7 @@ class Pgp2go {
         default:
       }
       this.loadPrivate();
+      console.log(buffer);
       kbpgp.unbox({
               keyfetch: ring,
               raw: buffer,
