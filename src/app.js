@@ -291,7 +291,8 @@ class Pgp2go {
             }
           }
           console.info(ct);
-          var finalfile = new Blob([ct], {type: "text/plain;charset=utf-8"});
+          console.info(ct.toBuffer());
+          var finalfile = new Blob([ct.toBuffer()], {type: "text/plain;charset=utf-8"});
           //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
           //new var blob = new Blob([xhr.response], {type: "octet/stream"});
           saveAs(finalfile, filename);
@@ -443,6 +444,9 @@ async encryptFile(key1, key2, f) {
   return new Promise(resolve => {
     zip.generateAsync({type:"array"})
     .then(function (zip) {
+      console.log(zip);
+      console.log(kbpgp.Buffer.from(zip));
+
         switch (window._status) {
           case 'Encrypt and Sign':
             this.loadPublic(key1);
@@ -458,7 +462,7 @@ async encryptFile(key1, key2, f) {
           case 'Encrypt Only':
             this.loadPublic(key1);
             var params = {
-              msg: msg,
+              msg: kbpgp.Buffer.from(zip),
               encrypt_for: recipient_public_key
             };
             button.textContent = 'Encrypting message ...';
@@ -467,7 +471,7 @@ async encryptFile(key1, key2, f) {
             this.loadPublicSignerID(key2);
             this.loadPrivate();
             var params = {
-              msg: msg,
+              msg: kbpgp.Buffer.from(zip),
               sign_with: sender_private_key
             };
             button.textContent = 'Signing message ...';
