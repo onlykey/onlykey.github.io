@@ -291,15 +291,12 @@ class Pgp2go {
             }
           }
           console.info(ct);
-          console.info(ct.toBuffer());
-          var finalfile = new Blob([ct.toBuffer()], {type: "text/plain;charset=utf-8"});
+          console.info(ct[0].toBuffer());
+          var finalfile = new Blob([ct[0].toBuffer()], {type: "text/plain;charset=utf-8"});
           //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
           //new var blob = new Blob([xhr.response], {type: "octet/stream"});
           saveAs(finalfile, filename);
           button.classList.remove('working');
-          return resolve();
-
-          button.classList.remove("working")
     });
   }
 
