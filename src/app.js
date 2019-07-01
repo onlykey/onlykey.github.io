@@ -246,7 +246,7 @@ class Pgp2go {
     filename = filename.slice(0, filename.length-4);
     reader.readAsBinaryString(file);
     var parsedfile = await this.myreaderload(reader);
-      var buffer = kbpgp.Buffer.from(parsedfile);
+      var buffer = parsedfile;
       switch (window._status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
