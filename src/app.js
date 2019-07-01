@@ -244,7 +244,7 @@ class Pgp2go {
     reader.filename = file.name;
     var filename = reader.filename;
     filename = filename.slice(0, filename.length-4);
-    reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
 
     var parsedfile = await this.myreaderload(reader);
       console.log(parsedfile);
