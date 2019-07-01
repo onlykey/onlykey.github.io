@@ -79,7 +79,7 @@ button:hover {
 }
 
 #block {
-    max-width: 90%;
+    max-width: 65%;
     min-width: none;
     background-color: #FFFFFF;
     padding: 12px;
@@ -89,7 +89,7 @@ button:hover {
 }
 
 #block img {
-   width: 35%;
+   width: 45%;
 }
 
 
