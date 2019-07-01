@@ -245,11 +245,8 @@ class Pgp2go {
     var filename = reader.filename;
     filename = filename.slice(0, filename.length-4);
     reader.readAsArrayBuffer(file);
-
     var parsedfile = await this.myreaderload(reader);
-      console.log(parsedfile);
       var buffer = kbpgp.Buffer.from(parsedfile);
-      console.log(buffer);
       switch (window._status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
@@ -290,8 +287,6 @@ class Pgp2go {
               }
             }
           }
-          console.info(ct);
-          console.info(ct[0].toBuffer());
           var finalfile = new Blob([ct[0].toBuffer()], {type: "text/plain;charset=utf-8"});
           //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
           //new var blob = new Blob([xhr.response], {type: "octet/stream"});
