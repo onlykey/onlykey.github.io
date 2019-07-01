@@ -270,12 +270,12 @@ class Pgp2go {
           if (err)
               return void this.showError(err);
           if (Decrypt_Only) {
-          button.textContent = 'Done :)  downloading decrypted file '+filename+'.zip';
+          button.textContent = 'Done :)  downloading decrypted file '+filename;
           } else {
             var ds = recipient_public_key = null;
               ds = ct[0].get_data_signer();
               if (ds == null) {
-                button.textContent = 'Done :) file has no signature, downloading decrypted file '+filename+'.zip';
+                button.textContent = 'Done :) file has no signature, downloading decrypted file '+filename;
               } else {
                 console.log(ds);
                 if (ds) { recipient_public_key = ds.get_key_manager(); }
@@ -286,7 +286,7 @@ class Pgp2go {
                   var userid = recipient_public_key.userids[0].components.email.split("@")[0];
                   console.log(keyid);
                   console.log(userid);
-                  button.textContent = 'Done :) Signed by ' + userid + ' (Key ID: ' + keyid + '), downloading decrypted file '+filename+'.zip';
+                  button.textContent = 'Done :) Signed by ' + userid + ' (Key ID: ' + keyid + '), downloading decrypted file '+filename;
               }
             }
           }
@@ -294,7 +294,7 @@ class Pgp2go {
           var finalfile = new Blob([ct], {type: "text/plain;charset=utf-8"});
           //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
           //new var blob = new Blob([xhr.response], {type: "octet/stream"});
-          saveAs(finalfile, filename+".zip");
+          saveAs(finalfile, filename);
           button.classList.remove('working');
           return resolve();
 
