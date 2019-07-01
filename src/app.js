@@ -245,8 +245,11 @@ class Pgp2go {
     var filename = reader.filename;
     filename = filename.slice(0, filename.length-4);
     reader.readAsBinaryString(file);
+
     var parsedfile = await this.myreaderload(reader);
-      var buffer = parsedfile;
+      console.log(parsedfile);
+      var buffer = kbpgp.Buffer.from(parsedfile);
+      console.log(buffer);
       switch (window._status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
@@ -259,7 +262,6 @@ class Pgp2go {
         default:
       }
       this.loadPrivate();
-      console.log(buffer);
       kbpgp.unbox({
               keyfetch: ring,
               raw: buffer,
