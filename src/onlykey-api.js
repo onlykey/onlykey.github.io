@@ -644,6 +644,11 @@ function string2bytes(s) {
   return bytes;
 }
 
+function u2f_unb64(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/');
+  return atob(s + '==='.slice((s.length+3) % 4));
+}
+
 /**
  * Parse custom U2F sign response
  * @param {Array} response
