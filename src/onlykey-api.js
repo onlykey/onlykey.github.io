@@ -586,28 +586,46 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       timeout: timeout,
   }
 
-  return navigator.credentials.get({
-    publicKey: request_options
-  }).then(assertion => {
-    console.log("GOT ASSERTION", assertion);
-    console.log("RESPONSE", assertion.response);
-    let response = decode_ctaphid_response_from_signature(assertion.response);
-    console.log("RESPONSE:", response);
-    if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING') return response.status;
-    if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
-      _setStatus('done_challenge');
-      return response.status;
-    }
-    return response.data;
-  }).catch(error => {
-    console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
-    console.log("THE ERROR:", error);
-    if (error.name == 'NS_ERROR_ABORT')  {
-      _setStatus('done_challenge');
-      return 1;
-    }
-    return Promise.resolve();  // error;
-  });
+
+  if (browser != "android") {
+    return navigator.credentials.get({
+      publicKey: request_options
+    }).then(assertion => {
+      console.log("GOT ASSERTION", assertion);
+      console.log("RESPONSE", assertion.response);
+      let response = decode_ctaphid_response_from_signature(assertion.response);
+      console.log("RESPONSE:", response);
+      if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING') return response.status;
+      if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
+        _setStatus('done_challenge');
+        return response.status;
+      }
+      return response.data;
+    }).catch(error => {
+      console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
+      console.log("THE ERROR:", error);
+      if (error.name == 'NS_ERROR_ABORT')  {
+        _setStatus('done_challenge');
+        return 1;
+      }
+      return Promise.resolve();  // error;
+    });
+  } else {
+    var req = { "challenge": challenge, "keyHandle": keyhandle,
+               "appId": appId, "version": "U2F_V2" };
+
+    u2f.sign(appId, challenge, [req], async function(response) {
+        console.log("GOT RESPONSE", response);
+        var err = response['errorCode'];
+        var errMes = response['errorMessage'];
+        console.info("Response code ", err);
+        console.info("Response error message");
+        console.info(errMes);
+        let result = decode_ctaphid_response_from_signature(response);
+        console.log("DECODED RESPONSE", result);
+    });
+
+  }
 }
 
 const ctap_error_codes = {
