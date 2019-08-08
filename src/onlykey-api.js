@@ -570,11 +570,13 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     });
   } else {
     challenge = mkchallenge();
-    var req = { "challenge": challenge, "keyHandle": keyhandle,
+    var b64keyhandle = bytes2b64(keyHandle);
+    var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": "U2F_V2" };
 
     return u2f.sign(appId, challenge, [req], async function(response) {
       var result = await custom_auth_response(response);
+      console.log("RESPONSE", response);
       console.log("DECODED RESPONSE", result);
       return result;
     });
@@ -630,25 +632,6 @@ const ctap_error_codes = {
     0x39: 'CTAP2_ERR_REQUEST_TOO_LARGE',
 }
 
-//Generate a random number for challenge value
-function mkchallenge() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  return u2f_b64(s.join());
-}
-
-function string2bytes(s) {
-  var len = s.length;
-  var bytes = new Uint8Array(len);
-  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
-  return bytes;
-}
-
-function u2f_unb64(s) {
-  s = s.replace(/-/g, '+').replace(/_/g, '/');
-  return atob(s + '==='.slice((s.length+3) % 4));
-}
-
 /**
  * Parse custom U2F sign response
  * @param {Array} response
@@ -675,3 +658,25 @@ async function custom_auth_response(response) {
   console.info("Parsed Data: ", parsedData);
   return parsedData;
 }
+
+//Generate a random number for challenge value
+function mkchallenge() {
+  var s = [];
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  return u2f_b64(s.join());
+}
+
+function string2bytes(s) {
+  var len = s.length;
+  var bytes = new Uint8Array(len);
+  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
+  return bytes;
+}
+
+function u2f_unb64(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/');
+  return atob(s + '==='.slice((s.length+3) % 4));
+}
+
+function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
+function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
