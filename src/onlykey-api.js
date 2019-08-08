@@ -117,7 +117,6 @@ async function msg_polling(params = {}, cb) {
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
   await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 20000).then( async (response) => {
-    if (browser != "android") var response = await custom_auth_response(response);
     console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
@@ -570,13 +569,15 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       return Promise.resolve();  // error;
     });
   } else {
-    challenge = mkchallenge();
-    var b64keyhandle = bytes2b64(keyhandle);
-    var req = { "challenge": challenge, "keyHandle": b64keyhandle,
-               "appId": appId, "version": "U2F_V2" };
-
-    u2f.sign(appId, challenge, [req], async function(response) {
-      return await response;
+    return new Promise(resolve => {
+      challenge = mkchallenge();
+      var b64keyhandle = bytes2b64(keyhandle);
+      var req = { "challenge": challenge, "keyHandle": b64keyhandle,
+                 "appId": appId, "version": "U2F_V2" };
+      u2f.sign(appId, challenge, [req], async function(response) {
+        var result = custom_auth_response(response);
+        return resolve(result);
+      });
     });
   }
 }
@@ -636,10 +637,10 @@ const ctap_error_codes = {
  */
 async function custom_auth_response(response) {
   console.info("Response", response);
-  var err = response['errorCode'];
-  var errMes = response['errorMessage'];
-  console.info("Response code ", err);
-  console.info(errMes);
+  //var err = response['errorCode'];
+  //var errMes = response['errorMessage'];
+  //console.info("Response code ", err);
+  //console.info(errMes);
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
   var U2Fcounter = sigData.slice(1,5);
