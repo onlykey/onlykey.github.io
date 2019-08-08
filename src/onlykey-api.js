@@ -570,7 +570,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     });
   } else {
     challenge = mkchallenge();
-    var b64keyhandle = bytes2b64(keyHandle);
+    var b64keyhandle = bytes2b64(keyhandle);
     var req = { "challenge": challenge, "keyHandle": b64keyhandle,
                "appId": appId, "version": "U2F_V2" };
 
