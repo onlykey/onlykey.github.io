@@ -576,8 +576,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
                "appId": appId, "version": "U2F_V2" };
 
     u2f.sign(appId, challenge, [req], async function(response) {
-      console.log("RESPONSE", response);
-      return response;
+      return await response;
     });
   }
 }
