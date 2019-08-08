@@ -587,7 +587,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  if (browser != "android") {
+  if (browser == "android") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
@@ -624,7 +624,6 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
         let result = decode_ctaphid_response_from_signature(response);
         console.log("DECODED RESPONSE", result);
     });
-
   }
 }
 
