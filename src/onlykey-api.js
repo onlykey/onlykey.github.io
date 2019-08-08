@@ -574,13 +574,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
                "appId": appId, "version": "U2F_V2" };
 
     u2f.sign(appId, challenge, [req], async function(response) {
-        console.log("GOT RESPONSE", response);
-        var err = response['errorCode'];
-        var errMes = response['errorMessage'];
-        console.info("Response code ", err);
-        console.info("Response error message");
-        console.info(errMes);
-        let result = decode_ctaphid_response_from_signature(response);
+        var result = await custom_auth_response(response);
         console.log("DECODED RESPONSE", result);
     });
   }
@@ -640,4 +634,38 @@ function mkchallenge() {
   var s = [];
   for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
   return u2f_b64(s.join());
+}
+
+function string2bytes(s) {
+  var len = s.length;
+  var bytes = new Uint8Array(len);
+  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
+  return bytes;
+}
+
+/**
+ * Parse custom U2F sign response
+ * @param {Array} response
+ */
+async function custom_auth_response(response) {
+  console.info("Response", response);
+  var err = response['errorCode'];
+  var errMes = response['errorMessage'];
+  console.info("Response code ", err);
+  console.info(errMes);
+  var sigData = string2bytes(u2f_unb64(response['signatureData']));
+  console.info("Data Received: ", sigData);
+  var U2Fcounter = sigData.slice(1,5);
+  console.info("U2Fcounter: ", U2Fcounter);
+  var parsedData = [];
+  var halflen;
+  if (sigData[8] == 0) {
+    halflen = 256;
+  } else {
+    halflen = sigData[8];
+  }
+  Array.prototype.push.apply(parsedData, sigData.slice(9,(halflen+9)));
+  Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen)));
+  console.info("Parsed Data: ", parsedData);
+  return parsedData;
 }
