@@ -117,7 +117,7 @@ async function msg_polling(params = {}, cb) {
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
   await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 20000).then( async (response) => {
-  console.log("DECODED RESPONSE:", response);
+    console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
       console.info("Finished");
@@ -573,9 +573,10 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     var req = { "challenge": challenge, "keyHandle": keyhandle,
                "appId": appId, "version": "U2F_V2" };
 
-    u2f.sign(appId, challenge, [req], async function(response) {
+    return u2f.sign(appId, challenge, [req], async function(response) {
         var result = await custom_auth_response(response);
         console.log("DECODED RESPONSE", result);
+        return response;
     });
   }
 }
