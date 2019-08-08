@@ -2,7 +2,6 @@ window._status;
 window.poll_delay;
 window.poll_type;
 
-var userDict = {}           // UserId -> KeyHandle
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};
 
@@ -389,59 +388,14 @@ function _setStatus(newStatus) {
   console.info("Changed window._status to ", newStatus);
 }
 
-function userId() {
-    var el = id('userid');
-    return el && el.value || 'u2ftest';
-}
-
 function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
 
-function b64EncodeUnicode(str) {
-    // first we use encodeURIComponent to get percent-encoded UTF-8,
-    // then we convert the percent encodings into raw bytes which
-    // can be fed into btoa.
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-        function toSolidBytes(match, p1) {
-            return String.fromCharCode('0x' + p1);
-    }));
-}
-
-//function u2f_b64(s) {
-//  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-//}
-
-function u2f_unb64(s) {
-  s = s.replace(/-/g, '+').replace(/_/g, '/');
-  return atob(s + '==='.slice((s.length+3) % 4));
-}
-function string2bytes(s) {
-  var len = s.length;
-  var bytes = new Uint8Array(len);
-  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
-  return bytes;
-}
-hexStrToDec = function(hexStr) {
-    return ~~(new Number('0x' + hexStr).toString(10));
-};
-
-function bcat(buflist) {
-  var len = 0;
-  for (var i=0; i<buflist.length; i++) {
-    if (typeof(buflist[i])=='string') buflist[i]=string2bytes(buflist[i]);
-    len += buflist[i].length;
-  }
-  var buf = new Uint8Array(len);
-  len = 0;
-  for (var i=0; i<buflist.length; i++) {
-    buf.set(buflist[i], len);
-    len += buflist[i].length;
-  }
-  return buf;
+function u2f_b64(s) {
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
 function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
-//function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
 
 function noop() {}
 
