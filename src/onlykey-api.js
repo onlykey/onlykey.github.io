@@ -577,10 +577,6 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       var result = await custom_auth_response(response);
       console.log("DECODED RESPONSE", result);
       return result;
-    }).catch(error => {
-      console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
-      console.log("THE ERROR:", error);
-      return Promise.resolve();  // error;
     });
   }
 }
