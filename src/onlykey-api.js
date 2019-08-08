@@ -570,14 +570,12 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     });
   } else {
     challenge = mkchallenge();
+    var req = { "challenge": challenge, "keyHandle": keyhandle,
+               "appId": appId, "version": "U2F_V2" };
 
-    return u2f.sign({
-      version : "U2F_V2",
-      challenge : challenge,
-      keyhandle : keyhandle,
-      appId : appId
-    }).then(response => {
-        var result = custom_auth_response(response);
+    return u2f.sign(appId, challenge, [req], async function(response) {
+      var result = await custom_auth_response(response);
+    }).then(function () {
         console.log("DECODED RESPONSE", result);
         return result;
     }).catch(error => {
