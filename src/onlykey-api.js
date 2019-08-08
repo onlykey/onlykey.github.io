@@ -117,7 +117,7 @@ async function msg_polling(params = {}, cb) {
   var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
   await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 20000).then( async (response) => {
-    if (browser != android) var response = await custom_auth_response(response);
+    if (browser != "android") var response = await custom_auth_response(response);
     console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
