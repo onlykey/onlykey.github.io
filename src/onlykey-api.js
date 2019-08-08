@@ -611,6 +611,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       return Promise.resolve();  // error;
     });
   } else {
+    challenge = mkchallenge();
     var req = { "challenge": challenge, "keyHandle": keyhandle,
                "appId": appId, "version": "U2F_V2" };
 
@@ -674,4 +675,11 @@ const ctap_error_codes = {
     0x37: 'CTAP2_ERR_PIN_POLICY_VIOLATION',
     0x38: 'CTAP2_ERR_PIN_TOKEN_EXPIRED',
     0x39: 'CTAP2_ERR_REQUEST_TOO_LARGE',
+}
+
+//Generate a random number for challenge value
+function mkchallenge() {
+  var s = [];
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  return u2f_b64(s.join());
 }
