@@ -543,13 +543,13 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       }],
       timeout: timeout,
       rpId: 'apps.crp.to',
-      origin: 'https://example.com',
+      appid: appId,
       userVerification: 'discouraged',
       //userPresence: 'false',
       //mediation: 'silent',
-      //extensions: {
-        //appid: appId,
-      //},
+      extensions: {
+        appid: appId,
+      },
   }
 
 
