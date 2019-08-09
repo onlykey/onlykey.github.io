@@ -543,6 +543,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       }],
       timeout: timeout,
       userVerification: 'discouraged',
+      userPresence: 'false',
   }
 
 
