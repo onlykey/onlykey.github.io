@@ -545,7 +545,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  if (browser == "android") {
+  if (browser != "android") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
@@ -637,10 +637,10 @@ const ctap_error_codes = {
  */
 async function custom_auth_response(response) {
   console.info("Response", response);
-  //var err = response['errorCode'];
-  //var errMes = response['errorMessage'];
-  //console.info("Response code ", err);
-  //console.info(errMes);
+  var err = response['errorCode'];
+  var errMes = response['errorMessage'];
+  console.info("Response code ", err);
+  console.info(errMes);
   var sigData = string2bytes(u2f_unb64(response['signatureData']));
   console.info("Data Received: ", sigData);
   var U2Fcounter = sigData.slice(1,5);
