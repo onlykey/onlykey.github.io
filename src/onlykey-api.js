@@ -544,10 +544,12 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       timeout: timeout,
       userVerification: 'discouraged',
       userPresence: 'false',
+      mediation: 'silent',
   }
 
 
-  if (browser == "android") {
+  //if (browser != "android") {
+  if (1==1) {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
