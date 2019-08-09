@@ -374,6 +374,10 @@ function get_pin (byte) {
   }
 }
 
+function hexStrToDec(hexStr) {
+    return ~~(new Number('0x' + hexStr).toString(10));
+}
+
 function id(s) { return document.getElementById(s); }
 
 function msg(s) {
@@ -394,9 +398,6 @@ function u2f_b64(s) {
   return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-function hexStrToDec(hexStr) {
-    return ~~(new Number('0x' + hexStr).toString(10));
-}
 
 function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
 function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
