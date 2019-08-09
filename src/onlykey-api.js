@@ -65,7 +65,7 @@ let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 //Generate a random number for challenge value
 function mkchallenge() {
   var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(1);
   return u2f_b64(s.join());
 }
 
@@ -558,7 +558,8 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   //
 
   var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data);
-  var challenge = window.crypto.getRandomValues(new Uint8Array(32));
+  var challenge = new Uint8Array(32);
+  challenge.fill(1,0,32);
 
   var request_options = {
       challenge: challenge,
@@ -569,6 +570,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       timeout: timeout,
       //rpId: 'apps.crp.to',
       //appid: appId,
+      authenticatorSelection: { userVerification: 'discouraged' },
       //userVerification: 'discouraged',
       //userPresence: 'false',
       //mediation: 'silent',
