@@ -668,6 +668,10 @@ button.addEventListener('click', async function() {
  */
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+function hexStrToDec(hexStr) {
+    return ~~(new Number('0x' + hexStr).toString(10));
+}
+
 urlinputbox.onkeyup = function () {
     let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;

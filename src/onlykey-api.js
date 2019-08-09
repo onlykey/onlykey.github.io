@@ -62,6 +62,75 @@ initok = async function () {
  */
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+//Generate a random number for challenge value
+function mkchallenge() {
+  var s = [];
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
+  return u2f_b64(s.join());
+}
+
+function string2bytes(s) {
+  var len = s.length;
+  var bytes = new Uint8Array(len);
+  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
+  return bytes;
+}
+
+function u2f_unb64(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/');
+  return atob(s + '==='.slice((s.length+3) % 4));
+}
+
+IntToByteArray = function(int) {
+    var byteArray = [0, 0, 0, 0];
+    for ( var index = 0; index < 4; index ++ ) {
+        var byte = int & 0xff;
+        byteArray [ (3 - index) ] = byte;
+        int = (int - byte) / 256 ;
+    }
+    return byteArray;
+};
+
+function get_pin (byte) {
+  if (byte < 6) return 1;
+  else {
+    return (byte % 5) + 1;
+  }
+}
+
+function hexStrToDec(hexStr) {
+    return ~~(new Number('0x' + hexStr).toString(10));
+}
+
+function id(s) { return document.getElementById(s); }
+
+function msg(s) {
+  console.info(s);
+  id('messages').innerHTML += "<br>" + s;
+}
+
+function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
+
+function _setStatus(newStatus) {
+  window._status = newStatus;
+  console.info("Changed window._status to ", newStatus);
+}
+
+function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
+
+function u2f_b64(s) {
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+
+function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
+function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
+
+function noop() {}
+
+function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
+function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
+
 /**
  * Request response from OnlyKey using U2F authentication message
  * @param {number} params.delay
@@ -357,52 +426,7 @@ async function ping (delay) {
   return await msg_polling({ type: window.poll_type, delay: delay });
 }
 
-IntToByteArray = function(int) {
-    var byteArray = [0, 0, 0, 0];
-    for ( var index = 0; index < 4; index ++ ) {
-        var byte = int & 0xff;
-        byteArray [ (3 - index) ] = byte;
-        int = (int - byte) / 256 ;
-    }
-    return byteArray;
-};
 
-function get_pin (byte) {
-  if (byte < 6) return 1;
-  else {
-    return (byte % 5) + 1;
-  }
-}
-
-function hexStrToDec(hexStr) {
-    return ~~(new Number('0x' + hexStr).toString(10));
-}
-
-function id(s) { return document.getElementById(s); }
-
-function msg(s) {
-  console.info(s);
-  id('messages').innerHTML += "<br>" + s;
-}
-
-function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
-
-function _setStatus(newStatus) {
-  window._status = newStatus;
-  console.info("Changed window._status to ", newStatus);
-}
-
-function slotId() { return id('slotid') ? id('slotid').value : type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1; }
-
-function u2f_b64(s) {
-  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-}
-
-
-function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
-function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
-
-function noop() {}
 
 // The idea is to encode CTAPHID_VENDOR commands
 // in the keyhandle, that is sent via WebAuthn or U2F
@@ -667,25 +691,3 @@ async function custom_auth_response(response) {
   console.info("Parsed Data: ", parsedData);
   return parsedData;
 }
-
-//Generate a random number for challenge value
-function mkchallenge() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(Math.floor(Math.random()*256));
-  return u2f_b64(s.join());
-}
-
-function string2bytes(s) {
-  var len = s.length;
-  var bytes = new Uint8Array(len);
-  for (var i=0; i<len; i++) bytes[i] = s.charCodeAt(i);
-  return bytes;
-}
-
-function u2f_unb64(s) {
-  s = s.replace(/-/g, '+').replace(/_/g, '/');
-  return atob(s + '==='.slice((s.length+3) % 4));
-}
-
-function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
-function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
