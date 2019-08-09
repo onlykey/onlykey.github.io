@@ -9,6 +9,7 @@ var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
 var browser = "chrome";
+var challenge = new Uint8Array([0x6F,0x27,0x28,0x21,0x63,0x4A,0x2C,0x6D,0x2B,0x8E,0xCB,0xA9,0x46,0x3E,0xBF,0x79,0x58,0x5B,0xAD,0xF3,0x0,0x8E,0xDE,0xB6,0xA8,0xD8,0xE4,0x6B,0xFC,0x6B,0xB7,0xF3]);
 
 var sha256 = function(s) {
   var md = forge.md.sha256.create();
@@ -62,13 +63,6 @@ initok = async function () {
  */
 let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-//Generate a random number for challenge value
-function mkchallenge() {
-  var s = [];
-  for(i=0;i<32;i++) s[i] = String.fromCharCode(1);
-  return u2f_b64(s.join());
-}
-
 function string2bytes(s) {
   var len = s.length;
   var bytes = new Uint8Array(len);
@@ -100,6 +94,12 @@ function get_pin (byte) {
 
 function hexStrToDec(hexStr) {
     return ~~(new Number('0x' + hexStr).toString(10));
+}
+
+function mkchallenge() {
+  var s = [];
+  for(i=0;i<32;i++) s[i] = String.fromCharCode(challenge[i]);
+  return u2f_b64(s.join());
 }
 
 function id(s) { return document.getElementById(s); }
@@ -183,7 +183,6 @@ async function msg_polling(params = {}, cb) {
       _setStatus('waiting_ping');
       cmd = OKPING;
   }
-  var challenge = window.crypto.getRandomValues(new Uint8Array(32));
 
   await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 20000).then( async (response) => {
     console.log("DECODED RESPONSE:", response);
@@ -348,7 +347,6 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
-    var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     //while (message.length < 228) message.push(0);
     //var encryptedkeyHandle = await aesgcm_encrypt(message);
 
@@ -558,8 +556,6 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   //
 
   var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data);
-  var challenge = new Uint8Array(32);
-  challenge.fill(1,0,32);
 
   var request_options = {
       challenge: challenge,
@@ -606,11 +602,11 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     });
   } else {
     return new Promise(resolve => {
-      challenge = mkchallenge();
+      var challenge_string = mkchallenge();
       var b64keyhandle = bytes2b64(keyhandle);
-      var req = { "challenge": challenge, "keyHandle": b64keyhandle,
+      var req = { "challenge": challenge_string, "keyHandle": b64keyhandle,
                  "appId": appId, "version": "U2F_V2" };
-      u2f.sign(appId, challenge, [req], async function(response) {
+      u2f.sign(appId, challenge_string, [req], async function(response) {
         var result = custom_auth_response(response);
         return resolve(result);
       });
