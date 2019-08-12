@@ -150,7 +150,7 @@ async function msg_polling(params = {}, cb) {
   var cmd;
   if (type == 1) { //OKSETTIME
     cmd = OKSETTIME;
-    var message = [];
+    var message = [255, 255, 255, 255, OKSETTIME]; //Add header and message type
     var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
     msg("Setting current time on OnlyKey to " + new Date());
     var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
