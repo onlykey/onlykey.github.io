@@ -574,8 +574,8 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  //if (browser != "android") {
-  if (1!=1) {
+  if (browser == "android") {
+  //if (1!=1) {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
@@ -677,13 +677,14 @@ async function custom_auth_response(response) {
   console.info("U2Fcounter: ", U2Fcounter);
   var parsedData = [];
   var halflen;
-  if (sigData[8] == 0) {
-    halflen = 256;
-  } else {
-    halflen = sigData[8];
-  }
-  Array.prototype.push.apply(parsedData, sigData.slice(9,(halflen+9)));
-  Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen)));
+  //if (sigData[8] == 0) {
+  //  halflen = 256;
+  //} else {
+  //  halflen = sigData[8];
+  //}
+  Array.prototype.push.apply(parsedData, sigData.slice(6,sigData.length));
+  //Array.prototype.push.apply(parsedData, sigData.slice(9,(halflen+9)));
+  //Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen)));
   console.info("Parsed Data: ", parsedData);
   return parsedData;
 }
