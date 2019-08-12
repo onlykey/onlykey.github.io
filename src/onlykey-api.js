@@ -10,6 +10,8 @@ var version = "U2F_V2";
 var OKversion;
 var browser = "chrome";
 //var challenge = new Uint8Array([0x6F,0x27,0x28,0x21,0x63,0x4A,0x2C,0x6D,0x2B,0x8E,0xCB,0xA9,0x46,0x3E,0xBF,0x79,0x58,0x5B,0xAD,0xF3,0x0,0x8E,0xDE,0xB6,0xA8,0xD8,0xE4,0x6B,0xFC,0x6B,0xB7,0xF3]);
+var u2fappid = new Uint8Array([0x23,0xCD,0xF4,0x07,0xFD,0x90,0x4F,0xEE,0x8B,0x96,0x40,0x08,0xB0,0x49,0xC5,0x5E,0xA8,0x81,0x13,0x36,0xA3,0xA5,0x17,0x1B,0x58,0xD6,0x6A,0xEC,0xF3,0x79,0xE7,0x4A]);
+
 
 var sha256 = function(s) {
   var md = forge.md.sha256.create();
@@ -352,7 +354,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     console.info("Handlekey bytes ", message);
     //console.info("Sending Handlekey ", encryptedkeyHandle);
-    console.info("Sending challenge ", challenge);
+    //console.info("Sending challenge ", challenge);
 
      await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 5000).then(async response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
      //decrypt data
@@ -568,9 +570,9 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       userVerification: 'discouraged',
       //userPresence: 'false',
       //mediation: 'silent',
-      //extensions: {
-      //  appid: appId,
-      //},
+      extensions: {
+        appid: u2fappid,
+      },
   }
 
 
