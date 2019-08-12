@@ -184,7 +184,7 @@ async function msg_polling(params = {}, cb) {
       cmd = OKPING;
   }
 
-  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 20000).then( async (response) => {
+  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 5000).then( async (response) => {
     console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
@@ -354,7 +354,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     //console.info("Sending Handlekey ", encryptedkeyHandle);
     console.info("Sending challenge ", challenge);
 
-     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 20000).then(response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
+     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 5000).then(async response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      console.log("DECODED RESPONSE:", response);
@@ -568,9 +568,9 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       userVerification: 'discouraged',
       //userPresence: 'false',
       //mediation: 'silent',
-      extensions: {
-        appid: appId,
-      },
+      //extensions: {
+      //  appid: appId,
+      //},
   }
 
 
