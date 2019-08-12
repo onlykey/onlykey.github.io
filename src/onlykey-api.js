@@ -575,7 +575,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
 
 
   //if (browser != "android") {
-  if (1==1) {
+  if (1!=1) {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
