@@ -144,7 +144,7 @@ async function msg_polling(params = {}, cb) {
     delay = delay*4;
   }
 
-  //setTimeout(async function() {
+  setTimeout(async function() {
   console.info("Requesting response from OnlyKey");
   var cmd;
   if (type == 1) { //OKSETTIME
@@ -219,7 +219,7 @@ async function msg_polling(params = {}, cb) {
     }
     if (typeof cb === 'function') cb(null, data);
   });
-//}, (delay * 1000));
+}, (delay * 1000));
 }
 
 /**
@@ -573,8 +573,8 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  if (browser != "android") {
-  //if (1!=1) {
+  //if (browser != "android") {
+  if (browser=="firefox") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
