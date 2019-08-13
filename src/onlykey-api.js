@@ -389,7 +389,7 @@ window.doPinTimer = async function (seconds) {
       console.info("Delay ", window.poll_delay);
       await ping(window.poll_delay-2); //Delay
     } else if (window._status === 'pending_challenge') {
-        if (secondsRemaining < 4) {
+        if (secondsRemaining < 0) {
           const btmsg = 'Time expired for PIN confirmation';
           button.textContent = btmsg;
           button.classList.remove('working');
