@@ -95,7 +95,7 @@ function hexStrToDec(hexStr) {
     return ~~(new Number('0x' + hexStr).toString(10));
 }
 
-function mkchallenge() {
+function mkchallenge(challenge) {
   var s = [];
   for(i=0;i<32;i++) s[i] = String.fromCharCode(challenge[i]);
   return u2f_b64(s.join());
@@ -563,12 +563,12 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
           type: 'public-key',
       }],
       timeout: timeout,
-      //rpId: 'apps.crp.to',
+      rpId: 'apps.crp.to',
       userVerification: 'discouraged',
-      //userPresence: 'false',
-      //mediation: 'silent',
+      userPresence: 'false',
+      mediation: 'silent',
       extensions: {
-        appid: appId,
+        appid: 'https://apps.crp.to',
       },
   }
 
@@ -599,7 +599,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     });
   } else {
     return new Promise(resolve => {
-      var challenge_string = mkchallenge();
+      var challenge_string = mkchallenge(challenge);
       var b64keyhandle = bytes2b64(keyhandle);
       var req = { "challenge": challenge_string, "keyHandle": b64keyhandle,
                  "appId": appId, "version": "U2F_V2" };
