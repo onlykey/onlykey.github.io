@@ -380,7 +380,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
  */
 window.doPinTimer = async function (seconds) {
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 20;
+    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
 
     if (window._status === 'done_challenge' || window._status === 'waiting_ping') {
       _setStatus('done_challenge');
@@ -573,7 +573,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  if (browser != "android") {
+  if (browser != "test") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
