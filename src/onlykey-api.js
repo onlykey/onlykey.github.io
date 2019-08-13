@@ -399,7 +399,7 @@ window.doPinTimer = async function (seconds) {
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
-        await ping(0);
+        if (browser != 'android') await ping(0);
         }
     }
 
@@ -573,7 +573,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  if (browser != "testing") {
+  if (browser != "android") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
