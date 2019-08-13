@@ -389,12 +389,16 @@ window.doPinTimer = async function (seconds) {
       console.info("Delay ", window.poll_delay);
       await ping(window.poll_delay-2); //Delay
     } else if (window._status === 'pending_challenge') {
-        if (secondsRemaining < 0) {
+        if (secondsRemaining < 2) {
+          if (browser == 'android') {
+            _setStatus('done_challenge');
+          } else {
           const btmsg = 'Time expired for PIN confirmation';
           button.textContent = btmsg;
           button.classList.remove('working');
           button.classList.add('error');
           return reject(btmsg);
+          }
         } else {
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
