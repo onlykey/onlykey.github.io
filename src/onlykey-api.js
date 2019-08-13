@@ -344,7 +344,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? doPinTimer.bind(null, 20) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? doPinTimer.bind(null, 10) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     //while (message.length < 228) message.push(0);
     //var encryptedkeyHandle = await aesgcm_encrypt(message);
