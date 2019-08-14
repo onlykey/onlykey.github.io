@@ -47,7 +47,7 @@ initok = async function () {
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ) browser = "firefox";
     if (navigator.userAgent.toLowerCase().indexOf('android') > -1 ) browser = "android";
     msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-    await wait(5000);
+    await wait(6000);
     if (typeof(sharedsec) === "undefined") {
       if (browser=='firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
       else headermsg("OnlyKey not connected! Refresh this page to try again.");
@@ -391,20 +391,12 @@ window.doPinTimer = async function (seconds) {
       await ping(window.poll_delay-2); //Delay
     } else if (window._status === 'pending_challenge') {
         if (secondsRemaining < 2) {
-          if (browser == 'android') {
             _setStatus('done_challenge');
-          } else {
-          const btmsg = 'Time expired for PIN confirmation';
-          button.textContent = btmsg;
-          button.classList.remove('working');
-          button.classList.add('error');
-          return reject(btmsg);
-          }
         } else {
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
-        if (browser != 'android') await ping(0);
+        //await ping(0); //Too many popups with FIDO2
         }
     }
 
