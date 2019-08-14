@@ -47,9 +47,7 @@ initok = async function () {
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ) browser = "firefox";
     if (navigator.userAgent.toLowerCase().indexOf('android') > -1 ) browser = "android";
     msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-    await wait(3000);
-    // for testing
-    browser = "android";
+    await wait(5000);
     if (typeof(sharedsec) === "undefined") {
       if (browser=='firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
       else headermsg("OnlyKey not connected! Refresh this page to try again.");
@@ -202,6 +200,7 @@ async function msg_polling(params = {}, cb) {
       OKversion = response[19] == 99 ? 'Color' : 'Original';
       var FWversion = bytes2string(response.slice(8, 20));
       msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
+      id('header_messages').innerHTML = "<br>";
       headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
       var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
       console.info("AES Key", key);
@@ -382,7 +381,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
  */
 window.doPinTimer = async function (seconds) {
   return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 6;
+    secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
 
     if (window._status === 'done_challenge' || window._status === 'waiting_ping') {
       _setStatus('done_challenge');
@@ -582,7 +581,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  if (browser == "android") {
+  if (browser != "testing") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
@@ -611,10 +610,10 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       var b64keyhandle = bytes2b64(keyhandle);
       var req = { "challenge": challenge_string, "keyHandle": b64keyhandle,
                  "appId": appId, "version": "U2F_V2" };
-      u2f.sign(appId, challenge_string, [req], async function(response) {
-        var result = custom_auth_response(response);
-        return resolve(result);
-      });
+      //u2f.sign(appId, challenge_string, [req], async function(response) {
+        //var result = custom_auth_response(response);
+        //return resolve(result);
+      //});
     });
   }
 }
