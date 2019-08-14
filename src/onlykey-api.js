@@ -336,7 +336,7 @@ function aesgcm_encrypt(plaintext) {
 async function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
     var message = [];
-    var maxPacketSize = 513; //57 (OK packet size) * 4, has to be less than 255 - header
+    var maxPacketSize = 228; //57 (OK packet size) * 4, has to be less than 255 - header
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     if (cipherText.length < maxPacketSize) {
       var ctChunk = cipherText;
@@ -452,7 +452,7 @@ function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
 
     const offset = 10;
 
-    if (offset + data.length > 523) {
+    if (offset + data.length > 255) {
         throw new Error("Max size exceeded");
     }
 
@@ -469,9 +469,8 @@ function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
     array[5] = 0x27;  //  39
     array[6] = 0x90;  // 144
     array[7] = 0xf6;  // 246
-    if (data.length>511) array[8] = 2;
-    else if (data.length>255) array[8] = 1;
-    else array[8] = 0;
+
+    array[8] = 0;
     array[9] = data.length & 0xff;
 
     array.set(data, offset);
@@ -496,7 +495,8 @@ function decode_ctaphid_response_from_signature(response) {
     // signature data (bytes 5-end of U2F response
 
     console.log('UNFORMATTED RESPONSE:', response);
-    msg("Response " + response);
+    msg("Response ")
+    msg(response);
 
     signature_count = (
         new DataView(
@@ -576,13 +576,13 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       userVerification: 'discouraged',
       userPresence: 'false',
       mediation: 'silent',
-      //extensions: {
-      //  appid: 'https://apps.crp.to',
-      //},
+      extensions: {
+        appid: 'https://apps.crp.to',
+      },
   }
 
 
-  if (browser != "test") {
+  if (browser == "test") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
