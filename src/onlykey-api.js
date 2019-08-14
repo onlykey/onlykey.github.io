@@ -582,7 +582,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  if (browser == "test") {
+  if (browser != "test") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
