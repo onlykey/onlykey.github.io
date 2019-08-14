@@ -452,7 +452,7 @@ function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
 
     const offset = 10;
 
-    if (offset + data.length > 255) {
+    if (offset + data.length > 523) {
         throw new Error("Max size exceeded");
     }
 
@@ -469,8 +469,9 @@ function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
     array[5] = 0x27;  //  39
     array[6] = 0x90;  // 144
     array[7] = 0xf6;  // 246
-
-    array[8] = 0;
+    if (data.length>511) array[8] = 2;
+    else if (data.length>255) array[8] = 1;
+    else array[8] = 0;
     array[9] = data.length & 0xff;
 
     array.set(data, offset);
