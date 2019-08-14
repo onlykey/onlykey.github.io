@@ -475,6 +475,7 @@ function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
 
     array.set(data, offset);
 
+    msg("Request " + array);
     console.log('FORMATTED REQUEST:', array);
     return array;
 }
@@ -494,6 +495,7 @@ function decode_ctaphid_response_from_signature(response) {
     // signature data (bytes 5-end of U2F response
 
     console.log('UNFORMATTED RESPONSE:', response);
+    msg("Response " + response);
 
     signature_count = (
         new DataView(
