@@ -334,8 +334,8 @@ function aesgcm_encrypt(plaintext) {
  */
 async function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [255, 255, 255, 255]; //Add header and message type
-    var maxPacketSize = 232; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
+    var message = []; //Add header and message type
+    var maxPacketSize = 228; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     if (cipherText.length < maxPacketSize) {
       var ctChunk = cipherText;
