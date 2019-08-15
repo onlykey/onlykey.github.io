@@ -334,8 +334,8 @@ function aesgcm_encrypt(plaintext) {
  */
 async function u2fSignBuffer(cipherText, mainCallback) {
     // this function should recursively call itself until all bytes are sent in chunks
-    var message = [];
-    var maxPacketSize = 228; //57 (OK packet size) * 4, has to be less than 255 - header
+    var message = [255, 255, 255, 255]; //Add header and message type
+    var maxPacketSize = 232; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     if (cipherText.length < maxPacketSize) {
       var ctChunk = cipherText;
@@ -345,7 +345,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? doPinTimer.bind(null, 6) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? doPinTimer.bind(null, 10) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     //while (message.length < 228) message.push(0);
     //var encryptedkeyHandle = await aesgcm_encrypt(message);
@@ -354,7 +354,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     //console.info("Sending Handlekey ", encryptedkeyHandle);
     //console.info("Sending challenge ", challenge);
 
-     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 5000).then(async response => { //OKSETTIME used as placeholder, doesn't matter for encrypted packets
+     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 5000).then(async response => {
      //decrypt data
      //var decryptedparsedData = await aesgcm_decrypt(parsedData);
      console.log("DECODED RESPONSE:", response);
@@ -466,7 +466,6 @@ function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
 
     array.set(data, offset);
 
-    msg("Request " + array);
     console.log('FORMATTED REQUEST:', array);
     return array;
 }
@@ -486,8 +485,6 @@ function decode_ctaphid_response_from_signature(response) {
     // signature data (bytes 5-end of U2F response
 
     console.log('UNFORMATTED RESPONSE:', response);
-    msg("Response ")
-    msg(response);
 
     signature_count = (
         new DataView(
@@ -501,10 +498,10 @@ function decode_ctaphid_response_from_signature(response) {
 
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
-        if (signature.length<65 && bytes2string(data.slice(0,9))=='UNLOCKEDv') {
+        if (signature.length<72 && bytes2string(data.slice(0,9))=='UNLOCKEDv') {
           // Reset shared secret and start over
           _setStatus(document.getElementById('onlykey_start').value);
-        } else if (signature.length<65 && bytes2string(data.slice(0,6))=='Error ') {
+        } else if (signature.length<72 && bytes2string(data.slice(0,6))=='Error ') {
           // Something went wrong, read the ascii response and display to user
           const btmsg = `${bytes2string(data)}. Refresh this page and try again.`;
           button.textContent = btmsg;
