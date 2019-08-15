@@ -129,12 +129,12 @@ function chr(c) {
 function noop() {}
 
 function bytes2string(bytes) {
-  var len;
-  for (var i=0; i<= bytes.length; i++) {
-    if (bytes[i]=0) len=i;
-  }
+  //var len;
+  //for (var i=0; i<= bytes.length; i++) {
+  //  if (bytes[i]=0) len=i;
+  //}
   var ret = Array.from(bytes).map(chr).join('');
-  ret = ret.slice(0,len);
+  //ret = ret.slice(0,len);
   return ret;
  }
 
