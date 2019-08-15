@@ -123,14 +123,21 @@ function u2f_b64(s) {
 
 
 function chr(c) {
-  if (c!=0) return String.fromCharCode(c); 
+  return String.fromCharCode(c);
 } // Because map passes 3 args
 
 function noop() {}
 
 function bytes2string(bytes) {
-  return Array.from(bytes).map(chr).join('');
+  var len;
+  for (var i=0; i<= bytes.length; i++) {
+    if (bytes[i]=0) len=i;
+  }
+  var ret = Array.from(bytes).map(chr).join('');
+  ret = ret.slice(0,len);
+  return ret;
  }
+
 function bytes2b64(bytes) {
   return u2f_b64(bytes2string(bytes));
 }
