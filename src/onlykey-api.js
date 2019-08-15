@@ -122,13 +122,18 @@ function u2f_b64(s) {
 }
 
 
-function chr(c) { return String.fromCharCode(c); } // Because map passes 3 args
-function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
+function chr(c) {
+  if (c!=0) return String.fromCharCode(c); 
+} // Because map passes 3 args
 
 function noop() {}
 
-function bytes2string(bytes) { return Array.from(bytes).map(chr).join(''); }
-function bytes2b64(bytes) { return u2f_b64(bytes2string(bytes)); }
+function bytes2string(bytes) {
+  return Array.from(bytes).map(chr).join('');
+ }
+function bytes2b64(bytes) {
+  return u2f_b64(bytes2string(bytes));
+}
 
 /**
  * Request response from OnlyKey using U2F authentication message
