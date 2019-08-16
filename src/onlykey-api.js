@@ -189,8 +189,8 @@ async function msg_polling(params = {}, cb) {
       var message = [];
       var ciphertext = new Uint8Array(64).fill(0);
       Array.prototype.push.apply(message, ciphertext);
-      //var encryptedkeyHandle = await aesgcm_encrypt(message);
-      var encryptedkeyHandle = Uint8Array.from(message);
+      var encryptedkeyHandle = await aesgcm_encrypt(message);
+      //var encryptedkeyHandle = Uint8Array.from(message);
       _setStatus('waiting_ping');
       cmd = OKPING;
   }
@@ -360,16 +360,16 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var cb = finalPacket ? doPinTimer.bind(null, 10) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     //while (message.length < 228) message.push(0);
-    //var encryptedkeyHandle = await aesgcm_encrypt(message);
-
     console.info("Handlekey bytes ", message);
-    //console.info("Sending Handlekey ", encryptedkeyHandle);
-    //console.info("Sending challenge ", challenge);
+    message = await aesgcm_encrypt(message);
+    console.info("Encrypted Handlekey bytes ", message);
 
      await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 5000).then(async response => {
      //decrypt data
-     //var decryptedparsedData = await aesgcm_decrypt(parsedData);
+     var decryptedparsedData = await aesgcm_decrypt(response);
      console.log("DECODED RESPONSE:", response);
+     console.log("DECRYPTED RESPONSE:", decryptedparsedData);
+     console.log("Returning just the decoded response:");
      var result = response;
      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
       if (result) {
@@ -413,10 +413,10 @@ window.doPinTimer = async function (seconds) {
     }
 
     if (window._status === 'finished') {
-      //var decrypted_data = await aesgcm_decrypt(encrypted_data);
+      var decrypted_data = await aesgcm_decrypt(encrypted_data);
 
-      console.info("Parsed Decrypted Data: ", encrypted_data);
-      return resolve(encrypted_data);
+      console.info("Parsed Decrypted Data: ", decrypted_data);
+      return resolve(decrypted_data);
     }
 
     setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining-=4), 4000);
