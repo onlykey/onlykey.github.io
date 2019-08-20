@@ -288,7 +288,6 @@ auth_sign = function (ct, cb) { //OnlyKey sign request to keyHandle
  */
 function aesgcm_decrypt(encrypted) {
   return new Promise(resolve => {
-    counter++;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
@@ -318,7 +317,6 @@ function aesgcm_decrypt(encrypted) {
  */
 function aesgcm_encrypt(plaintext) {
   return new Promise(resolve => {
-    counter++;
     forge.options.usePureJavaScript = true;
     var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
     console.log("Key", key);
@@ -335,10 +333,9 @@ function aesgcm_encrypt(plaintext) {
     console.log("Plaintext", plaintext);
     cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
     cipher.finish();
-    var ciphertext = cipher.output.getBytes;
-    console.log("Ciphertext", ciphertext);
-    console.log("Ciphertext 2", Uint8Array.from(ciphertext));
-    resolve(Uint8Array.from(ciphertext));
+    var ciphertext = cipher.output;
+    ciphertext = ciphertext.toHex(),
+    resolve(ciphertext.match(/.{2}/g).map(hexStrToDec))
   });
 }
 
