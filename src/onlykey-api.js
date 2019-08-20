@@ -361,10 +361,10 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
     //while (message.length < 228) message.push(0);
     console.info("Handlekey bytes ", message);
-    message = await aesgcm_encrypt(message);
-    console.info("Encrypted Handlekey bytes ", message);
+    var encryptedmsg = await aesgcm_encrypt(message);
+    console.info("Encrypted Handlekey bytes ", encryptedmsg);
 
-     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, message, 5000).then(async response => {
+     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, encryptedmsg, 5000).then(async response => {
      //decrypt data
      var decryptedparsedData = await aesgcm_decrypt(response);
      console.log("DECODED RESPONSE:", response);
