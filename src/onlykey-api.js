@@ -336,6 +336,8 @@ function aesgcm_encrypt(plaintext) {
     cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
     cipher.finish();
     var ciphertext = cipher.output.getBytes;
+    console.log("Ciphertext", ciphertext);
+    console.log("Ciphertext 2", Uint8Array.from(ciphertext));
     resolve(Uint8Array.from(ciphertext));
   });
 }
