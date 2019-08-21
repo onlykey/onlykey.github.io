@@ -304,7 +304,7 @@ function aesgcm_decrypt(encrypted) {
     var buffer = forge.util.createBuffer(encrypted, 'utf8');
     console.log("Encrypted length", buffer.length());
     console.log(buffer);
-    decipher.update(forge.util.createBuffer(buffer));
+    decipher.update(buffer);
     var plaintext = decipher.output.toHex()
     console.log("Plaintext", plaintext);
     decipher.finish();
