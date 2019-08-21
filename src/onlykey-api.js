@@ -308,12 +308,6 @@ function aesgcm_decrypt(encrypted) {
     decipher.finish();
     var plaintext = decipher.output.toHex();
     console.log("Plaintext", plaintext);
-    var plaintext2 = decipher.output.getBytes();
-    console.log("Plaintext2", plaintext2);
-    console.log("Plaintext3", forge.util.bytesToHex(plaintext2));
-    console.log("Plaintext4", decipher.output);
-
-
     //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
     //encrypted = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
     resolve(plaintext.match(/.{2}/g).map(hexStrToDec));
@@ -411,14 +405,14 @@ window.doPinTimer = async function (seconds) {
       console.info("Delay ", window.poll_delay);
       await ping(window.poll_delay-2); //Delay
     } else if (window._status === 'pending_challenge') {
-        if (secondsRemaining < 2) {
+        if (secondsRemaining <= 2) {
             _setStatus('done_challenge');
-        } else {
+        }
         const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
         button.textContent = btmsg;
         console.info("enter challenge code", pin);
         //await ping(0); //Too many popups with FIDO2
-        }
+        
     }
 
     if (window._status === 'finished') {
