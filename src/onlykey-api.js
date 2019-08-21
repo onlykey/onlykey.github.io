@@ -305,8 +305,11 @@ function aesgcm_decrypt(encrypted) {
     console.log("Encrypted length", buffer.length());
     console.log(buffer);
     decipher.update(buffer);
-    var plaintext = decipher.output.toHex()
+    var plaintext = decipher.output.toHex();
     console.log("Plaintext", plaintext);
+    var plaintext2 = decipher.output.getBytes();
+    console.log("Plaintext2", plaintext2);
+    console.log("Plaintext3", forge.util.bytesToHex(plaintext2));
     decipher.finish();
 
     //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
