@@ -301,7 +301,7 @@ function aesgcm_decrypt(encrypted) {
       tagLength: 0, // optional, defaults to 128 bits
     });
     console.log("Encrypted", encrypted);
-    var buffer = forge.util.createBuffer(encrypted, 'utf8');
+    var buffer = forge.util.createBuffer(Uint8Array.from(encrypted), 'utf8');
     console.log("Encrypted length", buffer.length());
     console.log(buffer);
     decipher.update(buffer);
