@@ -302,8 +302,14 @@ function aesgcm_decrypt(encrypted) {
     });
     console.log("Encrypted", encrypted);
     var buffer = forge.util.createBuffer(Uint8Array.from(encrypted), 'utf8');
+    var buffer2 = forge.util.createBuffer(Uint8Array.from(encrypted), 'raw');
+    var buffer3 = forge.util.createBuffer(Uint8Array.from(encrypted));
     console.log("Encrypted length", buffer.length());
     console.log(buffer);
+    console.log("Encrypted length2", buffer2.length());
+    console.log(buffer2);
+    console.log("Encrypted length3", buffer3.length());
+    console.log(buffer3);
     decipher.update(buffer);
     var plaintext = decipher.output.toHex();
     console.log("Plaintext", plaintext);
