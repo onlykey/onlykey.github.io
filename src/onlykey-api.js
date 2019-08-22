@@ -134,11 +134,9 @@ function bytes2string(bytes) {
  }
 
  function getstringlen(bytes) {
-   for (var i=0; i<= bytes.length; i++) {
-     if (bytes[i]=0) {
-       console.info("getstringlen ", i);
-       return i;
-     }
+   for (var i=1; i<= bytes.length; i++) {
+     console.info("getstringlen ", i);
+     if (bytes[i]==0 || bytes[i]==1) return i;
    }
   }
 
