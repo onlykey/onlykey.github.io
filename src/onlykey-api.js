@@ -129,14 +129,17 @@ function chr(c) {
 function noop() {}
 
 function bytes2string(bytes) {
-  //var len;
-  //for (var i=0; i<= bytes.length; i++) {
-  //  if (bytes[i]=0) len=i;
-  //}
   var ret = Array.from(bytes).map(chr).join('');
-  //ret = ret.slice(0,len);
   return ret;
  }
+
+ function getstringlen(bytes) {
+   for (var i=0; i<= bytes.length; i++) {
+     if (bytes[i]=0) return i;
+   }
+  }
+
+
 
 function bytes2b64(bytes) {
   return u2f_b64(bytes2string(bytes));
@@ -520,12 +523,13 @@ function decode_ctaphid_response_from_signature(response) {
           _setStatus(document.getElementById('onlykey_start').value);
         } else if (signature.length<73 && bytes2string(data.slice(0,6))=='Error ') {
           // Something went wrong, read the ascii response and display to user
-          const btmsg = `${bytes2string(data)}. Refresh this page and try again.`;
+          var msgtext = data.slice(0,getstringlen(data));
+          const btmsg = `${bytes2string(msgtext)}. Refresh this page and try again.`;
           button.textContent = btmsg;
           button.classList.remove('working');
           button.classList.add('error');
           _setStatus('finished');
-          throw new Error(bytes2string(data.slice(0,63)));
+          throw new Error(bytes2string(msgtext));
         } else if (window._status === 'waiting_ping' || window._status === 'done_challenge') {
           // got data
           encrypted_data = data;
