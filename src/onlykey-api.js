@@ -406,7 +406,7 @@ window.doPinTimer = async function (seconds) {
 
     if (window._status === 'done_challenge' || window._status === 'waiting_ping') {
       _setStatus('done_challenge');
-      const btmsg = `Waiting ${window.poll_delay} seconds for OnlyKey to process message.`;
+      const btmsg = `Waiting for OnlyKey to process message.`;
       button.textContent = btmsg;
       console.info("Delay ", window.poll_delay);
       await ping(window.poll_delay-2); //Delay
