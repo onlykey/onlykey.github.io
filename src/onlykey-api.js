@@ -408,11 +408,12 @@ window.doPinTimer = async function (seconds) {
         if (secondsRemaining <= 2) {
             _setStatus('done_challenge');
         }
-        const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
-        button.textContent = btmsg;
-        console.info("enter challenge code", pin);
+        if (secondsRemaining >= 2) {
+          const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
+          button.textContent = btmsg;
+          console.info("enter challenge code", pin);
+        }
         //await ping(0); //Too many popups with FIDO2
-        
     }
 
     if (window._status === 'finished') {
