@@ -609,7 +609,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     }).catch(error => {
       console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
       console.log("THE ERROR:", error);
-      if (error.name == 'NS_ERROR_ABORT')  {
+      if (error.name == 'NS_ERROR_ABORT' || error.name.indexOf('The operation was aborted') !== -1)  {
         _setStatus('done_challenge');
         return 1;
       }
