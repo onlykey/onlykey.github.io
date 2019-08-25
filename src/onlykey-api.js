@@ -609,6 +609,8 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     }).catch(error => {
       console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
       console.log("THE ERROR:", error);
+      console.log("NAME:", error.name);
+      console.log("MESSAGE:", error.message);
       if (error.name == 'NS_ERROR_ABORT' || error.name.includes('DOMException'))  {
         _setStatus('done_challenge');
         return 1;
