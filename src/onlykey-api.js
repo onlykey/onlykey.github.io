@@ -611,7 +611,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       console.log("THE ERROR:", error);
       console.log("NAME:", error.name);
       console.log("MESSAGE:", error.message);
-      if (error.name == 'NS_ERROR_ABORT' || error.name == 'AbortError')  {
+      if (error.name == 'NS_ERROR_ABORT' || error.name == 'AbortError' || error.name == 'InvalidStateError')  {
         _setStatus('done_challenge');
         return 1;
       }
