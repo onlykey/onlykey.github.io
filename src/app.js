@@ -137,8 +137,18 @@ window.initapp = function(skipBtn) {
   const val = document.action.select_one.value;
   window._status = val;
   if (!skipBtn) button.textContent = val;
-  if (window._status=='Encrypt Only') document.getElementById('pgpkeyurl2').style.display = "none";
-  if (window._status=='Sign Only') document.getElementById('pgpkeyurl').style.display = "none";
+  if (window._status=='Encrypt Only') {
+    document.getElementById('pgpkeyurl2').style.display = "none";
+        document.getElementById('pgpkeyurl').style.display = "initial";
+  }
+  else if (window._status=='Sign Only') {
+    document.getElementById('pgpkeyurl').style.display = "none";
+    document.getElementById('pgpkeyurl2').style.display = "initial";
+  }
+  else if (window._status=='Encrypt and Sign') {
+    document.getElementById('pgpkeyurl').style.display = "initial";
+    document.getElementById('pgpkeyurl2').style.display = "initial";
+  }
 
   document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
 };
