@@ -56,6 +56,7 @@ initok = async function () {
       if (getAllUrlParams().type=='es') document.getElementById('encrypt_and_sign').checked = true;
       if (getAllUrlParams().type=='s') {
         document.getElementById('sign_only').checked = true;
+        window._status = 'Sign Only';
         document.getElementById('pgpkeyurl').style.display = "none";
       }
     } else if ((document.getElementById('onlykey_start').value) == 'Decrypt and Verify') {
@@ -64,7 +65,9 @@ initok = async function () {
       if (getAllUrlParams().type=='d') document.getElementById('decrypt_only').checked = true;
     }
     if (window._status != 'Encrypt Only') {
-      await msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+      await wait(6000);
+      msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+
     } else {
       await wait(1000);
     }
