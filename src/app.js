@@ -134,7 +134,10 @@ window.initok = initok();
 window.custom_keyid;
 
 window.initapp = function(skipBtn) {
-  const val = getAllUrlParams().type ? getAllUrlParams().type : document.action.select_one.value;
+  if (getAllUrlParams().type=='e') document.getElementById('encrypt_and_sign').checked = true;
+  if (getAllUrlParams().type=='es') document.getElementById('encrypt_only').checked = true;
+  if (getAllUrlParams().type=='s') document.getElementById('sign_only').checked = true;
+  const val = document.action.select_one.value;
   window._status = val;
   if (!skipBtn) button.textContent = val;
   document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
@@ -312,14 +315,14 @@ class Pgp2go {
           console.info(urlinputbox.value.slice(0,10));
           sender_public_key = await this.downloadPublicKey(urlinputbox.value);
           console.info("sender_public_key" + sender_public_key);
-          } else {
-            sender_public_key = urlinputbox.value;
+      } else {
+          sender_public_key = urlinputbox.value;
       } if (urlinputbox2.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
-        console.info(urlinputbox2.value.slice(0,10));
-        recipient_public_key = await this.downloadPublicKey(urlinputbox2.value);
-                          console.info("recipient_public_key" + recipient_public_key);
-          } else {
-            recipient_public_key = urlinputbox2.value;
+          console.info(urlinputbox2.value.slice(0,10));
+          recipient_public_key = await this.downloadPublicKey(urlinputbox2.value);
+          console.info("recipient_public_key" + recipient_public_key);
+      } else {
+          recipient_public_key = urlinputbox2.value;
       }
       if (messagebox != null) await this.encryptText(sender_public_key, recipient_public_key, messagebox.value);
       else await this.encryptFile(sender_public_key, recipient_public_key, document.getElementById('file'));
