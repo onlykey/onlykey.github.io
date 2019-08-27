@@ -51,7 +51,7 @@
       if (sites.q=='auto') {
 
         $.ajax({
-            url: 'https://keybase.io/_/api/1.0/user/autocomplete.json?' + user.q,
+            url: 'https://keybase.io/_/api/1.0/user/autocomplete.json?q=' + user.q,
             async: true,
             dataType: 'json',
             success: function(data) {
