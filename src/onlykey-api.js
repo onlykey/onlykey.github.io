@@ -50,7 +50,7 @@ initok = async function () {
       if (getAllUrlParams().recipients) document.getElementById('pgpkeyurl').value = getAllUrlParams().recipients;
       if (getAllUrlParams().type=='e') {
         document.getElementById('encrypt_only').checked = true;
-        _setstatus('Encrypt Only');
+        window._status = 'Encrypt Only';
         document.getElementById('pgpkeyurl2').style.display = "none";
       }
       if (getAllUrlParams().type=='es') document.getElementById('encrypt_and_sign').checked = true;
