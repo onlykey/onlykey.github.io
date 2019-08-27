@@ -191,10 +191,9 @@
     $(document).ready(function() {
     $('#submit').click(function() {
         var selection = document.getElementById("sites");
-        var site = selection.options[selection.selectedIndex];
 
         var sites = {
-            q: $('#site').val(),
+            q: selection.options[selection.selectedIndex].text,
             rpp: 5
         };
         var users = {
@@ -281,6 +280,6 @@
             </div>
         </fieldset>
         </div>
-  <script type="text/javascript" src="bundle.2f9f2ef0703c255b3557.js"></script></body>
+  <script type="text/javascript" src="bundle.2fc100b308f37c733334.js"></script></body>
 
 </html>

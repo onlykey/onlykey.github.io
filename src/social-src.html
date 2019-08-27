@@ -191,10 +191,9 @@
     $(document).ready(function() {
     $('#submit').click(function() {
         var selection = document.getElementById("sites");
-        var site = selection.options[selection.selectedIndex];
 
         var sites = {
-            q: $('#site').val(),
+            q: selection.options[selection.selectedIndex].text,
             rpp: 5
         };
         var users = {
