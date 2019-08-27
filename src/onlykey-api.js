@@ -66,14 +66,14 @@ initok = async function () {
     if (window._status != 'Encrypt Only') {
       msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
       await wait(6000);
-      if (typeof(sharedsec) === "undefined") {
-        if (browser=='firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
-        else headermsg("OnlyKey not connected! Refresh this page to try again.");
-      } else {
-        //Initialize App
-        window.initapp();
-      }
-  }
+    }
+    if (typeof(sharedsec) === "undefined" && window._status != 'Encrypt Only') {
+      if (browser=='firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
+      else headermsg("OnlyKey not connected! Refresh this page to try again.");
+    } else {
+      //Initialize App
+      window.initapp();
+    }
 };
 
 /**
