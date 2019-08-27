@@ -55,10 +55,6 @@
             async: true,
             dataType: 'json',
             success: function(data) {
-              console.info(data);
-
-                //$("#searchresults").append("<img src='"+data.status.name+"' />");
-                //data = data.matches.twitter[0];
                 console.info(data);
                 var result = data.completions;
                 result.forEach(function(element) {
@@ -69,7 +65,7 @@
                     $("#results").append("<br>Found a Match!");
                     if (element.thumbnail != null) $("#results").append("<img src='"+element.thumbnail+"' width='10' height='auto'/><br>");
                     $("#results").append("<font color='red'>Keybase Username = "+element.components.username.val+"</font><br>");
-                    if (element.components.full_name.val) $("#results").append("Full Name = "+element.components.full_name.val+"<br><br>");
+                    if (element.components.full_name) $("#results").append("Full Name = "+element.components.full_name.val+"<br><br>");
                     $("#results").append("View this user's profile <a href='https://keybase.io/"+element.components.username.val+"'>here</a><br>");
                     $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+element.components.username.val+"'>message</a><br>");
                     $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+element.components.username.val+"'>file</a><br>");
@@ -80,7 +76,6 @@
                 });
             }
         });
-        console.info(data);
       }
 
       else if (sites.q=='twitter') {
@@ -91,10 +86,6 @@
             dataType: 'json',
             success: function(data) {
               console.info(data);
-
-                //$("#searchresults").append("<img src='"+data.status.name+"' />");
-                //data = data.matches.twitter[0];
-                //console.info(data);
                 var result = data.matches.twitter[0][0];
                 if (result.username) {
                   $("#results").append("<br>Found a Match!");
@@ -109,7 +100,6 @@
                 }
             }
         });
-        console.info(data);
       } else if (sites.q=='github') {
 
         $.ajax({
@@ -118,10 +108,6 @@
             dataType: 'json',
             success: function(data) {
               console.info(data);
-
-                //$("#searchresults").append("<img src='"+data.status.name+"' />");
-                //data = data.matches.twitter[0];
-                //console.info(data);
                 var result = data.matches.github[0][0];
                 if (result.username) {
                   $("#results").append("<br>Found a Match!");
@@ -136,7 +122,6 @@
                 }
             }
         });
-        console.info(data);
       } else if (sites.q=='reddit') {
 
           $.ajax({
@@ -146,9 +131,6 @@
               success: function(data) {
                 console.info(data);
 
-                  //$("#searchresults").append("<img src='"+data.status.name+"' />");
-                  //data = data.matches.twitter[0];
-                  //console.info(data);
                   var result = data.matches.reddit[0][0];
                   if (result.username) {
                     $("#results").append("<br>Found a Match!");
@@ -163,7 +145,6 @@
                   }
               }
           });
-          console.info(data);
         } else if (sites.q=='web') {
 
             $.ajax({
@@ -172,10 +153,6 @@
                 dataType: 'json',
                 success: function(data) {
                   console.info(data);
-
-                    //$("#searchresults").append("<img src='"+data.status.name+"' />");
-                    //data = data.matches.twitter[0];
-                    //console.info(data);
                     var result = data.matches.web[0][0];
                     if (result.username) {
                       $("#results").append("<br>Found a Match!");
@@ -190,7 +167,6 @@
                     }
                 }
             });
-            console.info(data);
           } else if (sites.q=='key_fingerprint') {
 
               $.ajax({
@@ -199,10 +175,6 @@
                   dataType: 'json',
                   success: function(data) {
                     console.info(data);
-
-                      //$("#searchresults").append("<img src='"+data.status.name+"' />");
-                      //data = data.matches.twitter[0];
-                      //console.info(data);
                       var result = data.matches.key_fingerprint[0][0];
                       if (result.username) {
                         $("#results").append("<br>Found a Match!");
@@ -217,7 +189,6 @@
                       }
                   }
               });
-              console.info(data);
             } else if (sites.q=='hackernews') {
 
               $.ajax({
@@ -226,10 +197,6 @@
                   dataType: 'json',
                   success: function(data) {
                     console.info(data);
-
-                      //$("#searchresults").append("<img src='"+data.status.name+"' />");
-                      //data = data.matches.twitter[0];
-                      //console.info(data);
                       var result = data.matches.hackernews[0][0];
                       if (result.username) {
                         $("#results").append("<br>Found a Match!");
@@ -244,7 +211,6 @@
                       }
                   }
               });
-              console.info(data);
             }
       }
 
@@ -259,7 +225,6 @@
             q: $('#user').val(),
             rpp: 5
         };
-        // alert(jQuery.param(params));
         searchKeybase(sites, users);
     });
     });
