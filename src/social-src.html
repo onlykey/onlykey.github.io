@@ -63,14 +63,15 @@
                 var result = data.completions;
                 result.forEach(function(element) {
                   console.log(element);
+                  console.log(element.components);
 
-                  if (result.username) {
+                  if (element.components.username) {
                     $("#results").append("<br>Found a Match!");
-                    $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
-                    $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
-                    $("#results").append("Full Name = "+result.full_name+"<br>");                    $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
-                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
-                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");
+                    $("#results").append("<img src='"+element.components.thumbnail+"' width='10' height='auto'/><br>");
+                    $("#results").append("<font color='red'>Keybase Username = "+element.components.username+"</font><br>");
+                    $("#results").append("Full Name = "+element.components.full_name+"<br>");                    $("#results").append("View this user's profile <a href='https://keybase.io/"+element.components.username+"'>here</a><br>");
+                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+element.components.username+"'>message</a><br>");
+                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+element.components.username+"'>file</a><br>");
                     //data = JSON.stringify(data);
                   } else {
                     $("#results").append("<br>No match found!");
