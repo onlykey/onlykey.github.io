@@ -67,7 +67,7 @@
 
                   if (element.components.username.val) {
                     $("#results").append("<br>Found a Match!");
-                    if (element.thumbnail) $("#results").append("<img src='"+element.thumbnail+"' width='10' height='auto'/><br>");
+                    if (element.thumbnail != null) $("#results").append("<img src='"+element.thumbnail+"' width='10' height='auto'/><br>");
                     $("#results").append("<font color='red'>Keybase Username = "+element.components.username.val+"</font><br>");
                     if (element.components.full_name.val) $("#results").append("Full Name = "+element.components.full_name.val+"<br><br>");
                     $("#results").append("View this user's profile <a href='https://keybase.io/"+element.components.username.val+"'>here</a><br>");
@@ -339,6 +339,6 @@
             </div>
         </fieldset>
         </div>
-  <script type="text/javascript" src="bundle.b42294f65b34405dfd92.js"></script></body>
+  <script type="text/javascript" src="bundle.7ce092b70e5265ec80d8.js"></script></body>
 
 </html>

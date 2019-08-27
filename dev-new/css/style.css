@@ -92,6 +92,10 @@ button:hover {
    width: 45%;
 }
 
+#block text {
+   width: 90%;
+}
+
 
 #message {
     min-height: 35%;
