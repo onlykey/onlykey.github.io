@@ -190,10 +190,9 @@
 
     $(document).ready(function() {
     $('#submit').click(function() {
-        var selection = document.getElementById("sites");
 
         var sites = {
-            q: selection.options[selection.selectedIndex].text,
+            q: $("#sites option:selected").text(),
             rpp: 5
         };
         var users = {
