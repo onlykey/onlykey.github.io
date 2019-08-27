@@ -308,7 +308,7 @@ class Pgp2go {
           this.showError(new Error("I need sender's public pgp key to sign :("));
           return;
       }
-      if (urlinputbox.value.slice(0,10) != '-----BEGIN') { // Check if its a pasted public key
+      if (urlinputbox.value.slice(0,10) != '-----BEGIN' && window._status!='Encrypt Only') { // Check if its a pasted public key
           console.info(urlinputbox.value.slice(0,10));
           sender_public_key = await this.downloadPublicKey(urlinputbox.value);
           console.info("sender_public_key" + sender_public_key);
