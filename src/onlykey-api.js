@@ -65,9 +65,8 @@ initok = async function () {
       if (getAllUrlParams().type=='d') document.getElementById('decrypt_only').checked = true;
     }
     if (window._status != 'Encrypt Only') {
-      await wait(6000);
       msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-
+      await wait(6000);
     } else {
       await wait(1000);
     }
