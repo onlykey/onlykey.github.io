@@ -67,9 +67,9 @@
 
                   if (element.components.username.val) {
                     $("#results").append("<br>Found a Match!");
-                    $("#results").append("<img src='"+element.thumbnail+"' width='10' height='auto'/><br>");
+                    if (element.thumbnail) $("#results").append("<img src='"+element.thumbnail+"' width='10' height='auto'/><br>");
                     $("#results").append("<font color='red'>Keybase Username = "+element.components.username.val+"</font><br>");
-                    $("#results").append("Full Name = "+element.components.full_name.val+"<br>");
+                    if (element.components.full_name.val) $("#results").append("Full Name = "+element.components.full_name.val+"<br><br>");
                     $("#results").append("View this user's profile <a href='https://keybase.io/"+element.components.username.val+"'>here</a><br>");
                     $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+element.components.username.val+"'>message</a><br>");
                     $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+element.components.username.val+"'>file</a><br>");
@@ -100,7 +100,8 @@
                   $("#results").append("<br>Found a Match!");
                   $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
                   $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
-                  $("#results").append("Full Name = "+result.full_name+"<br>");                  $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
+                  $("#results").append("Full Name = "+result.full_name+"<br><br>");
+                  $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
                   $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
                   $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                  //data = JSON.stringify(data);
                 } else {
@@ -126,7 +127,7 @@
                   $("#results").append("<br>Found a Match!");
                   $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
                   $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
-                  $("#results").append("Full Name = "+result.full_name+"<br>");
+                  $("#results").append("Full Name = "+result.full_name+"<br><br>");
                   $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
                   $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
                   $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                  //data = JSON.stringify(data);
@@ -153,6 +154,7 @@
                     $("#results").append("<br>Found a Match!");
                     $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
                     $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
+                    $("#results").append("Full Name = "+result.full_name+"<br><br>");
                     $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
                     $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
                     $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                    //data = JSON.stringify(data);
@@ -179,7 +181,7 @@
                       $("#results").append("<br>Found a Match!");
                       $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
                       $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
-                      $("#results").append("Full Name = "+result.full_name+"<br>");
+                      $("#results").append("Full Name = "+result.full_name+"<br><br>");
                       $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
                       $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
                       $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                      //data = JSON.stringify(data);
@@ -206,7 +208,7 @@
                         $("#results").append("<br>Found a Match!");
                         $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
                         $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
-                        $("#results").append("Full Name = "+result.full_name+"<br>");
+                        $("#results").append("Full Name = "+result.full_name+"<br><br>");
                         $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
                         $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
                         $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                        //data = JSON.stringify(data);
@@ -233,7 +235,7 @@
                         $("#results").append("<br>Found a Match!");
                         $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
                         $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
-                        $("#results").append("Full Name = "+result.full_name+"<br>");
+                        $("#results").append("Full Name = "+result.full_name+"<br><br>");
                         $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
                         $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
                         $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                        //data = JSON.stringify(data);
@@ -322,7 +324,7 @@
         <fieldset>
             <textarea placeholder="Enter username to search for..." rows="1" id="user"></textarea>
             <select id="sites" name="Site to search">
-              <option value="auto">Automatically search for match</option>
+              <option value="auto">Auto search (searches any text for best match)</option>
               <option value="web">Web Domain (i.e. mywebsite.com)</option>
               <option value="twitter">Twitter</option>
               <option value="github">Github</option>
@@ -337,6 +339,6 @@
             </div>
         </fieldset>
         </div>
-  <script type="text/javascript" src="bundle.87b02cacf9ef19dfaa0f.js"></script></body>
+  <script type="text/javascript" src="bundle.b42294f65b34405dfd92.js"></script></body>
 
 </html>
