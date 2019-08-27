@@ -134,9 +134,16 @@ window.initok = initok();
 window.custom_keyid;
 
 window.initapp = function(skipBtn) {
-  if (getAllUrlParams().type=='e') document.getElementById('encrypt_and_sign').checked = true;
-  if (getAllUrlParams().type=='es') document.getElementById('encrypt_only').checked = true;
-  if (getAllUrlParams().type=='s') document.getElementById('sign_only').checked = true;
+  if (document.action.select_one.value=='Encrypt and Sign') {
+    if (getAllUrlParams().type=='e') document.getElementById('encrypt_and_sign').checked = true;
+    if (getAllUrlParams().type=='es') document.getElementById('encrypt_only').checked = true;
+    if (getAllUrlParams().type=='s') document.getElementById('sign_only').checked = true;
+  } else if (document.action.select_one.value=='Decrypt and Verify') {
+    if (getAllUrlParams().type=='dv') document.getElementById('decrypt_and_verify').checked = true;
+    if (getAllUrlParams().type=='d') document.getElementById('decrypt_only').checked = true;
+  }
+  if (getAllUrlParams().sender) urlinputbox.value = getAllUrlParams().sender;
+  if (getAllUrlParams().recipients) urlinputbox2.value = getAllUrlParams().recipients;
   const val = document.action.select_one.value;
   window._status = val;
   if (!skipBtn) button.textContent = val;
