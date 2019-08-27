@@ -64,15 +64,15 @@ initok = async function () {
       if (getAllUrlParams().type=='d') document.getElementById('decrypt_only').checked = true;
     }
     if (window._status != 'Encrypt Only') {
-      msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-      await wait(6000);
+      await msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
+    } else {
+      await wait(1000);
     }
     if (typeof(sharedsec) === "undefined" && window._status != 'Encrypt Only') {
       if (browser=='firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
       else headermsg("OnlyKey not connected! Refresh this page to try again.");
     } else {
       //Initialize App
-      await wait(1000);
       window.initapp();
     }
 };
