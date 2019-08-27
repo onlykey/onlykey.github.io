@@ -49,7 +49,7 @@ initok = async function () {
     if ((document.getElementById('onlykey_start').value) == 'Encrypt and Sign') {
       if (getAllUrlParams().type=='e') {
         document.getElementById('encrypt_and_sign').checked = true;
-        document.getElementById('pgpkeyurl2').rows = "0";
+        document.getElementById('pgpkeyurl2').style.display = "none"; 
       }
       if (getAllUrlParams().type=='es') document.getElementById('encrypt_only').checked = true;
       if (getAllUrlParams().type=='s') document.getElementById('sign_only').checked = true;
