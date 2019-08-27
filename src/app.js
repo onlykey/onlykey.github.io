@@ -136,6 +136,7 @@ window.custom_keyid;
 window.initapp = function() {
   var val = document.action.select_one.value;
   window._status = val;
+  console.info('Radio button selected' + val);
   if (window._status=='Encrypt Only') {
     document.getElementById('pgpkeyurl2').style.display = "none";
     document.getElementById('pgpkeyurl').style.display = "initial";
