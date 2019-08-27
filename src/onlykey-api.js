@@ -34,7 +34,6 @@ const OKGETPUBKEY = 236;
 const OKGETRESPONSE = 242;
 const OKPING = 243;
 
-
 const button = document.getElementById('onlykey_start');
 
 /**
@@ -139,8 +138,6 @@ function bytes2string(bytes) {
      if (bytes[i]==0 || bytes[i]==1) return i;
    }
   }
-
-
 
 function bytes2b64(bytes) {
   return u2f_b64(bytes2string(bytes));
