@@ -65,13 +65,14 @@
                   console.log(element);
                   console.log(element.components);
 
-                  if (element.components.username) {
+                  if (element.components.username.val) {
                     $("#results").append("<br>Found a Match!");
-                    $("#results").append("<img src='"+element.components.thumbnail+"' width='10' height='auto'/><br>");
-                    $("#results").append("<font color='red'>Keybase Username = "+element.components.username+"</font><br>");
-                    $("#results").append("Full Name = "+element.components.full_name+"<br>");                    $("#results").append("View this user's profile <a href='https://keybase.io/"+element.components.username+"'>here</a><br>");
-                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+element.components.username+"'>message</a><br>");
-                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+element.components.username+"'>file</a><br>");
+                    $("#results").append("<img src='"+element.components.thumbnail.val+"' width='10' height='auto'/><br>");
+                    $("#results").append("<font color='red'>Keybase Username = "+element.components.username.val+"</font><br>");
+                    $("#results").append("Full Name = "+element.components.full_name.val+"<br>");
+                    $("#results").append("View this user's profile <a href='https://keybase.io/"+element.components.username.val+"'>here</a><br>");
+                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+element.components.username.val+"'>message</a><br>");
+                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+element.components.username.val+"'>file</a><br>");
                     //data = JSON.stringify(data);
                   } else {
                     $("#results").append("<br>No match found!");
@@ -339,6 +340,6 @@
             </div>
         </fieldset>
         </div>
-  <script type="text/javascript" src="bundle.0637c64cb1b2ad1d893c.js"></script></body>
+  <script type="text/javascript" src="bundle.df5e671545185559ea20.js"></script></body>
 
 </html>
