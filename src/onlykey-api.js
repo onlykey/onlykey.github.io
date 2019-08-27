@@ -72,6 +72,7 @@ initok = async function () {
       else headermsg("OnlyKey not connected! Refresh this page to try again.");
     } else {
       //Initialize App
+      await wait(1000);
       window.initapp();
     }
 };
