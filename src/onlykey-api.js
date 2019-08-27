@@ -45,20 +45,24 @@ initok = async function () {
   //Initialize OnlyKey
     if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ) browser = "firefox";
     if (navigator.userAgent.toLowerCase().indexOf('android') > -1 ) browser = "android";
-
     if ((document.getElementById('onlykey_start').value) == 'Encrypt and Sign') {
+      if (getAllUrlParams().sender) document.getElementById('pgpkeyurl2').value = getAllUrlParams().sender;
+      if (getAllUrlParams().recipients) document.getElementById('pgpkeyurl').value = getAllUrlParams().recipients;
       if (getAllUrlParams().type=='e') {
-        document.getElementById('encrypt_and_sign').checked = true;
-        document.getElementById('pgpkeyurl2').style.display = "none"; 
+        document.getElementById('encrypt_only').checked = true;
+        _setstatus('Encrypt Only');
+        document.getElementById('pgpkeyurl2').style.display = "none";
       }
-      if (getAllUrlParams().type=='es') document.getElementById('encrypt_only').checked = true;
-      if (getAllUrlParams().type=='s') document.getElementById('sign_only').checked = true;
+      if (getAllUrlParams().type=='es') document.getElementById('encrypt_and_sign').checked = true;
+      if (getAllUrlParams().type=='s') {
+        document.getElementById('sign_only').checked = true;
+        document.getElementById('pgpkeyurl').style.display = "none";
+      }
     } else if ((document.getElementById('onlykey_start').value) == 'Decrypt and Verify') {
+      if (getAllUrlParams().sender) document.getElementById('pgpkeyurl').value = getAllUrlParams().sender;
       if (getAllUrlParams().type=='dv') document.getElementById('decrypt_and_verify').checked = true;
       if (getAllUrlParams().type=='d') document.getElementById('decrypt_only').checked = true;
     }
-    if (getAllUrlParams().sender) document.getElementById('pgpkeyurl2').value = getAllUrlParams().sender;
-    if (getAllUrlParams().recipients) document.getElementById('pgpkeyurl1').value = getAllUrlParams().recipients;
     if (window._status != 'Encrypt Only') {
       msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
       await wait(6000);
