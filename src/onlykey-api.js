@@ -66,7 +66,7 @@ initok = async function () {
     }
     if (window._status != 'Encrypt Only') {
       msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-      if (browser=='android') await wait(5000);
+      if (browser=='android') await wait(6000);
       else await wait(3000);
     }
     await wait(1000);
@@ -158,7 +158,7 @@ function bytes2string(bytes) {
  function getstringlen(bytes) {
    for (var i=1; i<= bytes.length; i++) {
      console.info("getstringlen ", i);
-     if (bytes[i]==0 || bytes[i]==1) return i;
+     if (bytes[i]>122 || bytes[i]<97 ) return i;
    }
   }
 
