@@ -158,7 +158,7 @@ function bytes2string(bytes) {
  function getstringlen(bytes) {
    for (var i=1; i<= bytes.length; i++) {
      console.info("getstringlen ", i);
-     if (bytes[i]>122 || bytes[i]<97 ) return i;
+     if ((bytes[i]>122 || bytes[i]<97) && bytes[i] != 32) return i;
    }
   }
 
