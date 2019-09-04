@@ -44,8 +44,8 @@ let plugins = [
         showErrors: false
     }),
     new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './social.html' : './social-dev.html',
-        template: './src/social-src.html',
+        filename: (process.env.NODE_ENV === 'production') ? './search.html' : './search-dev.html',
+        template: './src/search-src.html',
         inject: 'body',
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
