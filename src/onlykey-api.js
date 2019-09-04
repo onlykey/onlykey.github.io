@@ -655,7 +655,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
           type: 'public-key',
       }],
       timeout: timeout,
-      //rpId: 'apps.crp.to',
+      rpId: 'fake.test.com',
       userVerification: 'discouraged',
       //userPresence: 'false',
       //mediation: 'silent',
