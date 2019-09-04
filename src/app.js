@@ -157,7 +157,7 @@ window.initapp = function() {
     button.textContent = 'Decrypt and Verify';
   }
   else if (window._status=='Decrypt Only') {
-    document.getElementById('pgpkeyurl').style.display = "none";
+    document.getElementById('pgpkeyurl').style.display = "initial";
     button.textContent = 'Decrypt';
   }
   document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
