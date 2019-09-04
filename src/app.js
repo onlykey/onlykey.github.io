@@ -140,17 +140,25 @@ window.initapp = function() {
   if (window._status=='Encrypt Only') {
     document.getElementById('pgpkeyurl2').style.display = "none";
     document.getElementById('pgpkeyurl').style.display = "initial";
-    button.textContent = 'Encrypt Message';
+    button.textContent = 'Encrypt';
   }
   else if (window._status=='Sign Only') {
     document.getElementById('pgpkeyurl').style.display = "none";
     document.getElementById('pgpkeyurl2').style.display = "initial";
-    button.textContent = 'Sign Message';
+    button.textContent = 'Sign';
   }
   else if (window._status=='Encrypt and Sign') {
     document.getElementById('pgpkeyurl').style.display = "initial";
     document.getElementById('pgpkeyurl2').style.display = "initial";
-    button.textContent = 'Encrypt and Sign Message';
+    button.textContent = 'Encrypt and Sign';
+  }
+  else if (window._status=='Decrypt and Verify') {
+    document.getElementById('pgpkeyurl').style.display = "initial";
+    button.textContent = 'Decrypt and Verify';
+  }
+  else if (window._status=='Decrypt Only') {
+    document.getElementById('pgpkeyurl').style.display = "none";
+    button.textContent = 'Decrypt';
   }
   document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
 };
