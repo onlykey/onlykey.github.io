@@ -452,17 +452,18 @@ async encryptFile(key1, key2, f) {
     this.showError(new Error("No files selected :("));
   }
 
-  var firstfilename = f.files[1].name ? 'files' : f.files[0].name;
+  var firstfilename = f.files[0].name;
   var filename = document.getElementById('filename').value ? document.getElementById('filename').value : firstfilename;
-  button.textContent = 'Processing ' + filename;
+  button.textContent = f.files[1].name ? 'Processing files' : 'Processing ' + filename;
   document.getElementById('filedetails').innerHTML = txt;
   return new Promise(resolve => {
     zip.generateAsync({
     type: "uint8array",
-    compression: "DEFLATE",
-    compressionOptions: {
-        level: 1
-        }
+    compression: "STORE",
+    //compression: "DEFLATE",
+    //compressionOptions: {
+        //level: 1
+        //}
     })
     .then(function (zip) {
       //console.log(zip);
