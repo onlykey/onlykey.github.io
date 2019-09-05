@@ -422,8 +422,8 @@ class Pgp2go {
 
 async encryptFile(key1, key2, f) {
 
-  console.info(f);
-  console.info(f.files[0]);
+  //console.info(f);
+  //console.info(f.files[0]);
   // todo process multiple files
   // await readfiles(infile);
   var zip = new JSZip();
@@ -459,8 +459,8 @@ async encryptFile(key1, key2, f) {
   return new Promise(resolve => {
     zip.generateAsync({type:"array"})
     .then(function (zip) {
-      console.log(zip);
-      console.log(kbpgp.Buffer.from(zip));
+      //console.log(zip);
+      //console.log(kbpgp.Buffer.from(zip));
 
         switch (window._status) {
           case 'Encrypt and Sign':
@@ -499,9 +499,9 @@ async encryptFile(key1, key2, f) {
                 this.showError(err);
                 return;
             }
-            console.log(result_string);
-            console.log(result_buffer);
-            console.log(filename);
+            //console.log(result_string);
+            //console.log(result_buffer);
+            //console.log(filename);
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+filename+'.zip.gpg';
             else button.textContent = 'Done :)  downloading encrypted file '+filename+'.zip.gpg';
             window._status = "finished";
