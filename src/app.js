@@ -273,10 +273,10 @@ class Pgp2go {
       switch (window._status) {
         case 'Decrypt and Verify':
           this.loadPublic(key);
-          button.textContent = 'Decrypting and verifying message ...';
+          button.textContent = 'Decrypting and verifying...';
           break;
         case 'Decrypt Only':
-          button.textContent = 'Decrypting message ...';
+          button.textContent = 'Decrypting...';
           var Decrypt_Only = true;
           break;
         default:
@@ -452,7 +452,7 @@ async encryptFile(key1, key2, f) {
     this.showError(new Error("No files selected :("));
   }
 
-  var firstfilename = f.files[0].name;
+  var firstfilename = f.files[1].name ? 'files' : f.files[0].name;
   var filename = document.getElementById('filename').value ? document.getElementById('filename').value : firstfilename;
   button.textContent = 'Processing ' + filename;
   document.getElementById('filedetails').innerHTML = txt;
@@ -462,8 +462,8 @@ async encryptFile(key1, key2, f) {
     compression: "DEFLATE",
     compressionOptions: {
         level: 1
-    }
-})
+        }
+    })
     .then(function (zip) {
       //console.log(zip);
       //console.log(kbpgp.Buffer.from(zip));
@@ -478,7 +478,7 @@ async encryptFile(key1, key2, f) {
               encrypt_for: recipient_public_key,
               sign_with: sender_private_key
             };
-            button.textContent = 'Encrypting and signing message ...';
+            button.textContent = 'Encrypting and signing...';
             break;
           case 'Encrypt Only':
             this.loadPublic(key1);
@@ -486,7 +486,7 @@ async encryptFile(key1, key2, f) {
               msg: kbpgp.Buffer.from(zip),
               encrypt_for: recipient_public_key
             };
-            button.textContent = 'Encrypting message ...';
+            button.textContent = 'Encrypting...';
             break;
           case 'Sign Only':
             this.loadPublicSignerID(key2);
@@ -495,7 +495,7 @@ async encryptFile(key1, key2, f) {
               msg: kbpgp.Buffer.from(zip),
               sign_with: sender_private_key
             };
-            button.textContent = 'Signing message ...';
+            button.textContent = 'Signing...';
             break;
           default:
         }
