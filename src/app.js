@@ -462,7 +462,7 @@ async encryptFile(key1, key2, f) {
     //compression: "STORE",
     compression: "DEFLATE",
     compressionOptions: {
-        level: 3
+        level: 1
         }
     })
     .then(function (zip) {
