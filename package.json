@@ -48,7 +48,7 @@
     "uglify-js-harmony": "^2.7.7",
     "uglifyjs-webpack-plugin2": "^1.0.3",
     "file-saver": "^2.0.0",
-    "jszip": "^3.1.5",
+    "jszip": "^3.2.2",
     "jquery": "^3.4.0"
   },
   "bugs": {

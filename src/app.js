@@ -459,11 +459,11 @@ async encryptFile(key1, key2, f) {
   return new Promise(resolve => {
     zip.generateAsync({
     type: "uint8array",
-    compression: "STORE",
-    //compression: "DEFLATE",
-    //compressionOptions: {
-        //level: 1
-        //}
+    //compression: "STORE",
+    compression: "DEFLATE",
+    compressionOptions: {
+        level: 3
+        }
     })
     .then(function (zip) {
       //console.log(zip);
