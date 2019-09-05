@@ -457,7 +457,7 @@ async encryptFile(key1, key2, f) {
   button.textContent = 'Processing ' + filename;
   document.getElementById('filedetails').innerHTML = txt;
   return new Promise(resolve => {
-    zip.generateAsync({type:"array"})
+    zip.generateAsync({type:"uint8array"})
     .then(function (zip) {
       //console.log(zip);
       //console.log(kbpgp.Buffer.from(zip));
