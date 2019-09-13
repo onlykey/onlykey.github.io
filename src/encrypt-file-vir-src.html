@@ -4,6 +4,10 @@
     <title>OnlyKey Apps - Encrypt & sign files using Keybase PGP and Virtru</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <META HTTP-EQUIV='Content-Security-Policy' CONTENT="default-src 'none' ; script-src 'self' 'sha256-P1WP1KTz9iiHN5Bfeec+pIgBDay5qWNQZh9HujWa94o=' 'sha256-pBDNHyFUtn3XsRvFveaLkaEupq1l96neUvZm5/c1PmQ='; style-src 'self' 'sha256-ujVZuuvwuQ+epdwqO8AhlbOQSx68+ci+dDIwrFrzI+Q=' 'sha256-zsMKYSOY0gzTtULlMRDwkny+ocnOJuA+B49b0BIIQXU='; img-src 'self' ; font-src 'self' ; connect-src 'self' https://keybase.io ; base-uri 'none'; form-action 'none';">
+    <link href="https://sdk.virtru.com/js/latest/auth-widget/index.css" rel="stylesheet"/>
+    <script src="https://sdk.virtru.com/js/latest/auth-widget/index.js"></script>
+    <script src="https://sdk.virtru.com/js/latest/virtru-sdk.min.js"></script>
+
     <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
     <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
     <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
@@ -134,8 +138,16 @@
             </code>
         </pre>
     </div>
-</body>
+<div id="virtru-auth-widget-mount"></div>
 <script>
-window.addEventListener("load", window.initok);
+  async function afterAuth(email) {
+    // Run all client code from here.
+    // This will only be called when the user is successfully authenticated.
+    window.email = email;
+    window.initok();
+  }
+  // Set up the auth widget.
+  Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 </script>
+</body>
 </html>
