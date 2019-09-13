@@ -756,7 +756,7 @@ function buildDecryptFilename(filename) {
 
 // Decrypt the file by creating an object url (for now) and return the stream content
 async function decrypt(fileData) {
-  const client = new Virtru.Client({window.email});
+  const client = new Virtru.Client(window.email);
   const decryptParams = new Virtru.DecryptParamsBuilder()
     .withArrayBufferSource(fileData)
     .build();
@@ -767,7 +767,7 @@ async function decrypt(fileData) {
 
 // Encrypt the filedata and return the stream content and filename
 async function encrypt(fileData, filename) {
-  const client = new Virtru.Client({window.email});
+  const client = new Virtru.Client(window.email);
 
   //const policy = new Virtru.PolicyBuilder().build();
 
