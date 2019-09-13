@@ -13,7 +13,8 @@
   "scripts": {
     "release": "cross-env NODE_ENV=production OUT_DIR=./ webpack -p --config webpack.config.js",
     "dev": "cross-env NODE_ENV=development OUT_DIR=./dev webpack --devtool source-map --config webpack.config.js",
-    "dev-new": "cross-env NODE_ENV=development OUT_DIR=./dev-new webpack --devtool source-map --config webpack.config.js"
+    "dev-new": "cross-env NODE_ENV=development OUT_DIR=./dev-new webpack --devtool source-map --config webpack.config.js",
+    "dev-vir": "cross-env NODE_ENV=development OUT_DIR=./dev-vir webpack --devtool source-map --config webpack.config.js"
   },
   "devDependencies": {
     "babel-minify-webpack-plugin": "^0.3.0",

@@ -61,6 +61,24 @@ let plugins = [
         cache: false,
         showErrors: false
     }),
+    new HtmlWebpackPlugin({
+        filename: (process.env.NODE_ENV === 'production') ? './encrypt-file-vir.html' : './encrypt-file-vir-dev.html',
+        template: './src/encrypt-file-vir-src.html',
+        inject: 'body',
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
+        hash: (process.env.NODE_ENV === 'production') ? true : false,
+        cache: false,
+        showErrors: false
+    }),
+    new HtmlWebpackPlugin({
+        filename: (process.env.NODE_ENV === 'production') ? './decrypt-file-vir.html' : './decrypt-file-vir-dev.html',
+        template: './src/decrypt-file-vir-src.html',
+        inject: 'body',
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
+        hash: (process.env.NODE_ENV === 'production') ? true : false,
+        cache: false,
+        showErrors: false
+    }),
     new webpack.ProvidePlugin({
       nacl: './nacl.min.js',
       forge: './forge.min.js',
@@ -99,7 +117,8 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
     entry: ['./src/app.js'],
     externals: {
-      u2f: './src/u2f-api.js'
+      u2f: './src/u2f-api.js',
+      Virtru: './src/virtru-sdk.min.js'
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),

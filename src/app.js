@@ -9,6 +9,7 @@ const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
 const button = document.getElementById('onlykey_start');
+const usevirtru = document.getElementById('virtrudetails');
 var ring = new kbpgp.keyring.KeyRing;
 var sender_private_key; //Placeholder key
 var sender_public_key;
@@ -269,6 +270,16 @@ class Pgp2go {
     filename = filename.slice(0, filename.length-4);
     reader.readAsArrayBuffer(file);
     var parsedfile = await this.myreaderload(reader);
+
+    if (typeof usevirtru !== "undefined") {
+      try {
+            await encryptOrDecryptFile(parsedfile, filename, false, 1);
+            return resolve();
+          } catch (err) {
+            console.error(err);
+            alert('An error occurred attempting to encrypt this file. Please be sure you have authenticated, and try again.');
+          }
+    } 
       var buffer = kbpgp.Buffer.from(parsedfile);
       switch (window._status) {
         case 'Decrypt and Verify':
@@ -513,12 +524,20 @@ async encryptFile(key1, key2, f) {
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+filename+'.zip.gpg';
             else button.textContent = 'Done :)  downloading encrypted file '+filename+'.zip.gpg';
             window._status = "finished";
-            var finalfile = new Blob([result_buffer], {type: "text/plain;charset=utf-8"});
-            //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
-            //new var blob = new Blob([xhr.response], {type: "octet/stream"});
-            saveAs(finalfile, filename+".zip.gpg");
-            button.classList.remove('working');
-            return resolve();
+            if (typeof usevirtru !== "undefined") {
+              try {
+                    await encryptOrDecryptFile(result_buffer, filename+".zip.gpg", true, 1);
+                    return resolve();
+                  } catch (err) {
+                    console.error(err);
+                    alert('An error occurred attempting to encrypt this file. Please be sure you have authenticated, and try again.');
+                  }
+            } else {
+              var finalfile = new Blob([result_buffer], {type: "text/plain;charset=utf-8"});
+              saveAs(finalfile, filename+".zip.gpg");
+              button.classList.remove('working');
+              return resolve();
+            }
         });
       }.bind(this));
     });
@@ -568,10 +587,6 @@ async readfiles(infile) {
       resolve();
   });
 }
-
-
-
-
 
 loadPublic(key) {
   button.textContent = "Checking recipient's public key...";
@@ -707,3 +722,63 @@ urlinputbox.onkeyup = function () {
     let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
 };
+
+
+// Encrypt or decrypt the file by using the support functions
+async function encryptOrDecryptFile(filedata, filename, shouldEncrypt, completion) {
+  if (shouldEncrypt) {
+    const encrypted = await encrypt(filedata, filename);
+    await encrypted.toFile(`${filename}.tdf`);
+  } else {
+    const decrypted = await decrypt(filedata);
+    const finalFilename = buildDecryptFilename(filename).trim();
+    await decrypted.toFile(finalFilename);
+  }
+
+  if (completion) {
+    completion();
+  }
+}
+
+// Handle filename parsing with parens involved
+function buildDecryptFilename(filename) {
+  const ext = filename.substr(-4);
+  let finalFilename = filename;
+
+  if (ext === '.tdf') {
+    finalFilename = finalFilename.replace(ext, '');
+  }
+
+  finalFilename = finalFilename.replace(/\([^.]*\)$/, '');
+
+  return finalFilename;
+}
+
+// Decrypt the file by creating an object url (for now) and return the stream content
+async function decrypt(fileData) {
+  const email = 't@crp.to';
+  const client = new Virtru.Client({email});
+  const decryptParams = new Virtru.DecryptParamsBuilder()
+    .withArrayBufferSource(fileData)
+    .build();
+
+  const decrypted = await client.decrypt(decryptParams);
+  return decrypted;
+}
+
+// Encrypt the filedata and return the stream content and filename
+async function encrypt(fileData, filename) {
+  const email = 't@crp.to';
+  const client = new Virtru.Client({email});
+
+  //const policy = new Virtru.PolicyBuilder().build();
+
+  const encryptParams = new Virtru.EncryptParamsBuilder()
+    .withArrayBufferSource(fileData)
+    //.withPolicy(policy)
+    //.withDisplayFilename(filename)
+    .build();
+
+  const enc = await client.encrypt(encryptParams);
+  return enc;
+}
