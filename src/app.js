@@ -723,7 +723,6 @@ urlinputbox.onkeyup = function () {
     urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
 };
 
-
 // Encrypt or decrypt the file by using the support functions
 async function encryptOrDecryptFile(filedata, filename, shouldEncrypt, completion) {
   if (shouldEncrypt) {
@@ -738,45 +737,4 @@ async function encryptOrDecryptFile(filedata, filename, shouldEncrypt, completio
   if (completion) {
     completion();
   }
-}
-
-// Handle filename parsing with parens involved
-function buildDecryptFilename(filename) {
-  const ext = filename.substr(-4);
-  let finalFilename = filename;
-
-  if (ext === '.tdf') {
-    finalFilename = finalFilename.replace(ext, '');
-  }
-
-  finalFilename = finalFilename.replace(/\([^.]*\)$/, '');
-
-  return finalFilename;
-}
-
-// Decrypt the file by creating an object url (for now) and return the stream content
-async function decrypt(fileData) {
-  const client = new Virtru.Client(window.email);
-  const decryptParams = new Virtru.DecryptParamsBuilder()
-    .withArrayBufferSource(fileData)
-    .build();
-
-  const decrypted = await client.decrypt(decryptParams);
-  return decrypted;
-}
-
-// Encrypt the filedata and return the stream content and filename
-async function encrypt(fileData, filename) {
-  const client = new Virtru.Client(window.email);
-
-  //const policy = new Virtru.PolicyBuilder().build();
-
-  const encryptParams = new Virtru.EncryptParamsBuilder()
-    .withArrayBufferSource(fileData)
-    //.withPolicy(policy)
-    //.withDisplayFilename(filename)
-    .build();
-
-  const enc = await client.encrypt(encryptParams);
-  return enc;
 }
