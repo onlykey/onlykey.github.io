@@ -279,7 +279,7 @@ class Pgp2go {
             console.error(err);
             alert('An error occurred attempting to encrypt this file. Please be sure you have authenticated, and try again.');
           }
-    } 
+    }
       var buffer = kbpgp.Buffer.from(parsedfile);
       switch (window._status) {
         case 'Decrypt and Verify':
@@ -513,7 +513,7 @@ async encryptFile(key1, key2, f) {
           default:
         }
 
-        kbpgp.box(params, function(err, result_string, result_buffer) {
+        kbpgp.box(params, async function(err, result_string, result_buffer) {
             if (err) {
                 this.showError(err);
                 return;
