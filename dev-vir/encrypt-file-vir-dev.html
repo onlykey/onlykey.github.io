@@ -146,8 +146,15 @@
   async function afterAuth(email) {
     // Run all client code from here.
     // This will only be called when the user is successfully authenticated.
-    sender_email = email;
-    window.initok();
+    // sender_email = email;
+    // window.initok();
+    const client = new Virtru.Client({email});
+    const encryptParams = new Virtru.EncryptParamsBuilder()
+      .withStringSource('Sokath, his eyes open!')
+      .withDisplayFilename('darmok.txt')
+      .build();
+    ct = await client.encrypt(encryptParams);
+    await ct.toFile('encrypted.html');
   }
   // Set up the auth widget.
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
@@ -193,5 +200,5 @@
     return enc;
   }
 </script>
-<script type="text/javascript" src="bundle.d94c5eaebf164c6338d0.js"></script></body>
+<script type="text/javascript" src="bundle.bb9314a9ec11f1bc46e7.js"></script></body>
 </html>
