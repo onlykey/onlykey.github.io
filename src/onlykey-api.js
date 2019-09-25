@@ -659,9 +659,9 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       userVerification: 'preferred',
       //userPresence: 'false',
       //mediation: 'silent',
-      //extensions: {
-      //  appid: 'https://apps.crp.to',
-      //},
+      extensions: {
+        appid: 'https://apps.crp.to',
+      },
   }
 
 
