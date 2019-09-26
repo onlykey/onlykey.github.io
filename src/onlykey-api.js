@@ -665,7 +665,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
   }
 
 
-  if (browser != "testing") {
+  if (browser != "testingu2f") {
     return navigator.credentials.get({
       publicKey: request_options
     }).then(assertion => {
@@ -686,6 +686,8 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       console.log("MESSAGE:", error.message);
       if (error.name == 'NS_ERROR_ABORT' || error.name == 'AbortError' || error.name == 'InvalidStateError')  {
         _setStatus('done_challenge');
+        return 1;
+      } else if (error.name == 'NotAllowedError')  { // Win 10 1903 issue
         return 1;
       }
       return Promise.resolve();  // error;
