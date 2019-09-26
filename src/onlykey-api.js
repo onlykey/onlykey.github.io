@@ -446,9 +446,11 @@ async function u2fSignBuffer(cipherText, mainCallback) {
 
      await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, encryptedmsg, 5000).then(async response => {
      //decrypt data
-     var decryptedparsedData = await aesgcm_decrypt(response);
-     console.log("DECODED RESPONSE:", response);
-     console.log("DECRYPTED RESPONSE:", decryptedparsedData);
+     if (response != 1) {
+       var decryptedparsedData = await aesgcm_decrypt(response);
+       console.log("DECODED RESPONSE:", response);
+       console.log("DECRYPTED RESPONSE:", decryptedparsedData);
+     }
      console.log("Returning just the decoded response:");
      var result = response;
      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
