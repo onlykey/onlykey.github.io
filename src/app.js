@@ -271,6 +271,9 @@ class Pgp2go {
     reader.readAsArrayBuffer(file);
     var parsedfile = await this.myreaderload(reader);
 
+    console.info(usevirtru);
+    console.info(typeof usevirtru);
+
     if (typeof usevirtru !== "undefined") {
       try {
             await encryptOrDecryptFile(parsedfile, filename, false, 1);

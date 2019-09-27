@@ -252,7 +252,7 @@ async function msg_polling(params = {}, cb) {
     Array.prototype.push.apply(message, appKey.publicKey);
     var env = [browser.charCodeAt(0), os.charCodeAt(0)];
     Array.prototype.push.apply(message, env);
-    msg(browser + " Browser running on " + os + "Operating System");
+    msg(browser + " Browser running on " + os + " Operating System");
     var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
   } /*
   else if (type == 2) { //OKGETPUB
