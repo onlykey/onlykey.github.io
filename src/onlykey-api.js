@@ -8,7 +8,9 @@ var hw_RNG = {};
 var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
-var browser = "chrome";
+var browser = "Chrome";
+var os = getOS();
+var packetnum=0;
 
 var sha256 = function(s) {
   var md = forge.md.sha256.create();
@@ -43,8 +45,7 @@ const button = document.getElementById('onlykey_start');
  */
 initok = async function () {
   //Initialize OnlyKey
-    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ) browser = "firefox";
-    if (navigator.userAgent.toLowerCase().indexOf('android') > -1 ) browser = "android";
+    if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ) browser = "Firefox";
     if ((document.getElementById('onlykey_start').value) == 'Encrypt and Sign') {
       if (getAllUrlParams().sender) document.getElementById('pgpkeyurl2').value = getAllUrlParams().sender;
       if (getAllUrlParams().recipients) document.getElementById('pgpkeyurl').value = getAllUrlParams().recipients;
@@ -66,12 +67,12 @@ initok = async function () {
     }
     if (window._status != 'Encrypt Only') {
       msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-      if (browser=='android') await wait(6000);
+      if (os=='Android') await wait(6000);
       else await wait(3000);
     }
     await wait(1000);
     if (typeof(sharedsec) === "undefined" && window._status != 'Encrypt Only') {
-      if (browser=='firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
+      if (browser=='Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
       else headermsg("OnlyKey not connected! Refresh this page to try again.");
     } else {
       //Initialize App
@@ -249,6 +250,9 @@ async function msg_polling(params = {}, cb) {
     console.info(appKey.secretKey);
     console.info("Application ECDH Public Key: ", appKey.publicKey);
     Array.prototype.push.apply(message, appKey.publicKey);
+    Array.prototype.push.apply(message, browser.charCodeAt(0));
+    Array.prototype.push.apply(message, os.charCodeAt(0));
+    msg(browser + " Browser running on " + os + "Operating System");
     var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
   } /*
   else if (type == 2) { //OKGETPUB
@@ -272,7 +276,7 @@ async function msg_polling(params = {}, cb) {
       cmd = OKPING;
   }
 
-  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 5000).then( async (response) => {
+  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000).then( async (response) => {
     console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
@@ -431,8 +435,10 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var finalPacket = cipherText.length - maxPacketSize <= 0;
     if (cipherText.length < maxPacketSize) {
       var ctChunk = cipherText;
+      packetnum=0;
     } else {
       var ctChunk = cipherText.slice(0, maxPacketSize);
+      packetnum++;
     }
 
     Array.prototype.push.apply(message, ctChunk);
@@ -444,7 +450,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var encryptedmsg = await aesgcm_encrypt(message);
     console.info("Encrypted Handlekey bytes ", encryptedmsg);
 
-     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, null, encryptedmsg, 5000).then(async response => {
+     await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, packetnum, encryptedmsg, 6000).then(async response => {
      //decrypt data
      if (response != 1) {
        var decryptedparsedData = await aesgcm_decrypt(response);
@@ -689,7 +695,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       if (error.name == 'NS_ERROR_ABORT' || error.name == 'AbortError' || error.name == 'InvalidStateError')  {
         _setStatus('done_challenge');
         return 1;
-      } else if (error.name == 'NotAllowedError')  { // Win 10 1903 issue
+      } else if (error.name == 'NotAllowedError' && os == 'Windows')  { // Win 10 1903 issue
         return 1;
       }
       return Promise.resolve();  // error;
@@ -783,4 +789,27 @@ async function custom_auth_response(response) {
   //Array.prototype.push.apply(parsedData, sigData.slice((halflen+9+2), (halflen+9+2+halflen)));
   console.info("Parsed Data: ", parsedData);
   return parsedData;
+}
+
+function getOS() {
+  var userAgent = window.navigator.userAgent,
+      platform = window.navigator.platform,
+      macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+      windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+      iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+      os = null;
+
+  if (macosPlatforms.indexOf(platform) !== -1) {
+    os = 'Mac OS';
+  } else if (iosPlatforms.indexOf(platform) !== -1) {
+    os = 'iOS';
+  } else if (windowsPlatforms.indexOf(platform) !== -1) {
+    os = 'Windows';
+  } else if (/Android/.test(userAgent)) {
+    os = 'Android';
+  } else if (!os && /Linux/.test(platform)) {
+    os = 'Linux';
+  }
+
+  return os;
 }
