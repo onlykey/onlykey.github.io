@@ -433,12 +433,11 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     var message = []; //Add header and message type
     var maxPacketSize = 228; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
     var finalPacket = cipherText.length - maxPacketSize <= 0;
+    packetnum++;
     if (cipherText.length < maxPacketSize) {
       var ctChunk = cipherText;
-      packetnum=0;
     } else {
       var ctChunk = cipherText.slice(0, maxPacketSize);
-      packetnum++;
     }
 
     Array.prototype.push.apply(message, ctChunk);
@@ -451,6 +450,7 @@ async function u2fSignBuffer(cipherText, mainCallback) {
     console.info("Encrypted Handlekey bytes ", encryptedmsg);
 
      await ctaphid_via_webauthn(type = document.getElementById('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotId(), finalPacket, packetnum, encryptedmsg, 6000).then(async response => {
+     if (finalPacket) packetnum=0;
      //decrypt data
      if (response != 1) {
        var decryptedparsedData = await aesgcm_decrypt(response);
@@ -535,8 +535,8 @@ async function ping (delay) {
 function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
     console.log('REQUEST CMD', cmd);
     console.log('REQUEST OPT1', opt1);
-    console.log('REQUEST OPT1', opt2);
-    console.log('REQUEST OPT1', opt3);
+    console.log('REQUEST OPT2', opt2);
+    console.log('REQUEST OPT3', opt3);
     console.log('REQUEST DATA', data);
     var addr = 0;
 
