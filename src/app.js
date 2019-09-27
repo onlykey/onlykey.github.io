@@ -527,7 +527,7 @@ async encryptFile(key1, key2, f) {
             if ((document.getElementById('onlykey_start').value) == 'Sign Only') button.textContent = 'Done :)  downloading signed file '+filename+'.zip.gpg';
             else button.textContent = 'Done :)  downloading encrypted file '+filename+'.zip.gpg';
             window._status = "finished";
-            if (typeof usevirtru !== "undefined") {
+            if (usevirtru != null) {
               try {
                     await encryptOrDecryptFile(result_buffer, filename+".zip.gpg", true, 1);
                     return resolve();
