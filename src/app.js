@@ -274,7 +274,7 @@ class Pgp2go {
     console.info(usevirtru);
     console.info(typeof usevirtru);
 
-    if (typeof usevirtru !== "undefined") {
+    if (usevirtru != null) {
       try {
             await encryptOrDecryptFile(parsedfile, filename, false, 1);
             return resolve();
