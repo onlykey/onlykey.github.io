@@ -250,8 +250,8 @@ async function msg_polling(params = {}, cb) {
     console.info(appKey.secretKey);
     console.info("Application ECDH Public Key: ", appKey.publicKey);
     Array.prototype.push.apply(message, appKey.publicKey);
-    Array.prototype.push.apply(message, browser.charCodeAt(0));
-    Array.prototype.push.apply(message, os.charCodeAt(0));
+    var env = [browser.charCodeAt(0), os.charCodeAt(0)];
+    Array.prototype.push.apply(message, env);
     msg(browser + " Browser running on " + os + "Operating System");
     var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
   } /*
