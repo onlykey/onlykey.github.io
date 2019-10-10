@@ -114,6 +114,7 @@
             <form name="fileform">
               <div id="block">
               <h3>Choose the file(s) to encrypt</h3>
+              <h4>For best results total size of files should not exceed 70MB</h4>
               <input type="file" id="file" name="file" multiple /><br />
               <p id="filedetails"></p>
               <p id="virtrudetails"></p>
@@ -149,12 +150,12 @@
     // sender_email = email;
     // window.initok();
     const client = new Virtru.Client({email});
-    const encryptParams = new Virtru.EncryptParamsBuilder()
-      .withStringSource('Sokath, his eyes open!')
-      .withDisplayFilename('darmok.txt')
-      .build();
-    ct = await client.encrypt(encryptParams);
-    await ct.toFile('encrypted.html');
+  const encryptParams = new Virtru.EncryptParamsBuilder()
+    .withStringSource('Sokath, his eyes open!')
+    .withDisplayFilename('darmok.txt')
+    .build();
+  ct = await client.encrypt(encryptParams);
+  await ct.toFile('encrypted.html');
   }
   // Set up the auth widget.
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
@@ -200,5 +201,5 @@
     return enc;
   }
 </script>
-<script type="text/javascript" src="bundle.70c52dbab90e6cc69c8d.js"></script></body>
+<script type="text/javascript" src="bundle.635fd7bd8dbcfe196338.js"></script></body>
 </html>
