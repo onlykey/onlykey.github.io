@@ -5,9 +5,16 @@ body {
     font-family: 'Share Tech Mono', monospace;
 }
 
+ul { margin-left: 0; padding-left: 0; }
+
 h1,h2,h3,h4,h5,h6 {
     font-family: 'Share Tech Mono', monospace;
     font-weight: 300;
+}
+
+h4 {
+    font-family: 'Share Tech Mono', monospace;
+    text-align: center;
 }
 
 h5 {
@@ -71,12 +78,27 @@ button:hover {
     min-width: 100;
 }
 
-#message {
-    min-height: 35%;
+#block {
+    max-width: 90%;
+    min-width: none;
+    background-color: #FFFFFF;
+    padding: 12px;
+    border: none;
+    border: solid 2px #c9c9c9;
+    transition: border 0.4s;
 }
 
-#file {
-    min-height: 20%;
+#block img {
+   width: 45%;
+}
+
+#block text {
+   width: 90%;
+}
+
+
+#message {
+    min-height: 35%;
 }
 
 fieldset {
