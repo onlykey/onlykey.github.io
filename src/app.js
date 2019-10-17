@@ -727,7 +727,7 @@ urlinputbox.onkeyup = function () {
 };
 
 // Encrypt or decrypt the file by using the support functions
-async function encryptOrDecryptFile(filedata, filename, shouldEncrypt, completion) {
+let encryptOrDecryptFile = async function (filedata, filename, shouldEncrypt, completion) {
   if (shouldEncrypt) {
     const encrypted = await encrypt(filedata, filename);
     await encrypted.toFile(`${filename}.tdf`);
