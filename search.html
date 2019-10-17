@@ -1,0 +1,199 @@
+<html><head><title>OnlyKey Web Apps - Search for Keybase users</title><meta name="viewport" content="width=device-width,initial-scale=1"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/jqueryui-editable/css/jqueryui-editable.css" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.5.0/jqueryui-editable/js/jqueryui-editable.min.js"></script><link rel="stylesheet" href="css/gallerycss-csstable-min.css"><link rel="stylesheet" href="css/gallerycss-csslist-min.css"><link rel="stylesheet" href="css/gallerycss-cssform-min.css"><link rel="stylesheet" href="css/cssnormalize-min.css"><link rel="stylesheet" href="css/cssgrids-responsive-min.css"><link rel="stylesheet" href="css/cssbutton-min.css"><link rel="stylesheet" type="text/css" href="css/ui.css"><link href="https://fonts.googleapis.com/css?family=Share+Tech+Mono" rel="stylesheet"><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"><link href="css/ShareTechMono.css" rel="stylesheet"><link href="css/font-awesome.min.css" rel="stylesheet"><link href="css/style.css" rel="stylesheet"><style>.header {
+            background: white;
+        }
+
+        .header h1 {
+            color: rgb(97, 97, 97);
+        }
+
+        .header h2 {
+            font-weight: 300;
+            margin: 0;
+            color: rgb(137, 137, 137);
+        }</style><script>function searchKeybase(sites, user) {
+      console.info("sites");
+      console.info(sites);
+      console.info("user");
+      console.info(user);
+      $("#results").html("");
+
+      if (sites.q=='auto') {
+
+        $.ajax({
+            url: 'https://keybase.io/_/api/1.0/user/autocomplete.json?q=' + user.q,
+            async: true,
+            dataType: 'json',
+            success: function(data) {
+                console.info(data);
+                var result = data.completions;
+                result.forEach(function(element) {
+                  console.log(element);
+                  console.log(element.components);
+
+                  if (element.components.username.val) {
+                    $("#results").append("<br>Found a Match!");
+                    if (element.thumbnail != null) $("#results").append("<img src='"+element.thumbnail+"' width='10' height='auto'/><br>");
+                    $("#results").append("<font color='red'>Keybase Username = "+element.components.username.val+"</font><br>");
+                    if (element.components.full_name) $("#results").append("Full Name = "+element.components.full_name.val+"<br><br>");
+                    $("#results").append("View this user's profile <a href='https://keybase.io/"+element.components.username.val+"'>here</a><br>");
+                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+element.components.username.val+"'>message</a><br>");
+                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+element.components.username.val+"'>file</a><br>");
+                    //data = JSON.stringify(data);
+                  } else {
+                    $("#results").append("<br>No match found!");
+                  }
+                });
+            }
+        });
+      }
+
+      else if (sites.q=='twitter') {
+
+        $.ajax({
+            url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
+            async: true,
+            dataType: 'json',
+            success: function(data) {
+              console.info(data);
+                var result = data.matches.twitter[0][0];
+                if (result.username) {
+                  $("#results").append("<br>Found a Match!");
+                  if (result.thumbnail != null) $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
+                  $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
+                  if (result.full_name != null) $("#results").append("Full Name = "+result.full_name+"<br><br>");
+                  $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
+                  $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
+                  $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                  //data = JSON.stringify(data);
+                } else {
+                  $("#results").append("<br>No match found!");
+                }
+            }
+        });
+      } else if (sites.q=='github') {
+
+        $.ajax({
+            url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
+            async: true,
+            dataType: 'json',
+            success: function(data) {
+              console.info(data);
+                var result = data.matches.github[0][0];
+                if (result.username) {
+                  $("#results").append("<br>Found a Match!");
+                  if (result.thumbnail != null) $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
+                  $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
+                  if (result.full_name != null) $("#results").append("Full Name = "+result.full_name+"<br><br>");
+                  $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
+                  $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
+                  $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                  //data = JSON.stringify(data);
+                } else {
+                  $("#results").append("<br>No match found!");
+                }
+            }
+        });
+      } else if (sites.q=='reddit') {
+
+          $.ajax({
+              url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
+              async: true,
+              dataType: 'json',
+              success: function(data) {
+                console.info(data);
+
+                  var result = data.matches.reddit[0][0];
+                  if (result.username) {
+                    $("#results").append("<br>Found a Match!");
+                    if (result.thumbnail != null) $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
+                    $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
+                    if (result.full_name != null) $("#results").append("Full Name = "+result.full_name+"<br><br>");
+                    $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
+                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
+                    $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                  //data = JSON.stringify(data);
+                  } else {
+                    $("#results").append("<br>No match found!");
+                  }
+              }
+          });
+        } else if (sites.q=='web') {
+
+            $.ajax({
+                url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
+                async: true,
+                dataType: 'json',
+                success: function(data) {
+                  console.info(data);
+                    var result = data.matches.web[0][0];
+                    if (result.username) {
+                      $("#results").append("<br>Found a Match!");
+                      if (result.thumbnail != null) $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
+                      $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
+                      if (result.full_name != null) $("#results").append("Full Name = "+result.full_name+"<br><br>");
+                      $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
+                      $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
+                      $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                  //data = JSON.stringify(data);
+                    } else {
+                      $("#results").append("<br>No match found!");
+                    }
+                }
+            });
+          } else if (sites.q=='key_fingerprint') {
+
+              $.ajax({
+                  url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
+                  async: true,
+                  dataType: 'json',
+                  success: function(data) {
+                    console.info(data);
+                      var result = data.matches.key_fingerprint[0][0];
+                      if (result.username) {
+                        $("#results").append("<br>Found a Match!");
+                        if (result.thumbnail != null) $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
+                        $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
+                        if (result.full_name != null) $("#results").append("Full Name = "+result.full_name+"<br><br>");
+                        $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
+                        $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
+                        $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                  //data = JSON.stringify(data);
+                      } else {
+                        $("#results").append("<br>No match found!");
+                      }
+                  }
+              });
+            } else if (sites.q=='hackernews') {
+
+              $.ajax({
+                  url: 'https://keybase.io/_/api/1.0/user/discover.json?' + sites.q + '=' + user.q,
+                  async: true,
+                  dataType: 'json',
+                  success: function(data) {
+                    console.info(data);
+                      var result = data.matches.hackernews[0][0];
+                      if (result.username) {
+                        $("#results").append("<br>Found a Match!");
+                        if (result.thumbnail != null) $("#results").append("<img src='"+result.thumbnail+"' width='10' height='auto'/><br>");
+                        $("#results").append("<font color='red'>Keybase Username = "+result.username+"</font><br>");
+                        if (result.full_name != null) $("#results").append("Full Name = "+result.full_name+"<br><br>");
+                        $("#results").append("View this user's profile <a href='https://keybase.io/"+result.username+"'>here</a><br>");
+                        $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-dev.html?type=e&recipients="+result.username+"'>message</a><br>");
+                        $("#results").append("Send this user encrypted <a href='https://apps.crp.to/dev-new/encrypt-file-dev.html?type=e&recipients="+result.username+"'>file</a><br>");                  //data = JSON.stringify(data);
+                      } else {
+                        $("#results").append("<br>No match found!");
+                      }
+                  }
+              });
+            }
+      }
+
+    $(document).ready(function() {
+    $('#submit').click(function() {
+
+        var sites = {
+            q: $("#sites option:selected").val(),
+            rpp: 5
+        };
+        var users = {
+            q: $('#user').val(),
+            rpp: 5
+        };
+        searchKeybase(sites, users);
+    });
+    });</script></head><body class="yui3-skin-sam"><div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed"><span class="yui3-menu-heading">Apps</span><ul><li><a href="https://apps.crp.to/decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a></li><li><a href="https://apps.crp.to/encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a></li><li><a href="https://apps.crp.to/decrypt-file"><i class="fa fa-file-text" aria-hidden="true"></i></a></li><li class="yui3-menu-active"><a href="https://apps.crp.to/encrypt-file"><i class="fa fa-file-archive-o" aria-hidden="true"></i></a></li></ul><span class="yui3-menu-heading">Links</span><ul><li><a href="https://apps.crp.to"><i class="fa fa-home" aria-hidden="true"></i></a></li><li><a href="https://docs.crp.to/webcrypt.html"><i class="fa fa-question" aria-hidden="true"></i></a></li><li><a href="https://docs.crp.to/"><i class="fa fa-book" aria-hidden="true"></i></a></li><li><a href="https://onlykey.io"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a></li></ul></div><div class="header yui3-u-1"><br><h1><i class="fa fa-search fa-2x" aria-hidden="true"></i> <i class="fa fa-long-arrow-right fa-2x" aria-hidden="true"></i> <i class="fa fa-user fa-2x" aria-hidden="true"></i></h1></div><h4><font size="+2">Find Keybase user to send encrypted messages and files using <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></font></h4><div id="container"><fieldset><textarea placeholder="Enter username to search for..." rows="1" id="user"></textarea> <select id="sites" name="Site to search"><option value="auto">Auto search (searches any text for best match)</option><option value="web">Web Domain (i.e. mywebsite.com)</option><option value="twitter">Twitter</option><option value="github">Github</option><option value="reddit">Reddit</option><option value="hackernews">Hackernews</option><option value="key_fingerprint">PGP Key Fingerprint</option></select> <button type="submit" id="submit" value="Search">Search For User</button><div id="block" class="hidden"><h3>Search results go here...</h3><div id="results"></div></div></fieldset></div><script type="text/javascript" src="bundle.49b83e5b16ef2c1ae122.js?49b83e5b16ef2c1ae122" integrity="sha256-NyyGMEnWtbltc5ng0BxeU1ZQUowqn5B4Spl+YPvRJRE= sha384-W+p9zKd8DWtCqgXUQmcLhqxvfXB74+HPq8Az5KrAX+RHTHQLdOkLGlvFl+K3HXRB" crossorigin="anonymous"></script></body></html>
