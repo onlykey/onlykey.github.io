@@ -744,11 +744,11 @@ async function encryptOrDecryptFile(filedata, filename, shouldEncrypt, completio
   }
 }
 
-async function afterAuth(email) {
+afterAuth = async function (email) {
   // Run all client code from here.
   // This will only be called when the user is successfully authenticated.
-  // sender_email = email;
-  // window.initok();
+
+  //TODO Enable Options fields after auth for user to set encrypted file expiration date etc.
   console.info(email);
   window.virtru_client = new Virtru.Client({email});
   console.info(window.virtru_client);
