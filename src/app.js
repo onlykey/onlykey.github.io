@@ -132,7 +132,9 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 -----END PGP PRIVATE KEY BLOCK-----`;
 
 window.initok = initok();
+window.afterauth = afterauth();
 window.custom_keyid;
+window.virtru_client;
 
 window.initapp = function() {
   var val = document.action.select_one.value;
@@ -727,7 +729,7 @@ urlinputbox.onkeyup = function () {
 };
 
 // Encrypt or decrypt the file by using the support functions
-let encryptOrDecryptFile = async function (filedata, filename, shouldEncrypt, completion) {
+async function encryptOrDecryptFile(filedata, filename, shouldEncrypt, completion) {
   if (shouldEncrypt) {
     const encrypted = await encrypt(filedata, filename);
     await encrypted.toFile(`${filename}.tdf`);
@@ -740,4 +742,69 @@ let encryptOrDecryptFile = async function (filedata, filename, shouldEncrypt, co
   if (completion) {
     completion();
   }
+}
+
+async function afterAuth(email) {
+  // Run all client code from here.
+  // This will only be called when the user is successfully authenticated.
+  // sender_email = email;
+  // window.initok();
+  console.info(email);
+  window.virtru_client = new Virtru.Client({email});
+  console.info(window.virtru_client);
+  //const encryptParams = new Virtru.EncryptParamsBuilder()
+  //  .withStringSource('Sokath, his eyes open!')
+  //  .withDisplayFilename('darmok.txt')
+  //  .build();
+  //console.info(encryptParams);
+  //ct = await client.encrypt(encryptParams);
+  //await ct.toFile('encrypted.html');
+}
+
+// Handle filename parsing with parens involved
+function buildDecryptFilename(filename) {
+  console.info(buildDecryptFilename);
+  console.info(filename);
+  const ext = filename.substr(-4);
+  let finalFilename = filename;
+
+  if (ext === '.tdf') {
+    finalFilename = finalFilename.replace(ext, '');
+  }
+
+  finalFilename = finalFilename.replace(/\([^.]*\)$/, '');
+
+  return finalFilename;
+}
+
+// Decrypt the file by creating an object url (for now) and return the stream content
+async function decrypt(fileData) {
+  console.info(decrypt);
+  console.info(fileData);
+  const client = window.virtru_client;
+  const decryptParams = new Virtru.DecryptParamsBuilder()
+    .withArrayBufferSource(fileData)
+    .build();
+
+  const decrypted = await client.decrypt(decryptParams);
+  return decrypted;
+}
+
+// Encrypt the filedata and return the stream content and filename
+async function encrypt(fileData, filename) {
+  console.info(encrypt);
+  console.info(filename);
+  console.info(fileData);
+  const client = window.virtru_client;
+
+  //const policy = new Virtru.PolicyBuilder().build();
+
+  const encryptParams = new Virtru.EncryptParamsBuilder()
+    .withArrayBufferSource(fileData)
+    //.withPolicy(policy)
+    //.withDisplayFilename(filename)
+    .build();
+
+  const enc = await client.encrypt(encryptParams);
+  return enc;
 }
