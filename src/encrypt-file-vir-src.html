@@ -165,7 +165,7 @@
     }
 
     if (completion) {
-      completion();
+      //completion();
     }
   }
 
@@ -218,8 +218,9 @@
       //.withPolicy(policy)
       .withDisplayFilename(filename)
       .build();
-
+    console.info(encryptParams);
     const enc = await client.encrypt(encryptParams);
+    console.info(enc);
     return enc;
   }
 

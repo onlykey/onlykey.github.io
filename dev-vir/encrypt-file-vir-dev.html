@@ -165,7 +165,7 @@
     }
 
     if (completion) {
-      completion();
+      //completion();
     }
   }
 
@@ -218,13 +218,14 @@
       //.withPolicy(policy)
       .withDisplayFilename(filename)
       .build();
-
+    console.info(encryptParams);
     const enc = await client.encrypt(encryptParams);
+    console.info(enc);
     return enc;
   }
 
   // Set up the auth widget.
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 </script>
-<script type="text/javascript" src="bundle.d170577f38ee25ea2a54.js"></script></body>
+<script type="text/javascript" src="bundle.b4c9431748d1cb319c8a.js"></script></body>
 </html>
