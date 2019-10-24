@@ -132,7 +132,6 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 -----END PGP PRIVATE KEY BLOCK-----`;
 
 window.initok = initok();
-window.afterauth = afterauth();
 window.custom_keyid;
 window.virtru_client;
 
@@ -742,23 +741,6 @@ async function encryptOrDecryptFile(filedata, filename, shouldEncrypt, completio
   if (completion) {
     completion();
   }
-}
-
-afterAuth = async function (email) {
-  // Run all client code from here.
-  // This will only be called when the user is successfully authenticated.
-
-  //TODO Enable Options fields after auth for user to set encrypted file expiration date etc.
-  console.info(email);
-  window.virtru_client = new Virtru.Client({email});
-  console.info(window.virtru_client);
-  //const encryptParams = new Virtru.EncryptParamsBuilder()
-  //  .withStringSource('Sokath, his eyes open!')
-  //  .withDisplayFilename('darmok.txt')
-  //  .build();
-  //console.info(encryptParams);
-  //ct = await client.encrypt(encryptParams);
-  //await ct.toFile('encrypted.html');
 }
 
 // Handle filename parsing with parens involved
