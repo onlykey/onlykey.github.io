@@ -148,7 +148,10 @@
     // This will only be called when the user is successfully authenticated.
     // sender_email = email;
     // window.initok();
+    var isloggedin = Virtru.Auth.isLoggedIn();
+    console.info(isloggedin);
     const client = new Virtru.Client({email});
+    console.info(client);
   const encryptParams = new Virtru.EncryptParamsBuilder()
     .withStringSource('Sokath, his eyes open!')
     .withDisplayFilename('darmok.txt')
@@ -200,5 +203,5 @@
     return enc;
   }
 </script>
-<script type="text/javascript" src="bundle.d9863ea66f14f9772496.js"></script></body>
+<script type="text/javascript" src="bundle.f0a86e066820eff3ac12.js"></script></body>
 </html>
