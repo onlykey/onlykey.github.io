@@ -530,6 +530,7 @@ async encryptFile(key1, key2, f) {
             window._status = "finished";
             if (usevirtru != null) {
               try {
+                    button.textContent = 'Done :)  downloading encrypted file '+filename+'.tdf';
                     await encryptOrDecryptFile(result_buffer, filename+".zip.gpg", true, 1);
                     return resolve();
                   } catch (err) {
