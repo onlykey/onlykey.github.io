@@ -115,8 +115,8 @@
             <form name="fileform">
               <div id="block">
               <h3>Choose the file(s) to encrypt</h3>
-              <h4>For best results total size of files should not exceed 70MB</h4>
-              <label for="expire" id="expire_label">Set an expiration date/time</label>
+              For best results total size of files should not exceed 70MB
+              <label for="expire" id="expire_label">Enable Virtru to set expiration date/time of file</label>
               <input type="checkbox" name="select_controls" id="expire" value="Expire">
               <div id="virtru-auth-widget-mount"></div>
               Use the virtru login below to enable expiration:
@@ -153,6 +153,7 @@
   let client;
   // Start with these hidden until the user selects to expire messages
   document.getElementById('expire_seconds').style.display = "none";
+  document.getElementById('expire_seconds_label').style.display = "none";
   document.getElementById('recipient-virtru').style.display = "none";
   document.getElementById('virtru-auth-widget-mount').style.display = "none";
   expire = document.getElementById('expire');
@@ -161,11 +162,13 @@
     console.info(document.getElementById('expire_seconds').value);
     if (document.getElementById('expire').checked == true) {
       document.getElementById('expire_seconds').style.display = "initial";
+      document.getElementById('expire_seconds_label').style.display = "initial";
       document.getElementById('recipient-virtru').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount').style.display = "initial";
     } else {
       document.getElementById('expire_seconds').value = 0;
       document.getElementById('expire_seconds').style.display = "none";
+      document.getElementById('expire_seconds_label').style.display = "none";
       document.getElementById('recipient-virtru').style.display = "none";
       document.getElementById('virtru-auth-widget-mount').style.display = "none";
     }
