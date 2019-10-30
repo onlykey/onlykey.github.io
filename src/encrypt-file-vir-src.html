@@ -146,7 +146,13 @@
     </div>
 <script>
 
-  window.initvirtru = function() {
+
+  let client;
+  // Start with these hidden until the user selects to expire messages
+  document.getElementById('expire_seconds').style.display = "none";
+  document.getElementById('virtru-auth-widget-mount').style.display = "none";
+
+  initvirtru = function() {
     if (document.getElementById('expire').checked == true) {
       document.getElementById('expire_seconds').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount').style.display = "initial";
@@ -155,14 +161,8 @@
       document.getElementById('expire_seconds').style.display = "none";
       document.getElementById('virtru-auth-widget-mount').style.display = "none";
     }
-    document.action.select_one.forEach(el => el.addEventListener('change', window.initvirtru.bind(null, false)));
+    document.action.select_one.forEach(el => el.addEventListener('change', initvirtru.bind(null, false)));
   }
-  
-  let client;
-  // Start with these hidden until the user selects to expire messages
-  document.getElementById('expire_seconds').style.display = "none";
-  document.getElementById('virtru-auth-widget-mount').style.display = "none";
-  window.initvirtru();
 
   // Run all client code from here.
   // This will only be called when the user is successfully authenticated.
@@ -261,6 +261,9 @@
 
   // Set up the auth widget.
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
+
+  // Set up virtru
+  initvirtru();
 </script>
 </body>
 </html>
