@@ -108,9 +108,9 @@
 
     <div id="container">
         <fieldset>
-            <textarea placeholder="Email to send to..." rows="1" id="recipient-virtru"></textarea>
-            <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
-            <textarea placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
+            <textarea placeholder="Recipient's email address..." rows="1" id="recipient-virtru"></textarea>
+            <textarea placeholder="Your Keybase username..." rows="1" id="pgpkeyurl2"></textarea>
+            <textarea placeholder="Recipient's Keybase username..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
             <form name="fileform">
               <div id="block">
@@ -146,6 +146,18 @@
     </div>
 <script>
 
+  window.initvirtru = function() {
+    if (document.getElementById('expire').checked == true) {
+      document.getElementById('expire_seconds').style.display = "initial";
+      document.getElementById('virtru-auth-widget-mount').style.display = "initial";
+    } else {
+      document.getElementById('expire_seconds').value = 0;
+      document.getElementById('expire_seconds').style.display = "none";
+      document.getElementById('virtru-auth-widget-mount').style.display = "none";
+    }
+    document.action.select_one.forEach(el => el.addEventListener('change', window.initvirtru.bind(null, false)));
+  }
+  
   let client;
   // Start with these hidden until the user selects to expire messages
   document.getElementById('expire_seconds').style.display = "none";
@@ -162,17 +174,7 @@
     console.info('Virtru client ' + client);
   }
 
-  window.initvirtru = function() {
-    if (document.getElementById('expire').checked == true) {
-      document.getElementById('expire_seconds').style.display = "initial";
-      document.getElementById('virtru-auth-widget-mount').style.display = "initial";
-    } else {
-      document.getElementById('expire_seconds').value = 0;
-      document.getElementById('expire_seconds').style.display = "none";
-      document.getElementById('virtru-auth-widget-mount').style.display = "none";
-    }
-    document.action.select_one.forEach(el => el.addEventListener('change', window.initvirtru.bind(null, false)));
-  }
+
 
   // Encrypt or decrypt the file by using the support functions
   async function encryptOrDecryptFile(filedata, thisfilename, shouldEncrypt, completion) {
@@ -260,5 +262,5 @@
   // Set up the auth widget.
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 </script>
-<script type="text/javascript" src="bundle.bf76e624004cd0b34b74.js"></script></body>
+<script type="text/javascript" src="bundle.cafae73ecb06a450d3e9.js"></script></body>
 </html>
