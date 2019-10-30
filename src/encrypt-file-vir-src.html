@@ -162,7 +162,7 @@
       document.getElementById('expire_seconds').style.display = "none";
       document.getElementById('virtru-auth-widget-mount').style.display = "none";
     }
-    document.action.select_one.forEach(el => el.addEventListener('change', initvirtru.bind(null, false)));
+    document.action.select_controls.forEach(el => el.addEventListener('change', initvirtru.bind(null, false)));
   }
 
   // Run all client code from here.
