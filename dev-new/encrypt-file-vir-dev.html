@@ -3,7 +3,6 @@
 <head>
     <title>OnlyKey Apps - Encrypt & sign files using Keybase PGP and Virtru</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <META HTTP-EQUIV='Content-Security-Policy' CONTENT="default-src 'none' ; script-src 'self' 'sha256-P1WP1KTz9iiHN5Bfeec+pIgBDay5qWNQZh9HujWa94o=' 'sha256-pBDNHyFUtn3XsRvFveaLkaEupq1l96neUvZm5/c1PmQ='; style-src 'self' 'sha256-ujVZuuvwuQ+epdwqO8AhlbOQSx68+ci+dDIwrFrzI+Q=' 'sha256-zsMKYSOY0gzTtULlMRDwkny+ocnOJuA+B49b0BIIQXU='; img-src 'self' ; font-src 'self' ; connect-src 'self' https://keybase.io ; connect-src 'self' https://sdk.virtru.com ; base-uri 'none'; form-action 'none';">
     <link href="https://sdk.virtru.com/js/latest/auth-widget/index.css" rel="stylesheet"/>
     <script src="https://sdk.virtru.com/js/latest/auth-widget/index.js"></script>
     <script src="https://sdk.virtru.com/js/latest/virtru-sdk.min.js"></script>
@@ -105,9 +104,12 @@
         </code>
     </div>
     <h4><font size="+2">Securely encrypt and sign files using
-        <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></font></h4>
+      <a href="https://onlykey.io" target="_blank">OnlyKey</a>, <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a>, and <a href="https://keybase.io/kbpgp" target="_blank">Virtru</a></font></h4>
+
     <div id="container">
+      <div id="virtru-auth-widget-mount"></div>
         <fieldset>
+            <textarea placeholder="Email to send to..." rows="1" id="recipient-virtru"></textarea>
             <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
             <textarea placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
@@ -139,29 +141,40 @@
             </code>
         </pre>
     </div>
-<div id="virtru-auth-widget-mount"></div>
 <script>
 
-  let sender_email;
+  let client;
 
+  // Run all client code from here.
+  // This will only be called when the user is successfully authenticated.
   async function afterAuth(email) {
-    // Run all client code from here.
-    // This will only be called when the user is successfully authenticated.
-    // sender_email = email;
-    // window.initok();
-    const client = new Virtru.Client({email});
-  const encryptParams = new Virtru.EncryptParamsBuilder()
-    .withStringSource('Sokath, his eyes open!')
-    .withDisplayFilename('darmok.txt')
-    .build();
-  ct = await client.encrypt(encryptParams);
-  await ct.toFile('encrypted.html');
+
+    //TODO Enable Options fields after auth for user to set encrypted file expiration date etc.
+    console.info('Virtru email ' + email);
+    client = new Virtru.Client({email});
+    console.info('Virtru client ' + client);
   }
-  // Set up the auth widget.
-  Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
+
+  // Encrypt or decrypt the file by using the support functions
+  async function encryptOrDecryptFile(filedata, thisfilename, shouldEncrypt, completion) {
+    if (shouldEncrypt) {
+      const encrypted = await encrypt(filedata, thisfilename);
+      await encrypted.toFile(thisfilename + '.tdf');
+    } else {
+      const decrypted = await decrypt(filedata);
+      const finalfilename = buildDecryptFilename(thisfilename).trim();
+      await decrypted.toFile(finalFilename);
+    }
+
+    if (completion) {
+      //completion();
+    }
+  }
 
   // Handle filename parsing with parens involved
   function buildDecryptFilename(filename) {
+    console.info('buildDecryptFilename');
+    console.info(filename);
     const ext = filename.substr(-4);
     let finalFilename = filename;
 
@@ -176,7 +189,8 @@
 
   // Decrypt the file by creating an object url (for now) and return the stream content
   async function decrypt(fileData) {
-    const client = new Virtru.Client(sender_email);
+    console.info('decrypt');
+    console.info(fileData);
     const decryptParams = new Virtru.DecryptParamsBuilder()
       .withArrayBufferSource(fileData)
       .build();
@@ -187,19 +201,35 @@
 
   // Encrypt the filedata and return the stream content and filename
   async function encrypt(fileData, filename) {
-    const client = new Virtru.Client(sender_email);
+    console.info('encrypt');
+    console.info(filename);
+    console.info(fileData);
+
+    //const encryptParams = new Virtru.EncryptParamsBuilder()
+    //  .withStringSource('Sokath, his eyes open!')
+    //  .withDisplayFilename('darmok.txt')
+    //  .build();
+    //console.info(encryptParams);
+    //ct = await client.encrypt(encryptParams);
+    //await ct.toFile('encrypted.html');
 
     //const policy = new Virtru.PolicyBuilder().build();
+    var recipients = document.getElementById('recipient-virtru').value;
 
     const encryptParams = new Virtru.EncryptParamsBuilder()
       .withArrayBufferSource(fileData)
       //.withPolicy(policy)
-      //.withDisplayFilename(filename)
+      .addUsersWithAccess([recipients])
+      .withDisplayFilename(filename)
       .build();
-
+    console.info(encryptParams);
     const enc = await client.encrypt(encryptParams);
+    console.info(enc);
     return enc;
   }
+
+  // Set up the auth widget.
+  Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 </script>
-<script type="text/javascript" src="bundle.1a74f91abca795b5ab22.js"></script></body>
+<script type="text/javascript" src="bundle.859948db7d9b715a9705.js"></script></body>
 </html>

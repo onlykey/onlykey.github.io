@@ -109,6 +109,7 @@
     <div id="container">
       <div id="virtru-auth-widget-mount"></div>
         <fieldset>
+            <textarea placeholder="Email to send to..." rows="1" id="recipient-virtru"></textarea>
             <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
             <textarea placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
@@ -213,10 +214,12 @@
     //await ct.toFile('encrypted.html');
 
     //const policy = new Virtru.PolicyBuilder().build();
+    var recipients = document.getElementById('recipient-virtru').value;
 
     const encryptParams = new Virtru.EncryptParamsBuilder()
       .withArrayBufferSource(fileData)
       //.withPolicy(policy)
+      .addUsersWithAccess([recipients])
       .withDisplayFilename(filename)
       .build();
     console.info(encryptParams);
