@@ -133,7 +133,6 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 
 window.initok = initok();
 window.custom_keyid;
-window.virtru_client;
 
 window.initapp = function() {
   var val = document.action.select_one.value;
