@@ -153,6 +153,7 @@
   document.getElementById('virtru-auth-widget-mount').style.display = "none";
 
   initvirtru = function() {
+    console.info(document.getElementById('expire_seconds').value);
     if (document.getElementById('expire').checked == true) {
       document.getElementById('expire_seconds').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount').style.display = "initial";
