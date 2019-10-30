@@ -118,8 +118,8 @@
               For best results total size of files should not exceed 70MB
               <label for="expire" id="expire_label">Enable Virtru to set expiration date/time of file</label>
               <input type="checkbox" name="select_controls" id="expire" value="Expire">
+              <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Use the virtru login below to enable expiration:</label>
               <div id="virtru-auth-widget-mount"></div>
-              Use the virtru login below to enable expiration:
               <label for="expire_seconds" id="expire_seconds_label">Number of seconds before file/message expires:</label>
               <input type="number" name="select_controls" id="expire_seconds" value=0>
 
@@ -156,6 +156,7 @@
   document.getElementById('expire_seconds_label').style.display = "none";
   document.getElementById('recipient-virtru').style.display = "none";
   document.getElementById('virtru-auth-widget-mount').style.display = "none";
+  document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
   expire = document.getElementById('expire');
 
   expire.addEventListener('change', e => {
@@ -165,12 +166,14 @@
       document.getElementById('expire_seconds_label').style.display = "initial";
       document.getElementById('recipient-virtru').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount').style.display = "initial";
+      document.getElementById('virtru-auth-widget-mount_label').style.display = "initial";
     } else {
       document.getElementById('expire_seconds').value = 0;
       document.getElementById('expire_seconds').style.display = "none";
       document.getElementById('expire_seconds_label').style.display = "none";
       document.getElementById('recipient-virtru').style.display = "none";
       document.getElementById('virtru-auth-widget-mount').style.display = "none";
+      document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
     }
   });
 
@@ -261,5 +264,5 @@
   // Set up the auth widget.
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 </script>
-<script type="text/javascript" src="bundle.6ddf4f578cb16765ae7c.js"></script></body>
+<script type="text/javascript" src="bundle.0da4a2714c78006a8868.js"></script></body>
 </html>
