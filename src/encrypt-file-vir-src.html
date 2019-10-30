@@ -116,10 +116,13 @@
               <div id="block">
               <h3>Choose the file(s) to encrypt</h3>
               <h4>For best results total size of files should not exceed 70MB</h4>
-              <input type="checkbox" name="select_controls" id="expire" value="Expire"> Set an expiration date/time
-              <label for="expire_seconds">Number of seconds before file/message expires:</label>
-              <input type="number" name="select_controls" id="expire_seconds" value=0>
+              <label for="expire" id="expire_label">Set an expiration date/time</label>
+              <input type="checkbox" name="select_controls" id="expire" value="Expire">
               <div id="virtru-auth-widget-mount"></div>
+              Use the virtru login below to enable expiration:
+              <label for="expire_seconds" id="expire_seconds_label">Number of seconds before file/message expires:</label>
+              <input type="number" name="select_controls" id="expire_seconds" value=0>
+
               <input type="file" id="file" name="file" multiple /><br />
               <p id="filedetails"></p>
               <p id="virtrudetails"></p>
@@ -150,6 +153,7 @@
   let client;
   // Start with these hidden until the user selects to expire messages
   document.getElementById('expire_seconds').style.display = "none";
+  document.getElementById('recipient-virtru').style.display = "none";
   document.getElementById('virtru-auth-widget-mount').style.display = "none";
   expire = document.getElementById('expire');
 
@@ -157,10 +161,12 @@
     console.info(document.getElementById('expire_seconds').value);
     if (document.getElementById('expire').checked == true) {
       document.getElementById('expire_seconds').style.display = "initial";
+      document.getElementById('recipient-virtru').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount').style.display = "initial";
     } else {
       document.getElementById('expire_seconds').value = 0;
       document.getElementById('expire_seconds').style.display = "none";
+      document.getElementById('recipient-virtru').style.display = "none";
       document.getElementById('virtru-auth-widget-mount').style.display = "none";
     }
   });
@@ -174,8 +180,6 @@
     client = new Virtru.Client({email});
     console.info('Virtru client ' + client);
   }
-
-
 
   // Encrypt or decrypt the file by using the support functions
   async function encryptOrDecryptFile(filedata, thisfilename, shouldEncrypt, completion) {
@@ -227,15 +231,6 @@
     console.info(filename);
     console.info(fileData);
 
-    //const encryptParams = new Virtru.EncryptParamsBuilder()
-    //  .withStringSource('Sokath, his eyes open!')
-    //  .withDisplayFilename('darmok.txt')
-    //  .build();
-    //console.info(encryptParams);
-    //ct = await client.encrypt(encryptParams);
-    //await ct.toFile('encrypted.html');
-
-    //const policy = new Virtru.PolicyBuilder().build();
     var recipients = document.getElementById('recipient-virtru').value;
 
     const encryptParams = new Virtru.EncryptParamsBuilder()
