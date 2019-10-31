@@ -86,7 +86,7 @@ button:hover {
 }
 
 #virtru-auth-widget-mount {
-  all: unset;
+  position: static;
 }
 
 input[type=number]{
