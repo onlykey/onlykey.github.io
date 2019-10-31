@@ -93,16 +93,12 @@ button:hover {
 }
 
 #block text {
-   width: 90%;
+   width: 100%;
 }
 
 
 #message {
     min-height: 35%;
-}
-
-#virtru-auth-widget-mount text {
-   width: 100%;
 }
 
 fieldset {
