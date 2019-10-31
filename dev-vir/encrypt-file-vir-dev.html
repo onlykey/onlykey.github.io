@@ -116,13 +116,11 @@
               <div id="block">
               <h3>Choose the file(s) to encrypt</h3>
               For best results total size of files should not exceed 70MB
-              <label for="expire" id="expire_label">Enable Virtru to set expiration date/time of file</label>
-              <input type="checkbox" name="select_controls" id="expire" value="Expire">
-              <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Use the virtru login below to enable expiration:</label>
+              <i class="fa fa-hourglass-end" aria-hidden="true"></i><input type="checkbox" name="select_controls" id="expire" value="Expire"><label for="expire" id="expire_label">Set an expiration date/time</label>
+              <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to enable expiration:</label>
               <div id="virtru-auth-widget-mount"></div>
               <label for="expire_seconds" id="expire_seconds_label">Number of hours before file/message expires:</label>
               <input type="number" name="select_controls" id="expire_seconds" value=0>
-
               <input type="file" id="file" name="file" multiple /><br />
               <p id="filedetails"></p>
               <p id="virtrudetails"></p>
@@ -269,7 +267,7 @@
 
   // Set up the auth widget.
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
-  
+
 </script>
-<script type="text/javascript" src="bundle.0a09a22b39694eb9af67.js"></script></body>
+<script type="text/javascript" src="bundle.59b2c6ab305a81db3136.js"></script></body>
 </html>
