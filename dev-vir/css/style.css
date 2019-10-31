@@ -86,9 +86,8 @@ button:hover {
 }
 
 #virtru-auth-widget-mount {
-    max-width: 100%;
+    max-width: 150%;
     position: absolute;
-    right: 0px;
     width: 300px;
 }
 
