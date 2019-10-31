@@ -78,6 +78,7 @@ button:hover {
 }
 
 #block {
+    padding: 12px;
     margin-right: 30px;
     border: none;
     transition: border 0.4s;
