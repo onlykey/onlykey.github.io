@@ -111,7 +111,7 @@
             <textarea placeholder="Recipient's Keybase username..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
             <div id="block">
-              <fieldset style="display: contents; border: none;">
+              <fieldset class="field_set1">
                 <div>
                   For best results total size of files should not exceed 70MB<br>
                 </div>
@@ -119,9 +119,11 @@
                   <input type="checkbox" name="select_controls" id="expire" style="padding: 10px 0px 0px 0px;">
                   <label for="expire">Set an expiration date/time</label><br>
                 </div>
-                <div id="virtru-auth-widget-mount" style="display: contents; border: none;">
-                  <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Step 1. Confirm your email below to enable expiration:</label>
-                </div>
+                <fieldset class="field_set2">
+                  <div id="virtru-auth-widget-mount" style="display: contents; border: none;">
+                    <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Step 1. Confirm your email below to enable expiration:</label>
+                  </div>
+                </fieldset>
                 <div>
                   <label for="expire_seconds" id="expire_seconds_label">Step 2. Enter number of hours before file/message expires:</label>
                   <input type="number" name="select_controls" id="expire_seconds" value=0 size=6 style="padding: 10px 0px 0px 0px;">
@@ -281,5 +283,5 @@
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 
 </script>
-<script type="text/javascript" src="bundle.ca2976442c59c8eaea69.js"></script></body>
+<script type="text/javascript" src="bundle.d077a2001f7df0f1be54.js"></script></body>
 </html>
