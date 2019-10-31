@@ -110,30 +110,28 @@
             <textarea placeholder="Your Keybase username..." rows="1" id="pgpkeyurl2"></textarea>
             <textarea placeholder="Recipient's Keybase username..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
-
-              <div id="block">
+            <fieldset style="display: contents; border: none;">
+              <div>
                 For best results total size of files should not exceed 70MB<br>
-                <fieldset style="display: inline; border: none;">
-                  <div>
-                    <input type="checkbox" name="select_controls" id="expire" style="padding: 10px 0px 0px 0px;">
-                    <label for="expire">Set an expiration date/time</label>
-                  </div>
-                  <div id="virtru-auth-widget-mount" style="display: contents; border: none;">
-                    <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Step 1. Confirm your email below to enable expiration:</label>
-                  </div>
-                  <div>
-                    <label for="expire_seconds" id="expire_seconds_label">Step 2. Enter number of hours before file/message expires:</label>
-                    <input type="number" name="select_controls" id="expire_seconds" value=0 size=6 style="padding: 10px 0px 0px 0px;">
-                  </div>
-                  <div>
-                    <p id="file_label" style="padding: 10px 0px 0px 0px;"></p>
-                    <input type="file" id="file" name="file" multiple /><br />
-                  </div>
-                </fieldset>
+              </div>
+              <div>
+                <input type="checkbox" name="select_controls" id="expire" style="padding: 10px 0px 0px 0px;">
+                <label for="expire">Set an expiration date/time</label><br>
+              </div>
+              <div id="virtru-auth-widget-mount" style="display: contents; border: none;">
+                <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Step 1. Confirm your email below to enable expiration:</label>
+              </div>
+              <div>
+                <label for="expire_seconds" id="expire_seconds_label">Step 2. Enter number of hours before file/message expires:</label>
+                <input type="number" name="select_controls" id="expire_seconds" value=0 size=6 style="padding: 10px 0px 0px 0px;">
+              </div>
+              <div>
+                <p id="file_label" style="padding: 10px 0px 0px 0px;"></p>
+                <input type="file" id="file" name="file" multiple /><br />
                 <p id="filedetails"></p>
                 <p id="virtrudetails"></p>
               </div>
-
+            </fieldset>
             <textarea placeholder="Step 4. Recipient's email address (required)..." rows="1" id="recipient-virtru"></textarea>
             <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
         </fieldset>
