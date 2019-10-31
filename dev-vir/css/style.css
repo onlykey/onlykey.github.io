@@ -85,9 +85,14 @@ button:hover {
     background-color: #FFFFFF;
 }
 
-#virtru-auth-widget-mount img {
-  width: 130%;
+span {
+    display: inline-block;
 }
+img {
+    width: 50%;
+}
+
+
 
 input[type=number]{
     width: 50px;

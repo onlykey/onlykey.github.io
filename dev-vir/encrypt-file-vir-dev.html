@@ -119,11 +119,11 @@
                 </div>
 
                 <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Step 1. Confirm your email below to enable expiration:
-                  <div id="virtru-auth-widget-mount"></div>
+                  <span><div id="virtru-auth-widget-mount"></div></span>
                 </label>
                 <label for="expire_seconds" id="expire_seconds_label">Step 2. Enter number of hours before file/message expires:</label>
                 <input type="number" name="select_controls" id="expire_seconds" value=0 size=6>
-                Step 3. Choose the file(s) to encrypt
+                <label for="file" id="file_label">Choose the file(s) to encrypt</label>
                 <input type="file" id="file" name="file" multiple /><br />
                 <p id="filedetails"></p>
                 <p id="virtrudetails"></p>
@@ -169,6 +169,7 @@
       document.getElementById('recipient-virtru').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount_label').style.display = "initial";
+      document.getElementById('file_label').value = 'Step 3. Choose the file(s) to encrypt';
     } else {
       document.getElementById('expire_seconds').value = 0;
       document.getElementById('expire_seconds').style.display = "none";
@@ -176,6 +177,7 @@
       document.getElementById('recipient-virtru').style.display = "none";
       document.getElementById('virtru-auth-widget-mount').style.display = "none";
       document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
+      document.getElementById('file_label').value = 'Choose the file(s) to encrypt';
     }
   });
 
@@ -273,5 +275,5 @@
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 
 </script>
-<script type="text/javascript" src="bundle.d7a93d9c0f9e600fcfc5.js"></script></body>
+<script type="text/javascript" src="bundle.d2328ac1b6ff0b827365.js"></script></body>
 </html>
