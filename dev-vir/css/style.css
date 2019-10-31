@@ -111,7 +111,7 @@ fieldset {
 }
 
 fieldset * {
-    display: inline-block;
+    display: grid;
     width: 100%;
     margin-top: 10px;
 }
