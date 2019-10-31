@@ -81,28 +81,12 @@ button:hover {
 #block {
     margin-right: 30px;
     border: none;
-    border: solid 2px #c9c9c9;
     transition: border 0.4s;
     background-color: #FFFFFF;
-}
-
-#block:focus,
-#block.focus {
-    border: solid 2px #969696;
 }
 
 #virtru-auth-widget-mount {
-    margin: auto;
-    width: 150%;
-    border: none;
-    border: solid 2px #c9c9c9;
-    transition: border 0.4s;
-    background-color: #FFFFFF;
-}
-
-#virtru-auth-widget-mount:focus,
-#virtru-auth-widget-mount.focus {
-    border: solid 2px #969696;
+    justify-content: center;
 }
 
 #message {
