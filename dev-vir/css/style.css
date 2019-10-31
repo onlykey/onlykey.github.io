@@ -93,6 +93,7 @@ input[type=number]{
 }
 
 #inline-field {
+  all: unset;
   display: inline-block;
   margin-bottom: 0;
   vertical-align: middle;
