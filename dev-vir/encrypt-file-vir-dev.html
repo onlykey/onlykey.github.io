@@ -113,18 +113,20 @@
             <form name="fileform">
               <div id="block">
                 For best results total size of files should not exceed 70MB<br>
-                <fieldset>
-                  <legend>Set an expiration date/time</legend>
+                <fieldset style="display: inline;">
                   <div>
                     <input type="checkbox" name="select_controls" id="expire" style="padding: 10px 0px 0px 0px;">
                     <label for="expire">Set an expiration date/time</label>
                   </div>
                 </fieldset>
+                <fieldset style="display: inline;">
+                  <div>
+                    <div id="virtru-auth-widget-mount" style="overflow: hidden; padding: 100px 100px 100px 100px;"></div>
+                    <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Step 1. Confirm your email below to enable expiration:</label>
+                  </div>
+                </fieldset>
 
-                <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Step 1. Confirm your email below to enable expiration:
-                <div id="virtru-auth-widget-mount" style="overflow: hidden; padding: 100px 100px 100px 100px;"></div>
-                </label>
-                <label for="expire_seconds" id="expire_seconds_label">Step 2. Enter number of hours before file/message expires:</label>
+                <label for="expire_seconds" id="expire_seconds_label">  Step 2. Enter number of hours before file/message expires:</label>
                 <input type="number" name="select_controls" id="expire_seconds" value=0 size=6>
                 <p id="file_label"></p>
                 <input type="file" id="file" name="file" multiple /><br />
@@ -162,7 +164,7 @@
   document.getElementById('recipient-virtru').style.display = "none";
   document.getElementById('virtru-auth-widget-mount').style.display = "none";
   document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
-  document.getElementById('file_label').innerHTML = 'Choose the file(s) to encrypt';
+  document.getElementById('file_label').innerHTML = '  Choose the file(s) to encrypt';
   expire = document.getElementById('expire');
 
   expire.addEventListener('change', e => {
@@ -173,7 +175,7 @@
       document.getElementById('recipient-virtru').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount').style.display = "initial";
       document.getElementById('virtru-auth-widget-mount_label').style.display = "initial";
-      document.getElementById('file_label').innerHTML = 'Step 3. Choose the file(s) to encrypt';
+      document.getElementById('file_label').innerHTML = '  Step 3. Choose the file(s) to encrypt';
     } else {
       document.getElementById('expire_seconds').value = 0;
       document.getElementById('expire_seconds').style.display = "none";
@@ -181,7 +183,7 @@
       document.getElementById('recipient-virtru').style.display = "none";
       document.getElementById('virtru-auth-widget-mount').style.display = "none";
       document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
-      document.getElementById('file_label').innerHTML = 'Choose the file(s) to encrypt';
+      document.getElementById('file_label').innerHTML = '  Choose the file(s) to encrypt';
     }
   });
 
@@ -279,5 +281,5 @@
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 
 </script>
-<script type="text/javascript" src="bundle.5e198520f17e41640021.js"></script></body>
+<script type="text/javascript" src="bundle.33640be30257e46c793f.js"></script></body>
 </html>
