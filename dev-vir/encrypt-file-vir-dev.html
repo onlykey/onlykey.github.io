@@ -108,15 +108,14 @@
 
     <div id="container">
         <fieldset>
-            <textarea placeholder="Recipient's email address..." rows="1" id="recipient-virtru"></textarea>
             <textarea placeholder="Your Keybase username..." rows="1" id="pgpkeyurl2"></textarea>
             <textarea placeholder="Recipient's Keybase username..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
             <form name="fileform">
-              <div id="block">
+              <div id="block" style="white-space: nowrap;">
               <h3>Choose the file(s) to encrypt</h3>
               For best results total size of files should not exceed 70MB
-              <span style="white-space: nowrap;"><i class="fa fa-hourglass-end" aria-hidden="true"></i><input type="checkbox" name="select_controls" id="expire" value="Expire"><label for="expire" id="expire_label">Set an expiration date/time</label></span>
+              <i class="fa fa-hourglass-end" aria-hidden="true"></i><input type="checkbox" name="select_controls" id="expire" value="Expire"><label for="expire" id="expire_label">Set an expiration date/time</label>
               <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to enable expiration:</label>
               <div id="virtru-auth-widget-mount"></div>
               <label for="expire_seconds" id="expire_seconds_label">Number of hours before file/message expires:</label>
@@ -126,6 +125,7 @@
               <p id="virtrudetails"></p>
               </div>
             </form>
+            <textarea placeholder="Recipient's email address..." rows="1" id="recipient-virtru"></textarea>
             <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
         </fieldset>
         <center>
@@ -269,5 +269,5 @@
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 
 </script>
-<script type="text/javascript" src="bundle.087f0dd203591709c1b4.js"></script></body>
+<script type="text/javascript" src="bundle.0fcfd572562a2ea281d3.js"></script></body>
 </html>
