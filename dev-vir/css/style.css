@@ -80,7 +80,7 @@ button:hover {
 
 #block {
     background-color: #FFFFFF;
-    padding: 0px 10px 10px 10px;
+    padding: 10px 10px 10px 10px;
     border: none;
     border: solid 2px #c9c9c9;
     transition: border 0.4s;
