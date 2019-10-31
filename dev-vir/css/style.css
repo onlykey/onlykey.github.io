@@ -100,6 +100,19 @@ input[type=number]{
     width: 50px;
 }
 
+label {
+  display: block;
+  padding-left: 15px;
+  text-indent: -15px;
+}
+
+#inline-field input,
+#inline-field label {
+  display: inline-block;
+  margin-bottom: 0;
+  vertical-align: middle; 
+}
+
 #message {
     min-height: 35%;
 }
