@@ -114,13 +114,16 @@
             <form name="fileform">
               <div id="block">
                 For best results total size of files should not exceed 70MB
-                
-                <i class="fa fa-hourglass-end" aria-hidden="true"></i>
-                <label for="expire" id="expire_label">Set an expiration date/time </label><nobr>
-                <input type="checkbox" name="select_controls" id="expire" value="Expire"><nobr>
 
-                <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to enable expiration:</label>
-                <div id="virtru-auth-widget-mount"></div>
+
+                <label for="expire" id="expire_label" style="word-wrap:break-word">Set an expiration date/time
+                  <input type="checkbox" name="select_controls" id="expire" value="Expire">
+                  <i class="fa fa-hourglass-end" aria-hidden="true"></i>
+                </label>
+
+                <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to enable expiration:
+                  <div id="virtru-auth-widget-mount"></div>
+                </label>
                 <label for="expire_seconds" id="expire_seconds_label">Number of hours before file/message expires:</label>
                 <input type="number" name="select_controls" id="expire_seconds" value=0 size=6>
                 <h3>Choose the file(s) to encrypt</h3>

@@ -86,7 +86,15 @@ button:hover {
 }
 
 #virtru-auth-widget-mount {
-    justify-content: center;
+    max-width: 100%;
+    position: absolute;
+    right: 0px;
+    width: 300px;
+}
+
+[type="checkbox"]
+{
+    vertical-align:middle;
 }
 
 #message {
