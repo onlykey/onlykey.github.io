@@ -79,6 +79,8 @@ button:hover {
 }
 
 #block {
+    margin-left: auto;
+    margin-right: auto;
     padding: 0px 20px 10px 10px;
     border: none;
     border: solid 2px #c9c9c9;
