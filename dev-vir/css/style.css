@@ -94,12 +94,6 @@ input[type=number]{
 }
 
 
-#inline-field input,
-#inline-field label {
-  display: inline-block;
-  margin-bottom: 0;
-}
-
 #message {
     min-height: 35%;
 }
