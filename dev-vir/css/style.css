@@ -79,7 +79,7 @@ button:hover {
 }
 
 #block {
-    max-width: 90%;
+    max-width: 100%;
     min-width: none;
     background-color: #FFFFFF;
     padding: 12px;
@@ -93,7 +93,7 @@ button:hover {
 }
 
 #block text {
-   width: 100%;
+   width: 90%;
 }
 
 #checkboxitem {

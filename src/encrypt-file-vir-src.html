@@ -112,11 +112,10 @@
             <textarea placeholder="Recipient's Keybase username..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
             <form name="fileform">
-              <div id="block" style="white-space: nowrap;">
+              <div id="block">
               For best results total size of files should not exceed 70MB
-              <div id="checkboxitem">
-                <input type="checkbox" name="select_controls" id="expire" value="Expire"><label for="expire" id="expire_label">Set an expiration date/time </label><i class="fa fa-hourglass-end" aria-hidden="true"></i>
-              </div>
+              <label for="expire" id="expire_label" style="word-wrap:break-word"><input type="checkbox" name="select_controls" id="expire" value="Expire" />Set an expiration date/time <i class="fa fa-hourglass-end" aria-hidden="true"></i></label>
+
               <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to enable expiration:</label>
               <div id="virtru-auth-widget-mount"></div>
               <label for="expire_seconds" id="expire_seconds_label">Number of hours before file/message expires:</label>
