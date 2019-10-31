@@ -122,7 +122,7 @@
                 </label>
                 <label for="expire_seconds" id="expire_seconds_label">Step 2. Enter number of hours before file/message expires:</label>
                 <input type="number" name="select_controls" id="expire_seconds" value=0 size=6>
-                <label for="file" id="file_label">Choose the file(s) to encrypt</label>
+                <p id="file_label"></p>
                 <input type="file" id="file" name="file" multiple /><br />
                 <p id="filedetails"></p>
                 <p id="virtrudetails"></p>
@@ -158,6 +158,7 @@
   document.getElementById('recipient-virtru').style.display = "none";
   document.getElementById('virtru-auth-widget-mount').style.display = "none";
   document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
+  document.getElementById('file_label').value = 'Choose the file(s) to encrypt';
   expire = document.getElementById('expire');
 
   expire.addEventListener('change', e => {
@@ -274,5 +275,5 @@
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 
 </script>
-<script type="text/javascript" src="bundle.bc005eabb8db083356c9.js"></script></body>
+<script type="text/javascript" src="bundle.f7be94c969769b3b5327.js"></script></body>
 </html>
