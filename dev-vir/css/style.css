@@ -92,9 +92,13 @@ button:hover {
     width: 300px;
 }
 
-[type="checkbox"]
+input[type="checkbox"]
 {
     vertical-align:middle;
+}
+
+input[type=number]{
+    width: 50px;
 }
 
 #message {
