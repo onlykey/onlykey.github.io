@@ -115,17 +115,17 @@
               <div id="block" style="white-space: nowrap;">
               <h3>Choose the file(s) to encrypt</h3>
               For best results total size of files should not exceed 70MB
-              <i class="fa fa-hourglass-end" aria-hidden="true"></i><input type="checkbox" name="select_controls" id="expire" value="Expire"><label for="expire" id="expire_label">Set an expiration date/time</label>
+              <label for="expire" id="expire_label">Set an expiration date/time</label><i class="fa fa-hourglass-end" aria-hidden="true"><input type="checkbox" name="select_controls" id="expire" value="Expire"></i>
               <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to enable expiration:</label>
               <div id="virtru-auth-widget-mount"></div>
               <label for="expire_seconds" id="expire_seconds_label">Number of hours before file/message expires:</label>
-              <input type="number" name="select_controls" id="expire_seconds" value=0>
+              <input type="number" name="select_controls" id="expire_seconds" value=0 size=6>
               <input type="file" id="file" name="file" multiple /><br />
               <p id="filedetails"></p>
               <p id="virtrudetails"></p>
               </div>
             </form>
-            <textarea placeholder="Recipient's email address..." rows="1" id="recipient-virtru"></textarea>
+            <textarea placeholder="Recipient's email address (required)..." rows="1" id="recipient-virtru"></textarea>
             <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
         </fieldset>
         <center>
@@ -269,5 +269,5 @@
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
 
 </script>
-<script type="text/javascript" src="bundle.0fcfd572562a2ea281d3.js"></script></body>
+<script type="text/javascript" src="bundle.1f6e6c0031ac27d1abe3.js"></script></body>
 </html>
