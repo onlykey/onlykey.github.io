@@ -113,17 +113,21 @@
             <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
             <form name="fileform">
               <div id="block">
-              For best results total size of files should not exceed 70MB
-              <label for="expire" id="expire_label" style="word-wrap:break-word"><input type="checkbox" name="select_controls" id="expire" value="Expire" />Set an expiration date/time <i class="fa fa-hourglass-end" aria-hidden="true"></i></label>
+                <code data-language="javascript">
+                For best results total size of files should not exceed 70MB
+                <label for="expire" id="expire_label" style="word-wrap:break-word"><input type="checkbox" name="select_controls" id="expire" value="Expire" />Set an expiration date/time <i class="fa fa-hourglass-end" aria-hidden="true"></i></label>
 
-              <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to enable expiration:</label>
-              <div class="yui3-cssreset"><div id="virtru-auth-widget-mount"></div></div>
-              <label for="expire_seconds" id="expire_seconds_label">Number of hours before file/message expires:</label>
-              <input type="number" name="select_controls" id="expire_seconds" value=0 size=6>
-              <h3>Choose the file(s) to encrypt</h3>
-              <input type="file" id="file" name="file" multiple /><br />
-              <p id="filedetails"></p>
-              <p id="virtrudetails"></p>
+                <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to enable expiration:</label>
+
+                  <div id="virtru-auth-widget-mount"></div>
+                </div>
+                <label for="expire_seconds" id="expire_seconds_label">Number of hours before file/message expires:</label>
+                <input type="number" name="select_controls" id="expire_seconds" value=0 size=6>
+                <h3>Choose the file(s) to encrypt</h3>
+                <input type="file" id="file" name="file" multiple /><br />
+                <p id="filedetails"></p>
+                <p id="virtrudetails"></p>
+                </code>
               </div>
             </form>
             <textarea placeholder="Recipient's email address (required)..." rows="1" id="recipient-virtru"></textarea>
