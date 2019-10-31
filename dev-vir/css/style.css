@@ -101,6 +101,10 @@ button:hover {
     min-height: 35%;
 }
 
+#virtru-auth-widget-mount text {
+   width: 100%;
+}
+
 fieldset {
     padding: 0px 10px 10px 10px;
     border: solid 2px #3C3C3C;
