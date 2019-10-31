@@ -93,8 +93,7 @@ input[type=number]{
     width: 50px;
 }
 
-#inline-field input,
-#inline-field label {
+#inline-field {
   display: inline-block;
   margin-bottom: 0;
   vertical-align: middle;
