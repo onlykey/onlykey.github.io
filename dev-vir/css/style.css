@@ -92,7 +92,8 @@ button:hover {
 }
 
 #virtru-auth-widget-mount {
-    margin-right: 25px;
+    margin: auto;
+    width: 150%;
     border: none;
     border: solid 2px #c9c9c9;
     transition: border 0.4s;
