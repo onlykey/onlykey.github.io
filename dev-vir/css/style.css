@@ -79,11 +79,16 @@ button:hover {
 }
 
 #block {
-    background-color: #FFFFFF;
     padding: 12px;
     border: none;
     border: solid 2px #c9c9c9;
     transition: border 0.4s;
+}
+
+#block:focus,
+#block.focus {
+    border: solid 2px #969696;
+    background-color: #FFFFFF;
 }
 
 #message {
