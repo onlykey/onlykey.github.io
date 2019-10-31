@@ -120,7 +120,7 @@
               <input type="checkbox" name="select_controls" id="expire" value="Expire">
               <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Use the virtru login below to enable expiration:</label>
               <div id="virtru-auth-widget-mount"></div>
-              <label for="expire_seconds" id="expire_seconds_label">Number of seconds before file/message expires:</label>
+              <label for="expire_seconds" id="expire_seconds_label">Number of hours before file/message expires:</label>
               <input type="number" name="select_controls" id="expire_seconds" value=0>
 
               <input type="file" id="file" name="file" multiple /><br />
@@ -239,30 +239,37 @@
 
     var recipients = document.getElementById('recipient-virtru').value;
 
-    const encryptParams = new Virtru.EncryptParamsBuilder()
-      .withArrayBufferSource(fileData)
-      //.withPolicy(policy)
-      .withUsersWithAccess([recipients])
-      .withDisplayFilename(filename)
-      //.withZipFormat() // Generate TDF in zip format
-      .build();
-
     if (document.getElementById('expire').checked == true) {
-      const updatedPolicy = encryptParams.builder()
-        .enableExpirationDeadlineFromNow(document.getElementById('expire_seconds').value) // Expire content in this many seconds
+      const policy = new Virtru.PolicyBuilder()
+        .enableExpirationDeadlineFromNow((document.getElementById('expire_seconds').value)*3600)
         .build();
-        const enc = await client.encrypt(updatedPolicy);
-        console.info(updatedPolicy);
+      const encryptParams = new Virtru.EncryptParamsBuilder()
+        .withArrayBufferSource(fileData)
+        .withPolicy(policy)
+        .withUsersWithAccess([recipients])
+        .withDisplayFilename(filename)
+        //.withZipFormat() // Generate TDF in zip format
+        .build();
     } else {
-      const enc = await client.encrypt(encryptParams);
-      console.info(encryptParams);
+      const encryptParams = new Virtru.EncryptParamsBuilder()
+        .withArrayBufferSource(fileData)
+        //.withPolicy(policy)
+        .withUsersWithAccess([recipients])
+        .withDisplayFilename(filename)
+        //.withZipFormat() // Generate TDF in zip format
+        .build();
     }
-    console.info(enc);
+
+    const enc = await client.encrypt(encryptParams);
+
+    console.info(encryptParams);
+
     return enc;
   }
 
   // Set up the auth widget.
   Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
+  
 </script>
-<script type="text/javascript" src="bundle.0da4a2714c78006a8868.js"></script></body>
+<script type="text/javascript" src="bundle.0a09a22b39694eb9af67.js"></script></body>
 </html>
