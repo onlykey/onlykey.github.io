@@ -79,10 +79,10 @@ button:hover {
 }
 
 #block {
-    max-width: 100%;
+    max-width: 90%;
     min-width: none;
     background-color: #FFFFFF;
-    padding: 12px;
+    padding: 0px 10px 10px 10px;
     border: none;
     border: solid 2px #c9c9c9;
     transition: border 0.4s;
@@ -94,17 +94,6 @@ button:hover {
 
 #block text {
    width: 90%;
-}
-
-#checkboxitem {
-    display: block;
-    width: 50px;
-}
-label {
-    display: inline;
-}
-input[type=checkbox] {
-    display: inline;
 }
 
 #message {
