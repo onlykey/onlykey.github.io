@@ -100,10 +100,6 @@ fieldset {
     margin-bottom: 5px;
 }
 
-#virtru-auth-widget-mount {
-  display: inline;
-}
-
 fieldset * {
     display: block;
     width: 100%;
