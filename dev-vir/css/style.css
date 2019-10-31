@@ -96,6 +96,9 @@ button:hover {
    width: 100%;
 }
 
+label {
+  display: inline-block;
+}
 
 #message {
     min-height: 35%;
