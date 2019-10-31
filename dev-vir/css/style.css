@@ -87,8 +87,8 @@ button:hover {
 
 #virtru-auth-widget-mount {
     max-width: 150%;
-    position: absolute;
-    width: 300px;
+    position: relative;
+    width: 500px;
 }
 
 input[type="checkbox"]
