@@ -536,6 +536,7 @@ async encryptFile(key1, key2, f) {
                     console.error(err);
                     alert('An error occurred attempting to encrypt this file. Please be sure you have authenticated, and try again.');
                   }
+                  button.classList.remove('working');
             } else {
               var finalfile = new Blob([result_buffer], {type: "text/plain;charset=utf-8"});
               saveAs(finalfile, filename+".zip.gpg");

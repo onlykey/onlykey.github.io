@@ -1,9 +1,8 @@
 <html>
 
 <head>
-    <title>OnlyKey Apps - Decrypt & verify files in your browser using Keybase PGP and Virtru</title>
+    <title>OnlyKey Apps - Decrypt & verify files using Onlykey, Keybase PGP, and Virtru</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <META HTTP-EQUIV='Content-Security-Policy' CONTENT="default-src 'none' ; script-src 'self' 'sha256-P1WP1KTz9iiHN5Bfeec+pIgBDay5qWNQZh9HujWa94o=' 'sha256-pBDNHyFUtn3XsRvFveaLkaEupq1l96neUvZm5/c1PmQ='; style-src 'self' 'sha256-ujVZuuvwuQ+epdwqO8AhlbOQSx68+ci+dDIwrFrzI+Q=' 'sha256-zsMKYSOY0gzTtULlMRDwkny+ocnOJuA+B49b0BIIQXU='; img-src 'self' ; font-src 'self' ; connect-src 'self' https://keybase.io ; base-uri 'none'; form-action 'none';">
     <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
     <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
     <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
@@ -17,6 +16,9 @@
     <link href="css/ShareTechMono.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link href="https://sdk.virtru.com/js/latest/auth-widget/index.css" rel="stylesheet"/>
+    <script src="https://sdk.virtru.com/js/latest/auth-widget/index.js"></script>
+    <script src="https://sdk.virtru.com/js/latest/virtru-sdk.min.js"></script>
     <!-- Modify header colors here to customize the look and feel of the site-->
     <style>
         .header {
@@ -101,12 +103,15 @@
         </code>
     </div>
     <h4><font size="+2">Securely decrypt and verify files using
-        <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></font></h4>
+        <a href="https://onlykey.io" target="_blank">OnlyKey</a>, <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a>, and <a href="https://keybase.io/kbpgp" target="_blank">Virtru</a></font></h4>
     <div id="container">
         <fieldset>
-            <textarea placeholder="Sender's Keybase username or URL to their public pgp key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
+            <textarea placeholder="Sender's Keybase username..." rows="1" id="pgpkeyurl"></textarea>
             <form name="fileform">
               <div id="block">
+              <div id="virtru-auth-widget-mount" align="left" style="overflow: hidden; text-overflow: ellipsis; text-align:left; display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; -webkit-align-content: left; align-content: left;">
+                <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Confirm your email below to decrypt TDF</label>
+              </div>
               <h3>Choose the file to decrypt</h3>
               <input type="file" id="file" name="file" /><br />
               <p id="filedetails"></p>
@@ -134,7 +139,121 @@
             </code>
         </pre>
     </div>
-<script type="text/javascript" src="bundle.b4c367785a0f927bb9d4.js"></script></body>
+    <script>
+
+
+      let client;
+      // Start with these hidden until the user selects to expire messages
+      document.getElementById('virtru-auth-widget-mount').style.display = "none";
+      document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
+      file = document.getElementById('file');
+
+      file.addEventListener('change', e => {
+        console.info(document.getElementById('file').value);
+        if (document.getElementById('file').value.includes('.TDF') == true) {
+          document.getElementById('virtru-auth-widget-mount').style.display = "initial";
+          document.getElementById('virtru-auth-widget-mount_label').style.display = "initial";
+        } else {
+          document.getElementById('virtru-auth-widget-mount').style.display = "none";
+          document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
+        }
+      });
+
+      // Run all client code from here.
+      // This will only be called when the user is successfully authenticated.
+      async function afterAuth(email) {
+
+        //TODO Enable Options fields after auth for user to set encrypted file expiration date etc.
+        console.info('Virtru email ' + email);
+        client = new Virtru.Client({email});
+        console.info('Virtru client ' + client);
+      }
+
+      // Encrypt or decrypt the file by using the support functions
+      async function encryptOrDecryptFile(filedata, thisfilename, shouldEncrypt, completion) {
+        if (shouldEncrypt) {
+          const encrypted = await encrypt(filedata, thisfilename);
+          await encrypted.toFile(thisfilename + '.tdf');
+        } else {
+          const decrypted = await decrypt(filedata);
+          const finalfilename = buildDecryptFilename(thisfilename).trim();
+          await decrypted.toFile(finalFilename);
+        }
+
+        if (completion) {
+          //completion();
+        }
+      }
+
+      // Handle filename parsing with parens involved
+      function buildDecryptFilename(filename) {
+        console.info('buildDecryptFilename');
+        console.info(filename);
+        const ext = filename.substr(-4);
+        let finalFilename = filename;
+
+        if (ext === '.tdf') {
+          finalFilename = finalFilename.replace(ext, '');
+        }
+
+        finalFilename = finalFilename.replace(/\([^.]*\)$/, '');
+
+        return finalFilename;
+      }
+
+      // Decrypt the file by creating an object url (for now) and return the stream content
+      async function decrypt(fileData) {
+        console.info('decrypt');
+        console.info(fileData);
+        const decryptParams = new Virtru.DecryptParamsBuilder()
+          .withArrayBufferSource(fileData)
+          .build();
+
+        const decrypted = await client.decrypt(decryptParams);
+        return decrypted;
+      }
+
+      // Encrypt the filedata and return the stream content and filename
+      async function encrypt(fileData, filename) {
+        console.info('encrypt');
+        console.info(filename);
+        console.info(fileData);
+
+        var recipients = document.getElementById('recipient-virtru').value;
+
+        if (document.getElementById('expire').checked == true) {
+          const policy = new Virtru.PolicyBuilder()
+            .enableExpirationDeadlineFromNow((document.getElementById('expire_seconds').value)*3600)
+            .build();
+          const encryptParams = new Virtru.EncryptParamsBuilder()
+            .withArrayBufferSource(fileData)
+            .withPolicy(policy)
+            .withUsersWithAccess([recipients])
+            .withDisplayFilename(filename)
+            //.withZipFormat() // Generate TDF in zip format
+            .build();
+          const enc = await client.encrypt(encryptParams);
+          console.info(encryptParams);
+          return enc;
+        } else {
+          const encryptParams = new Virtru.EncryptParamsBuilder()
+            .withArrayBufferSource(fileData)
+            //.withPolicy(policy)
+            .withUsersWithAccess([recipients])
+            .withDisplayFilename(filename)
+            //.withZipFormat() // Generate TDF in zip format
+            .build();
+          const enc = await client.encrypt(encryptParams);
+          console.info(encryptParams);
+          return enc;
+        }
+      }
+
+      // Set up the auth widget.
+      Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
+
+    </script>
+<script type="text/javascript" src="bundle.54a29c09d8140fc71c64.js"></script></body>
 <script>
 window.addEventListener("load", window.initok);
 </script>
