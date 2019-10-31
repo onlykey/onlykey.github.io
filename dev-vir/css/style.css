@@ -89,7 +89,19 @@ button:hover {
 #block:focus,
 #block.focus {
     border: solid 2px #969696;
+}
 
+#virtru-auth-widget-mount {
+    margin-right: 25px;
+    border: none;
+    border: solid 2px #c9c9c9;
+    transition: border 0.4s;
+    background-color: #FFFFFF;
+}
+
+#virtru-auth-widget-mount:focus,
+#virtru-auth-widget-mount.focus {
+    border: solid 2px #969696;
 }
 
 #message {
