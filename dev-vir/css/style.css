@@ -93,7 +93,7 @@ button:hover {
 
 input[type="checkbox"]
 {
-    vertical-align:middle;
+    display:inline-block
 }
 
 input[type=number]{
