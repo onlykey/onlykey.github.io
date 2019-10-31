@@ -248,6 +248,9 @@
         .withDisplayFilename(filename)
         //.withZipFormat() // Generate TDF in zip format
         .build();
+      const enc = await client.encrypt(encryptParams);
+      console.info(encryptParams);
+      return enc;
     } else {
       const encryptParams = new Virtru.EncryptParamsBuilder()
         .withArrayBufferSource(fileData)
@@ -256,13 +259,10 @@
         .withDisplayFilename(filename)
         //.withZipFormat() // Generate TDF in zip format
         .build();
+      const enc = await client.encrypt(encryptParams);
+      console.info(encryptParams);
+      return enc;
     }
-
-    const enc = await client.encrypt(encryptParams);
-
-    console.info(encryptParams);
-
-    return enc;
   }
 
   // Set up the auth widget.
