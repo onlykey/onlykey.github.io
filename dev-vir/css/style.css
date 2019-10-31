@@ -78,6 +78,14 @@ button:hover {
     min-width: 100;
 }
 
+#block {
+    background-color: #FFFFFF;
+    padding: 0px 10px 10px 10px;
+    border: none;
+    border: solid 2px #c9c9c9;
+    transition: border 0.4s;
+}
+
 #message {
     min-height: 35%;
 }
