@@ -85,32 +85,19 @@ button:hover {
     background-color: #FFFFFF;
 }
 
-#virtru-auth-widget-mount {
-    max-width: 150%;
-    position: relative;
-    width: 500px;
-}
-
-input[type="checkbox"]
-{
-    display:inline-block
+#virtru-auth-widget-mount img {
+  width: 130%;
 }
 
 input[type=number]{
     width: 50px;
 }
 
-label {
-  display: block;
-  padding-left: 15px;
-  text-indent: -15px;
-}
-
 #inline-field input,
 #inline-field label {
   display: inline-block;
   margin-bottom: 0;
-  vertical-align: middle; 
+  vertical-align: middle;
 }
 
 #message {
