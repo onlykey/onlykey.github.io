@@ -87,7 +87,7 @@ button:hover {
 }
 
 #virtru-auth-widget-mount {
-
+  display: inline;
 }
 
 input[type=number]{
@@ -105,20 +105,16 @@ fieldset {
     margin-bottom: 5px;
 }
 
-fieldset.textarea {
+.textarea {
     display: block;
     width: 100%;
     margin-top: 10px;
 }
 
-fieldset.button {
+.button {
     display: block;
     width: 100%;
     margin-top: 10px;
-}
-
-fieldset * {
-    display: inline;
 }
 
 .error {
