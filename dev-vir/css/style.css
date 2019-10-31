@@ -79,7 +79,6 @@ button:hover {
 }
 
 #block {
-    display: contents;
     margin-right: 30px;
     border: none;
     transition: border 0.4s;
@@ -87,7 +86,7 @@ button:hover {
 }
 
 #virtru-auth-widget-mount {
-  display: contents;
+
 }
 
 input[type=number]{
@@ -97,7 +96,7 @@ input[type=number]{
 
 #inline-field input,
 #inline-field label {
-  display: contents;
+  display: inline-block;
   margin-bottom: 0;
 }
 
@@ -112,7 +111,7 @@ fieldset {
 }
 
 fieldset * {
-    display: block;
+    display: inline-block;
     width: 100%;
     margin-top: 10px;
 }
