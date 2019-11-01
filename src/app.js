@@ -282,6 +282,7 @@ class Pgp2go {
             console.error(err);
             alert('An error occurred attempting to encrypt this file. Please be sure you have authenticated, and try again.');
           }
+          button.classList.remove('working');
     }
       var buffer = kbpgp.Buffer.from(parsedfile);
       switch (window._status) {

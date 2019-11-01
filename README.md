@@ -3,17 +3,80 @@
 
 ## About
 
-WebCrypt is a serverless Web App that integrates with [OnlyKey](https://crp.to/p/) and [keybase.io](https://keybase.io/) to provide PGP encryption everywhere on-the-go.
+WebCrypt is a serverless Web App that integrates with [OnlyKey](https://onlykey.io) and [keybase.io](https://keybase.io/) to provide PGP encryption everywhere on-the-go.
 
-Supports Google Chrome and Firefox!
+Supports Firefox, Google Chrome, Brave, and Edge (new) browsers!
 
-**Still in early development available for testing only.**
+Supports macOS, Windows, Linux, Chrome OS, and Android!
 
-[Try it out here!](https://apps.crp.to/encrypt-test)
+[Try it out here!](https://apps.crp.to/encrypt)
 
 ## How it works
 
-With Keybase user/key management is made easy and with OnlyKey private keys remain offline and protected. Private keys are not accessible to the browser or even the local computer. By using U2F as a secure communication channel the web application can send messages to OnlyKey that are decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports U2F and an OnlyKey to send secure messages using Windows, Mac, Linux, Chromebook, and Android (with OnlyKey Android app [here](https://play.google.com/store/apps/details?id=to.crp.android.onlykeyu2f&hl=en_US)).
+With Keybase user/key management is made easy and with OnlyKey private keys remain securely offline. Private keys are not accessible to the browser or even the local computer. By using FIDO2 as a secure communication channel the web application can send messages to OnlyKey that are decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports FIDO2 and an OnlyKey to send secure messages and files.
+
+{% include callout.html content="**Step 1. Find a Keybase User -** The first step in sending a secure message or file is to identify who to send it to. Browse to [https://apps.crp.to/search](https://apps.crp.to/search) to use our custom Keybase search tool to search Keybase users by:<br>
+- Twitter, Github, Reddit, or Hackernews Usernames<br>
+- Web domains<br>
+- PGP fingerprint<br>
+- Or Automatically search for best match" type="default" %}
+
+{% include image.html file="user-search.jpg" %}
+
+{% include callout.html content="**Step 2. Send a user encrypted message or file -** Click the link in the search results to send the selected user encrypted message/file. You can also browse to [https://apps.crp.to/encrypt](https://apps.crp.to/encrypt) to send a secure message or browse to [https://apps.crp.to/encrypt-file](https://apps.crp.to/encrypt-file) to send a secure file if you already know the recipient. To encrypt files for yourself just use your Keybase username as the recipient. " type="default" %}
+
+{% include image.html file="webcrypt1.png" %}
+
+{% include callout.html content="**Step 3. Receive an encrypted message or file -** To decrypt a message or file browse to [https://apps.crp.to/decrypt](https://apps.crp.to/decrypt) or [https://apps.crp.to/decrypt-file](https://apps.crp.to/decrypt-file). You can also create a unique link which allows anyone, with or without an OnlyKey to send you and encrypted file. This may be used in places such as an email signature to receive secure messages. The format is:
+<br><br>
+Send me a secure message -
+[https://apps.crp.to/encrypt.html?type=e&recipients=YOURKEYBASEUSERNAME](https://apps.crp.to/encrypt.html?type=e&recipients=YOURKEYBASEUSERNAME)
+<br><br>
+Send me a secure file
+[https://apps.crp.to/encrypt-file.html?type=e&recipients=YOURKEYBASEUSERNAME](https://apps.crp.to/encrypt-file.html?type=e&recipients=YOURKEYBASEUSERNAME)
+
+" type="default" %}
+
+{% include image.html file="webcrypt2.png" %}
+
+### See WebCrypt in action {#openpgp-action}
+
+After configuring your OnlyKey following [these instructions](#generating-keys) you can browse to the [Webcrypt app](https://apps.crp.to/encrypt) to send secure messages.
+
+- Enter a message to encrypt
+{% include image.html file="encrypted-message.jpg" %}
+
+- Enter the shown challenge code on the OnlyKey (i.e. 1,5,2)
+{% include image.html file="encrypted-message2.jpg" %}
+
+- Encrypted message shown, by clicking the button again it will be copied to clipboard
+{% include image.html file="encrypted-message3.jpg" %}
+{% include image.html file="encrypted-message4.jpg" %}
+
+- Paste the message into any email or chat (Sending via Gmail shown)
+{% include image.html file="encrypted-message5.jpg" %}
+
+- When the recipient receives the message (email or chat) they can paste it into Webcrypt app to decrypt
+{% include image.html file="encrypted-message6.jpg" %}
+
+- Enter the shown challenge code on the OnlyKey (i.e. 2,2,1)
+{% include image.html file="encrypted-message7.jpg" %}
+
+- Decrypted message shown, if the sender signed the message you will see the sender's name (i.e. t) and their key ID.
+{% include image.html file="encrypted-message8.jpg" %}
+
+- By clicking the button again the message will be copied to clipboard
+{% include image.html file="encrypted-message9.jpg" %}
+
+{% include note.html content="Messages sent via Webcrypt are never sent over the internet. The way it works is the necessary files are downloaded to your browser and all processing is done in your browser. Read more about [Webcrypt security here](https://docs.crp.to/webcrypt.html#security-goals)" %}
+
+## Benefits
+
+- This revolutionary approach makes PGP encryption easy and secure with OpenPGP keys securely stored on OnlyKey, not accessible to the app or to the browser. This is in contrast to for example PGP/GPG software, webmail (i.e. Protonmail), and smartphone apps.
+-  Physical user presence is required to process secure messages/files. This is in contrast to Smart Cards which only require a PIN code that can be captured and replayed without physical user presence.
+- WebCrypt even allows Kebase user’s to receive secure messages and files from non-OnlyKey users. Anyone can use WebCrypt to send encrypted messages/files and can create a unique link to receive secure messages and files.
+- With WebCrypt’s Keybase integration its easy to find Keybase users and send secure messages/files with the click of a button - https://apps.crp.to/search.
+
 
 ## Setup
 
@@ -21,16 +84,10 @@ With Keybase user/key management is made easy and with OnlyKey private keys rema
 - [Generate keys](https://docs.crp.to/usersguide.html#generating-keys) using Keybase
 - [Load keys](https://docs.crp.to/usersguide.html#loading-keys) onto OnlyKey
 
-If using Firefox, U2F must be enabled by completing the following steps in your browser:
-
-- Type about:config into the Firefox browser.
-- Search for “u2f”.
-- Double click on security.webauth.u2f to enable U2F support.
-
 ## Sending secure messages
 
 To create encrypted PGP message just:
-- Browse to https://apps.crp.to/encrypt-test
+- Browse to https://apps.crp.to/encrypt
 - Enter the recipient's Keybase ID in the first box
 - Enter your Keybase ID (for the key you loaded onto OnlyKey) in the second box
 - Enter your secure message in the third box
@@ -46,7 +103,7 @@ The encrypted message will be displayed and you can paste it into an email, IM, 
 ## Receiving secure messages
 
 To decrypt PGP message just:
-- Browse to https://apps.crp.to/decrypt-test
+- Browse to https://apps.crp.to/decrypt
 - Enter your Keybase ID (for the key you loaded onto OnlyKey) in the first box
 - Paste your encrypted PGP message in the second box
 - Click "Decrypt and Verify"
@@ -58,7 +115,9 @@ The decrypted message will be displayed. Read it and then close the browser tab 
 
 ## Security Goals
 
-**Empower the people**: Give people the ability to securely send and receive messages using any computer with no complicated software/drivers required and no worrying about compromise of user's private identity.
+**Make PGP easy**: Traditional PGP makes journalists angry, we think you shouldn't have to be technologically savvy to use PGP so we built WebCrypt.
+
+**Empower the people**: Give people the ability to securely send and receive messages using any computer or Android device with no complicated software/drivers required and no worrying about compromise of user's private identity.
 
 **Serverless**: All processing done via javascript in users own browser locally (no server to hack).
 
@@ -70,17 +129,17 @@ The decrypted message will be displayed. Read it and then close the browser tab 
 
 **Open source & audit-able** - What you see is what you get this repository is a Github page hosted directly on Github.
 
-Please, feel free to commit fixes!
+We are always working to make WebCrypt better, pull requests welcome!
 
 ## Protocol
 
-The protocol outlined below utilizes existing communication channel via U2F. More information is available on U2F protocol [here](https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-raw-message-formats.html).
+The protocol outlined below utilizes existing communication channel via FIDO2.
 
 ### Communication Channel Overview (Advanced)
 
-U2F utilizes registration and authentication message types. To send data to the OnlyKey, messages are encoded in the Key Handle of the authentication message type. To receive data back, messages are encoded in the signature of the authentication response. This method provides a reliable form of communication that is supported anywhere U2F is supported including Chrome, Chromium, Opera, and Firefox (Quantum or w/plugin).
+FIDO2 utilizes registration and authentication message types. To send data to the OnlyKey, messages are encoded in the Key Handle of the authentication message type. To receive data back, messages are encoded in the signature of the authentication response. This method provides a reliable form of communication that is supported anywhere U2F is supported including Firefox, Chrome, Chromium, Opera, Brave, and Edge (new).
 
-The outline below visualizes the use of onlykey-api.js and u2f-api.js to communicate via browser to OnlyKey over USB.
+The outline below visualizes the use of onlykey-api.js and FIDO2 to communicate via browser to OnlyKey over USB.
 
 ```
 ┌──────────────┐                                                   ┌─────────┐
@@ -91,23 +150,20 @@ INITIALIZE - SET TIME, SET APP PUBLIC NaCl KEY, GET ONLYKEY PUBLIC NaCl KEY, GET
 
 1. Authentication Request Message:
 
-Encode a *packet in U2F Key Handle field that contains current epoch time and application public key.
-┌──────────────────┬──────────────────┬──────────────────┐
-│    challenge     │       appId      │    Key Handle    │  
-│      random      │      crp.to      │     *packet      │  
-│    (32 bytes)    │     (32 bytes)   │    (64 bytes)    │
-└──────────────────┴──────────────────┴──────────────────┘
+Encode a *packet in key handle field that contains current epoch time and application public key.
+┌──────────────────┬──────────────────┐
+│    challenge     │    Key Handle    │  
+│      random      │     *packet      │  
+└──────────────────┴──────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
 2. Authentication Response Message:
 
-Decode a *packet with OnlyKey public key, OnlyKey firmware version, and unused space filled with hardware
-generated entropy (entropy not currently used but may be used for future secure key generation operations).
-┌──────────────────┬─────────────────┬──────────────────┐
-│   User Presence  │     Counter     │     Signature    │  
-│                  │                 │     *packet      │  
-│     (1 byte)     │    (4 bytes)    │    (64 bytes)    │
-└──────────────────┴─────────────────┴──────────────────┘
+Decode a *packet with OnlyKey public key, OnlyKey firmware version.
+┌──────────────────┐
+│     Signature    │  
+│     *packet      │  
+└──────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
 DECRYPTION/SIGNING REQUEST - DECRYPT OR SIGN DATA USING RSA PRIVATE KEY
@@ -116,16 +172,15 @@ DECRYPTION/SIGNING REQUEST - DECRYPT OR SIGN DATA USING RSA PRIVATE KEY
 
 First, generate ECDH shared secret from OnlyKey's provided public key and application
 generated public key. AES-GCM key is derived from SHA256 hash of shared secret (32 bytes). Encrypt and decrypt
-all future packets with this key and IV set to an incrementing counter.
+all future packets with this key.
 
-Encode encrypted *packet in U2F Key Handle field one chunk at a time (64 bytes).
-Repeat for each chunk of data. Once finished sending data ping messages continue to be sent in
-order to get response or error codes.
-┌──────────────────┬──────────────────┬───────────────────┐
-│    challenge     │       appId      │     Key Handle    │  
-│      random      │      crp.to      │      *packet      │  
-│    (32 bytes)    │     (32 bytes)   │     (64 bytes)    │
-└──────────────────┴──────────────────┴───────────────────┘
+Encode encrypted *packet in key handle field one chunk at a time (Max size 255 bytes).
+Repeat for each chunk of data. Once finished sending data ping messages sent in
+order to get response or error messages.
+┌──────────────────┬──────────────────┐
+│    challenge     │    Key Handle    │  
+│      random      │     *packet      │  
+└──────────────────┴──────────────────┘
 ───────────────────────────────────────────────────────────────────────────▶
 
 2.  Authentication Response Message:
@@ -137,26 +192,13 @@ that message. This ensures that user presence is required to sign / decrypt and 
 applies to a specific plaintext, not a spoofed message. For increased security future versions may permit
 a longer challenge code.
 
-While waiting for the challenge code to be entered a ping is used to check status. If no status is returned (TIMEOUT) the app polls for the response.
+Once the challenge code is entered correctly, the decryption / signing is completed and the result is encrypted via AES-GCM and stored on the OnlyKey (After 25 seconds unretrieved messages are automatically wiped from OnlyKey).
 
-Error/status codes:
-- Error 0 ping reply, ack
-- Error 1 incorrect challenge code entered
-- Error 2 key type not set as signature/decrypt
-- Error 3 no key set in this slot
-- Error 4 invalid key, key check failed
-- Error 5 invalid data, or data does not match key
-- Error 6 no data ready
-- Error code type 5 (TIMEOUT), ping failed, correct challenge code entered
-
-Once the challenge code is entered correctly, the decryption / signing is completed and the result is stored on the
-OnlyKey until polling occurs (After 5 seconds unretrieved messages are automatically wiped from OnlyKey).
-
-┌──────────────────┬─────────────────┬────────────────────────┐
-│   User Presence  │     Counter     │        Signature       │  
-│                  │                 │        *packet         │  
-│     (1 byte)     │    (4 bytes)    │     (Variable Size)    │
-└──────────────────┴─────────────────┴────────────────────────┘
+┌────────────────────────┐
+│        Signature       │  
+│        *packet         │  
+│     (Variable Size)    │
+└────────────────────────┘
 ◀───────────────────────────────────────────────────────────────────────────
 
 ```
@@ -170,7 +212,7 @@ Copyright 2012 Yahoo! Inc. All rights reserved. Licensed under the BSD License. 
 Thanks to Ron Garret for originally posting a serverless implementation of U2F here - https://github.com/rongarret/u2f-test
 
 The MIT License (MIT)
-Copyright (c) 2017 CryptoTrust LLC.
+Copyright (c) 2019 CryptoTrust LLC.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -202,8 +244,9 @@ The form and manner of this distribution makes it eligible for export under the 
 
 The following cryptographic software is included in this distribution:
 
-   "Fast Elliptic Curve Cryptography in plain javascript" - https://github.com/indutny/elliptic
    "RFC4880 Implementation in IcedCoffeeScript" - https://github.com/keybase/kbpgp
+   "Port of TweetNaCl cryptographic library to JavaScript" - https://github.com/dchest/tweetnacl-js
+   "A native implementation of TLS in Javascript and tools to write crypto-based and network-heavy webapps" - https://github.com/digitalbazaar/forge
 
 For more information on export restrictions see: http://www.apache.org/licenses/exports/
 
