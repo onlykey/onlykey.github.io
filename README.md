@@ -3,13 +3,18 @@
 
 ## About
 
-WebCrypt is a serverless Web App that integrates with [OnlyKey](https://onlykey.io) and [keybase.io](https://keybase.io/) to provide PGP encryption everywhere on-the-go.
+WebCrypt is a serverless Web App that integrates with [OnlyKey](https://onlykey.io) and [keybase.io](https://keybase.io/) to provide PGP encryption everywhere on-the-go. With OnlyKey and Keybase together you have offline cold storage of your OpenPGP keys and can still easily encrypt messages and files.
 
 Supports Firefox, Google Chrome, Brave, and Edge (new) browsers!
 
-Supports macOS, Windows, Linux, Chrome OS, and Android!
+Supports macOS, Windows, Linux, Chrome OS, Android, and iPhone (Safari on iOS 13.3+)!
 
-[Try it out here!](https://apps.crp.to/encrypt)
+[Try it out here!](https://apps.crp.to)
+
+[Encrypt Files](https://apps.crp.to/encrypt-file)
+[Decrypt Files](https://apps.crp.to/decrypt-file)
+[Encrypt Messages](https://apps.crp.to/encrypt)
+[Decrypt Messages](https://apps.crp.to/decrypt)
 
 ## How it works
 
@@ -27,97 +32,93 @@ With Keybase user/key management is made easy and with OnlyKey private keys rema
 
 {% include image.html file="webcrypt1.png" %}
 
-{% include callout.html content="**Step 3. Receive an encrypted message or file -** To decrypt a message or file browse to [https://apps.crp.to/decrypt](https://apps.crp.to/decrypt) or [https://apps.crp.to/decrypt-file](https://apps.crp.to/decrypt-file). You can also create a unique link which allows anyone, with or without an OnlyKey to send you and encrypted file. This may be used in places such as an email signature to receive secure messages. The format is:
-<br><br>
-Send me a secure message -
-[https://apps.crp.to/encrypt.html?type=e&recipients=YOURKEYBASEUSERNAME](https://apps.crp.to/encrypt.html?type=e&recipients=YOURKEYBASEUSERNAME)
-<br><br>
-Send me a secure file
-[https://apps.crp.to/encrypt-file.html?type=e&recipients=YOURKEYBASEUSERNAME](https://apps.crp.to/encrypt-file.html?type=e&recipients=YOURKEYBASEUSERNAME)
-
-" type="default" %}
+{% include callout.html content="**Step 3. Receive an encrypted message or file -** To decrypt a message or file browse to [https://apps.crp.to/decrypt](https://apps.crp.to/decrypt) or [https://apps.crp.to/decrypt-file](https://apps.crp.to/decrypt-file). " type="default" %}
 
 {% include image.html file="webcrypt2.png" %}
 
+{% include tip.html content="
+You can receive encrypted messages and files from anyone, no tech skills are required!<br><br>
+Receiving encrypted files is as easy as putting a custom link in your email signature:<br><br>
+**Bob Smith**<br>
+**Email:** Bobsmith@bobsmith.com<br>
+**Phone:** 111.222.3333<br>
+*Send me a secure [message](https://apps.crp.to/encrypt.html?type=e&recipients=bobsmith2) or [file](https://apps.crp.to/encrypt-file.html?type=e&recipients=bobsmith2)*<br>
+*[More info](https://onlykey.io/pages/webcrypt)*<br>
+<br>
+- Link the text **'message'** to: https://apps.crp.to/encrypt.html?type=e&recipients=<mark>bobsmith2</mark>
+<br><br>
+- Link the text **'file'** to: https://apps.crp.to/encrypt-file.html?type=e&recipients=<mark>bobsmith2</mark>
+<br><br>
+- Change <mark>bobsmith2</mark> in the link to your Keybase user name
+<br><br>
+- Add a **'More info'** link to: https://onlykey.io/pages/webcrypt<br>
+This link provides information to let your sender know what WebCrypt is, why it's secure, and includes a quick 30 second video that will shows how to use it.<br>
+[![How-To: Use OnlyKey WebCrypt](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt3.png)](https://vimeo.com/374672956)" %}
+
 ### See WebCrypt in action {#openpgp-action}
 
-After configuring your OnlyKey following [these instructions](#generating-keys) you can browse to the [Webcrypt app](https://apps.crp.to/encrypt) to send secure messages.
+After configuring your OnlyKey following [these instructions](https://docs.crp.to/usersguide.html#generating-keys) you can browse to the [Webcrypt app](https://apps.crp.to/encrypt) to send secure messages/files.
 
-- Enter a message to encrypt
-{% include image.html file="encrypted-message.jpg" %}
+{% include tip.html content="Watch a video [here](https://vimeo.com/374653109) that demonstrates using OnlyKey WebCrypt for file encryption<br>[![How-To: Use OnlyKey WebCrypt for file encryption](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt.png)](https://vimeo.com/374653109)" %}
 
-- Enter the shown challenge code on the OnlyKey (i.e. 1,5,2)
-{% include image.html file="encrypted-message2.jpg" %}
+#### Sending secure messages/files
 
-- Encrypted message shown, by clicking the button again it will be copied to clipboard
-{% include image.html file="encrypted-message3.jpg" %}
-{% include image.html file="encrypted-message4.jpg" %}
-
-- Paste the message into any email or chat (Sending via Gmail shown)
-{% include image.html file="encrypted-message5.jpg" %}
-
-- When the recipient receives the message (email or chat) they can paste it into Webcrypt app to decrypt
-{% include image.html file="encrypted-message6.jpg" %}
-
-- Enter the shown challenge code on the OnlyKey (i.e. 2,2,1)
-{% include image.html file="encrypted-message7.jpg" %}
-
-- Decrypted message shown, if the sender signed the message you will see the sender's name (i.e. t) and their key ID.
-{% include image.html file="encrypted-message8.jpg" %}
-
-- By clicking the button again the message will be copied to clipboard
-{% include image.html file="encrypted-message9.jpg" %}
-
-{% include note.html content="Messages sent via Webcrypt are never sent over the internet. The way it works is the necessary files are downloaded to your browser and all processing is done in your browser. Read more about [Webcrypt security here](https://docs.crp.to/webcrypt.html#security-goals)" %}
-
-## Benefits
-
-- This revolutionary approach makes PGP encryption easy and secure with OpenPGP keys securely stored on OnlyKey, not accessible to the app or to the browser. This is in contrast to for example PGP/GPG software, webmail (i.e. Protonmail), and smartphone apps.
--  Physical user presence is required to process secure messages/files. This is in contrast to Smart Cards which only require a PIN code that can be captured and replayed without physical user presence.
-- WebCrypt even allows Kebase user’s to receive secure messages and files from non-OnlyKey users. Anyone can use WebCrypt to send encrypted messages/files and can create a unique link to receive secure messages and files.
-- With WebCrypt’s Keybase integration its easy to find Keybase users and send secure messages/files with the click of a button - https://apps.crp.to/search.
-
-
-## Setup
-
-**Before using this app you must follow these instructions to generate PGP keys and load them on OnlyKey:**
-- [Generate keys](https://docs.crp.to/usersguide.html#generating-keys) using Keybase
-- [Load keys](https://docs.crp.to/usersguide.html#loading-keys) onto OnlyKey
-
-## Sending secure messages
-
-To create encrypted PGP message just:
-- Browse to https://apps.crp.to/encrypt
+To create encrypted PGP message or file just:
+- Browse to https://apps.crp.to/encrypt or https://apps.crp.to/encrypt-file
 - Enter the recipient's Keybase ID in the first box
 - Enter your Keybase ID (for the key you loaded onto OnlyKey) in the second box
 - Enter your secure message in the third box
 - Click "Encrypt and Sign"
 - When prompted enter the challenge code onto the OnlyKey
 
-The encrypted message will be displayed and you can paste it into an email, IM, app or pretty much anything.
+The encrypted message will be displayed and you can paste it into an email, IM, app or pretty much anything. The encrypted .gpg file will be downloaded to your computer.
 
-*Alternatively, if you don't want to use Keybase you can paste a public key instead as shown in the animation below:*
+*Alternatively, if you don't want to use Keybase you can paste a public key*
 
-![Securely encrypt messages anywhere with OnlyKey WebCrypt](https://raw.githubusercontent.com/onlykey/onlykey.github.io/master/encrypt.gif)
+#### Receiving secure messages/files
 
-## Receiving secure messages
-
-To decrypt PGP message just:
-- Browse to https://apps.crp.to/decrypt
-- Enter your Keybase ID (for the key you loaded onto OnlyKey) in the first box
-- Paste your encrypted PGP message in the second box
-- Click "Decrypt and Verify"
+To decrypt PGP message or file just:
+- Browse to https://apps.crp.to/decrypt or https://apps.crp.to/decrypt-file
+- If you know the Keybase ID of the sender enter this in the first box, if you don't know this click the "Decrypt Only" radio button.
+- Paste your encrypted PGP message in the second box or choose encrypted file
+- Click Decrypt
 - When prompted enter the challenge code onto the OnlyKey
 
-The decrypted message will be displayed. Read it and then close the browser tab and there will be no trace of the decrypted message.
+The decrypted message will be displayed or the decrypted zip file downloaded.
 
-![Securely decrypt messages anywhere with OnlyKey WebCrypt](https://raw.githubusercontent.com/onlykey/onlykey.github.io/master/decrypt.gif)
+{% include note.html content="Messages and files sent via Webcrypt are never sent over the internet. The way it works is the necessary files are downloaded to your browser and all processing is done in your browser. Read more about [Webcrypt security here](https://docs.crp.to/webcrypt.html#security-goals)" %}
 
-## Security Goals
+## Benefits
+
+### Universal Support
+
+This is accomplished by using the FIDO2 communication channel to communicate with a USB hardware device. The universal support for FIDO2 allows the web application to be used anywhere FIDO2 is supported including browsers on Android, iPhone (iOS 13.3+), Windows, Mac OS, Linux, and Chromebook. The web app can also be released as a native app that does not require a web browser if this is preferred.
+
+### Key Management
+
+In addition to universal support, OnlyKey WebCrypt works with Keybase for easy user key management. Key management is one of the most difficult issues to solve when it comes to encrypting messages and files.
+
+### User Search
+
+The first step in secure communication is often finding the person to communicate with and having assurance that it is them. With the OnlyKey WebCrypt Search its easy to find users on Keybase by:
+- Twitter, Github, Reddit, or Hackernews Usernames
+- Web domains
+- PGP fingerprint
+- Or Automatically search for best match
+
+### Better than a Smart Card
+
+Smart cards are a popular way for keeping keys offline but they are not exactly known for being easy to use and are definitely not universally supported. OnlyKey provides similar function to a token/smart card but no drivers or software is required. Additionally, physical user presence is required to process secure messages/files. This is in contrast to Smart cards which only require a PIN code that can be captured and replayed without physical user presence allowing malware to decrypt a user’s data.
+
+### Better than OpenPGP  
+
+OpenPGP is widely used but not exactly known for being easy to use. There have been efforts such as Keybase and Protonmail that make OpenPGP easier to use but require that private keys are accessible in software or the cloud. This means that in some cases user’s OpenPGP keys may be obtained by phishing attacks, malware, or software vulnerabilities. OnlyKey WebCrypt supports OpenPGP keys that are compatible with Protonmail, Keybase, Mailvelope, GPG, and others while allowing users to securely keep their keys offline.
+
+## Security Goals {#security-goals}
 
 **Make PGP easy**: Traditional PGP makes journalists angry, we think you shouldn't have to be technologically savvy to use PGP so we built WebCrypt.
 
-**Empower the people**: Give people the ability to securely send and receive messages using any computer or Android device with no complicated software/drivers required and no worrying about compromise of user's private identity.
+**Empower the people**: Give people the ability to securely send and receive messages using any computer or Android/iOS device with no complicated software/drivers required and no worrying about compromise of user's private identity.
 
 **Serverless**: All processing done via javascript in users own browser locally (no server to hack).
 
@@ -131,7 +132,21 @@ The decrypted message will be displayed. Read it and then close the browser tab 
 
 We are always working to make WebCrypt better, pull requests welcome!
 
-## Protocol
+## Societal Impact Goals {#society-goals}
+
+The issues solved by OnlyKey WebCrypt are issues that affect many at-risk communities such as human rights
+activists and journalists.
+
+### Universal support
+Many journalists may travel and may have to make do with whatever internet connection that is available such as using a shared computer or a mobile device. OnlyKey WebCrypt does not require installing software, all that is needed is a USB port, a common web browser (i.e. Chrome, Firefox), and an internet connection.
+
+### Ease of Use
+It is often the case that secure solutions are not adopted not because of lack of availability but that they require considerable technical skills. For example, installing smart card software may require command line utilities and a high level of technical proficiency. At-risk communities may not have the technical proficiency to do this, with OnlyKey there are no commands necessary, setup is as easy as following step by step directions to generate a private key on Keybase and load onto the OnlyKey. This opens up the solution to a much wider range of at-risk communities.
+
+### Plausible Deniability
+Human rights activists and journalists may reside in or travel to countries with encryption bans or mandatory key disclosure. OnlyKey already has a feature for this to provide plausible deniability. Full details of this feature are available [here](https://docs.crp.to/pdguide.html).
+
+## Technical Specs
 
 The protocol outlined below utilizes existing communication channel via FIDO2.
 
