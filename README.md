@@ -20,23 +20,18 @@ Supports macOS, Windows, Linux, Chrome OS, Android, and iPhone (Safari on iOS 13
 
 With Keybase user/key management is made easy and with OnlyKey private keys remain securely offline. Private keys are not accessible to the browser or even the local computer. By using FIDO2 as a secure communication channel the web application can send messages to OnlyKey that are decrypted and signed offline. This provides similar function to a token/smart card but no drivers or software required. All that is needed is a browser that supports FIDO2 and an OnlyKey to send secure messages and files.
 
-{% include callout.html content="**Step 1. Find a Keybase User -** The first step in sending a secure message or file is to identify who to send it to. Browse to [https://apps.crp.to/search](https://apps.crp.to/search) to use our custom Keybase search tool to search Keybase users by:<br>
+**Step 1. Find a Keybase User -** The first step in sending a secure message or file is to identify who to send it to. Browse to [https://apps.crp.to/search](https://apps.crp.to/search) to use our custom Keybase search tool to search Keybase users by:<br>
 - Twitter, Github, Reddit, or Hackernews Usernames<br>
 - Web domains<br>
 - PGP fingerprint<br>
-- Or Automatically search for best match" type="default" %}
+- Or Automatically search for best match" type="default
 
-{% include image.html file="user-search.jpg" %}
 
-{% include callout.html content="**Step 2. Send a user encrypted message or file -** Click the link in the search results to send the selected user encrypted message/file. You can also browse to [https://apps.crp.to/encrypt](https://apps.crp.to/encrypt) to send a secure message or browse to [https://apps.crp.to/encrypt-file](https://apps.crp.to/encrypt-file) to send a secure file if you already know the recipient. To encrypt files for yourself just use your Keybase username as the recipient. " type="default" %}
+**Step 2. Send a user encrypted message or file -** Click the link in the search results to send the selected user encrypted message/file. You can also browse to [https://apps.crp.to/encrypt](https://apps.crp.to/encrypt) to send a secure message or browse to [https://apps.crp.to/encrypt-file](https://apps.crp.to/encrypt-file) to send a secure file if you already know the recipient. To encrypt files for yourself just use your Keybase username as the recipient.
 
-{% include image.html file="webcrypt1.png" %}
 
-{% include callout.html content="**Step 3. Receive an encrypted message or file -** To decrypt a message or file browse to [https://apps.crp.to/decrypt](https://apps.crp.to/decrypt) or [https://apps.crp.to/decrypt-file](https://apps.crp.to/decrypt-file). " type="default" %}
+**Step 3. Receive an encrypted message or file -** To decrypt a message or file browse to [https://apps.crp.to/decrypt](https://apps.crp.to/decrypt) or [https://apps.crp.to/decrypt-file](https://apps.crp.to/decrypt-file). 
 
-{% include image.html file="webcrypt2.png" %}
-
-{% include tip.html content="
 You can receive encrypted messages and files from anyone, no tech skills are required!<br><br>
 Receiving encrypted files is as easy as putting a custom link in your email signature:<br><br>
 **Bob Smith**<br>
@@ -53,13 +48,13 @@ Receiving encrypted files is as easy as putting a custom link in your email sign
 <br><br>
 - Add a **'More info'** link to: https://onlykey.io/pages/webcrypt<br>
 This link provides information to let your sender know what WebCrypt is, why it's secure, and includes a quick 30 second video that will shows how to use it.<br>
-[![How-To: Use OnlyKey WebCrypt](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt3.png)](https://vimeo.com/374672956)" %}
+[![How-To: Use OnlyKey WebCrypt](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt3.png)](https://vimeo.com/374672956)
 
 ### See WebCrypt in action {#openpgp-action}
 
 After configuring your OnlyKey following [these instructions](https://docs.crp.to/usersguide.html#generating-keys) you can browse to the [Webcrypt app](https://apps.crp.to/encrypt) to send secure messages/files.
 
-{% include tip.html content="Watch a video [here](https://vimeo.com/374653109) that demonstrates using OnlyKey WebCrypt for file encryption<br>[![How-To: Use OnlyKey WebCrypt for file encryption](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt.png)](https://vimeo.com/374653109)" %}
+Watch a video [here](https://vimeo.com/374653109) that demonstrates using OnlyKey WebCrypt for file encryption<br>[![How-To: Use OnlyKey WebCrypt for file encryption](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt.png)](https://vimeo.com/374653109)
 
 #### Sending secure messages/files
 
@@ -86,7 +81,7 @@ To decrypt PGP message or file just:
 
 The decrypted message will be displayed or the decrypted zip file downloaded.
 
-{% include note.html content="Messages and files sent via Webcrypt are never sent over the internet. The way it works is the necessary files are downloaded to your browser and all processing is done in your browser. Read more about [Webcrypt security here](https://docs.crp.to/webcrypt.html#security-goals)" %}
+Messages and files sent via Webcrypt are never sent over the internet. The way it works is the necessary files are downloaded to your browser and all processing is done in your browser. Read more about [Webcrypt security here](https://docs.crp.to/webcrypt.html#security-goals)
 
 ## Benefits
 
