@@ -275,8 +275,11 @@ async function msg_polling(params = {}, cb) {
       _setStatus('waiting_ping');
       cmd = OKPING;
   }
-
-  await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000).then( async (response) => {
+  //#define DERIVE_PUBLIC_KEY 1
+  //#define DERIVE_SHARED_SECRET 2
+  //#define NO_ENCRYPT_RESP 0
+  //#define ENCRYPT_RESP 1
+  await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000).then( async (response) => {
     console.log("DECODED RESPONSE:", response);
     var data = await Promise;
     if (window._status === 'finished') {
@@ -600,7 +603,7 @@ function decode_ctaphid_response_from_signature(response) {
 
     if (error_code == 0) {
         data = signature.slice(1, signature.length);
-        if (signature.length<73 && bytes2string(data.slice(0,9))=='UNLOCKEDv') {
+        if (bytes2string(data.slice(0,9))=='UNLOCKEDv') {
           // Reset shared secret and start over
           _setStatus(document.getElementById('onlykey_start').value);
         } else if (signature.length<73 && bytes2string(data.slice(0,6))=='Error ') {
