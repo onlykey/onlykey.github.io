@@ -1,10 +1,12 @@
-require('./onlykey-api.js');
+const onlykey_api = require('./onlykey-api.js');
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
 import { saveAs } from 'file-saver';
 const JSZip = require('jszip');
 var $ = require("jquery");
+var tokenizer = require("./jquery.tokenizer.js");
+const enable_tokenizer = true;
 const urlinputbox = document.getElementById('pgpkeyurl');
 const urlinputbox2 = document.getElementById('pgpkeyurl2');
 const messagebox = document.getElementById('message');
@@ -135,34 +137,134 @@ window.initok = initok();
 window.custom_keyid;
 
 window.initapp = function() {
+  if (enable_tokenizer) {
+    tokenizer($, on_add_tokenizer_item);
+  }
   var val = document.action.select_one.value;
   window._status = val;
   console.info('Radio button selected' + val);
   if (window._status=='Encrypt Only') {
     document.getElementById('pgpkeyurl2').style.display = "none";
     document.getElementById('pgpkeyurl').style.display = "initial";
+    try{document.getElementById('pgpkeyurl_tokenizer').style.display = "block";}catch(e){}
     button.textContent = 'Encrypt';
   }
   else if (window._status=='Sign Only') {
     document.getElementById('pgpkeyurl').style.display = "none";
     document.getElementById('pgpkeyurl2').style.display = "initial";
+    try{document.getElementById('pgpkeyurl_tokenizer').style.display = "none";}catch(e){}
     button.textContent = 'Sign';
   }
   else if (window._status=='Encrypt and Sign') {
     document.getElementById('pgpkeyurl').style.display = "initial";
     document.getElementById('pgpkeyurl2').style.display = "initial";
+    try{document.getElementById('pgpkeyurl_tokenizer').style.display = "block";}catch(e){}
     button.textContent = 'Encrypt and Sign';
   }
   else if (window._status=='Decrypt and Verify') {
     document.getElementById('pgpkeyurl').style.display = "initial";
+    try{document.getElementById('pgpkeyurl_tokenizer').style.display = "block";}catch(e){}
     button.textContent = 'Decrypt and Verify';
   }
   else if (window._status=='Decrypt Only') {
     document.getElementById('pgpkeyurl').style.display = "initial";
+    try{document.getElementById('pgpkeyurl_tokenizer').style.display = "block";}catch(e){}
     button.textContent = 'Decrypt';
   }
   document.action.select_one.forEach(el => el.addEventListener('change', window.initapp.bind(null, false)));
 };
+
+async function on_add_tokenizer_item(itemName, returnValueFN){
+    returnValueFN(await getKey(itemName));
+}
+
+onlykey_api.request_pgp_pubkey = function(){
+  
+  function error_1(err){
+    button.textContent = err;
+  }
+  
+  function error_2(err){
+    button.textContent = 'Your PublicKey is '+err;
+  }
+  
+  return new Promise(async function(resolve) {
+      
+    var pubkey = $("#pgpkeyurl2").val();
+    
+    if(pubkey == "" || !pubkey){
+      resolve({value:false,on_error:error_1});
+    }else{
+      
+      pubkey = await getKey(pubkey);
+      
+      resolve({
+        value: pubkey,
+        on_error: error_2
+      });
+    }
+  });
+};
+
+function getKey(url) {
+  if (!url) return new Promise(resolve => { resolve(false) });
+  
+  //pgp key 
+  if (url.slice(0, 10) == '-----BEGIN')
+    return new Promise(resolve => {
+      resolve(url)
+    });
+
+
+  //protonmail 
+  if (!(url.indexOf("@") == -1))
+    return new Promise(resolve => {
+      //button.textContent = 'Downloading public key (protonmail) ...';
+      if (url.slice(0, 8) != 'https://') {
+        console.info(url);
+        url = 'https://' + window.location.host + '/protonmail/' + url;
+        // url = 'https://api.protonmail.ch/pks/lookup?op=get&search='+url;
+        console.info(url);
+      }
+      request
+        .get(url)
+        .set("Content-Type", "text/plain")
+        .end((err, key) => {
+          if (err) {
+            resolve(false)
+            //err.message += ' Try to directly paste the public PGP key in.';
+            //this.showError(err);
+            return;
+          }
+          resolve(key.text);
+          return key.text;
+        });
+    });
+
+
+
+  //keybase  
+  return new Promise(resolve => {
+    //button.textContent = 'Downloading public key ...';
+    if (url.slice(0, 8) != 'https://') {
+      console.info(url);
+      url = 'https://keybase.io/'.concat(url, '/pgp_keys.asc');
+      console.info(url);
+    }
+    request
+      .get(url)
+      .end((err, key) => {
+        if (err) {
+          resolve(false)
+          //err.message += ' Try to directly paste the public PGP key in.';
+          //this.showError(err);
+          return;
+        }
+        resolve(key.text);
+        return key.text;
+      });
+  });
+}
 
 class Pgp2go {
     constructor() {
@@ -338,6 +440,7 @@ class Pgp2go {
       button.classList.add('working');
       window.poll_type = 4;
       console.info(window.poll_type);
+      var r_inputs,keys;
       if (urlinputbox.value == "" && (window._status=='Encrypt and Sign' || window._status=='Encrypt Only')) {
           this.showError(new Error("I need recipient's public pgp key to encrypt :("));
           return;
@@ -346,13 +449,42 @@ class Pgp2go {
           this.showError(new Error("I need sender's public pgp key to sign :("));
           return;
       }
-      if (urlinputbox.value.slice(0,10) != '-----BEGIN' && window._status!='Sign Only') { // Check if its a pasted public key
-          console.info(urlinputbox.value.slice(0,10));
-          sender_public_key = await this.downloadPublicKey(urlinputbox.value);
+      if (/*urlinputbox.value.slice(0,10) != '-----BEGIN' && */window._status!='Sign Only') { // Check if its a pasted public key
+          //console.info(urlinputbox.value.slice(0,10));
+          
+          r_inputs = urlinputbox.value.split(",");
+          keys = [];
+          for(var i in r_inputs){
+            var jquery_data_input = $(urlinputbox).data("data-"+r_inputs[i]);
+            if(jquery_data_input){
+              keys.push(jquery_data_input);
+            }else{
+              if(r_inputs[i].slice(0,10) != '-----BEGIN')
+              keys.push(r_inputs[i]);
+              else
+              keys.push(await this.downloadPublicKey(r_inputs[i])); 
+              //keys.push(await this.downloadPublicKey(r_inputs[i])); 
+            }
+          }
+          sender_public_key = keys;
+          //sender_public_key = await this.downloadPublicKey(urlinputbox.value);
           console.info("sender_public_key" + sender_public_key);
-      } else {
-          sender_public_key = urlinputbox.value;
-      } if (urlinputbox2.value.slice(0,10) != '-----BEGIN' && window._status!='Encrypt Only') { // Check if its a pasted public key
+      }
+      // } else {
+      //     r_inputs = urlinputbox.value.split(",");
+      //     keys = [];
+      //     for(var i in r_inputs){
+      //       var jquery_data_input = $(urlinputbox).data("data-"+r_inputs[i]);
+      //       if(jquery_data_input){
+      //         keys.push(jquery_data_input);
+      //       }else
+      //         keys.push(await this.downloadPublicKey(r_inputs[i])); 
+      //     }
+      //     sender_public_key = keys;
+      //     // sender_public_key = urlinputbox.value;
+      // }
+      
+      if (urlinputbox2.value.slice(0,10) != '-----BEGIN' && window._status!='Encrypt Only') { // Check if its a pasted public key
           console.info(urlinputbox2.value.slice(0,10));
           recipient_public_key = await this.downloadPublicKey(urlinputbox2.value);
           console.info("recipient_public_key" + recipient_public_key);
@@ -364,46 +496,90 @@ class Pgp2go {
   }
 
   downloadPublicKey(url) {
-    return new Promise(resolve => {
-      button.textContent = 'Downloading public key ...';
-      if (url.slice(0,8) != 'https://') {
-        console.info(url);
-        url = 'https://keybase.io/'.concat(url, '/pgp_keys.asc');
-        console.info(url);
-      }
-      request
+    if (url.indexOf("@") == -1) { //keybase
+      return new Promise(resolve => {
+        button.textContent = 'Downloading public key ...';
+        if (url.slice(0, 8) != 'https://') {
+          console.info(url);
+          url = 'https://keybase.io/'.concat(url, '/pgp_keys.asc');
+          console.info(url);
+        }
+        request
           .get(url)
           .end((err, key) => {
-              if (err) {
-                  err.message += ' Try to directly paste the public PGP key in.';
-                  this.showError(err);
-                  return;
-              }
-              resolve(key.text);
-              return key.text;
+            if (err) {
+              err.message += ' Try to directly paste the public PGP key in.';
+              this.showError(err);
+              return;
+            }
+            resolve(key.text);
+            return key.text;
           });
-        });
+      });
+    }
+    else {//protonmail 
+      return new Promise(resolve => {
+        button.textContent = 'Downloading public key (protonmail) ...';
+        if (url.slice(0, 8) != 'https://') {
+          console.info(url);
+          url = 'https://'+window.location.host+'/protonmail/'+url;
+          // url = 'https://api.protonmail.ch/pks/lookup?op=get&search='+url;
+          console.info(url);
+        }
+        request
+          .get(url)
+          .set("Content-Type", "text/plain")
+          .end((err, key) => {
+            if (err) {
+              err.message += ' Try to directly paste the public PGP key in.';
+              this.showError(err);
+              return;
+            }
+            resolve(key.text);
+            return key.text;
+          });
+      });
+    }
   }
 
   async encryptText(key1, key2, msg) {
       return new Promise(resolve => {
       switch (window._status) {
         case 'Encrypt and Sign':
-          this.loadPublic(key1);
+          var keyList = [];
+          if(key1 instanceof Array){
+            for(var i in key1){
+              this.loadPublic(key1[i]);
+              keyList.push(recipient_public_key)
+            }  
+          }else{
+            this.loadPublic(key1);
+            keyList.push(recipient_public_key)
+          }
+          
           this.loadPublicSignerID(key2);
           this.loadPrivate();
           var params = {
             msg: msg,
-            encrypt_for: recipient_public_key,
+            encrypt_for: keyList,
             sign_with: sender_private_key
           };
           button.textContent = 'Encrypting and signing message ...';
           break;
         case 'Encrypt Only':
-          this.loadPublic(key1);
+          var keyList = [];
+          if(key1 instanceof Array){
+            for(var i in key1){
+              this.loadPublic(key1[i]);
+              keyList.push(recipient_public_key)
+            }  
+          }else{
+            this.loadPublic(key1);
+            keyList = recipient_public_key;
+          }
           var params = {
             msg: msg,
-            encrypt_for: recipient_public_key
+            encrypt_for: keyList
           };
           button.textContent = 'Encrypting message ...';
           break;
@@ -600,6 +776,7 @@ loadPublic(key) {
     this.showError(new Error("I need recipient's public pgp key :("));
     return;
   }
+  
   kbpgp.KeyManager.import_from_armored_pgp({
       armored: key
   }, (error, recipient) => {
