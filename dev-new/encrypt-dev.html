@@ -3,7 +3,7 @@
 <head>
     <title>OnlyKey Apps - Encrypt & sign messages in your browser using Keybase PGP</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <META HTTP-EQUIV='Content-Security-Policy' CONTENT="default-src 'none' ; script-src 'self' 'sha256-P1WP1KTz9iiHN5Bfeec+pIgBDay5qWNQZh9HujWa94o=' 'sha256-pBDNHyFUtn3XsRvFveaLkaEupq1l96neUvZm5/c1PmQ='; style-src 'self' 'sha256-ujVZuuvwuQ+epdwqO8AhlbOQSx68+ci+dDIwrFrzI+Q=' 'sha256-zsMKYSOY0gzTtULlMRDwkny+ocnOJuA+B49b0BIIQXU='; img-src 'self' ; font-src 'self' ; connect-src 'self' https://keybase.io ; base-uri 'none'; form-action 'none';">
+    <META HTTP-EQUIV='Content-Security-Policy' CONTENT="default-src 'none' ; script-src 'self' 'sha256-P1WP1KTz9iiHN5Bfeec+pIgBDay5qWNQZh9HujWa94o=' 'sha256-pBDNHyFUtn3XsRvFveaLkaEupq1l96neUvZm5/c1PmQ='; style-src 'self' 'sha256-ujVZuuvwuQ+epdwqO8AhlbOQSx68+ci+dDIwrFrzI+Q=' 'sha256-zsMKYSOY0gzTtULlMRDwkny+ocnOJuA+B49b0BIIQXU='; img-src 'self' ; font-src 'self' ; connect-src 'self' https://keybase.io https://api.protonmail.ch ; base-uri 'none'; form-action 'none';">
     <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
     <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
     <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
@@ -16,6 +16,7 @@
     <!-- pgp2go styles -->
     <link href="css/ShareTechMono.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/tokenizer.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <!-- Modify header colors here to customize the look and feel of the site-->
     <style>
@@ -105,7 +106,7 @@
     <div id="container">
         <fieldset>
             <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
-            <textarea placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
+            <input type="text" data-provide="tokenizer" placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl"/><!--</textarea>-->
             <textarea placeholder="Compose message here... Hey, i am sending you a super secret message..." id="message"></textarea>
             <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
         </fieldset>
@@ -126,7 +127,7 @@
             </code>
         </pre>
     </div>
-<script type="text/javascript" src="bundle.da9dcde99c64f815a210.js"></script></body>
+<script type="text/javascript" src="bundle.4aac6256d8df7910f6b2.js"></script></body>
 <script>
 window.addEventListener("load", window.initok);
 </script>
