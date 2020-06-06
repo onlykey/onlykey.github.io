@@ -16791,7 +16791,7 @@ _continue()
                 if (err == null) {
 */
                   console.info(esk_packets);
-                  packet = esk_packets[0];
+                  packet = esk_packets;//[0];
                   console.info(packet);
                   //key_material = km.find_pgp_key_material(key_ids[index]);
                   //fingerprint = key_material.get_fingerprint();
@@ -16811,8 +16811,8 @@ _continue()
                   //        err = arguments[0];
 
                   err = null;
-                  auth_decrypt(packet.raw, (ok_sesskey) => {
-                  	sesskey = packet.raw.slice(0, ok_sesskey.length);
+                  auth_decrypt(packet, (ok_sesskey,packetSelect) => {
+                  	sesskey = packetSelect.slice(0, ok_sesskey.length);
                   	sesskey = Object.assign(sesskey, ok_sesskey);
                   	console.info("sesskey from OnlyKey:", sesskey);
                   	return cb(err, enc, sesskey, pkcs5);
