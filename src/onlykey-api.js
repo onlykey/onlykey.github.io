@@ -1,6 +1,9 @@
+//var $ = require("jquery");
+var onlykey_api = {};
 window._status;
 window.poll_delay;
 window.poll_type;
+window._pgp_mypubkey = false;
 
 var keyHandleDict = {};     // KeyHandle -> PublicKey
 var hw_RNG = {};
@@ -8,6 +11,7 @@ var hw_RNG = {};
 var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
+var FWversion;
 var browser = "Chrome";
 var os = getOS();
 var packetnum=0;
@@ -108,9 +112,13 @@ IntToByteArray = function(int) {
 };
 
 function get_pin (byte) {
-  if (byte < 6) return 1;
-  else {
-    return (byte % 5) + 1;
+  if (FWversion == 'v0.2-beta.8c') {
+    if (byte < 6) return 1;
+    else {
+      return (byte % 5) + 1;
+    }
+  } else {
+    return (byte % 6) + 1;
   }
 }
 
@@ -294,7 +302,7 @@ async function msg_polling(params = {}, cb) {
       sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
       console.info("NACL shared secret: ", sharedsec );
       OKversion = response[19] == 99 ? 'Color' : 'Original';
-      var FWversion = bytes2string(response.slice(8, 20));
+      FWversion = bytes2string(response.slice(8, 20));
       msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
       id('header_messages').innerHTML = "<br>";
       headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
@@ -323,28 +331,72 @@ async function msg_polling(params = {}, cb) {
  * Decrypt ciphertext via OnlyKey
  * @param {Array} ct
  */
-auth_decrypt = function (ct, cb) { //OnlyKey decrypt request to keyHandle
-  if (typeof(sharedsec) === "undefined"){
-    button.textContent = "Insert OnlyKey and reload page";
-    return;
+auth_decrypt = async function (ct_array, cb) { //OnlyKey decrypt request to keyHandle
+  if(/*ct_array.length > 1 &&*/ onlykey_api.request_pgp_pubkey){
+    // window._pgp_mypubkey = $("#pgpkeyurl2").val()
+    var key = await onlykey_api.request_pgp_pubkey();
+    if(!key.value){
+      if(key.on_error && ct_array.length > 1){
+        return key.on_error("Message for multiple recipients");
+      }else
+        return complete(ct_array[0]);
+    }
+    
+    kbpgp.KeyManager.import_from_armored_pgp({
+      armored: key.value
+    }, (err, sender) => {
+      if((err || !sender) && key.on_error){
+        return key.on_error("Invalid");
+      }else if(err || !sender){
+        return complete(ct_array[0]);
+      }
+        
+      var mypubkeyids = sender.get_all_pgp_key_ids();
+      
+      for(var i in mypubkeyids){
+        var target = Array.from(mypubkeyids[i]).join("-");
+        for(var j in ct_array){
+          var check = Array.from(ct_array[j].key_id).join("-");
+          if(target == check){
+            return complete(ct_array[j]);
+          }
+        }
+      }
+      
+      if(key.on_error)
+        return key.on_error("Not found in message");
+      else  
+        complete(ct_array[0]);
+    });
+  }else{
+    complete(ct_array[0]);
   }
-  cb = cb || noop;
-  if (ct.length == 396) {
-    window.poll_delay = 5; //5 Second delay for RSA 3072
-  } else if (ct.length == 524) {
-    window.poll_delay = 7; //7 Second delay for RSA 4096
+  function complete(ct){
+    ct = ct.raw;
+    if (typeof(sharedsec) === "undefined"){
+      button.textContent = "Insert OnlyKey and reload page";
+      return;
+    }
+    cb = cb || noop;
+    if (ct.length == 396) {
+      window.poll_delay = 5; //5 Second delay for RSA 3072
+    } else if (ct.length == 524) {
+      window.poll_delay = 7; //7 Second delay for RSA 4096
+    }
+    if (OKversion == 'Original') {
+      window.poll_delay = window.poll_delay*4;
+    }
+    var padded_ct = ct.slice(12, ct.length);
+    var keyid = ct.slice(1, 8);
+    var pin_hash = sha256(padded_ct);
+    console.info("Padded CT Packet bytes", Array.from(padded_ct));
+    console.info("Key ID bytes", Array.from(keyid));
+    pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
+    msg("Generated PIN " + pin);
+    return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, function(oks){
+      cb(oks, ct);
+    });
   }
-  if (OKversion == 'Original') {
-    window.poll_delay = window.poll_delay*4;
-  }
-  var padded_ct = ct.slice(12, ct.length);
-  var keyid = ct.slice(1, 8);
-  var pin_hash = sha256(padded_ct);
-  console.info("Padded CT Packet bytes", Array.from(padded_ct));
-  console.info("Key ID bytes", Array.from(keyid));
-  pin  = [ get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31]) ];
-  msg("Generated PIN" + pin);
-  return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, cb);
 };
 
 /**
@@ -816,3 +868,6 @@ function getOS() {
 
   return os;
 }
+
+
+module.exports = onlykey_api
