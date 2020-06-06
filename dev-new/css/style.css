@@ -36,13 +36,13 @@ a:hover {
 input[type="text"] {
     padding: 12px;
     border: none;
-    border-bottom: solid 2px #c9c9c9;
+    border: solid 2px #c9c9c9;
     transition: border 0.4s;
 }
 
 input[type="text"]:focus,
 input[type="text"].focus {
-    border-bottom: solid 2px #969696;
+    border: solid 2px #969696;
 }
 
 textarea {
@@ -50,6 +50,7 @@ textarea {
     border: none;
     border: solid 2px #c9c9c9;
     transition: border 0.4s;
+    outline:none;
 }
 
 textarea:focus,
