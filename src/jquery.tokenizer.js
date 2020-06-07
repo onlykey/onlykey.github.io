@@ -1,4 +1,4 @@
-module.exports = function($, on_add_tokenizer_item) {
+module.exports = function($, onAddTokenizerItem) {
     "use strict";
 
     var PubSub = function() {
@@ -171,7 +171,7 @@ module.exports = function($, on_add_tokenizer_item) {
             var _self = this;
             if(item.value){
                 if(item.value.slice(0,10) != '-----BEGIN')
-                on_add_tokenizer_item(item.value,function(datavalue){
+                onAddTokenizerItem(item.value,function(datavalue){
                     if(datavalue){
                         item.$element.css("color","green");
                         _self.tokenizer.$formInput.data("data-"+item.value,datavalue);
