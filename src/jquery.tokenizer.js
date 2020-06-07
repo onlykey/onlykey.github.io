@@ -33,7 +33,7 @@ module.exports = function($, onAddTokenizerItem) {
         };
 
     PubSub.prototype = {
-        subscribe: function(topic, callback) {
+        subscribe(topic, callback) {
             if (!this.topics[topic]) {
                 this.topics[topic] = {};
             }
@@ -41,7 +41,7 @@ module.exports = function($, onAddTokenizerItem) {
             return this.id++;
         },
 
-        publish: function(topic, args) {
+        publish(topic, args) {
             for (var id in this.topics[topic]) {
                 this.topics[topic][id].apply(this, [].concat(args));
             }
@@ -51,7 +51,7 @@ module.exports = function($, onAddTokenizerItem) {
     Tokenizer.prototype = {
         constructor: Tokenizer,
 
-        initialize: function() {
+        initialize() {
             this.input = new Input(this.channel, this.options.delimiters);
             
             this.list = new List(this.channel, this)
@@ -77,7 +77,7 @@ module.exports = function($, onAddTokenizerItem) {
             
         },
 
-        add: function(value) {
+        add(value) {
             if (value) {
                 var item = new Item(this.channel, value),
                     index = this.list.indexOf(this.input);
@@ -87,14 +87,14 @@ module.exports = function($, onAddTokenizerItem) {
             return this;
         },
 
-        handleAdd: function(value) {
+        handleAdd(value) {
             if (value) {
                 this.add(value);
                 this.input.blur().focus();
             }
         },
 
-        handleBlur: function() {
+        handleBlur() {
             this.add(this.input.clearValue());
             this.$element.removeClass('focused');
             if(this.list.values().length == 0){
@@ -102,22 +102,22 @@ module.exports = function($, onAddTokenizerItem) {
             }
         },
 
-        handleClick: function() {
+        handleClick() {
             this.input.focus();
         },
 
-        handleFocus: function(event) {
+        handleFocus(event) {
             this.$element.addClass('focused');
             
             this.list.$element.find(".placeholder").hide();
         },
 
-        handleRemove: function(item) {
+        handleRemove(item) {
             this.remove(item);
             this.input.blur().focus();
         },
 
-        parseFormInput: function() {
+        parseFormInput() {
             var values = this.$formInput.val().split(this.options.separator);
             for (var i = 0, j = 0; i < values.length; ++i) {
                 if (values[i]) {
@@ -127,7 +127,7 @@ module.exports = function($, onAddTokenizerItem) {
             this.input.focus().blur();
         },
 
-        remove: function(item) {
+        remove(item) {
             if (!item) {
                 item = this.list.getPreceding(this.input);
             }
@@ -138,7 +138,7 @@ module.exports = function($, onAddTokenizerItem) {
             return this;
         },
 
-        updateFormInput: function() {
+        updateFormInput() {
             this.$formInput.attr('value', this.list.values().join(this.options.separator));
         }
     };
@@ -146,7 +146,7 @@ module.exports = function($, onAddTokenizerItem) {
     List.prototype = {
         constructor: List,
 
-        initialize: function() {
+        initialize() {
             this.$list = $('<ul></ul>');
             this.$element = $('<div></div>')
                 .append(this.$list);
@@ -156,7 +156,7 @@ module.exports = function($, onAddTokenizerItem) {
             this.views = [];
         },
 
-        add: function(item, index) {
+        add(item, index) {
             var view = $('<li></li>').append(item.$element);
             if (index >= 0) {
                 view.insertBefore(this.views[index]);
@@ -185,15 +185,15 @@ module.exports = function($, onAddTokenizerItem) {
             return this;
         },
 
-        getPreceding: function(item) {
+        getPreceding(item) {
             return this.items[$.inArray(item, this.items) - 1];
         },
 
-        indexOf: function(item) {
+        indexOf(item) {
             return $.inArray(item, this.items);
         },
 
-        remove: function(item) {
+        remove(item) {
             var index = $.inArray(item, this.items);
             if (index >= 0) {
                 this.items.splice(index, 1);
@@ -202,7 +202,7 @@ module.exports = function($, onAddTokenizerItem) {
             return this;
         },
 
-        values: function() {
+        values() {
             return $.map(this.items, function(i) { return i.value; });
         }
     };
@@ -210,17 +210,17 @@ module.exports = function($, onAddTokenizerItem) {
     Input.prototype = {
         constructor: Input,
 
-        initialize: function() {
+        initialize() {
             this.$element = $('<span class="tokenizer_input" contenteditable="true"></span>');
             this.$element.on('keydown', $.proxy(this.handleKeydown, this));
         },
 
-        blur: function() {
+        blur() {
             this.$element.trigger('blur');
             return this;
         },
 
-        clearValue: function() {
+        clearValue() {
             var value = this.$element.html()
                             .replace(/<\/div><div>/g, "\r\n")
                             .replace(/<br>/g, "")
@@ -230,16 +230,16 @@ module.exports = function($, onAddTokenizerItem) {
             return value;
         },
 
-        focus: function() {
+        focus() {
             this.$element.trigger('focus');
             return this;
         },
 
-        isEmpty: function() {
+        isEmpty() {
             return !this.$element.text();
         },
 
-        handleKeydown: function(event) {
+        handleKeydown(event) {
             if ($.inArray(event.keyCode, this.delimiters) > -1) {
                 event.stopPropagation();
                 event.preventDefault();
@@ -254,7 +254,7 @@ module.exports = function($, onAddTokenizerItem) {
     Item.prototype = {
         constructor: Item,
 
-        initialize: function() {
+        initialize() {
             this.$icon = $('<svg class="remove-icon" class="bi bi-x-circle-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.146-3.146a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/></svg>')
                 .on('click', $.proxy(this.handleRemoveClick, this));
             this.$element = $('<span class="label"></span>')
@@ -262,7 +262,7 @@ module.exports = function($, onAddTokenizerItem) {
                 .append(this.$icon);
         },
 
-        handleRemoveClick: function(event) {
+        handleRemoveClick(event) {
             this.channel.publish('remove', this);
         }
     };

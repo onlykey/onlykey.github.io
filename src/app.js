@@ -1,4 +1,4 @@
-const onlykey_api = require('./onlykey-api.js');
+const onlykeyApi = require('./onlykey-api.js');
 const url = require('url');
 const request = require('superagent');
 const randomColor = require('randomcolor');
@@ -178,7 +178,7 @@ async function on_add_tokenizer_item(itemName, returnValueFN){
     returnValueFN(await getKey(itemName));
 }
 
-onlykey_api.request_pgp_pubkey = function(){
+onlykeyApi.request_pgp_pubkey = function(){
   
   function error_1(err){
     button.textContent = err;
