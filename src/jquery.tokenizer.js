@@ -58,12 +58,12 @@ module.exports = function($, onAddTokenizerItem) {
             
             this.$formInput.attr("type","hidden");
             this.$formInput.hide();
-            this.$element = $('<div class="tokenizer"></div>')
+            this.$element = $("<div class='tokenizer'></div>")
                 .attr("id",this.$formInput.attr("id")+"_tokenizer")
                 .append(this.list.$element)
-                .on('click', $.proxy(this.handleClick, this))
-                .on('focusin', $.proxy(this.handleFocus, this))
-                .on('focusout', $.proxy(this.handleBlur, this))
+                .on("click", $.proxy(this.handleClick, this))
+                .on("focusin", $.proxy(this.handleFocus, this))
+                .on("focusout", $.proxy(this.handleBlur, this))
                 // .width(this.$formInput.width())
                 .insertAfter(this.$formInput);
             this.parseFormInput();
@@ -71,8 +71,8 @@ module.exports = function($, onAddTokenizerItem) {
             if(this.list.values().length > 0){
                 this.list.$element.find(".placeholder").hide();
             }
-            this.channel.subscribe('add', $.proxy(this.handleAdd, this));
-            this.channel.subscribe('remove', $.proxy(this.handleRemove, this));
+            this.channel.subscribe("add", $.proxy(this.handleAdd, this));
+            this.channel.subscribe("remove", $.proxy(this.handleRemove, this));
             
         },
 
@@ -95,7 +95,7 @@ module.exports = function($, onAddTokenizerItem) {
 
         handleBlur() {
             this.add(this.input.clearValue());
-            this.$element.removeClass('focused');
+            this.$element.removeClass("focused");
             if(this.list.values().length == 0){
                 this.list.$element.find(".placeholder").show();
             }
@@ -106,7 +106,7 @@ module.exports = function($, onAddTokenizerItem) {
         },
 
         handleFocus(event) {
-            this.$element.addClass('focused');
+            this.$element.addClass("focused");
             
             this.list.$element.find(".placeholder").hide();
         },
@@ -138,7 +138,7 @@ module.exports = function($, onAddTokenizerItem) {
         },
 
         updateFormInput() {
-            this.$formInput.attr('value', this.list.values().join(this.options.separator));
+            this.$formInput.attr("value", this.list.values().join(this.options.separator));
         }
     };
 
@@ -146,17 +146,17 @@ module.exports = function($, onAddTokenizerItem) {
         constructor: List,
 
         initialize() {
-            this.$list = $('<ul></ul>');
-            this.$element = $('<div></div>')
+            this.$list = $("<ul></ul>");
+            this.$element = $("<div></div>")
                 .append(this.$list);
                 
-            this.$list.append('<li class="placeholder"></li>');
+            this.$list.append("<li class='placeholder'></li>");
             this.items = [];
             this.views = [];
         },
 
         add(item, index) {
-            var view = $('<li></li>').append(item.$element);
+            var view = $("<li></li>").append(item.$element);
             if (index >= 0) {
                 view.insertBefore(this.views[index]);
                 this.items.splice(index, 0, item);
@@ -169,7 +169,7 @@ module.exports = function($, onAddTokenizerItem) {
             }
             var _self = this;
             if(item.value){
-                if(item.value.slice(0,10) != '-----BEGIN')
+                if(item.value.slice(0,10) != "-----BEGIN")
                 onAddTokenizerItem(item.value,function(datavalue){
                     if(datavalue){
                         item.$element.css("color","green");
@@ -210,12 +210,12 @@ module.exports = function($, onAddTokenizerItem) {
         constructor: Input,
 
         initialize() {
-            this.$element = $('<span class="tokenizer_input" contenteditable="true"></span>');
-            this.$element.on('keydown', $.proxy(this.handleKeydown, this));
+            this.$element = $("<span class='tokenizer_input' contenteditable='true'></span>");
+            this.$element.on("keydown", $.proxy(this.handleKeydown, this));
         },
 
         blur() {
-            this.$element.trigger('blur');
+            this.$element.trigger("blur");
             return this;
         },
 
@@ -225,12 +225,12 @@ module.exports = function($, onAddTokenizerItem) {
                             .replace(/<br>/g, "")
                             .replace(/<\/div>/g, "")
                             .replace(/<div>/g, "");
-            this.$element.text('');
+            this.$element.text("");
             return value;
         },
 
         focus() {
-            this.$element.trigger('focus');
+            this.$element.trigger("focus");
             return this;
         },
 
@@ -242,10 +242,10 @@ module.exports = function($, onAddTokenizerItem) {
             if ($.inArray(event.keyCode, this.delimiters) > -1) {
                 event.stopPropagation();
                 event.preventDefault();
-                this.channel.publish('add', this.clearValue());
+                this.channel.publish("add", this.clearValue());
             }
             else if (event.keyCode === 8 && this.isEmpty()) {
-                this.channel.publish('remove');
+                this.channel.publish("remove");
             }
         }
     };
@@ -254,15 +254,15 @@ module.exports = function($, onAddTokenizerItem) {
         constructor: Item,
 
         initialize() {
-            this.$icon = $('<svg class="remove-icon" class="bi bi-x-circle-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.146-3.146a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/></svg>')
-                .on('click', $.proxy(this.handleRemoveClick, this));
-            this.$element = $('<span class="label"></span>')
+            this.$icon = $(`<svg class="remove-icon" class="bi bi-x-circle-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.146-3.146a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/></svg>`)
+                .on("click", $.proxy(this.handleRemoveClick, this));
+            this.$element = $("<span class='label'></span>")
                 .append(this.value.replace(/\r\n/g, "<br>"))
                 .append(this.$icon);
         },
 
         handleRemoveClick(event) {
-            this.channel.publish('remove', this);
+            this.channel.publish("remove", this);
         }
     };
 
@@ -270,21 +270,21 @@ module.exports = function($, onAddTokenizerItem) {
      * =========================== */
 
     $.fn.tokenizer = function(option) {
-        return this.filter('input').each(function() {
+        return this.filter("input").each(function() {
             var $this = $(this),
-                data = $this.data('tokenizer'),
-                options = typeof option == 'object' && option;
+                data = $this.data("tokenizer"),
+                options = typeof option == "object" && option;
             if (!data) {
-                $this.data('tokenizer', (data = new Tokenizer(this, options)));
+                $this.data("tokenizer", (data = new Tokenizer(this, options)));
             }
-            if (typeof option == 'string') {
+            if (typeof option == "string") {
                 data[option]();
             }
         });
     };
 
     $.fn.tokenizer.defaults = {
-        separator: ',',
+        separator: ",",
         delimiters: [13, 32, 188] // [enter, space, comma]
     };
 
@@ -296,9 +296,9 @@ module.exports = function($, onAddTokenizerItem) {
     $(function() {
         
         // setTimeout(function(){
-        $('input[data-provide="tokenizer"]').each(function() {
+        $("input[data-provide='tokenizer']").each(function() {
             var $element = $(this);
-            if ($element.data('tokenizer')) {
+            if ($element.data("tokenizer")) {
                 return;
             }
             $element.tokenizer($element.data());
