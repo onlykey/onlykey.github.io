@@ -169,7 +169,7 @@ module.exports = function($, onAddTokenizerItem) {
             }
             var _self = this;
             if(item.value){
-                if(item.value.slice(0,10) != "-----BEGIN"){
+                if(item.value.slice(0,10) !== "-----BEGIN"){
                     onAddTokenizerItem(item.value,function(datavalue){
                         if(datavalue){
                             item.$element.css("color","green");
