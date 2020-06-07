@@ -1,6 +1,5 @@
 module.exports = function($, onAddTokenizerItem) {
-    "use strict";
-
+    
     var PubSub = function() {
             this.topics = {};
             this.id = 0;
