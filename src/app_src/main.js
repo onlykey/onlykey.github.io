@@ -3,8 +3,10 @@ module.exports = {
   provides: ["main"],
   setup: function(options, imports, register) {
 
+    const pgpDecoder = require("./pgp-decoder/pgp.decoder.js");
+
     const enable_tokenizer = true;
-            
+
     var newGun = imports.newGun;
     var SEA = imports.SEA;
     var $ = imports.$;
@@ -21,14 +23,8 @@ module.exports = {
       luminosity: 'bright',
       format: 'rgba'
     });
-    
-    var tokenizer = require("../jquery.tokenizer.js");
 
-    if (enable_tokenizer) {
-      tokenizer($, async function(itemName, returnValueFN) {
-        returnValueFN(await onlykeyApi.getKey(itemName));
-      });
-    }
+    var tokenizer = require("../jquery.tokenizer.js");
 
     $(".startHidden").hide().removeClass("startHidden");
 
@@ -58,57 +54,72 @@ module.exports = {
 
     var ok = onlykey3rd(1, 0);
 
-    setTimeout(function() {
+    ok.connect(function() {
+      if (ok.derive_public_key)
+        ok.derive_public_key("onlykey-gun", function(error, historyPubkey) {
+          ok.derive_shared_secret("onlykey-gun", historyPubkey, async function(error, historySecret) {
 
-      ok.connect(function() {
-        if (ok.derive_public_key)
-          ok.derive_public_key("onlykey-gun", function(error, historyPubkey) {
-            ok.derive_shared_secret("onlykey-gun", historyPubkey, async function(error, historySecret) {
-
-              (function(gun) {
-                var gunUID = forge.sha256.create().update(historyPubkey).digest().toHex();
-                var gunPASS = forge.sha256.create().update(historySecret).digest().toHex();
-                gun.user().auth(gunUID, gunPASS, async function(err, res) {
-                  if (err.err) {
-                    gun.user().create(gunUID, gunPASS, finished);
-                  }
-                  else
-                    finished();
-                });
-
-                function finished(err) {
-                  var encrypt = function(message) {
-                    return ok.encrypt(message, historySecret);
-                  };
-                  var decrypt = function(message) {
-                    return ok.decrypt(message, historySecret);
-                  };
-                  if (!err || !err.err) {
-                    var hist = gun.user().get("history");
-                    ok.history = {
-                      get: async function(key) {
-                        return decrypt(await hist.get(key));
-                      },
-                      set: async function(key, message) {
-                        return hist.get(key).put(await encrypt(message));
-                      }
-                    };
-                  }
-                  finish();
+            (function(gun) {
+              var gunUID = forge.sha256.create().update(historyPubkey).digest().toHex();
+              var gunPASS = forge.sha256.create().update(historySecret).digest().toHex();
+              gun.user().auth(gunUID, gunPASS, async function(err, res) {
+                if (err.err) {
+                  gun.user().create(gunUID, gunPASS, finished);
                 }
-              })(newGun());
+                else
+                  finished();
+              });
+
+              function finished(err) {
+                var encrypt = function(message) {
+                  return ok.encrypt(message, historySecret);
+                };
+                var decrypt = function(message) {
+                  return ok.decrypt(message, historySecret);
+                };
+                if (!err || !err.err) {
+                  var hist = gun.user().get("history");
+                  ok.history = {
+                    get: async function(key) {
+                      return decrypt(await hist.get(key));
+                    },
+                    set: async function(key, message) {
+                      return hist.get(key).put(await encrypt(message));
+                    }
+                  };
+                }
+                finish();
+              }
+            })(newGun());
 
 
-            });
           });
-        else
-          finish();
-      });
+        });
+      else
+        finish();
+    });
+
+    async function finish() {
 
 
-    }, 500)
+      if (ok.history) {
+        $("#pgpkeyurl2").val(await ok.history.get("pgpkeyurl2"));
+        $("#pgpkeyurl2").change(function() {
+          ok.history.set("pgpkeyurl2", $("#pgpkeyurl2").val());
+        });
 
-    function finish() {
+        $("#pgpkeyurl").val(await ok.history.get("pgpkeyurl"));
+        $("#pgpkeyurl").change(function() {
+          ok.history.set("pgpkeyurl", $("#pgpkeyurl").val());
+        });
+      }
+        
+      if (enable_tokenizer) {
+        tokenizer($, async function(itemName, returnValueFN) {
+          returnValueFN(await onlykeyApi.getKey(itemName));
+        });
+      }
+
 
       register(null, {
         main: {
@@ -421,18 +432,6 @@ module.exports = {
               async function realInit() {
 
                 app_initilized = true;
-
-                if (ok.history) {
-                  $("#pgpkeyurl2").val(await ok.history.get("pgpkeyurl2"));
-                  $("#pgpkeyurl2").change(function() {
-                    ok.history.set("pgpkeyurl2", $("#pgpkeyurl2").val());
-                  });
-
-                  $("#pgpkeyurl").val(await ok.history.get("pgpkeyurl"));
-                  $("#pgpkeyurl").change(function() {
-                    ok.history.set("pgpkeyurl", $("#pgpkeyurl").val());
-                  });
-                }
 
                 if (onlykeyApi._status) {
                   console.info('OnlyKey Action selected' + onlykeyApi._status);
