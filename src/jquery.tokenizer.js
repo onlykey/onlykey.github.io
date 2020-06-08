@@ -1,4 +1,4 @@
-module.exports = function($, onAddTokenizerItem) {
+var tokenizer = function($, onAddTokenizerItem) {
     
     var PubSub = function() {
             this.topics = {};
@@ -66,6 +66,9 @@ module.exports = function($, onAddTokenizerItem) {
                 .on("focusout", $.proxy(this.handleBlur, this))
                 // .width(this.$formInput.width())
                 .insertAfter(this.$formInput);
+            
+            this.list.$list.append("<li class='placeholder'></li>");
+            
             this.parseFormInput();
             this.list.$element.find(".placeholder").text(this.placeHolderText);
             if(this.list.values().length > 0){
@@ -73,6 +76,7 @@ module.exports = function($, onAddTokenizerItem) {
             }
             this.channel.subscribe("add", $.proxy(this.handleAdd, this));
             this.channel.subscribe("remove", $.proxy(this.handleRemove, this));
+            this.channel.subscribe("keyup", $.proxy(this.checkPlaceholder, this));
             
         },
 
@@ -92,13 +96,23 @@ module.exports = function($, onAddTokenizerItem) {
                 this.input.blur().focus();
             }
         },
-
+        
+        checkPlaceholder(blured){
+            if(this.input.$element.text().length){
+                this.list.$element.find(".placeholder").hide();
+            }else if(this.list.values().length === 0){
+                this.list.$element.find(".placeholder").show();
+            }else{
+                this.list.$element.find(".placeholder").hide();
+            }
+        },
+        
         handleBlur() {
             this.add(this.input.clearValue());
+            
             this.$element.removeClass("focused");
-            if(this.list.values().length === 0){
-                this.list.$element.find(".placeholder").show();
-            }
+            
+            this.checkPlaceholder(true);
         },
 
         handleClick() {
@@ -108,7 +122,8 @@ module.exports = function($, onAddTokenizerItem) {
         handleFocus(event) {
             this.$element.addClass("focused");
             
-            this.list.$element.find(".placeholder").hide();
+            this.checkPlaceholder();
+            // this.list.$element.find(".placeholder").hide();
         },
 
         handleRemove(item) {
@@ -139,6 +154,7 @@ module.exports = function($, onAddTokenizerItem) {
 
         updateFormInput() {
             this.$formInput.attr("value", this.list.values().join(this.options.separator));
+            this.$formInput.change();
         }
     };
 
@@ -150,7 +166,6 @@ module.exports = function($, onAddTokenizerItem) {
             this.$element = $("<div></div>")
                 .append(this.$list);
                 
-            this.$list.append("<li class='placeholder'></li>");
             this.items = [];
             this.views = [];
         },
@@ -212,6 +227,7 @@ module.exports = function($, onAddTokenizerItem) {
         initialize() {
             this.$element = $("<span class='tokenizer_input' contenteditable='true'></span>");
             this.$element.on("keydown", $.proxy(this.handleKeydown, this));
+            this.$element.on("keyup", $.proxy(this.handleKeyup, this));
         },
 
         blur() {
@@ -247,6 +263,11 @@ module.exports = function($, onAddTokenizerItem) {
             else if (event.keyCode === 8 && this.isEmpty()) {
                 this.channel.publish("remove");
             }
+            this.channel.publish("keydown");
+        },
+        
+        handleKeyup(event) {
+            this.channel.publish("keyup");
         }
     };
 
@@ -308,3 +329,5 @@ module.exports = function($, onAddTokenizerItem) {
 
 
 };
+
+module.exports = tokenizer;

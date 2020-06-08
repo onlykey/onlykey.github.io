@@ -39,18 +39,19 @@
     "babel-polyfill": "^6.26.0",
     "exports-loader": "^0.7.0",
     "expose-loader": "^0.7.4",
+    "file-saver": "^2.0.0",
+    "gun": "^0.2020.520",
     "imports-loader": "^0.7.1",
     "install": "^0.10.1",
+    "jquery": "^3.4.0",
+    "jszip": "^3.2.2",
     "kbpgp": "file:../kbpgp",
     "npm": "^6.13.4",
     "randomcolor": "^0.5.3",
     "superagent": "^3.6.0",
     "uglify-es": "^3.3.10",
     "uglify-js-harmony": "^2.7.7",
-    "uglifyjs-webpack-plugin2": "^1.0.3",
-    "file-saver": "^2.0.0",
-    "jszip": "^3.2.2",
-    "jquery": "^3.4.0"
+    "uglifyjs-webpack-plugin2": "^1.0.3"
   },
   "bugs": {
     "url": "https://github.com/onlykey/onlykey.github.io/issues"

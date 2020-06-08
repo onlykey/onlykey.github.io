@@ -79,12 +79,22 @@ let plugins = [
         cache: false,
         showErrors: false
     }),
+    new HtmlWebpackPlugin({
+        filename: (process.env.NODE_ENV === 'production') ? './password-generator.html' : './password-generator-dev.html',
+        template: './src/password-generator-src.html',
+        inject: 'body',
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
+        hash: (process.env.NODE_ENV === 'production') ? true : false,
+        cache: false,
+        showErrors: false
+    }),
+    
     new webpack.ProvidePlugin({
       nacl: './nacl.min.js',
       forge: './forge.min.js',
-      kbpgp: './kbpgp.js',
-      'auth_sign()': './onlykey-api.js',
-      'auth_decrypt()': './onlykey-api.js',
+    //   kbpgp: './kbpgp.js',
+    //   'auth_sign()': './onlykey-api.js',
+    //   'auth_decrypt()': './onlykey-api.js',
     })
 ];
 
