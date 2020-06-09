@@ -27,9 +27,62 @@ module.exports = {
     $(".startHidden").hide().removeClass("startHidden");
 
     var init_page_id = $("body").data("page");
-    
+
     if (init_page_id == "index") return;
-    
+
+    if (init_page_id == "past_releases") {
+      
+        disable_onlykey = true;
+
+        window.fetch('../past_releases/past_releases.json')
+          .then(response => response.json())
+          .then(data => {
+
+            var current;
+            var releaseList = {};
+
+
+            for (var j in data) {
+              if (j == "current") {
+                current = data[j];
+                continue;
+              }
+              releaseList[j] = data[j];
+            }
+
+            releaseView("current", current);
+
+            for (var i in releaseList) {
+              releaseView(i, releaseList[i]);
+            }
+
+
+
+            function releaseView(releasesName, releaseData) {
+
+              var contain = $('<div>').appendTo($("#releases"));
+
+              contain.append("<h3>" + releaseData.name + " : " + releaseData.version + "</h3>");
+              contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.version + '</a>');
+              if (releaseData.contributors)
+                contain.append("<p>" + releaseData.contributors + "</p>");
+
+
+            }
+
+            var vRequest = onlykeyApi.getAllUrlParams().version;
+            if(vRequest && data[vRequest]){
+              setTimeout(()=>{
+                
+                window.location = "../past_releases/"+vRequest;
+              
+              },200);
+            }
+          });
+      
+      return;
+    }
+
 
     var app_initilized = false;
     var disable_onlykey = false;
@@ -263,13 +316,13 @@ module.exports = {
 
                   if (!app_initilized) {
 
-                    
-                    if(ok.history){
+
+                    if (ok.history) {
                       $("#user").val(await ok.history.get("search-user"));
                       $("#user").change(function() {
                         ok.history.set("search-user", $("#user").val());
                       });
-  
+
                       $("#sites option[value='" + await ok.history.get("search-searchSelect") + "']").prop('selected', true);
                       $("#sites").change(function() {
                         var sel = $(this).children("option:selected").val();
@@ -312,6 +365,8 @@ module.exports = {
                     });
                   });
                   break;
+
+
                 default:
                   break;
               }
@@ -341,12 +396,12 @@ module.exports = {
 
 
               async function realInit() {
-                
-                if(document.getElementsByTagName('fieldset')[0])
-                document.getElementsByTagName('fieldset')[0].style.backgroundColor = randomColor({
-                  luminosity: 'bright',
-                  format: 'rgba'
-                });
+
+                if (document.getElementsByTagName('fieldset')[0])
+                  document.getElementsByTagName('fieldset')[0].style.backgroundColor = randomColor({
+                    luminosity: 'bright',
+                    format: 'rgba'
+                  });
 
                 $(window).scrollTo("h4", 800);
 
