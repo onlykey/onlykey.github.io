@@ -16,95 +16,26 @@ let plugins = [
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
         showErrors: false
-    }),
-
-
-
-
-
-    new HtmlWebpackPlugin({
-        page: "encrypt",
-        filename: (process.env.NODE_ENV === 'production') ? './encrypt.html' : './encrypt-dev.html',
-        template: './src/app-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        page: "decrypt",
-        filename: (process.env.NODE_ENV === 'production') ? './decrypt.html' : './decrypt-dev.html',
-        template: './src/app-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        page: "encrypt-file",
-        filename: (process.env.NODE_ENV === 'production') ? './encrypt-file.html' : './encrypt-file-dev.html',
-        template: './src/app-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        page: "decrypt-file",
-        filename: (process.env.NODE_ENV === 'production') ? './decrypt-file.html' : './decrypt-file-dev.html',
-        template: './src/app-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        page: "search",
-        filename: (process.env.NODE_ENV === 'production') ? './search.html' : './search-dev.html',
-        template: './src/app-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        page: "encrypt-file-vir",
-        filename: (process.env.NODE_ENV === 'production') ? './encrypt-file-vir.html' : './encrypt-file-vir-dev.html',
-        template: './src/app-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        page: "decrypt-file-vir",
-        filename: (process.env.NODE_ENV === 'production') ? './decrypt-file-vir.html' : './decrypt-file-vir-dev.html',
-        template: './src/app-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        page: "password-generator",
-        filename: (process.env.NODE_ENV === 'production') ? './password-generator.html' : './password-generator-dev.html',
-        template: './src/app-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
     })
 
-
 ];
+
+var pageFiles = getPagesList();
+for (var i in pageFiles) {
+    var filename = pageFiles[i];
+    plugins.push(
+        new HtmlWebpackPlugin({
+            page: filename,
+            filename: (process.env.NODE_ENV === 'production') ? './' + filename + '.html' : './' + filename + '-dev.html',
+            template: './src/app-src.html',
+            inject: 'body',
+            minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
+            hash: (process.env.NODE_ENV === 'production') ? true : false,
+            cache: false,
+            showErrors: false
+        })
+    );
+}
 /*
 plugins.push(
     new webpack.ProvidePlugin({
@@ -159,3 +90,20 @@ module.exports = {
         }]
     },
 };
+
+function getPagesList() {
+    //requiring path and fs modules
+    const path = require('path');
+    const fs = require('fs');
+    //joining path of directory 
+    const directoryPath = path.join(__dirname, 'src', 'app_src', 'pages', 'page_files');
+    //passsing directoryPath and callback function
+    var files = fs.readdirSync(directoryPath);
+    var _files = [];
+    //listing all files using forEach
+    files.forEach(function(file) {
+        // Do whatever you want to do with the file
+        _files.push(file.split(".")[0]);
+    });
+    return _files;
+}
