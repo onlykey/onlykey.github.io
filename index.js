@@ -3,7 +3,7 @@ var app = express();
 var http = require('http');
 var https = require('https');
 var server = http.createServer(app);
-var dirname = __dirname + "/onlykey.github.io/dev-new";
+var dirname = __dirname + "/dev-new";
 
 app.use((req, res, next) => {
   var u = req.url.split("?")[0]
