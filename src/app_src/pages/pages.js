@@ -8,9 +8,6 @@ module.exports = {
     var $ = imports.$;
     var History = window.History;
 
-    var page_id = $("body").data("page");
-
-
     var pagesList = [
       "decrypt",
       "decrypt-file",
@@ -27,7 +24,6 @@ module.exports = {
       pages[pagesList[i]] = require("./page_files/" + pagesList[i] + ".page.html").default;
     }
 
-
     // Bind to StateChange Event
     History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
       var State = History.getState(); // Note: We are using History.getState() instead of event.state
@@ -40,30 +36,24 @@ module.exports = {
       }
     });
 
-
     function hrefTakeover(tag) {
-
       var urlPath = tag.attr('href');
       if (urlPath == "#") return true;
-
+      
       if (!tag.data("href-takeover")) {
-        tag.data("href-takeover", true)
+        tag.data("href-takeover", true);
       }
       else {
         return;
       }
 
-      // if (urlPath.indexOf("/") == 0) {
-      //     var _hash = urlPath.split("?")[0].split("~").shift().substring(1);
-      //     if (appState.$hash._events[_hash]) {
-      //         console.log(urlPath)
-      //     }
-      // }
-
       tag.click(function(e) {
+        
+        var page_id = $("body").data("page");
+        if(page_id == "index") return;
         var title = $(this).text();
         if (urlPath.indexOf("/") == 0 || urlPath.indexOf("./") == 0) {
-          var _hash = pathHref(urlPath)
+          var _hash = pathHref(urlPath);
           if (pages[_hash]) {
             History.pushState({ pathname: _hash }, title, urlPath);
             e.preventDefault();
@@ -77,7 +67,7 @@ module.exports = {
           //_self.pushState(urlPath, title, urlPath);
         }
 
-      })
+      });
     }
 
     function pathHref(urlPath) {
@@ -89,25 +79,28 @@ module.exports = {
     $("a").each(function(i, v) {
       hrefTakeover($(v));
     });
+    
     $(document).on('DOMNodeInserted', function(e) {
       if (e.target.tagName == "A") {
-        hrefTakeover($(e.target))
+        hrefTakeover($(e.target));
       }
       else {
         $(e.target).find("a").each(function(index, value) {
 
           hrefTakeover($(value));
-        })
+        });
       }
     });
 
     function renderPage(pageName) {
       var p = $(pages[pageName]);
-      if (p)
+      if (p){
         $("#container").html(p);
+        $("body").data("page",pageName);
+      }
     }
 
-    renderPage(page_id);
+    renderPage($("body").data("page"));
 
     register(null, {
       pages: {

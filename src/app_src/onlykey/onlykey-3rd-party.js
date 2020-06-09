@@ -362,7 +362,7 @@ function onlykey(keytype, enc_resp) {
 
             await ctaphid_via_webauthn(OKCONNECT, null, null, null, encryptedkeyHandle, 6000).then(async(response) => {
 
-                if (!response) {
+                if (!response || response == 1) {
                     htmlLog("Problem setting time on onlykey");
                     cb(false);
                     // $onStatus("Problem setting time on onlykey");
@@ -417,7 +417,7 @@ function onlykey(keytype, enc_resp) {
 
                             await ctaphid_via_webauthn(OKCONNECT, optype, keytype, enc_resp, encryptedkeyHandle, 6000).then(async(response) => {
 
-                                if (!response) {
+                                if (!response || response == 1) {
                                     htmlLog("Problem Derive Public Key on onlykey")();
                                     // $onStatus("Problem Derive Public Key on onlykey");
                                     cb(true);
@@ -493,7 +493,7 @@ function onlykey(keytype, enc_resp) {
 
                                 await ctaphid_via_webauthn(OKCONNECT, optype, keytype, enc_resp, message, 6000).then(async(response) => {
 
-                                    if (!response) {
+                                    if (!response || response == 1) {
                                         htmlLog("Problem getting Shared Secret");
                                         // $onStatus("Problem getting Shared Secret");
                                         cb(true);

@@ -10,7 +10,7 @@ let plugins = [
 
     new HtmlWebpackPlugin({
         filename: (process.env.NODE_ENV === 'production') ? './index.html' : './index-dev.html',
-        template: './src/app-src.html',
+        template: './src/index-src.html',
         inject: 'body',
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
