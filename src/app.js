@@ -32,7 +32,7 @@ architect([
     setup: (options, imports, register) => {
       register(null, {
         app: new EventEmitter(),
-        release: require("./release.json")
+        release: require("./release.js")
       });
     }
   }

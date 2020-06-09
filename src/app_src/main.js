@@ -38,34 +38,48 @@ module.exports = {
           .then(response => response.json())
           .then(data => {
 
-            var current;
+            var rc;
             var releaseList = {};
 
 
             for (var j in data) {
-              if (j == "current") {
-                current = data[j];
+              if (!(j.indexOf("_rc") == -1)) {
+                rc = j;
                 continue;
               }
               releaseList[j] = data[j];
             }
-
-            releaseView("current", current);
+            
+            $('<hr>').appendTo($("#releases"));
+            
+            if(rc)
+              releaseView(rc, data[rc], true);
 
             for (var i in releaseList) {
+              $('<hr>').appendTo($("#releases"));
               releaseView(i, releaseList[i]);
             }
 
 
 
-            function releaseView(releasesName, releaseData) {
+            function releaseView(releasesName, releaseData, rc) {
         
               var contain = $('<div>').appendTo($("#releases"));
           
-              contain.append("<h3>" + releaseData.name + " : " + releaseData.version + (releasesName == "current"? "(current)" : "") +"</h3>");
-              contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.version + (releasesName == "current"? "(current)" : "")+ '</a>');
-              if (releaseData.contributors)
-                contain.append("<p>" + releaseData.contributors + "</p>");
+              contain.append("<h2>" + releaseData.name + " : " + releaseData.stage + releaseData.version + (rc? "(rc)" : "") +"</h2>");
+              contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.stage + releaseData.version + (rc? "(rc)" : "")+ '</a>');
+              if (releaseData.authors){
+                var i;
+                for(i in releaseData.change_log){
+                  contain.append("<p>*" + releaseData.change_log[i] + "</p>");
+                }
+                if(releaseData.firmware_release_url)
+                  contain.append("<p><a href='" + releaseData.firmware_release_url[i] + "'>Firmware</a></p>");
+                for(i in releaseData.authors){
+                  contain.append("<p>" + releaseData.authors[i] + "</p>");
+                }
+              }
+                
 
 
             }

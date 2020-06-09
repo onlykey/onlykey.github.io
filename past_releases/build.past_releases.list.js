@@ -13,7 +13,7 @@ var past_releases = {};
 for (var i in dirs) {
   var name = dirs[i].replace(__dirname + "/", "");
   if (name.indexOf(".") == -1)
-    past_releases[name] = require(__dirname + "/" + name + "/release.json");
+    past_releases[name] = require(__dirname + "/" + name + "/release.js");
 }
 
 console.log(past_releases);

@@ -13,15 +13,9 @@ echo "Already Built! Increase Version number in src/release.json"
 exit 1
 fi
 
-rm -rf ./docs/past_releases
+sh ./BUILD.sh 1
 
-rm -rf ./past_releases/${lastVersionStage}${lastVersionNumber}
+# mv ./docs ./docs_orig
 
-cp -a ./docs ./past_releases/${lastVersionStage}${lastVersionNumber}
-
-sh ./BUILD.sh 
-
-rm -rf ./docs
-
-mv ./build ./docs
+# mv ./build ./docs
 

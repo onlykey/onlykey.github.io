@@ -4,7 +4,7 @@ var http = require('http');
 var https = require('https');
 var server = http.createServer(app);
 
-var dirname = __dirname + "/build";
+var dirname = __dirname + "/docs";
 
 const fs = require('fs')
 
