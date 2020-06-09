@@ -1,6 +1,6 @@
 /* global $ TextEncoder */
 var $ = require("jquery");
-
+var nacl = require("./nacl.min.js");
 var EventEmitter = require("events").EventEmitter;
 
 // var nacl = require("nacl");

@@ -1,9 +1,9 @@
 <html>
 
 <head>
-    <title>OnlyKey Apps - Decrypt & verify messages in your browser using Keybase PGP</title>
+    <title>OnlyKey Apps - Encrypt & sign messages in your browser using Keybase PGP</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <META HTTP-EQUIV='Content-Security-Policy' CONTENT="default-src 'none' ; script-src 'self' 'sha256-P1WP1KTz9iiHN5Bfeec+pIgBDay5qWNQZh9HujWa94o=' 'sha256-pBDNHyFUtn3XsRvFveaLkaEupq1l96neUvZm5/c1PmQ='; style-src 'self' 'sha256-ujVZuuvwuQ+epdwqO8AhlbOQSx68+ci+dDIwrFrzI+Q=' 'sha256-zsMKYSOY0gzTtULlMRDwkny+ocnOJuA+B49b0BIIQXU='; img-src 'self' ; font-src 'self' ; connect-src 'self' https://keybase.io wss://www.peersocial.io; base-uri 'none'; form-action 'none';">
+    <META HTTP-EQUIV='Content-Security-Policy' CONTENT="default-src 'none' ; script-src 'self' 'sha256-P1WP1KTz9iiHN5Bfeec+pIgBDay5qWNQZh9HujWa94o=' 'sha256-pBDNHyFUtn3XsRvFveaLkaEupq1l96neUvZm5/c1PmQ='; style-src 'self' 'sha256-ujVZuuvwuQ+epdwqO8AhlbOQSx68+ci+dDIwrFrzI+Q=' 'sha256-zsMKYSOY0gzTtULlMRDwkny+ocnOJuA+B49b0BIIQXU='; img-src 'self' https://www.gravatar.com https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png https://s3.amazonaws.com/keybase_processed_uploads/ ; font-src 'self' ; connect-src 'self' https://keybase.io https://api.protonmail.ch wss://www.peersocial.io ; base-uri 'none'; form-action 'none';">
     <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
     <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
     <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
@@ -16,6 +16,7 @@
     <!-- pgp2go styles -->
     <link href="css/ShareTechMono.css" rel="stylesheet">
     <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/tokenizer.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <!-- Modify header colors here to customize the look and feel of the site-->
     <style>
@@ -36,99 +37,99 @@
 </head>
 
 <body class="yui3-skin-sam" data-page="decrypt">
+    
     <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
-      <span class="yui3-menu-heading">Apps</span>
-      <ul>
-          <li>
-              <a href="./decrypt">
+        <span class="yui3-menu-heading">Apps</span>
+        <ul>
+            <li>
+                <a href="./decrypt">
                   <i class="fa fa-unlock" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="./encrypt">
+            </li>
+            <li>
+                <a href="./encrypt">
                   <i class="fa fa-lock" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="./decrypt-file">
+            </li>
+            <li>
+                <a href="./decrypt-file">
                   <i class="fa fa-file-text" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="./encrypt-file">
+            </li>
+            <li>
+                <a href="./encrypt-file">
                   <i class="fa fa-file-archive-o" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="./search">
+            </li>
+            <li>
+                <a href="./search">
                   <i class="fa fa-search" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="./password-generator">
+            </li>
+            <li>
+                <a href="./password-generator">
                   <i class="fa fa-key" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="./toolbox">
-                  <i class="fa fa-calculator" aria-hidden="true"></i>
-              </a>
-          </li>
+            </li>
         </ul>
-     <span class="yui3-menu-heading">Links</span>
-      <ul>
-          <li>
-              <a href="https://apps.crp.to">
+        <span class="yui3-menu-heading">Links</span>
+        <ul>
+            <li>
+                <a href="https://apps.crp.to">
                   <i class="fa fa-home" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="https://docs.crp.to/webcrypt.html">
+            </li>
+            <li>
+                <a href="https://docs.crp.to/webcrypt.html">
                   <i class="fa fa-question" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="https://docs.crp.to/">
+            </li>
+            <li>
+                <a href="https://docs.crp.to/">
                   <i class="fa fa-book" aria-hidden="true"></i>
               </a>
-          </li>
-          <li>
-              <a href="https://onlykey.io">
+            </li>
+            <li>
+                <a href="https://onlykey.io">
                   <i class="fa fa-shopping-cart" aria-hidden="true"></i>
               </a>
-          </li>
-      </ul>
-  </div>
-  <div class="header yui3-u-1">
+            </li>
+        </ul>
+    </div>
+    <div class="header yui3-u-1">
         <p>
             <img src="ok-plugged4.png" alt="logo" align="middle">
         </p>
         <h1>
-        <i class="fa fa-lock fa-2x" aria-hidden="true"></i></i> <i class="fa fa-long-arrow-right fa-2x" aria-hidden="true"></i> <i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i>
+            <i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></i> <i class="fa fa-long-arrow-right fa-2x" aria-hidden="true"></i> <i class="fa fa-lock fa-2x" aria-hidden="true"></i>
         </h1>
         <code data-language="javascript">
             <div id="header_messages"></div>
         </code>
     </div>
-    <h4><font size="+2">Securely decrypt and verify messages using
-        <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></font></h4>
+    <div id="container">
+        
+    </div>
+    <!--
+    <h4>
+        <font size="+2">Securely encrypt and sign messages using
+            <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></font>
+    </h4>
     <div id="container">
         <fieldset>
-            <textarea placeholder="Sender's Keybase username or URL to their public pgp key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
             <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
-            <textarea placeholder="PGP message to decrypt ..." id="message"></textarea>
-            <button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button>
+            <input type="text" data-provide="tokenizer" placeholder="Recipient's Keybase username or URL to their public PGP key or paste their key..." rows="1" id="pgpkeyurl" />
+            <textarea placeholder="Compose message here... Hey, i am sending you a super secret message..." id="message"></textarea>
+            <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
+            <div class="messageLink startHidden container"></div>
         </fieldset>
         <center>
             <form name="action">
-                <label>
-                    <input type="radio" name="select_one" id="decrypt_and_verify" value="Decrypt and Verify" checked="checked"> Decrypt and Verify </label>
-                <label>
-                    <input type="radio" name="select_one" id="decrypt_only" value="Decrypt Only"> Decrypt Only </label>
-                <label>
-                    <a href="https://keybase.io/verify" target="_blank">&nbsp;<i class="fa fa-check" aria-hidden="true"></i>&nbsp;Verify</a></label>
-            </form>
+                <input type="radio" name="select_one" id="encrypt_and_sign" value="Encrypt and Sign" checked="checked"> Encrypt and Sign
+                <input type="radio" name="select_one" id="encrypt_only" value="Encrypt Only"> Encrypt Only
+                <input type="radio" name="select_one" id="sign_only" value="Sign Only"> Sign Only </form>
         </center>
+
     </div>
     <div class="content">
         <h3>Console Messages from OnlyKey Appear Below</h3>
@@ -140,8 +141,10 @@
             </code>
         </pre>
     </div>
-<script type="text/javascript" src="bundle.8c655910169f16af1afe.js"></script></body>
-<script>
-window.addEventListener("load", window.initok);
-</script>
+    -->
+    <div>
+        crp.to &copy; 2020
+    </div>
+<script type="text/javascript" src="bundle.ed1687480de3b6d03b87.js"></script></body>
+
 </html>

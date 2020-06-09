@@ -49,6 +49,7 @@
     "kbpgp": "file:../kbpgp",
     "npm": "^6.13.4",
     "randomcolor": "^0.5.3",
+    "raw-loader": "^4.0.1",
     "superagent": "^3.6.0",
     "uglify-es": "^3.3.10",
     "uglify-js-harmony": "^2.7.7",

@@ -1,9 +1,12 @@
-/* globals kbpgp forge nacl*/
 
 var $ = require("jquery");
+window.jQuery = $;
+require("./jquery.history.js");
+require("./jquery.scrollTo.min.js");
+
 
 var architect = require("./architect.js");
-var EventEmitter = require("events").EventEmitter
+var EventEmitter = require("events").EventEmitter;
 
 architect([
   
@@ -12,6 +15,8 @@ architect([
   require("./app_src/gun.js"),
   
   require("./app_src/onlykey/plugin.js"),
+  
+  require("./app_src/pages/pages.js"),
   
   {//jquery
     provides: ["$"],

@@ -1,7 +1,10 @@
 module.exports = {
-  consumes: ["app", "$", "onlykeyApi", "onlykeyPGP", "onlykey3rd", "gun", "newGun", "forge", "SEA"],
+  consumes: ["app", "$", "pages", "onlykeyApi", "onlykeyPGP", "onlykey3rd", "gun", "newGun", "forge", "SEA"],
   provides: ["main"],
   setup: function(options, imports, register) {
+    var app = imports.app;
+
+    var default_anonymous_email = "onlykey@crp.to";
 
     const pgpDecoder = require("./pgp-decoder/pgp.decoder.js");
 
@@ -19,11 +22,6 @@ module.exports = {
 
     const randomColor = require('randomcolor');
 
-    document.getElementsByTagName('fieldset')[0].style.backgroundColor = randomColor({
-      luminosity: 'bright',
-      format: 'rgba'
-    });
-
     var tokenizer = require("../jquery.tokenizer.js");
 
     $(".startHidden").hide().removeClass("startHidden");
@@ -32,7 +30,6 @@ module.exports = {
 
     var app_initilized = false;
     var disable_onlykey = false;
-
 
     function gm_decode(str1) {
       var hex = str1.toString();
@@ -54,93 +51,124 @@ module.exports = {
 
     var ok = onlykey3rd(1, 0);
 
-    ok.connect(function() {
-      if (ok.derive_public_key)
-        ok.derive_public_key("onlykey-gun", function(error, historyPubkey) {
-          ok.derive_shared_secret("onlykey-gun", historyPubkey, async function(error, historySecret) {
+    function startConnect(done) {
+      ok.connect(function() {
+        if (ok.derive_public_key) {
+          disable_onlykey = false;
+          ok.derive_public_key("onlykey-gun", function(error, historyPubkey) {
+            ok.derive_shared_secret("onlykey-gun", historyPubkey, async function(error, historySecret) {
 
-            (function(gun) {
-              var gunUID = forge.sha256.create().update(historyPubkey).digest().toHex();
-              var gunPASS = forge.sha256.create().update(historySecret).digest().toHex();
-              gun.user().auth(gunUID, gunPASS, async function(err, res) {
-                if (err.err) {
-                  gun.user().create(gunUID, gunPASS, finished);
-                }
-                else
-                  finished();
-              });
+              (function(gun) {
+                var gunUID = forge.sha256.create().update(historyPubkey).digest().toHex();
+                var gunPASS = forge.sha256.create().update(historySecret).digest().toHex();
+                gun.user().auth(gunUID, gunPASS, async function(err, res) {
+                  if (err.err) {
+                    gun.user().create(gunUID, gunPASS, finished);
+                  }
+                  else
+                    finished();
+                });
 
-              function finished(err) {
-                var encrypt = function(message) {
-                  return ok.encrypt(message, historySecret);
-                };
-                var decrypt = function(message) {
-                  return ok.decrypt(message, historySecret);
-                };
-                if (!err || !err.err) {
-                  var hist = gun.user().get("history");
-                  ok.history = {
-                    get: async function(key) {
-                      return decrypt(await hist.get(key));
-                    },
-                    set: async function(key, message) {
-                      return hist.get(key).put(await encrypt(message));
-                    }
+                function finished(err) {
+                  var encrypt = function(message) {
+                    return ok.encrypt(message, historySecret);
                   };
+                  var decrypt = function(message) {
+                    return ok.decrypt(message, historySecret);
+                  };
+                  if (!err || !err.err) {
+                    var hist = gun.user().get("history");
+                    ok.history = {
+                      get: async function(key) {
+                        return decrypt(await hist.get(key));
+                      },
+                      set: async function(key, message) {
+                        return hist.get(key).put(await encrypt(message));
+                      }
+                    };
+                  }
+                  done();
                 }
-                finish();
-              }
-            })(newGun());
+              })(newGun());
 
 
+            });
           });
-        });
-      else
-        finish();
-    });
+        }
+        else {
+          disable_onlykey = true;
+          done();
+        }
+      });
+    }
+    startConnect(finish);
 
     async function finish() {
 
-
-      if (ok.history) {
-        $("#pgpkeyurl2").val(await ok.history.get("pgpkeyurl2"));
-        $("#pgpkeyurl2").change(function() {
-          ok.history.set("pgpkeyurl2", $("#pgpkeyurl2").val());
-        });
-
-        $("#pgpkeyurl").val(await ok.history.get("pgpkeyurl"));
-        $("#pgpkeyurl").change(function() {
-          ok.history.set("pgpkeyurl", $("#pgpkeyurl").val());
-        });
-      }
-        
-      if (enable_tokenizer) {
-        tokenizer($, async function(itemName, returnValueFN) {
-          returnValueFN(await onlykeyApi.getKey(itemName));
-        });
-      }
 
 
       register(null, {
         main: {
           init: function() {
             var initapp;
-            imports.app.on("start", initapp = async function() {
 
+            imports.app.on("state.change", function(pathname) {
+              if (initapp) {
+                app_initilized = false;
+                page_id = pathname;
+                if(disable_onlykey)
+                  startConnect(initapp);
+                else
+                  initapp();
+              }
+            });
+
+            imports.app.on("start", initapp = async function() {
+              
               const urlinputbox = document.getElementById('pgpkeyurl');
               const urlinputbox2 = document.getElementById('pgpkeyurl2');
               const messagebox = document.getElementById('message');
               const button = document.getElementById('onlykey_start');
               const usevirtru = document.getElementById('virtrudetails');
 
-              if (document.action)
-                onlykeyApi._status = document.action.select_one.value;
+
+              //echeck
+              if ($("#action")[0]) {
+                onlykeyApi._status = $("#action")[0].select_one.value;
+              }
+              
+              if(disable_onlykey){
+                if(onlykeyApi._status == "Encrypt and Sign" || onlykeyApi._status == "Sign Only"){
+                 $("#action")[0].select_one.value = "Encrypt Only";
+                }
+                
+                switch(onlykeyApi._status){
+                  case "Encrypt and Sign":
+                  case "Sign Only":
+                    $("#action")[0].select_one.value = "Encrypt Only";
+                    break;
+                  case "Decrypt and Verify":
+                  case "Decrypt Only":
+                    $("#message").hide();
+                    $("#pgpkeyurl2").hide();
+                    $("#pgpkeyurl").hide();
+                    break;
+                  default:
+                    break;
+                }
+                
+              }
+              
+              //recheck
+              if ($("#action")[0]) {
+                onlykeyApi._status = $("#action")[0].select_one.value;
+              }
 
               switch (page_id) {
                 case "encrypt-file":
                 case "encrypt":
                   if (!app_initilized) {
-                    if ((document.getElementById('onlykey_start').value) == 'Encrypt and Sign') {
+                    if ((onlykeyApi._status) == 'Encrypt and Sign') {
                       if (onlykeyApi.getAllUrlParams().sender) document.getElementById('pgpkeyurl2').value = onlykeyApi.getAllUrlParams().sender;
                       if (onlykeyApi.getAllUrlParams().recipients) document.getElementById('pgpkeyurl').value = onlykeyApi.getAllUrlParams().recipients;
                       if (onlykeyApi.getAllUrlParams().type == 'e') {
@@ -185,7 +213,7 @@ module.exports = {
                 case "decrypt-file":
                 case "decrypt":
                   if (!app_initilized) {
-                    if ((document.getElementById('onlykey_start').value) == 'Decrypt and Verify') {
+                    if ((onlykeyApi._status) == 'Decrypt and Verify') {
                       if (onlykeyApi.getAllUrlParams().sender) document.getElementById('pgpkeyurl').value = onlykeyApi.getAllUrlParams().sender;
                       if (onlykeyApi.getAllUrlParams().type == 'dv') document.getElementById('decrypt_and_verify').checked = true;
                       if (onlykeyApi.getAllUrlParams().type == 'd') document.getElementById('decrypt_only').checked = true;
@@ -199,18 +227,30 @@ module.exports = {
                       }
                     }
                   }
-
+                  
+                  if(disable_onlykey){
+                    button.textContent = 'Insert OnlyKey and Click Here :)';
+                    button.addEventListener('click', async function() {
+                      if(disable_onlykey){
+                        startConnect(initapp);
+                      }
+                    });
+                    break;
+                  }
+                    
                   if (onlykeyApi._status == 'Decrypt and Verify') {
-                    document.getElementById('pgpkeyurl').style.display = "initial";
-                    try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
-                    catch (e) {}
+                    $("#pgpkeyurl").show();
+                    $("#pgpkeyurl2").show();
+                    $("#pgpkeyurl_tokenizer").show();
+                    $("#message").show();
                     button.textContent = 'Decrypt and Verify';
                   }
 
                   if (onlykeyApi._status == 'Decrypt Only') {
-                    document.getElementById('pgpkeyurl').style.display = "initial";
-                    try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
-                    catch (e) {}
+                    $("#pgpkeyurl").hide();
+                    $("#pgpkeyurl2").show();
+                    $("#pgpkeyurl_tokenizer").show();
+                    $("#message").show();
                     button.textContent = 'Decrypt';
                   }
                   break;
@@ -347,7 +387,7 @@ module.exports = {
                                         sl.rightDiv.append("<font color='red'>Keybase Username = " + listItem.username + "</font><br>");
                                         if (listItem.full_name) sl.rightDiv.append("Full Name = " + listItem.full_name + "<br><br>");
                                         sl.rightDiv.append("View Keybase Profile <a href='https://keybase.io/" + listItem.username + "'>Here</a><br>");
-                                        sl.rightDiv.append("Send Encrypted <a href='/encrypt-dev.html?type=e&recipients=" + listItem.username + "'>Message</a> <a href='/encrypt-file-dev.html?type=e&recipients=" + listItem.username + "'>File</a><br>");
+                                        sl.rightDiv.append("Send Encrypted <a href='/encrypt?type=e&recipients=" + listItem.username + "'>Message</a> <a href='/encrypt-file?type=e&recipients=" + listItem.username + "'>File</a><br>");
 
                                         for (var i in element.services_summary) {
                                           sl.rightDiv.append("<font color='blue'>" + element.services_summary[i].service_name.toUpperCase() + " Username = " + element.services_summary[i].username + "</font><br>");
@@ -385,7 +425,9 @@ module.exports = {
                           break;
 
                       }
-
+                      
+                      
+                      $(window).scrollTo("h4",800)
                     }
 
                     $('#submit').click(function() {
@@ -426,24 +468,51 @@ module.exports = {
                   break;
               }
 
+
+              if (ok.history) {
+                $("#pgpkeyurl2").val(await ok.history.get("pgpkeyurl2"));
+                $("#pgpkeyurl2").change(function() {
+                  ok.history.set("pgpkeyurl2", $("#pgpkeyurl2").val());
+                });
+
+                $("#pgpkeyurl").val(await ok.history.get("pgpkeyurl"));
+                $("#pgpkeyurl").change(function() {
+                  ok.history.set("pgpkeyurl", $("#pgpkeyurl").val());
+                });
+              }
+
+
+              if (enable_tokenizer) {
+                tokenizer($, async function(itemName, returnValueFN) {
+                  returnValueFN(await onlykeyApi.getKey(itemName));
+                });
+              }
+
+
               if (!app_initilized) realInit();
 
 
               async function realInit() {
+
+                document.getElementsByTagName('fieldset')[0].style.backgroundColor = randomColor({
+                  luminosity: 'bright',
+                  format: 'rgba'
+                });
+                
+                $(window).scrollTo("h4",800)
 
                 app_initilized = true;
 
                 if (onlykeyApi._status) {
                   console.info('OnlyKey Action selected' + onlykeyApi._status);
 
-                  if (document.action)
-                    document.action.select_one.forEach(el => el.addEventListener('change', initapp.bind(null, false)));
+                  if ($("#action")[0])
+                    $("#action")[0].select_one.forEach(el => el.addEventListener('change', initapp.bind(null, false)));
 
                   if (!disable_onlykey) {
                     onlykeyApi.initok(() => {
 
                       var p2g = onlykeyPGP(usevirtru);
-
 
                       onlykeyApi.request_pgp_pubkey = function() {
                         function error_1(err) {
@@ -488,11 +557,11 @@ module.exports = {
                         button.classList.add('error');
                         button.classList.remove('working');
                       });
-
-                      urlinputbox.onkeyup = function() {
-                        let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
-                        urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
-                      };
+    
+                      // urlinputbox.onkeyup = function() {
+                      //   let rows_current = Math.trunc((urlinputbox.value.length * parseFloat(window.getComputedStyle(urlinputbox, null).getPropertyValue('font-size'))) / (urlinputbox.offsetWidth * 1.5)) + 1;
+                      //   urlinputbox.rows = (rows_current > 10) ? 10 : rows_current;
+                      // };
 
                       button.addEventListener('click', async function() {
                         var message = null;
@@ -521,7 +590,7 @@ module.exports = {
                                 messagebox.value = data;
 
                               var hash = await SEA.work(data, null, null, { name: "SHA-256" });
-                              ok.gun.get("ok-messages#").get(hash).put(data, function(res) {
+                              gun.get("ok-messages#").get(hash).put(data, function(res) {
                                 console.log(hash, res);
                                 var cp = $('<hr/><input type="text" id="messageLink_url"/><button type="submit" id="copylink">Copy Share Link</button>');
                                 $(".messageLink").append(cp);
@@ -589,8 +658,6 @@ module.exports = {
 
               }
             });
-
-
 
           }
         }

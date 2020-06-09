@@ -131,6 +131,23 @@ fieldset * {
     animation: statusWorking 5s ease infinite;
 }
 
+
+.block {
+  background-color: white;
+}
+
+.block-inner {
+  padding: 12px;
+  width: auto;
+}
+
+.outline {
+  border: solid 2px #c9c9c9;
+  transition: border 0.4s;
+  outline: none;
+  /*width: auto;*/
+}
+
 @-webkit-keyframes statusWorking {
     0% {
         background-position: 0% 50%
