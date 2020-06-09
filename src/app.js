@@ -27,11 +27,12 @@ architect([
       });
     }
   }, {//app core
-    provides: ["app"],
+    provides: ["app","release"],
     consumes: ["hub"],
     setup: (options, imports, register) => {
       register(null, {
-        app: new EventEmitter()
+        app: new EventEmitter(),
+        release: require("./release.json")
       });
     }
   }

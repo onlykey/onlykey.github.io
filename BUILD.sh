@@ -1,7 +1,11 @@
 
 rm -rf ./build
 
+#if [ $1 ]; then
+#npm run build-release
+#else
 npm run build-site
+#fi
 
 cp -a ./src/assets/* ./build/app/.
 

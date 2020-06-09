@@ -59,11 +59,11 @@ module.exports = {
 
 
             function releaseView(releasesName, releaseData) {
-
+        
               var contain = $('<div>').appendTo($("#releases"));
-
-              contain.append("<h3>" + releaseData.name + " : " + releaseData.version + "</h3>");
-              contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.version + '</a>');
+          
+              contain.append("<h3>" + releaseData.name + " : " + releaseData.version + (releasesName == "current"? "(current)" : "") +"</h3>");
+              contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.version + (releasesName == "current"? "(current)" : "")+ '</a>');
               if (releaseData.contributors)
                 contain.append("<p>" + releaseData.contributors + "</p>");
 
