@@ -14,7 +14,8 @@ module.exports = {
       "encrypt",
       "encrypt-file",
       "search",
-      "password-generator"
+      "password-generator",
+      "past_releases",
     ];
 
 

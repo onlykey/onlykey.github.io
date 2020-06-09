@@ -341,7 +341,8 @@ module.exports = {
 
 
               async function realInit() {
-
+                
+                if(document.getElementsByTagName('fieldset')[0])
                 document.getElementsByTagName('fieldset')[0].style.backgroundColor = randomColor({
                   luminosity: 'bright',
                   format: 'rgba'

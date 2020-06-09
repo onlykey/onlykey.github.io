@@ -9,7 +9,19 @@ const SriPlugin = require('webpack-subresource-integrity');
 let plugins = [
 
     new HtmlWebpackPlugin({
+        dir_name: "./app",
         filename: (process.env.NODE_ENV === 'production') ? './index.html' : './index.html',
+        template: './src/index-src.html',
+        inject: 'body',
+        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
+        hash: (process.env.NODE_ENV === 'production') ? true : false,
+        cache: false,
+        showErrors: false
+    }),
+    
+    new HtmlWebpackPlugin({
+        dir_name: ".",
+        filename: (process.env.NODE_ENV === 'production') ? './index.html' : './app/index.html',
         template: './src/index-src.html',
         inject: 'body',
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
@@ -26,7 +38,7 @@ for (var i in pageFiles) {
     plugins.push(
         new HtmlWebpackPlugin({
             page: filename,
-            filename: (process.env.NODE_ENV === 'production') ? './' + filename + '.html' : './' + filename + '.html',
+            filename: (process.env.NODE_ENV === 'production') ? './app/' + filename + '.html' : './app/' + filename + '.html',
             template: './src/app-src.html',
             inject: 'body',
             minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
@@ -79,7 +91,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
-        filename: 'bundle.[hash].js',
+        filename: './app/bundle.[hash].js',
         crossOriginLoading: 'anonymous'
     },
     plugins: plugins,

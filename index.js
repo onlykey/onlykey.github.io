@@ -18,6 +18,7 @@ app.use((req, res, next) => {
     case "/encrypt-file":
     case "/decrypt-file":
     case "/password-generator":
+    default:
       req.url = getFile(u); //+req.url.split("?")[1];
       break;
   }
@@ -44,9 +45,10 @@ function getFile(filePath,prev){//   /filename =  /filename || /filename.html ||
         }else throw new Error("Not Found");
       }
       catch (e) { 
-        if(!prev)
-          return getFile("/index", filePath);
-        else return prev;
+        // if(!prev)
+        //   return getFile("/index", filePath);
+        // else return prev;
+        return filePath;
       }
     }
   }

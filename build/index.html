@@ -5,34 +5,20 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <META HTTP-EQUIV='Content-Security-Policy' CONTENT="default-src 'none' ; script-src 'self' 'sha256-P1WP1KTz9iiHN5Bfeec+pIgBDay5qWNQZh9HujWa94o=' 'sha256-pBDNHyFUtn3XsRvFveaLkaEupq1l96neUvZm5/c1PmQ='; style-src 'self' 'sha256-ujVZuuvwuQ+epdwqO8AhlbOQSx68+ci+dDIwrFrzI+Q=' 'sha256-65mkwZPt4V1miqNM9CcVYkrpnlQigG9H6Vi9OM/JCgY=' 'sha256-zsMKYSOY0gzTtULlMRDwkny+ocnOJuA+B49b0BIIQXU='; img-src 'self' ; font-src 'self' ; connect-src 'self' https://keybase.io wss://www.peersocial.io; base-uri 'none'; form-action 'none';">
     <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
-    <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
-    <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
-    <link rel="stylesheet" href="css/gallerycss-cssform-min.css">
-    <link rel="stylesheet" href="css/cssnormalize-min.css">
-    <link rel="stylesheet" href="css/cssgrids-responsive-min.css">
-    <link rel="stylesheet" href="css/cssbutton-min.css">
+    <link rel="stylesheet" href="./app/css/gallerycss-csstable-min.css">
+    <link rel="stylesheet" href="./app/css/gallerycss-csslist-min.css">
+    <link rel="stylesheet" href="./app/css/gallerycss-cssform-min.css">
+    <link rel="stylesheet" href="./app/css/cssnormalize-min.css">
+    <link rel="stylesheet" href="./app/css/cssgrids-responsive-min.css">
+    <link rel="stylesheet" href="./app/css/cssbutton-min.css">
     <!-- Some custom styles to make things pretty. -->
-    <link rel="stylesheet" type="text/css" href="css/ui.css">
+    <link rel="stylesheet" type="text/css" href="./app/css/ui.css">
     <!-- pgp2go styles -->
-    <link href="css/ShareTechMono.css" rel="stylesheet">
-    <link href="css/font-awesome.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <link href="./app/css/ShareTechMono.css" rel="stylesheet">
+    <link href="./app/css/font-awesome.min.css" rel="stylesheet">
+    <link href="./app/css/style.css" rel="stylesheet">
     <!-- Modify header colors here to customize the look and feel of the site-->
-    <style>
-        .header {
-            background: white;
-        }
-
-        .header h1 {
-            color: rgb(97, 97, 97);
-        }
-
-        .header h2 {
-            font-weight: 300;
-            margin: 0;
-            color: rgb(137, 137, 137);
-        }
-    </style>
+    
 </head>
 
 <body class="yui3-skin-sam" data-page="index">
@@ -40,38 +26,33 @@
       <span class="yui3-menu-heading">Apps</span>
       <ul>
           <li>
-              <a href="./decrypt">
+              <a href="./app/decrypt">
                   <i class="fa fa-unlock" aria-hidden="true"></i>
               </a>
           </li>
           <li>
-              <a href="./encrypt">
+              <a href="./app/encrypt">
                   <i class="fa fa-lock" aria-hidden="true"></i>
               </a>
           </li>
           <li>
-              <a href="./decrypt-file">
+              <a href="./app/decrypt-file">
                   <i class="fa fa-file-text" aria-hidden="true"></i>
               </a>
           </li>
           <li>
-              <a href="./encrypt-file">
+              <a href="./app/encrypt-file">
                   <i class="fa fa-file-archive-o" aria-hidden="true"></i>
               </a>
           </li>
           <li>
-              <a href="./search">
+              <a href="./app/search">
                   <i class="fa fa-search" aria-hidden="true"></i>
               </a>
           </li>
           <li>
-              <a href="./password-generator">
+              <a href="./app/password-generator">
                   <i class="fa fa-key" aria-hidden="true"></i>
-              </a>
-          </li>
-          <li>
-              <a href="./toolbox">
-                  <i class="fa fa-calculator" aria-hidden="true"></i>
               </a>
           </li>
         </ul>
@@ -100,39 +81,40 @@
       </ul>
   </div>
     <div class="header yui3-u-1">
-      <p><img src="ok0.jpg" alt="logo" align="middle"></p>
+      <p><img src="./app/ok0.jpg" alt="logo" align="middle"></p>
       <h1><i class="fa fa-rocket"></i> OnlyKey Apps</h1>
       <code data-language="javascript">
           <div id="header_messages"></div>
       </code>
     </div>
 
-    <div class="content" style="white-space:nowrap" align="middle" id="onlykey_start" value="Encrypt and Sign">
+    <div class="content" align="middle" id="onlykey_start" value="Encrypt and Sign">
     <h2><i class="fa fa-lock" aria-hidden="true"></i> Encryption</h2>
     <p>Securely encrypt and sign text messages or files using 
     <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></p>
-    <a href="./encrypt" class="yui3-button primary-button">Encrypt & Sign Messages</a><br>
-    <a href="./encrypt-file" class="yui3-button primary-button">Encrypt & Sign Files</a>
+    <a href="./app/encrypt" class="yui3-button primary-button">Encrypt & Sign Messages</a><br>
+    <a href="./app/encrypt-file" class="yui3-button primary-button">Encrypt & Sign Files</a>
 
     <h2><i class="fa fa-unlock" aria-hidden="true"></i> Decryption</h2>
     <p>Securely decrypt and verify text messages or files using <a href="https://onlykey.io" target="_blank">OnlyKey</a> and 
     <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></p>
-    <a href="./decrypt" class="yui3-button primary-button">Decrypt & Sign Messages</a><br>
-    <a href="./decrypt-file" class="yui3-button primary-button">Decrypt & Sign Files</a>
+    <a href="./app/decrypt" class="yui3-button primary-button">Decrypt & Sign Messages</a><br>
+    <a href="./app/decrypt-file" class="yui3-button primary-button">Decrypt & Sign Files</a>
 
     <h2><i class="fa fa-search" aria-hidden="true"></i> Keybase User Search</h2>
     <p>Find Keybase user to send encrypted messages and files using
         <a href="https://onlykey.io" target="_blank">OnlyKey</a> and 
         <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></p>
-        <a href="./search" class="yui3-button primary-button">User Search</a><br>
+        <a href="./app/search" class="yui3-button primary-button">User Search</a><br>
     </div>
     <br>
     <br>
     <div class="content">
-      <h3>Looking for the <a href="https://apps.crp.to/beta7" target="_blank">old Webcrypt app</a> compatible with OnlyKey beta7 firmware?</h3>
+      <h3>Looking for the <a href="./app/past_releases" target="_blank">old Webcrypt app releases?</a><br>
+      <a href="./app/past_releases?version=beta7" target="_blank">Click here for Beta7 firmware compatible Webcrypt app version</a></h3>
     </div>
     <div>
        CryptoTrust LLC &copy; 2020
     </div>
-<script type="text/javascript" src="bundle.c0a9419a56b60ede55ac.js"></script></body>
+<script type="text/javascript" src="./app/bundle.f4e721477bce27453305.js"></script></body>
 </html>
