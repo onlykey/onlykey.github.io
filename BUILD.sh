@@ -1,4 +1,5 @@
-cd onlykey.github.io
 
-rm ./dev-new/bundle*
-npm run dev-new
+rm -rf ./build
+npm run build-site
+
+cp -a ./src/assets/* ./build/.
