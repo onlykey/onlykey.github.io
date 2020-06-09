@@ -9,7 +9,7 @@ const SriPlugin = require('webpack-subresource-integrity');
 let plugins = [
 
     new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './index.html' : './index-dev.html',
+        filename: (process.env.NODE_ENV === 'production') ? './index.html' : './index.html',
         template: './src/index-src.html',
         inject: 'body',
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
@@ -26,7 +26,7 @@ for (var i in pageFiles) {
     plugins.push(
         new HtmlWebpackPlugin({
             page: filename,
-            filename: (process.env.NODE_ENV === 'production') ? './' + filename + '.html' : './' + filename + '-dev.html',
+            filename: (process.env.NODE_ENV === 'production') ? './' + filename + '.html' : './' + filename + '.html',
             template: './src/app-src.html',
             inject: 'body',
             minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
