@@ -3,6 +3,7 @@ module.exports = {
     provides: ["onlykeyApi", "onlykeyPGP", "onlykey3rd", "kbpgp", "forge", "nacl"],
     setup: function(options, imports, register) {
 
+        var Gun = imports.Gun;
         const request = require('superagent');
 
         const onlykeyApi = require('./onlykey-api.js');

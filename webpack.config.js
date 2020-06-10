@@ -5,6 +5,40 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 // const CopyWebpackPlugin = require('copy-webpack-plugin');
 // const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
 const SriPlugin = require('webpack-subresource-integrity');
+const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
+
+var cspOptions = {
+    enabled: true,
+    policy: {
+        'default-src': "'self'",
+        'base-uri': "'none'",
+        'object-src': "'none'",
+        'script-src': ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+        'style-src': ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+        'img-src': [
+            "'self'",
+            "https://www.gravatar.com",
+            "https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png",
+            "https://s3.amazonaws.com/keybase_processed_uploads/",
+            
+        ],
+        'connect-src': [
+            "'self'", 
+            "https://keybase.io",
+            "https://api.protonmail.ch",
+            "wss://www.peersocial.io"
+        ]
+    },
+    hashEnabled: {
+        'script-src': true,
+        'style-src': true
+    },
+    nonceEnabled: {
+        'script-src': true,
+        'style-src': true
+    },
+    //processFn: defaultProcessFn
+};
 
 let plugins = [
 
@@ -16,9 +50,11 @@ let plugins = [
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
-        showErrors: false
+        showErrors: false,
+
+        cspPlugin: cspOptions
     }),
-    
+
     new HtmlWebpackPlugin({
         dir_name: ".",
         filename: (process.env.NODE_ENV === 'production') ? './index.html' : './app/index.html',
@@ -27,7 +63,9 @@ let plugins = [
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
-        showErrors: false
+        showErrors: false,
+
+        cspPlugin: cspOptions
     })
 
 ];
@@ -44,57 +82,26 @@ for (var i in pageFiles) {
             minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
             hash: (process.env.NODE_ENV === 'production') ? true : false,
             cache: false,
-            showErrors: false
+            showErrors: false,
+
+            cspPlugin: cspOptions
         })
     );
 }
 
-plugins.push(
-    new webpack.ProvidePlugin({  	
-    //   nacl: './nacl.min.js',
-    //   forge: './forge.min.js',
-    //   kbpgp: './kbpgp.js',
-    //   'auth_sign()': './onlykey-api.js',
-    //   'auth_decrypt()': './onlykey-api.js',
-    })
-);
 
-/*
-if (process.env.NODE_ENV === 'production') {
-    plugins.push(new MinifyPlugin({
-        consecutiveAdds: false,
-        deadcode: false,
-        evaluate: false,
-        flipComparisons: false,
-        guards: false,
-        infinity: false,
-        mangle: false,
-        mergeVars: false,
-        numericLiterals: false,
-        propertyLiterals: false,
-        removeConsole: true,
-        removeDebugger: true
-    }, {
-        exclude: ["./src/forge.min.js", "./src/nacl.min.js", "/~/gun/sea.js" ],
-	include:[]
-    }));
-    
-}
-*/
+plugins.push(new CspHtmlWebpackPlugin({}, {}))
 
-plugins.push(new SriPlugin({
-    hashFuncNames: ['sha256', 'sha384'],
-    enabled: process.env.NODE_ENV === 'production'
-}));
 
 module.exports = {
+    mode: process.env.NODE_ENV,
     entry: ['./src/app.js'],
     externals: {
-        u2f: './src/u2f-api.js',
-        Virtru: './src/virtru-sdk.min.js'
+        // u2f: './src/u2f-api.js',
+        // Virtru: './src/virtru-sdk.min.js'
     },
     output: {
-        path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
+        path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './'),
         filename: './app/bundle.[hash].js',
         crossOriginLoading: 'anonymous'
     },
@@ -108,17 +115,12 @@ module.exports = {
 };
 
 function getPagesList() {
-    //requiring path and fs modules
     const path = require('path');
     const fs = require('fs');
-    //joining path of directory 
     const directoryPath = path.join(__dirname, 'src', 'app_src', 'pages', 'page_files');
-    //passsing directoryPath and callback function
     var files = fs.readdirSync(directoryPath);
     var _files = [];
-    //listing all files using forEach
     files.forEach(function(file) {
-        // Do whatever you want to do with the file
         _files.push(file.split(".")[0]);
     });
     return _files;

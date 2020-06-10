@@ -1,6 +1,7 @@
 
 
 
+git checkout -- ./docs
 lastVersionNumber=$(node -e 'console.log(require(__dirname+"/docs/release.js").version)')
 lastVersionStage=$(node -e 'console.log(require(__dirname+"/docs/release.js").stage)')
 lastStage=${lastVersionStage}${lastVersionNumber}
@@ -30,10 +31,11 @@ cp -a ./src/assets/* ./build/app/.
 cp -a ./src/release.js ./build/.
 rm -rf ./past_releases/${lastStage}_rc
 cp -a ./build ./past_releases/${lastStage}_rc
-node ./past_releases/build.past_releases.list.js
+echo "module.exports=['${lastStage}_rc'];" > ./past_releases/last_build.js
 cp -a ./past_releases ./build/.
 rm -rf ./docs
 mv ./build ./docs
+node ./docs/past_releases/build.past_releases.list.js
 else
 echo "Build Version Different"
 

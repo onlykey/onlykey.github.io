@@ -13,9 +13,14 @@ var past_releases = {};
 for (var i in dirs) {
   var name = dirs[i].replace(__dirname + "/", "");
   if (name.indexOf(".") == -1)
+  try{
     past_releases[name] = require(__dirname + "/" + name + "/release.js");
+  }catch(e){}
 }
 
-console.log(past_releases);
+
+past_releases["current"] = require(__dirname + "/last_build.js")[0];
+
+// console.log(past_releases);
 
 writeFileSync(__dirname + "/past_releases.json", JSON.stringify(past_releases));
