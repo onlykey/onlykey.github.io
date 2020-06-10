@@ -24,6 +24,7 @@ var cspOptions = {
         ],
         'connect-src': [
             "'self'", 
+            "https://onlykey.herokuapp.com",
             "https://keybase.io",
             "https://api.protonmail.ch",
             "wss://www.peersocial.io"

@@ -334,6 +334,10 @@ async function ONLYKEY_ECDH_P256_to_EPUB(publicKeyRawBuffer, callback) {
 // enc_resp
 //#define NO_ENCRYPT_RESP 0
 //#define ENCRYPT_RESP 1
+
+var app_transit = nacl.box.keyPair();
+    
+    
 function onlykey(keytype, enc_resp) {
 
     var api = new EventEmitter();
@@ -346,9 +350,7 @@ function onlykey(keytype, enc_resp) {
 
     async function connect(cb) {
 
-        var app_transit = nacl.box.keyPair();
         var okPub;
-
 
         setTimeout(async function() {
             console.log("-------------------------------------------");
@@ -379,175 +381,167 @@ function onlykey(keytype, enc_resp) {
                 }
                 htmlLog("OnlyKey " + OKversion + " " + FWversion + " connection established\n")();
                 // $onStatus("OnlyKey " + FWversion + " Connection Established");
-
-                if (keytype == 1) {
-                    api.derive_public_key = async function(additional_d, cb) {
-                        // optype
-                        // #define DERIVE_PUBLIC_KEY 1
-                        // #define DERIVE_SHARED_SECRET 2
-                        var optype = 1;
-                        setTimeout(async function() {
-                            console.log("-------------------------------------------");
-                            htmlLog("Requesting OnlyKey Derive Public Key")();
-                            // $onStatus("Requesting OnlyKey Derive Public Key");
-
-                            var transit_key = nacl.box.keyPair();
-
-                            var message = ctaphid_custom_message_header(transit_key.publicKey);
-
-                            //Add additional data for key derivation
-                            var dataHash;
-
-                            if (!additional_d) {
-                                // SHA256 hash of empty buffer
-                                dataHash = await digestArray(Uint8Array.from(new Uint8Array(32)));
-                            }
-                            else {
-                                // SHA256 hash of input data
-                                dataHash = await digestArray(Uint8Array.from(additional_d));
-                            }
-
-                            Array.prototype.push.apply(message, dataHash);
-
-                            // htmlLog("additional data hash -> " + dataHash)
-                            // htmlLog("full message -> " + message)
-
-
-                            var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
-
-                            await ctaphid_via_webauthn(OKCONNECT, optype, keytype, enc_resp, encryptedkeyHandle, 6000).then(async(response) => {
-
-                                if (!response || response == 1) {
-                                    htmlLog("Problem Derive Public Key on onlykey")();
-                                    // $onStatus("Problem Derive Public Key on onlykey");
-                                    cb(true);
-                                    return;
-                                }
-
-                                //var data = await Promise;
-                                okPub = response.slice(21, 53);
-                                var _OKversion = response[19] == 99 ? 'Color' : 'Original';
-                                var _FWversion = bytes2string(response.slice(8, 20));
-                                transit_sharedsec = nacl.box.before(Uint8Array.from(okPub), app_transit.secretKey);
-                                if (enc_resp == 1) {
-                                    var encrypted_response = response.slice(53, response.length); // ? should be to end of message response.len
-                                    response = aesgcm_decrypt(transit_sharedsec, encrypted_response);
-
-                                    // Now response is going to be shorter - 53, need to adjust sharedPub position below
-                                }
-
-                                // Public ECC key will be an uncompressed ECC key, 65 bytes for P256, 32 bytes for NACL/CURVE25519 padded with 0s
-                                var sharedPub;
-                                if (keytype == 0 || keytype == 3) {
-                                    sharedPub = response.slice(response.length - 65, response.length - 33);
-                                }
-                                else {
-                                    sharedPub = response.slice(53, response.length);
-                                }
-
-                                htmlLog("OnlyKey Derive Public Key Complete")();
-
-                                // $onStatus("OnlyKey Derive Public Key Completed ");
-
-                                ONLYKEY_ECDH_P256_to_EPUB(sharedPub, function(epub) {
-                                    if (typeof cb === 'function') cb(null, epub);
-                                })
-
-                            });
-                        }, (1));
-                    };
-                    api.derive_shared_secret = async function(additional_d, pubkey, cb) {
-                        EPUB_TO_ONLYKEY_ECDH_P256(pubkey, function(pubkey) {
-                            // optype
-                            // #define DERIVE_PUBLIC_KEY 1
-                            // #define DERIVE_SHARED_SECRET 2
-                            var optype = 2;
-
-                            setTimeout(async function() {
-                                console.log("-------------------------------------------");
-                                htmlLog("Requesting OnlyKey Shared Secret");
-                                // $onStatus("Requesting OnlyKey Shared Secret");
-
-                                var transit_key = nacl.box.keyPair();
-
-                                //Add header message;
-                                var message = ctaphid_custom_message_header(transit_key.publicKey);
-
-                                //Add additional data for key derivation
-                                var dataHash;
-
-                                if (!additional_d) {
-                                    // SHA256 hash of empty buffer
-                                    dataHash = await digestArray(Uint8Array.from(new Uint8Array(32)));
-                                }
-                                else {
-                                    // SHA256 hash of input data
-                                    dataHash = await digestArray(Uint8Array.from(additional_d));
-                                }
-
-                                Array.prototype.push.apply(message, dataHash);
-                                //htmlLog("additional data hash -> " + dataHash)
-
-                                //Add input public key for shared secret computation 
-                                Array.prototype.push.apply(message, pubkey);
-
-                                await ctaphid_via_webauthn(OKCONNECT, optype, keytype, enc_resp, message, 6000).then(async(response) => {
-
-                                    if (!response || response == 1) {
-                                        htmlLog("Problem getting Shared Secret");
-                                        // $onStatus("Problem getting Shared Secret");
-                                        cb(true);
-                                        return;
-                                    }
-
-                                    okPub = response.slice(21, 53);
-                                    var _OKversion = response[19] == 99 ? 'Color' : 'Original';
-                                    var _FWversion = bytes2string(response.slice(8, 20));
-                                    transit_sharedsec = nacl.box.before(Uint8Array.from(okPub), app_transit.secretKey);
-                                    if (enc_resp == 1) {
-                                        var encrypted_response = response.slice(53, response.length); // ? should be to end of message response.len
-                                        response = aesgcm_decrypt(transit_sharedsec, encrypted_response);
-
-                                        // Now response is going to be shorter - 53, need to adjust returned_sharedsec position below
-                                    }
-
-                                    var e;
-
-
-                                    //Private ECC key will be 32 bytes for all supported ECC key types
-
-                                    var returned_sharedsec = response.slice(response.length - 32, response.length);
-                                    var _OKversion = response[19] == 99 ? 'Color' : 'Original';
-                                    var _FWversion = bytes2string(response.slice(8, 20));
-
-                                    htmlLog("OnlyKey Shared Secret Completed\n");
-                                    // $onStatus("OnlyKey Shared Secret Completed ");
-
-                                    var derivedKey = await window.crypto.subtle.importKey('raw', Uint8Array.from(returned_sharedsec), { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
-                                    var _k = await window.crypto.subtle.exportKey('jwk', derivedKey).then(({ k }) => k);
-
-                                    if (typeof cb === 'function') cb(null, _k);
-
-                                });
-                            }, (1));
-
-                        });
-                    };
-                    
-                    api.SEA = require("gun/sea.js");
-                    api.encrypt = async function(message, secret){
-                        return await api.SEA.encrypt(message, secret);
-                    };
-                    
-                    api.decrypt = async function(message, secret){
-                        return await api.SEA.decrypt(message, secret);
-                    };
-                }
+                
                 cb(null);
 
             });
         }, (1));
 
+    }
+
+    if (keytype == 1) {
+        api.derive_public_key = async function(additional_d, cb) {
+            // optype
+            // #define DERIVE_PUBLIC_KEY 1
+            // #define DERIVE_SHARED_SECRET 2
+            var optype = 1;
+            setTimeout(async function() {
+                console.log("-------------------------------------------");
+                htmlLog("Requesting OnlyKey Derive Public Key")();
+                // $onStatus("Requesting OnlyKey Derive Public Key");
+
+                var transit_key = nacl.box.keyPair();
+
+                var message = ctaphid_custom_message_header(transit_key.publicKey);
+
+                //Add additional data for key derivation
+                var dataHash;
+
+                if (!additional_d) {
+                    // SHA256 hash of empty buffer
+                    dataHash = await digestArray(Uint8Array.from(new Uint8Array(32)));
+                }
+                else {
+                    // SHA256 hash of input data
+                    dataHash = await digestArray(Uint8Array.from(additional_d));
+                }
+
+                Array.prototype.push.apply(message, dataHash);
+
+                // htmlLog("additional data hash -> " + dataHash)
+                // htmlLog("full message -> " + message)
+
+
+                var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
+
+                await ctaphid_via_webauthn(OKCONNECT, optype, keytype, enc_resp, encryptedkeyHandle, 6000).then(async(response) => {
+
+                    if (!response || response == 1) {
+                        htmlLog("Problem Derive Public Key on onlykey")();
+                        // $onStatus("Problem Derive Public Key on onlykey");
+                        cb(true);
+                        return;
+                    }
+
+                    //var data = await Promise;
+                    var okPub = response.slice(21, 53);
+                    var _OKversion = response[19] == 99 ? 'Color' : 'Original';
+                    var _FWversion = bytes2string(response.slice(8, 20));
+                    var transit_sharedsec = nacl.box.before(Uint8Array.from(okPub), app_transit.secretKey);
+                    if (enc_resp == 1) {
+                        var encrypted_response = response.slice(53, response.length); // ? should be to end of message response.len
+                        response = aesgcm_decrypt(transit_sharedsec, encrypted_response);
+
+                        // Now response is going to be shorter - 53, need to adjust sharedPub position below
+                    }
+
+                    // Public ECC key will be an uncompressed ECC key, 65 bytes for P256, 32 bytes for NACL/CURVE25519 padded with 0s
+                    var sharedPub;
+                    if (keytype == 0 || keytype == 3) {
+                        sharedPub = response.slice(response.length - 65, response.length - 33);
+                    }
+                    else {
+                        sharedPub = response.slice(53, response.length);
+                    }
+
+                    htmlLog("OnlyKey Derive Public Key Complete")();
+
+                    // $onStatus("OnlyKey Derive Public Key Completed ");
+
+                    ONLYKEY_ECDH_P256_to_EPUB(sharedPub, function(epub) {
+                        if (typeof cb === 'function') cb(null, epub);
+                    })
+
+                });
+            }, (1));
+        };
+        api.derive_shared_secret = async function(additional_d, pubkey, cb) {
+            EPUB_TO_ONLYKEY_ECDH_P256(pubkey, function(pubkey) {
+                // optype
+                // #define DERIVE_PUBLIC_KEY 1
+                // #define DERIVE_SHARED_SECRET 2
+                var optype = 2;
+
+                setTimeout(async function() {
+                    console.log("-------------------------------------------");
+                    htmlLog("Requesting OnlyKey Shared Secret");
+                    // $onStatus("Requesting OnlyKey Shared Secret");
+
+                    var transit_key = nacl.box.keyPair();
+
+                    //Add header message;
+                    var message = ctaphid_custom_message_header(transit_key.publicKey);
+
+                    //Add additional data for key derivation
+                    var dataHash;
+
+                    if (!additional_d) {
+                        // SHA256 hash of empty buffer
+                        dataHash = await digestArray(Uint8Array.from(new Uint8Array(32)));
+                    }
+                    else {
+                        // SHA256 hash of input data
+                        dataHash = await digestArray(Uint8Array.from(additional_d));
+                    }
+
+                    Array.prototype.push.apply(message, dataHash);
+                    //htmlLog("additional data hash -> " + dataHash)
+
+                    //Add input public key for shared secret computation 
+                    Array.prototype.push.apply(message, pubkey);
+
+                    await ctaphid_via_webauthn(OKCONNECT, optype, keytype, enc_resp, message, 6000).then(async(response) => {
+
+                        if (!response || response == 1) {
+                            htmlLog("Problem getting Shared Secret");
+                            // $onStatus("Problem getting Shared Secret");
+                            cb(true);
+                            return;
+                        }
+
+                        var okPub = response.slice(21, 53);
+                        var _OKversion = response[19] == 99 ? 'Color' : 'Original';
+                        var _FWversion = bytes2string(response.slice(8, 20));
+                        var transit_sharedsec = nacl.box.before(Uint8Array.from(okPub), app_transit.secretKey);
+                        if (enc_resp == 1) {
+                            var encrypted_response = response.slice(53, response.length); // ? should be to end of message response.len
+                            response = aesgcm_decrypt(transit_sharedsec, encrypted_response);
+
+                            // Now response is going to be shorter - 53, need to adjust returned_sharedsec position below
+                        }
+
+                        var e;
+
+
+                        //Private ECC key will be 32 bytes for all supported ECC key types
+
+                        var returned_sharedsec = response.slice(response.length - 32, response.length);
+                        var _OKversion = response[19] == 99 ? 'Color' : 'Original';
+                        var _FWversion = bytes2string(response.slice(8, 20));
+
+                        htmlLog("OnlyKey Shared Secret Completed\n");
+                        // $onStatus("OnlyKey Shared Secret Completed ");
+
+                        var derivedKey = await window.crypto.subtle.importKey('raw', Uint8Array.from(returned_sharedsec), { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+                        var _k = await window.crypto.subtle.exportKey('jwk', derivedKey).then(({ k }) => k);
+
+                        if (typeof cb === 'function') cb(null, _k);
+
+                    });
+                }, (1));
+
+            });
+        };
     }
 
     function ctaphid_custom_message_header(publicKey) {
@@ -743,7 +737,7 @@ function onlykey(keytype, enc_resp) {
     }
 
     api.connect = connect;
-    
+
     return api;
 }
 

@@ -4,11 +4,14 @@ module.exports = {
   setup: function(options, imports, register) {
 
     var app = imports.app;
-    // var url = require("url");
     var $ = imports.$;
     var History = window.History;
+    var EventEmitter = require("events").EventEmitter;
+    
+    var init_page_id = $("body").data("page");
 
     var pagesList = [
+      "index",
       "decrypt",
       "decrypt-file",
       "encrypt",
@@ -19,10 +22,22 @@ module.exports = {
     ];
 
 
-    var pages = {};
-
+    var pages = new EventEmitter();
+    
     for (var i in pagesList) {
-      pages[pagesList[i]] = require("./page_files/" + pagesList[i] + ".page.html").default;
+      try {
+        pages[pagesList[i]] = require("./page_actions/" + pagesList[i] + ".page.js");
+      }
+      catch (e) {
+        pages[pagesList[i]] = {};
+      }
+      if(!pages[pagesList[i]].view)
+        try {
+          pages[pagesList[i]].view = require("./page_files/" + pagesList[i] + ".page.html").default;
+        }
+        catch (e) {
+          pages[pagesList[i]].view = false;
+        }
     }
 
     // Bind to StateChange Event
@@ -40,7 +55,7 @@ module.exports = {
     function hrefTakeover(tag) {
       var urlPath = tag.attr('href');
       if (urlPath == "#") return true;
-      
+
       if (!tag.data("href-takeover")) {
         tag.data("href-takeover", true);
       }
@@ -49,13 +64,13 @@ module.exports = {
       }
 
       tag.click(function(e) {
-        
+
         var page_id = $("body").data("page");
-        if(page_id == "index") return;
+        if (page_id == "index") return;
         var title = $(this).text();
         if (urlPath.indexOf("/") == 0 || urlPath.indexOf("./") == 0) {
           var _hash = pathHref(urlPath);
-          if (pages[_hash]) {
+          if (pages[_hash].view) {
             History.pushState({ pathname: _hash }, title, urlPath);
             e.preventDefault();
             return false; // prevents default click action of <a ...>
@@ -80,7 +95,7 @@ module.exports = {
     $("a").each(function(i, v) {
       hrefTakeover($(v));
     });
-    
+
     $(document).on('DOMNodeInserted', function(e) {
       if (e.target.tagName == "A") {
         hrefTakeover($(e.target));
@@ -93,25 +108,30 @@ module.exports = {
       }
     });
 
-    function renderPage(pageName) {
-      var p = $(pages[pageName]);
-      if (p){
+    function renderPage(pageName, init) {
+      var p;
+      if (pages[pageName].view) {
+        p = $(pages[pageName].view);
         $("#container").html(p);
-        $("body").data("page",pageName);
+        $("body").data("page", pageName);
       }
+      
+      if (init &&pages[pageName].init)
+        pages[pageName].init(imports.app, pages);
+      
+      else if (pages[pageName].setup)
+        pages[pageName].setup(imports.app, pages);
+      
+      pages.emit("render",pageName, p);
     }
 
-    renderPage($("body").data("page"));
-
+    
+    pages.init = function(){
+      renderPage(init_page_id, true);  
+    };
+    
     register(null, {
-      pages: {
-        init: function() {
-
-          imports.app.on("start", function() {
-
-          });
-        }
-      }
+      pages: pages
     });
 
 

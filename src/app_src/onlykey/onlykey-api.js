@@ -55,28 +55,42 @@
    * Performs NACL key exchange to encrypt all future packets
    * Receives hardware generated entropy for future use
    */
+  onlykey_api.init = false;
   onlykey_api.initok = async function(callback) {
 
-    //Initialize OnlyKey
-    if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1) browser = "Firefox";
+    return new Promise(async function(resolve) {
+      if (onlykey_api.init) {
+        if (callback && typeof callback == "function")
+          callback();
+        resolve();
+      }
 
-    if (onlykey_api._status != 'Encrypt Only') {
-      msg_polling({ type: 1, delay: 0 }); //Set time on OnlyKey, get firmware version, get ecc public
-      if (os == 'Android') await wait(6000);
-      else await wait(3000);
-    }
-    await wait(1000);
+      //Initialize OnlyKey
+      if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1) browser = "Firefox";
 
+      msg_polling({ type: 1, delay: 0 }, function() {
 
-    if (typeof(sharedsec) === "undefined" && onlykey_api._status != 'Encrypt Only') {
-      if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
-      else headermsg("OnlyKey not connected! Refresh this page to try again.");
-    }
-    else {
-      //Initialize App
-      if (callback && typeof callback == "function")
-        callback();
-    }
+        if (typeof(sharedsec) === "undefined") {
+          if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
+          else headermsg("OnlyKey not connected! Refresh this page to try again.");
+          if (callback && typeof callback == "function")
+            callback(true);
+          resolve();
+        }
+        else {
+          onlykey_api.init = true;
+          //Initialize App
+          if (callback && typeof callback == "function")
+            callback();
+          resolve();
+
+        }
+      }); //Set time on OnlyKey, get firmware version, get ecc public
+      // if (os == 'Android') await wait(6000);
+      // else await wait(3000);
+      // await wait(1000);
+
+    });
   };
 
   /**
@@ -296,48 +310,51 @@
       //#define DERIVE_SHARED_SECRET 2
       //#define NO_ENCRYPT_RESP 0
       //#define ENCRYPT_RESP 1
-      await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000).then(async(response) => {
-        console.log("DECODED RESPONSE:", response);
-        var data = await Promise;
-        if (onlykey_api._status === 'finished') {
-          console.info("Finished");
-        }
-        else if (onlykey_api._status === 'waiting_ping') {
-          console.info("Ping Successful");
-          _setStatus('pending_challenge');
-          data = 1;
-        }
-        else if (type == 1) {
-          okPub = response.slice(21, 53);
-          console.info("OnlyKey Public Key: ", okPub);
-          sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-          console.info("NACL shared secret: ", sharedsec);
-          OKversion = response[19] == 99 ? 'Color' : 'Original';
-          FWversion = bytes2string(response.slice(8, 20));
-          msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
-          element_by_id('header_messages').innerHTML = "<br>";
-          headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-          var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
-          console.info("AES Key", key);
-          return;
-        }
-        /*else if (type == 2) {
-                 var pubkey = response.slice(0, 1); //slot number containing matching key
-                 msg("Public Key found in slot" + pubkey);
-                 var entropy = response.slice(2, response.length);
-                 msg("HW generated entropy" + entropy);
-                 //Todo finish implementing this
-             return pubkey;
-           }*/
-        else if (type == 3 && onlykey_api._status == 'finished') {
-          data = response;
-        }
-        else if (type == 4 && onlykey_api._status == 'finished') {
-          var oksignature = response.slice(0, response.length); //4+32+2+32
-          data = oksignature;
-        }
+      var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000);
+
+      console.log("DECODED RESPONSE:", response);
+      var data = await Promise;
+      if (onlykey_api._status === 'finished') {
+        console.info("Finished");
+      }
+      else if (onlykey_api._status === 'waiting_ping') {
+        console.info("Ping Successful");
+        _setStatus('pending_challenge');
+        data = 1;
+      }
+      else if (type == 1) {
+        okPub = response.slice(21, 53);
+        console.info("OnlyKey Public Key: ", okPub);
+        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+        console.info("NACL shared secret: ", sharedsec);
+        OKversion = response[19] == 99 ? 'Color' : 'Original';
+        FWversion = bytes2string(response.slice(8, 20));
+        msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
+        element_by_id('header_messages').innerHTML = "<br>";
+        headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
+        var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+        console.info("AES Key", key);
         if (typeof cb === 'function') cb(null, data);
-      });
+        return;
+      }
+      /*else if (type == 2) {
+               var pubkey = response.slice(0, 1); //slot number containing matching key
+               msg("Public Key found in slot" + pubkey);
+               var entropy = response.slice(2, response.length);
+               msg("HW generated entropy" + entropy);
+               //Todo finish implementing this
+           return pubkey;
+         }*/
+      else if (type == 3 && onlykey_api._status == 'finished') {
+        data = response;
+      }
+      else if (type == 4 && onlykey_api._status == 'finished') {
+        var oksignature = response.slice(0, response.length); //4+32+2+32
+        data = oksignature;
+      }
+      
+      if (typeof cb === 'function') cb(null, data);
+
     }, (delay * 1000));
   }
 
@@ -392,8 +409,8 @@
       ct = ct.raw;
       if (typeof(sharedsec) === "undefined") {
         var button = element_by_id("onlykey_start");
-        if(button)
-        button.textContent = "Insert OnlyKey and reload page";
+        if (button)
+          button.textContent = "Insert OnlyKey and reload page";
         return;
       }
       cb = cb || noop;
@@ -426,7 +443,7 @@
   onlykey_api.auth_sign = function(ct, cb) { //OnlyKey sign request to keyHandle
     if (typeof(sharedsec) === "undefined") {
       var button = element_by_id("onlykey_start");
-      if(button)
+      if (button)
         button.textContent = "Insert OnlyKey and reload page";
       return;
     }
@@ -563,11 +580,11 @@
     return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
       secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
       var button = element_by_id("onlykey_start");
-        
+
       if (onlykey_api._status === 'done_challenge' || onlykey_api._status === 'waiting_ping') {
         _setStatus('done_challenge');
         const btmsg = `Waiting for OnlyKey to process message.`;
-        if(button) button.textContent = btmsg;
+        if (button) button.textContent = btmsg;
         console.info("Delay ", onlykey_api.poll_delay);
         await ping(onlykey_api.poll_delay - 2); //Delay
       }
@@ -577,7 +594,7 @@
         }
         if (secondsRemaining >= 2) {
           const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
-          if(button) button.textContent = btmsg;
+          if (button) button.textContent = btmsg;
           console.info("enter challenge code", pin);
         }
         //await ping(0); //Too many popups with FIDO2
@@ -684,14 +701,15 @@
       data = signature.slice(1, signature.length);
       if (bytes2string(data.slice(0, 9)) == 'UNLOCKEDv') {
         // Reset shared secret and start over
-        _setStatus(element_by_id('onlykey_start').value);
+        // _setStatus(element_by_id('onlykey_start').value);
+        onlykey_api.unlocked = true;
       }
       else if (signature.length < 73 && bytes2string(data.slice(0, 6)) == 'Error ') {
         // Something went wrong, read the ascii response and display to user
         var msgtext = data.slice(0, getstringlen(data));
         const btmsg = `${bytes2string(msgtext)}. Refresh this page and try again.`;
-         var button = element_by_id("onlykey_start");
-        if(button){
+        var button = element_by_id("onlykey_start");
+        if (button) {
           button.textContent = btmsg;
           button.classList.remove('working');
           button.classList.add('error');
@@ -708,7 +726,7 @@
     else if (error_code == ctap_error_codes['CTAP2_ERR_NO_OPERATION_PENDING']) {
       // No data received, data has already been retreived or wiped due to 5 second timeout
 
-      if(button)button.textContent = 'no data received';
+      if (button) button.textContent = 'no data received';
       _setStatus('finished');
       throw new Error('no data received');
 

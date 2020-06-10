@@ -20,7 +20,7 @@ module.exports = {
 
     var forge = imports.forge;
 
-    const randomColor = require('randomcolor');
+    // const randomColor = require('randomcolor');
 
     var tokenizer = require("../jquery.tokenizer.js");
 
@@ -133,8 +133,8 @@ module.exports = {
       return arr1.join('');
     }
 
-    var ok = onlykey3rd(1, 0);
-
+    // var ok = onlykey3rd(1, 0);
+/*
     function startConnect(done) {
       ok.connect(function() {
         if (ok.derive_public_key) {
@@ -189,7 +189,7 @@ module.exports = {
 
     async function finish() {
 
-
+*/
 
       register(null, {
         main: {
@@ -200,13 +200,14 @@ module.exports = {
               if (initapp) {
                 app_initilized = false;
                 $("body").data("page", pathname);
-                if (disable_onlykey)
+                /*if (disable_onlykey)
                   startConnect(initapp);
-                else
+                else*/
                   initapp();
               }
             });
-
+            
+            return;
             imports.app.on("start", initapp = async function() {
 
               const urlinputbox = document.getElementById('pgpkeyurl');
@@ -316,7 +317,7 @@ module.exports = {
                     button.textContent = 'Insert OnlyKey and Click Here :)';
                     button.addEventListener('click', async function() {
                       if (disable_onlykey) {
-                        startConnect(initapp);
+                        //startConnect(initapp);
                       }
                     });
                     break;
@@ -344,7 +345,7 @@ module.exports = {
 
                   if (!app_initilized) {
 
-
+/*
                     if (ok.history) {
                       $("#user").val(await ok.history.get("search-user"));
                       $("#user").change(function() {
@@ -357,7 +358,7 @@ module.exports = {
                         ok.history.set("search-searchSelect", sel);
                       });
                     }
-
+*/
 
                     $('#submit').click(function() {
 
@@ -386,11 +387,11 @@ module.exports = {
                   disable_onlykey = true;
                   button.addEventListener('click', async function() {
                     var phrase = $("#phrase").val();
-                    ok.derive_public_key(phrase, function(error, phrasePubkey) {
-                      ok.derive_shared_secret(phrase, phrasePubkey, async function(error, phrasePubkeySecret) {
-                        $("#phrase_out").val(phrasePubkeySecret);
-                      });
-                    });
+                    // ok.derive_public_key(phrase, function(error, phrasePubkey) {
+                    //   ok.derive_shared_secret(phrase, phrasePubkey, async function(error, phrasePubkeySecret) {
+                    //     $("#phrase_out").val(phrasePubkeySecret);
+                    //   });
+                    // });
                   });
                   break;
 
@@ -398,20 +399,6 @@ module.exports = {
                 default:
                   break;
               }
-
-
-              if (ok.history) {
-                $("#pgpkeyurl2").val(await ok.history.get("pgpkeyurl2"));
-                $("#pgpkeyurl2").change(function() {
-                  ok.history.set("pgpkeyurl2", $("#pgpkeyurl2").val());
-                });
-
-                $("#pgpkeyurl").val(await ok.history.get("pgpkeyurl"));
-                $("#pgpkeyurl").change(function() {
-                  ok.history.set("pgpkeyurl", $("#pgpkeyurl").val());
-                });
-              }
-
 
               if (enable_tokenizer) {
                 tokenizer($, async function(itemName, returnValueFN) {
@@ -591,162 +578,6 @@ module.exports = {
               }
 
 
-              function searchLayout() {
-                var outDiv = $("<div class='outline'>");
-                $("#results").append(outDiv);
-                var leftDiv_outter = $("<div class='yui3-u-1-2'>");
-                outDiv.append(leftDiv_outter);
-                var rightDiv_outter = $("<div class='yui3-u-1-2'>");
-                outDiv.append(rightDiv_outter);
-                var leftDiv = $("<div class='block-inner'>");
-                leftDiv_outter.append(leftDiv);
-                var rightDiv = $("<div class='block-inner'>");
-                rightDiv_outter.append(rightDiv);
-
-                return {
-                  outDiv: outDiv,
-                  leftDiv: leftDiv,
-                  leftDiv_outter: leftDiv_outter,
-                  rightDiv: rightDiv,
-                  rightDiv_outter: rightDiv_outter,
-                };
-              }
-
-              async function searchKeybase(sites, user) {
-                console.info("sites");
-                console.info(sites);
-                console.info("user");
-                console.info(user);
-                $("#results").html("");
-
-                var $user = user.q;
-
-                switch (sites.q) {
-                  //https://keybase.io/_/api/1.0/user/lookup.json?uid=4a4f61cdab6a13fb904599ef0159bd19
-                  case 'protonmail':
-
-                    if ($user && !($user.indexOf("0x") == 0) && !$user.split("@")[1])
-                      $user += "@protonmail.com";
-
-                    var response_text = await onlykeyApi.getKey($user, "protonmail");
-                    console.log(response_text);
-
-
-                    var sl = searchLayout();
-
-                    var decodedkey = pgpDecoder(response_text);
-                    console.log(decodedkey);
-
-                    var p2g_search = onlykeyPGP(usevirtru);
-                    p2g_search.getPublicKeyInfo(response_text, function(theKey) {
-                      if (theKey) {
-
-                        var email = theKey.pgp.userids[0].components.email;
-                        var username = theKey.pgp.userids[0].components.username;
-                        var keyid = "0x" + theKey.find_crypt_pgp_key().get_key_id().toString("hex");
-                        var keyid_short = theKey.find_crypt_pgp_key().get_short_key_id();
-
-
-                        sl.leftDiv.append("<img src='https://www.gravatar.com/avatar/" + forge.md5.create().update(email).digest().toHex() + "?s=1024default=https%3A%2F%2Fgravatar.com%2Favatar%2F" + forge.md5.create().update(default_anonymous_email).digest().toHex() + "' />");
-                        sl.rightDiv.append("<font color='red'>Protonmail Username = " + username + "</font><br>");
-                        sl.rightDiv.append("<pre color='red'>GPG KeyID = " + keyid + " (" + keyid_short + ")" + "</pre><br>");
-                        sl.rightDiv.append("Send Encrypted <a href='/encrypt-dev.html?type=e&recipients=" + username + "'>Message</a> <a href='/encrypt-file-dev.html?type=e&recipients=" + username + "'>File</a><br>");
-
-                        var $getpgp_btn = $("<button>Copy PGP Key</button>");
-                        var $pgp_copybox = $("<textarea>&nbsp;</textarea>");
-                        sl.rightDiv.append($getpgp_btn);
-                        sl.rightDiv.append($pgp_copybox);
-                        $pgp_copybox.hide();
-                        $getpgp_btn.click(async function() {
-                          $pgp_copybox.val(response_text);
-                          $pgp_copybox.show();
-                          $pgp_copybox.focus();
-                          $pgp_copybox.select();
-                          document.execCommand('copy');
-                          $pgp_copybox.hide();
-                          var origTxt = $getpgp_btn.text();
-                          $getpgp_btn.text(origTxt + " (copied)");
-                          setTimeout(() => { $getpgp_btn.text(origTxt); }, 5000);
-                        });
-                        console.log(theKey);
-                      }
-                    });
-
-                    break;
-                  case 'keybase':
-                    var kburl = 'https://keybase.io/_/api/1.0/user/user_search.json?q=' + user.q;
-                    $.ajax({
-                      url: kburl,
-                      async: true,
-                      dataType: 'json',
-                      success: function(data) {
-                        console.info(data);
-                        var result = data.list;
-                        result.forEach(function(element) {
-                          console.log(element);
-                          console.log(element.components);
-                          var listItem = element.keybase;
-
-                          if (listItem.uid) {
-                            $.ajax({
-                              url: 'https://keybase.io/_/api/1.0/user/lookup.json?uid=' + listItem.uid,
-                              async: true,
-                              dataType: 'json',
-                              success: function(data) {
-                                console.log(data)
-                                if (listItem.username) {
-
-                                  var sl = searchLayout()
-                                  if (listItem.picture_url != null)
-                                    sl.leftDiv.append("<img src='" + listItem.picture_url + "' width='10' height='auto'/><br>");
-                                  else sl.leftDiv.append("<img src='https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png' />");
-
-
-                                  sl.rightDiv.append("<font color='red'>Keybase Username = " + listItem.username + "</font><br>");
-                                  if (listItem.full_name) sl.rightDiv.append("Full Name = " + listItem.full_name + "<br><br>");
-                                  sl.rightDiv.append("View Keybase Profile <a href='https://keybase.io/" + listItem.username + "'>Here</a><br>");
-                                  sl.rightDiv.append("Send Encrypted <a href='/encrypt?type=e&recipients=" + listItem.username + "'>Message</a> <a href='/encrypt-file?type=e&recipients=" + listItem.username + "'>File</a><br>");
-
-                                  for (var i in element.services_summary) {
-                                    sl.rightDiv.append("<font color='blue'>" + element.services_summary[i].service_name.toUpperCase() + " Username = " + element.services_summary[i].username + "</font><br>");
-                                  }
-                                  var $getpgp_btn = $("<button>Copy PGP Key</button>");
-                                  var $pgp_copybox = $("<textarea>&nbsp;</textarea>");
-                                  sl.rightDiv.append($getpgp_btn);
-                                  sl.rightDiv.append($pgp_copybox);
-                                  $pgp_copybox.hide();
-                                  $getpgp_btn.click(async function() {
-                                    var url = 'https://keybase.io/' + listItem.username + '/pgp_keys.asc';
-                                    var response_text = await onlykeyApi.getKey(url)
-                                    $pgp_copybox.val(response_text)
-                                    $pgp_copybox.show();
-                                    $pgp_copybox.focus();
-                                    $pgp_copybox.select();
-                                    var successful = document.execCommand('copy');
-                                    $pgp_copybox.hide();
-                                    var origTxt = $getpgp_btn.text();
-                                    $getpgp_btn.text(origTxt + " (copied)");
-                                    setTimeout(() => { $getpgp_btn.text(origTxt); }, 5000);
-                                  });
-                                }
-                              }
-                            });
-                          }
-                          // else {
-                          //   $("#results").append("<br>No matchs found!");
-                          // }
-                        });
-                      }
-                    });
-                    break;
-                  case 'protonmail':
-                    break;
-
-                }
-
-
-                $(window).scrollTo("h4", 800)
-              }
 
             });
 
@@ -754,6 +585,6 @@ module.exports = {
         }
       });
 
-    }
+    // }
   }
 };
