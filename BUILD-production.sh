@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
-sh ./BUILD.sh 1
+./BUILD.sh 1
 
