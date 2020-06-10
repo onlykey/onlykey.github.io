@@ -38,13 +38,22 @@ module.exports = {
           .then(response => response.json())
           .then(data => {
 
-            var rc;
-            var releaseList = {};
+            var current;
+            var releaseList = {}, rl={};
 
-
-            for (var j in data) {
-              if (!(j.indexOf("_rc") == -1)) {
-                rc = j;
+            var j;
+            
+            for (j in data) {
+              if (!(j.indexOf("current") == -1)) {
+                current = data[j];
+                continue;
+              }
+              rl[j] = data[j];
+            }
+            data = rl;
+            
+            for (j in data) {
+              if (j == current) {
                 continue;
               }
               releaseList[j] = data[j];
@@ -52,8 +61,8 @@ module.exports = {
             
             $('<hr>').appendTo($("#releases"));
             
-            if(rc)
-              releaseView(rc, data[rc], true);
+            if(current)
+              releaseView(current, data[current], true);
 
             for (var i in releaseList) {
               $('<hr>').appendTo($("#releases"));
@@ -62,12 +71,12 @@ module.exports = {
 
 
 
-            function releaseView(releasesName, releaseData, rc) {
+            function releaseView(releasesName, releaseData, is_current) {
         
               var contain = $('<div>').appendTo($("#releases"));
-          
-              contain.append("<h2>" + releaseData.name + " : " + releaseData.stage + releaseData.version + (rc? "(rc)" : "") +"</h2>");
-              contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.stage + releaseData.version + (rc? "(rc)" : "")+ '</a>');
+              
+              contain.append("<h2>" + releaseData.name + " : " + releaseData.stage + releaseData.version + (is_current? "(rc)" : "") +"</h2>");
+              contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.stage + releaseData.version + (is_current? "(rc)" : "")+ '</a>');
               if (releaseData.authors){
                 var i;
                 for(i in releaseData.change_log){
