@@ -4,8 +4,8 @@ module.exports = {
     provides: ["gun","Gun","SEA", "newGun"],
     setup: function(options, imports, register) {
         
-        var Gun = require("gun");
-        require("gun/sea.js");
+        var Gun = Gun;//require("gun/gun.min.js");
+        var sea = Gun.SEA//require("gun/sea.js");
         
         var newGun = function(){
             return Gun("https://www.peersocial.io/gun");

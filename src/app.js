@@ -4,8 +4,8 @@ window.jQuery = $;
 require("./jquery.history.js");
 require("./jquery.scrollTo.min.js");
 
-
 var architect = require("./architect.js");
+
 var EventEmitter = require("events").EventEmitter;
 
 architect([
@@ -15,21 +15,22 @@ architect([
   require("./app_src/gun.js"),
   
   require("./app_src/onlykey/plugin.js"),
-  
+ 
   require("./app_src/pages/pages.js"),
   
-  {//jquery
+  {
     provides: ["$"],
     consumes: [],
-    setup: (options, imports, register) => {
+    setup: function(options, imports, register){
       register(null, {
         $:$
       });
     }
-  }, {//app core
+  }
+, {
     provides: ["app","release"],
     consumes: ["hub"],
-    setup: (options, imports, register) => {
+    setup: function(options, imports, register){
       register(null, {
         app: new EventEmitter(),
         release: require("./release.js")
@@ -46,4 +47,5 @@ architect([
 
   app.services.app.emit("start");
 });
+
 

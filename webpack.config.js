@@ -1,5 +1,5 @@
 const path = require('path');
-// const webpack = require('webpack');
+const webpack = require('webpack');
 const MinifyPlugin = require("babel-minify-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 // const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -48,9 +48,11 @@ for (var i in pageFiles) {
         })
     );
 }
-/*
+
 plugins.push(
     new webpack.ProvidePlugin({
+    	"Gun":"gun.js",
+    	"Gun.SEA":"gun/sea.js",    	
     //   nacl: './nacl.min.js',
     //   forge: './forge.min.js',
     //   kbpgp: './kbpgp.js',
@@ -58,7 +60,7 @@ plugins.push(
     //   'auth_decrypt()': './onlykey-api.js',
     })
 );
-*/
+
 
 if (process.env.NODE_ENV === 'production') {
     plugins.push(new MinifyPlugin({
@@ -75,12 +77,14 @@ if (process.env.NODE_ENV === 'production') {
         removeConsole: true,
         removeDebugger: true
     }, {
-        exclude: ["./src/forge.min.js", "./src/nacl.min.js"]
+        exclude: ["./src/forge.min.js", "./src/nacl.min.js", "/~/gun/sea.js" ],
+	include:[]
     }));
+    /*
     plugins.push(new SriPlugin({
         hashFuncNames: ['sha256', 'sha384'],
         enabled: process.env.NODE_ENV === 'production'
-    }));
+    }));*/
 }
 
 module.exports = {
