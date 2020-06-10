@@ -7,7 +7,9 @@ module.exports = {
     var $ = imports.$;
     var History = window.History;
     var EventEmitter = require("events").EventEmitter;
-    
+
+    $(".startHidden").hide().removeClass("startHidden");
+
     var init_page_id = $("body").data("page");
 
     var pagesList = [
