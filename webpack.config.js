@@ -50,9 +50,7 @@ for (var i in pageFiles) {
 }
 
 plugins.push(
-    new webpack.ProvidePlugin({
-    	"Gun":"gun.js",
-    	"Gun.SEA":"gun/sea.js",    	
+    new webpack.ProvidePlugin({  	
     //   nacl: './nacl.min.js',
     //   forge: './forge.min.js',
     //   kbpgp: './kbpgp.js',
@@ -61,7 +59,7 @@ plugins.push(
     })
 );
 
-
+/*
 if (process.env.NODE_ENV === 'production') {
     plugins.push(new MinifyPlugin({
         consecutiveAdds: false,
@@ -80,12 +78,14 @@ if (process.env.NODE_ENV === 'production') {
         exclude: ["./src/forge.min.js", "./src/nacl.min.js", "/~/gun/sea.js" ],
 	include:[]
     }));
-    /*
-    plugins.push(new SriPlugin({
-        hashFuncNames: ['sha256', 'sha384'],
-        enabled: process.env.NODE_ENV === 'production'
-    }));*/
+    
 }
+*/
+
+plugins.push(new SriPlugin({
+    hashFuncNames: ['sha256', 'sha384'],
+    enabled: process.env.NODE_ENV === 'production'
+}));
 
 module.exports = {
     entry: ['./src/app.js'],
