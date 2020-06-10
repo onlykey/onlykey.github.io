@@ -1,7 +1,7 @@
 module.exports = {
   "name": "OnlyKey Webcrypt App",
-  "version": "8",
-  "stage": "Beta",
+  "version": "2.1.0",
+  "stage": "prodc",
   "change_log": [
     "Added Multiple Recipient Support for GPG",
     "Added Password Generator",

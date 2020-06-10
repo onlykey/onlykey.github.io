@@ -74,9 +74,14 @@ module.exports = {
             function releaseView(releasesName, releaseData, is_current) {
         
               var contain = $('<div>').appendTo($("#releases"));
-              
-              contain.append("<h2>" + releaseData.name + " : " + releaseData.stage + releaseData.version + (is_current? "(rc)" : "") +"</h2>");
-              contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.stage + releaseData.version + (is_current? "(rc)" : "")+ '</a>');
+              if(is_current){
+                contain.append("<h2>" + releaseData.name + " : " + releaseData.stage + releaseData.version +  "(live)</h2>");
+                contain.append('<a href="../" class="yui3-button primary-button">Open ' + releaseData.stage + releaseData.version + '(live)</a>');
+              }else{
+                contain.append("<h2>" + releaseData.name + " : " + releaseData.stage + releaseData.version + (is_current? "(live)" : "") +"</h2>");
+                contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.stage + releaseData.version + (is_current? "(live)" : "")+ '</a>');
+                
+              }
               if (releaseData.authors){
                 var i;
                 for(i in releaseData.change_log){

@@ -10,16 +10,19 @@ var dirs = getDirectories(__dirname);
 
 var past_releases = {};
 
+console.log("building release tree");
+past_releases["current"] = require(__dirname + "/last_build.js")[0];
+
 for (var i in dirs) {
   var name = dirs[i].replace(__dirname + "/", "");
-  if (name.indexOf(".") == -1)
+  if (name.indexOf(".js") == -1)
   try{
     past_releases[name] = require(__dirname + "/" + name + "/release.js");
-  }catch(e){}
+    console.log("Release Added", [name, past_releases[name].stage, past_releases[name].version, past_releases["current"] == name ? "(Current)" : ""])
+  }catch(e){console.log(e)}
 }
 
 
-past_releases["current"] = require(__dirname + "/last_build.js")[0];
 
 // console.log(past_releases);
 
