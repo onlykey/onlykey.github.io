@@ -19,7 +19,8 @@
     "build-production": "./BUILD-production.sh",
     "build-release": "NODE_OPTIONS=\"--max-old-space-size=8192\" cross-env NODE_ENV=production OUT_DIR=./build webpack -p --config webpack.config.js",
     "build-site": "cross-env NODE_ENV=development OUT_DIR=./build webpack --devtool source-map --config webpack.config.js",
-    "heroku-postbuild": "npm run build-production"
+    "heroku-postbuild": "npm run build-production",
+    "start": "node ./index.js"
   },
   "bugs": {
     "url": "https://github.com/onlykey/onlykey.github.io/issues"
