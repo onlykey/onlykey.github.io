@@ -73,6 +73,8 @@ app.get('/protonmail/:action/:address_id*', (req, res, next) => {
     default:
       return next();
   }
+  res.set("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+  res.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.set('Content-Type', 'text/plain');
   //https://api.protonmail.ch/pks/lookup?op=index&search=bmatusiak@protonmail.com
   //https://api.protonmail.ch/pks/lookup?op=get&search=bmatusiak@protonmail.com

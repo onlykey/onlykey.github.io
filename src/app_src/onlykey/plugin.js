@@ -67,7 +67,7 @@ module.exports = {
             function protonmail() {
                 return new Promise(resolve => {
                     if (statusFn) statusFn('Downloading public key (protonmail) ...');
-                    url = 'https://' + window.location.host + '/protonmail/get/' + url;
+                    url = 'https://onlykey.herokuapp.com/protonmail/get/' + url;
                     request
                         .get(url)
                         .set("Content-Type", "text/plain")
