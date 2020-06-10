@@ -1,5 +1,5 @@
 var tokenizer = function($, onAddTokenizerItem) {
-    
+    if(!$.fn.tokenizer){
     var PubSub = function() {
             this.topics = {};
             this.id = 0;
@@ -310,22 +310,23 @@ var tokenizer = function($, onAddTokenizerItem) {
     };
 
     $.fn.tokenizer.Constructor = Tokenizer;
-
+    
+    }
     /* TOKENIZER DATA-API
      * ================== */
 
-    $(function() {
-        
+    /*$(function() {
+        return;*/
         // setTimeout(function(){
-        $("input[data-provide='tokenizer']").each(function() {
-            var $element = $(this);
-            if ($element.data("tokenizer")) {
-                return;
-            }
-            $element.tokenizer($element.data());
-        });
+        // $("input[data-provide='tokenizer']").each(function() {
+        //     var $element = $(this);
+        //     if ($element.data("tokenizer")) {
+        //         return;
+        //     }
+        //     $element.tokenizer($element.data());
+        // });
         // },5000)
-    });
+    //});
 
 
 };

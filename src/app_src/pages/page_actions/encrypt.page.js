@@ -25,10 +25,19 @@ var page = {
 
     console.log("page", "init");
 
+    
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
     var onlykeyPGP = app.onlykeyPGP;
 
+    var tokenizer = require("../../../jquery.tokenizer.js");
+    
+    if (tokenizer) {
+      tokenizer($, async function(itemName, returnValueFN) {
+        returnValueFN(await onlykeyApi.getKey(itemName));
+      });
+    }
+    
     page.gun = app.newGun();
     page.p2g = onlykeyPGP();
 
@@ -84,6 +93,13 @@ var page = {
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
 
+    $("input[data-provide='tokenizer']").each(function() {
+        var $element = $(this);
+        if ($element.data("tokenizer")) {
+            return;
+        }
+        $element.tokenizer($element.data());
+    });
 
     onlykeyApi.request_pgp_pubkey = function() {
       function error_1(err) {
