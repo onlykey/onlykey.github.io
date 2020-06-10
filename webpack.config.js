@@ -44,7 +44,7 @@ let plugins = [
 
     new HtmlWebpackPlugin({
         dir_name: "./app",
-        filename: (process.env.NODE_ENV === 'production') ? './index.html' : './index.html',
+        filename: './index.html',
         template: './src/index-src.html',
         inject: 'body',
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
@@ -57,7 +57,7 @@ let plugins = [
 
     new HtmlWebpackPlugin({
         dir_name: ".",
-        filename: (process.env.NODE_ENV === 'production') ? './index.html' : './app/index.html',
+        filename: './app/index.html',
         template: './src/index-src.html',
         inject: 'body',
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
