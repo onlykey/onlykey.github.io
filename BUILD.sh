@@ -1,4 +1,4 @@
-
+#!/bin/bash
 
 #get last submitted version
 git checkout -- ./docs
@@ -28,7 +28,7 @@ fi
 rm -rf ./build
 
 #do build
-if [ "$1" == "1"  ]; then
+if [ "$1" == "1" ]; then
 echo "Build Production"
 npm run build-release
 else
