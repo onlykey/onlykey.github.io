@@ -111,20 +111,37 @@ module.exports = {
     plugins: plugins,
     module: {
         rules: [{
-            test: /\.page\.html$/i,
+            test: /\.page\.html$/g,
             use: 'raw-loader',
         }]
     },
 };
 
 function getPagesList() {
-    const path = require('path');
-    const fs = require('fs');
-    const directoryPath = path.join(__dirname, 'src', 'app_src', 'pages', 'page_files');
-    var files = fs.readdirSync(directoryPath);
+    
     var _files = [];
-    files.forEach(function(file) {
-        _files.push(file.split(".")[0]);
-    });
+    
+    if(false){
+        const path = require('path');
+        const fs = require('fs');
+        const directoryPath = path.join(__dirname, 'src', 'app_src', 'pages', 'page_files');
+        var files = fs.readdirSync(directoryPath);
+        files.forEach(function(file) {
+            _files.push(file.split(".")[0]);
+        });
+    }else{
+               
+         var plugins = require("./src/plugins.js")
+         
+         for(var i in plugins){
+           if(plugins[i].pagesList){
+               for(var j in plugins[i].pagesList){
+                _files.push(j);
+               }
+           }
+         }
+         
+    }
+    
     return _files;
 }

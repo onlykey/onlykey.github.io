@@ -1,4 +1,19 @@
+var pagesList = {
+  "index": {
+    view: false
+  },
+  "decrypt": true,
+  "decrypt-file": true,
+  "encrypt": true,
+  "encrypt-file": true,
+  "search": true,
+  "password-generator": true,
+  "past_releases": true,
+};
+
 module.exports = {
+  pagesList: pagesList,
+
   consumes: ["app", "$"],
   provides: ["pages"],
   setup: function(options, imports, register) {
@@ -12,32 +27,7 @@ module.exports = {
 
     var init_page_id = $("body").data("page");
 
-    var pagesList = [
-      "index",
-      "decrypt",
-      "decrypt-file",
-      "encrypt",
-      "encrypt-file",
-      "search",
-      "password-generator",
-      "past_releases",
-    ];
-
-
     var pages = new EventEmitter();
-
-
-    // Bind to StateChange Event
-    History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
-      var State = History.getState(); // Note: We are using History.getState() instead of event.state
-      if (State.data.pathname && pages[State.data.pathname]) {
-        renderPage(State.data.pathname);
-        app.emit("state.change", State.data.pathname);
-      }
-      else {
-        window.location = State.hashedUrl;
-      }
-    });
 
     function hrefTakeover(tag) {
       var urlPath = tag.attr('href');
@@ -79,22 +69,6 @@ module.exports = {
       return _hash;
     }
 
-    $("a").each(function(i, v) {
-      hrefTakeover($(v));
-    });
-
-    $(document).on('DOMNodeInserted', function(e) {
-      if (e.target.tagName == "A") {
-        hrefTakeover($(e.target));
-      }
-      else {
-        $(e.target).find("a").each(function(index, value) {
-
-          hrefTakeover($(value));
-        });
-      }
-    });
-
     function renderPage(pageName, init) {
       var p;
       if (pages[pageName].view) {
@@ -112,31 +86,69 @@ module.exports = {
       pages.emit("render", pageName, p);
     }
 
-    pages.list = [];
-
     pages.init = function() {
+
+      // Bind to StateChange Event
+      History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
+        var State = History.getState(); // Note: We are using History.getState() instead of event.state
+        if (State.data.pathname && pages[State.data.pathname]) {
+          renderPage(State.data.pathname);
+          app.emit("state.change", State.data.pathname);
+        }
+        else {
+          window.location = State.hashedUrl;
+        }
+      });
+
+      $("a").each(function(i, v) {
+        hrefTakeover($(v));
+      });
+
+      $(document).on('DOMNodeInserted', function(e) {
+        if (e.target.tagName == "A") {
+          hrefTakeover($(e.target));
+        }
+        else {
+          $(e.target).find("a").each(function(index, value) {
+
+            hrefTakeover($(value));
+          });
+        }
+      });
 
 
       for (var i in pagesList) {
+        if (typeof pagesList[i] == "object") {
+          pages[i] = pagesList[i];
+          continue;
+        }
         try {
-          pages[pagesList[i]] = require("./page_actions/" + pagesList[i] + ".page.js");
+          pages[i] = require("./page_actions/" + i + ".page.js");
         }
         catch (e) {
-          pages[pagesList[i]] = {};
+          pages[i] = {};
         }
-        if (!pages[pagesList[i]].view)
+        if (!pages[i].view)
           try {
-            pages[pagesList[i]].view = require("./page_files/" + pagesList[i] + ".page.html").default;
+            pages[i].view = require("./page_files/" + i + ".page.html").default;
           }
         catch (e) {
-          pages[pagesList[i]].view = false;
+          pages[i].view = false;
         }
       }
 
-      for (var i in app.pages.list) {
-
+      for (var k in app) {
+        if (k == "pages") continue;
+        if (app[k] && app[k].pagesList) {
+          var PL = app[k].pagesList;
+          for (var i in PL) {
+            if (typeof PL[i] == "object") {
+              pages[i] = PL[i];
+              continue;
+            }
+          }
+        }
       }
-
 
       renderPage(init_page_id, true);
 
