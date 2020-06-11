@@ -26,9 +26,9 @@ var cspOptions = {
             "'self'", 
             "https://onlykey.herokuapp.com",
             "https://keybase.io",
-            "https://api.protonmail.ch",
+            // "https://api.protonmail.ch",
             "wss://www.peersocial.io",
-            "https://onlykey.herokuapp.com"
+            // "https://onlykey.herokuapp.com"
         ]
     },
     hashEnabled: {
