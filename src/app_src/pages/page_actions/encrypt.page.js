@@ -20,7 +20,7 @@ function gm_encode(str) {
 
 var page = {
 
-  init: function(app, pages) {
+  init: function(app, $page) {
     init = true;
 
     console.log("page", "init");
@@ -84,11 +84,11 @@ var page = {
     });
 
 
-    page.setup(app, pages);
+    page.setup(app, $page);
   },
-  setup: function(app, pages) {
+  setup: function(app, $page, pathname) {
     if (!init)
-      page.init(app, pages);
+      page.init(app, $page);
     
     
     // History.replaceState()
@@ -146,13 +146,15 @@ var page = {
     page.messagebox = document.getElementById('message');
     page.button = document.getElementById('onlykey_start');
 
+    var pageType = false;
+    
     if (onlykeyApi._status == 'Encrypt Only') {
       document.getElementById('pgpkeyurl2').style.display = "none";
       document.getElementById('pgpkeyurl').style.display = "initial";
       try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
       catch (e) {}
       page.button.textContent = 'Encrypt';
-      History.replaceState({ pathname: "encrypt" }, "Encrypt", "./encrypt?type=e");
+      pageType = "e";
     }
 
     if (onlykeyApi._status == 'Sign Only') {
@@ -161,7 +163,7 @@ var page = {
       try { document.getElementById('pgpkeyurl_tokenizer').style.display = "none"; }
       catch (e) {}
       page.button.textContent = 'Sign';
-      History.replaceState({ pathname: "encrypt" }, "Sign", "./encrypt?type=s");
+      pageType = "s";
     }
 
     if (onlykeyApi._status == 'Encrypt and Sign') {
@@ -170,15 +172,17 @@ var page = {
       try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
       catch (e) {}
       page.button.textContent = 'Encrypt and Sign';
-      History.replaceState({ pathname: "encrypt" }, "Encrypt and Sign", "./encrypt?type=es");
+      pageType = "es";
     }
-
+    
+    History.replaceState({ pathname: pathname}, page.button.textContent , "./encrypt?type="+pageType);
+      
     $(".messageLink").html("");
     
     if (!$("#action").data("changeSet")) {
       $("#action").data("changeSet", true);
       $("#action")[0].select_one.forEach(el => el.addEventListener('change', (function() {
-        page.setup(app, pages);
+        page.setup(app, $page);
       }).bind(null, false)));
       page.button.addEventListener('click', async function() {
         

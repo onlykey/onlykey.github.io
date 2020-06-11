@@ -3,7 +3,7 @@ var init = false;
 
 var page = {
 
-  init: function(app, pages) {
+  init: function(app, $page) {
     init = true;
 
     console.log("page", "init");
@@ -21,11 +21,11 @@ var page = {
       // $('#submit').click();
     }
 
-    page.setup(app, pages);
+    page.setup(app, $page);
   },
-  setup: function(app, pages) {
+  setup: function(app, $page, pathname) {
     if (!init)
-      page.init(app, pages);
+      page.init(app, $page);
 
     var default_anonymous_email = "onlykey@crp.to";
 
@@ -85,7 +85,9 @@ var page = {
       $("#results").html("");
 
       var $user = user.q;
-
+      
+      History.replaceState({ pathname: pathname}, page.button.textContent, "./search?q="+sites.q);
+      
       switch (sites.q) {
         //https://keybase.io/_/api/1.0/user/lookup.json?uid=4a4f61cdab6a13fb904599ef0159bd19
         case 'protonmail':

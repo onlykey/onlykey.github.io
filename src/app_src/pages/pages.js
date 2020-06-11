@@ -44,15 +44,20 @@ module.exports = {
 
         var page_id = $("body").data("page");
         if (page_id == "index") return;
+        
         var title = $(this).text();
+        
         if (urlPath.indexOf("/") == 0 || urlPath.indexOf("./") == 0) {
           var _hash = pathHref(urlPath);
-          if (pages[_hash].view) {
+          if (pages[_hash].view && lastRender != _hash) {
             History.pushState({ pathname: _hash }, title, urlPath);
             e.preventDefault();
             return false; // prevents default click action of <a ...>
           }
-          else
+          else if(lastRender == _hash){
+            e.preventDefault();
+            return false;
+          } else
             return true;
         }
         else if (urlPath.indexOf("#") > -1) {
@@ -72,20 +77,20 @@ module.exports = {
     var lastRender = false;
     function renderPage(pageName, init) {
       lastRender = pageName;
-      var p;
+      var $p;
       if (pages[pageName].view) {
-        p = $(pages[pageName].view);
-        $("#container").html(p);
+        $p = $(pages[pageName].view);
+        $("#container").html($p);
         $("body").data("page", pageName);
       }
 
       if (init && pages[pageName].init)
-        pages[pageName].init(imports.app, pages);
+        pages[pageName].init(imports.app, $p, pageName);
 
       else if (pages[pageName].setup)
-        pages[pageName].setup(imports.app, pages);
+        pages[pageName].setup(imports.app, $p, pageName);
     
-      pages.emit("render", pageName, p);
+      pages.emit("render", pageName, $p);
     }
     
     pages.init = function() {

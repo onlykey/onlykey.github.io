@@ -20,7 +20,7 @@ function gm_encode(str) {
 
 var page = {
 
-  init: function(app, pages) {
+  init: function(app, $page) {
     init = true;
 
     console.log("page", "init");
@@ -67,11 +67,11 @@ var page = {
       page.button.classList.remove('working');
     });
 
-    page.setup(app, pages);
+    page.setup(app, $page);
   },
-  setup: function(app, pages) {
+  setup: function(app, $page, pathname) {
     if (!init)
-      page.init(app, pages);
+      page.init(app, $page);
 
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
@@ -125,14 +125,15 @@ var page = {
           page.messagebox.value = stored;
       }
     })();
-
+    
+    var pageType = false;
     if (onlykeyApi._status == 'Decrypt and Verify') {
       $("#pgpkeyurl").show();
       $("#pgpkeyurl2").show();
       $("#pgpkeyurl_tokenizer").show();
       $("#message").show();
-      History.replaceState({ pathname: "decrypt" }, "Decrypt", "./decrypt?type=dv");
       page.button.textContent = 'Decrypt and Verify';
+      pageType = "dv";
     }
 
     if (onlykeyApi._status == 'Decrypt Only') {
@@ -140,14 +141,16 @@ var page = {
       $("#pgpkeyurl2").show();
       $("#pgpkeyurl_tokenizer").show();
       $("#message").show();
-      History.replaceState({ pathname: "decrypt" }, "Decrypt", "./decrypt?type=d");
+      pageType = "d";
       page.button.textContent = 'Decrypt';
     }
-
+    
+    History.replaceState({ pathname: pathname}, page.button.textContent, "./decrypt?type="+pageType);
+      
     if (!$("#action").data("changeSet")) {
       $("#action").data("changeSet", true);
       $("#action")[0].select_one.forEach(el => el.addEventListener('change', (function() {
-        page.setup(app, pages);
+        page.setup(app, $page);
       }).bind(null, false)));
       page.button.addEventListener('click', async function() {
 

@@ -1,16 +1,16 @@
 var init = false;
 var page = {
 
-  init: function(app, pages) {
+  init: function(app, $page) {
     init = true;
 
     console.log("page", "init");
 
-    page.setup(app, pages);
+    page.setup(app, $page);
   },
-  setup: function(app, pages) {
+  setup: function(app, $page) {
     if (!init)
-      page.init(app, pages);
+      page.init(app, $page);
       
       
       var onlykey3rd = app.onlykey3rd;
