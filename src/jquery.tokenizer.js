@@ -127,11 +127,7 @@ var tokenizer = function($, onAddTokenizerItem) {
             },
 
             handleFocus(event) {
-                this.$element.addClass("focused");
-
-                this.checkPlaceholder();
-                // this.list.$element.find(".placeholder").hide();
-                // this.input.blur().focus();
+                if(!this.$element.hasClass("focused")){
                 try {
                     var range = document.createRange();
                     var sel = window.getSelection();
@@ -141,6 +137,14 @@ var tokenizer = function($, onAddTokenizerItem) {
                     sel.addRange(range);
                 }
                 catch (e) {}
+                }
+                
+                this.$element.addClass("focused");
+
+                this.checkPlaceholder();
+                // this.list.$element.find(".placeholder").hide();
+                // this.input.blur().focus();
+                
             },
 
             handleRemove(item) {
