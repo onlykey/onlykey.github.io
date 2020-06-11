@@ -20,7 +20,7 @@ function gm_encode(str) {
 
 var page = {
 
-  init: function(app, $page) {
+  init: function(app, $page, pathname) {
     init = true;
 
     console.log("page", "init");
@@ -67,11 +67,11 @@ var page = {
       page.button.classList.remove('working');
     });
 
-    page.setup(app, $page);
+    page.setup(app, $page, pathname);
   },
   setup: function(app, $page, pathname) {
     if (!init)
-      page.init(app, $page);
+      return page.init(app, $page, pathname);
 
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
@@ -150,7 +150,7 @@ var page = {
     if (!$("#action").data("changeSet")) {
       $("#action").data("changeSet", true);
       $("#action")[0].select_one.forEach(el => el.addEventListener('change', (function() {
-        page.setup(app, $page);
+        page.setup(app, $page, pathname);
       }).bind(null, false)));
       page.button.addEventListener('click', async function() {
 

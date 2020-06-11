@@ -3,7 +3,7 @@ var init = false;
 
 var page = {
 
-  init: function(app, $page) {
+  init: function(app, $page, pathname) {
     init = true;
 
     console.log("page", "init");
@@ -21,11 +21,11 @@ var page = {
       // $('#submit').click();
     }
 
-    page.setup(app, $page);
+    page.setup(app, $page, pathname);
   },
   setup: function(app, $page, pathname) {
     if (!init)
-      page.init(app, $page);
+      return page.init(app, $page);
 
     var default_anonymous_email = "onlykey@crp.to";
 
@@ -84,14 +84,17 @@ var page = {
       console.info(user);
       $("#results").html("");
 
-      var $user = user.q;
+      // var decodedkey = pgpDecoder(response_text);
+      // console.log(decodedkey);
+      //use pgpDecoder to grab keyid and search keyid instead of user.q
       
-      History.replaceState({ pathname: pathname}, "OnlyKey Search", "./search?q="+sites.q);
       
-      switch (sites.q) {
-        //https://keybase.io/_/api/1.0/user/lookup.json?uid=4a4f61cdab6a13fb904599ef0159bd19
-        case 'protonmail':
+      History.replaceState({ pathname: pathname}, "OnlyKey Search", "./search?q="+user.q);
+      
+      switch (true) {
+        case (sites.q == 'protonmail' || sites.q == 'all'):
 
+          var $user = user.q;
           if ($user && !($user.indexOf("0x") == 0) && !$user.split("@")[1])
             $user += "@protonmail.com";
 
@@ -100,9 +103,7 @@ var page = {
 
 
           var sl = searchLayout();
-
-          // var decodedkey = pgpDecoder(response_text);
-          // console.log(decodedkey);
+          
 
 
           page.p2g.getPublicKeyInfo(response_text, function(theKey) {
@@ -138,9 +139,10 @@ var page = {
               console.log(theKey);
             }
           });
-
-          break;
-        case 'keybase':
+          if(!(sites.q == 'all'))
+            break;
+        case (sites.q == 'keybase' || sites.q == 'all'):
+        //https://keybase.io/_/api/1.0/user/lookup.json?uid=4a4f61cdab6a13fb904599ef0159bd19
           var kburl = 'https://keybase.io/_/api/1.0/user/user_search.json?q=' + user.q;
           $.ajax({
             url: kburl,
@@ -206,9 +208,8 @@ var page = {
                 });
             }
           });
-          break;
-        case 'protonmail':
-          break;
+          if(!(sites.q == 'all'))
+            break;
 
       }
 
