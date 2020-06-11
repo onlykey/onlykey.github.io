@@ -108,7 +108,7 @@ var tokenizer = function($, onAddTokenizerItem) {
         },
         
         handleBlur() {
-            this.add(this.input.clearValue());
+            //this.add(this.input.clearValue());
             
             this.$element.removeClass("focused");
             
@@ -127,8 +127,26 @@ var tokenizer = function($, onAddTokenizerItem) {
         },
 
         handleRemove(item) {
-            this.remove(item);
+            var val = this.remove(item);
             this.input.blur().focus();
+            
+            if(val){
+                var self = this;
+                self.input.$element.text(val);
+                // setTimeout(()=>{
+                
+                
+                this.input.blur().focus();
+                var range = document.createRange();
+                var sel = window.getSelection();
+                range.setStart(this.input.$element[0], 1);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                
+                // },100)
+            }
+            // this.input.$element[0].selectionStart = this.input.$element[0].selectionEnd = this.input.$element[0].value.length;
         },
 
         parseFormInput() {
@@ -142,14 +160,33 @@ var tokenizer = function($, onAddTokenizerItem) {
         },
 
         remove(item) {
+            var val; 
             if (!item) {
                 item = this.list.getPreceding(this.input);
+                if(item){
+                    val = item.$element.text()
+                           /* 
+                    self.input.$element.one("focus",function(){
+                        
+                            
+                        setTimeout(function(){
+                            var el = self.input.$element[0];
+                            var range = document.createRange();
+                            var sel = window.getSelection();
+                            range.setStart(el.childNodes[2], 5);
+                            range.collapse(true);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        },1);
+                        
+                    });*/
+                }
             }
             if (item) {
                 this.list.remove(item);
                 this.updateFormInput();
             }
-            return this;
+            return val;
         },
 
         updateFormInput() {
@@ -244,8 +281,13 @@ var tokenizer = function($, onAddTokenizerItem) {
             this.$element.text("");
             return value;
         },
+        
+        setValue(value){
+            this.$element.text(value);
+        },
 
         focus() {
+            this.$element.focus();
             this.$element.trigger("focus");
             return this;
         },
@@ -261,6 +303,8 @@ var tokenizer = function($, onAddTokenizerItem) {
                 this.channel.publish("add", this.clearValue());
             }
             else if (event.keyCode === 8 && this.isEmpty()) {
+                event.stopPropagation();
+                event.preventDefault();
                 this.channel.publish("remove");
             }
             this.channel.publish("keydown");
