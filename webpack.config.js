@@ -111,7 +111,7 @@ module.exports = {
     plugins: plugins,
     module: {
         rules: [{
-            test: /\.page\.html$/g,
+            test: /\.page\.html$/i,
             use: 'raw-loader',
         }]
     },
