@@ -5,17 +5,17 @@ module.exports = {
     setup: function(options, imports, register) {
         
         var Gun = require("gun/gun.min.js");
-        var sea = require("gun/sea.js");
+        require("gun/sea.js");
         
         var newGun = function(){
-            return Gun("https://www.peersocial.io/gun");
+            return Gun("https://onlykey.herokuapp.com/gun");
         };
         
         register(null, {
             newGun:newGun,
             Gun: Gun,
             SEA: Gun.SEA,
-            gun: Gun("https://www.peersocial.io/gun")
+            gun: newGun()
         });
         
         
