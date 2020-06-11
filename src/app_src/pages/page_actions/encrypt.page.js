@@ -100,6 +100,11 @@ var page = {
         }
         $element.tokenizer($element.data());
     });
+    
+    
+    $("#message").focus(function(){
+      $("#pgpkeyurl").data("tokenizer").addInput();
+    });
 
     onlykeyApi.request_pgp_pubkey = function() {
       function error_1(err) {
