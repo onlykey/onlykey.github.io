@@ -86,7 +86,7 @@ var page = {
 
       var $user = user.q;
       
-      History.replaceState({ pathname: pathname}, page.button.textContent, "./search?q="+sites.q);
+      History.replaceState({ pathname: pathname}, "OnlyKey Search", "./search?q="+sites.q);
       
       switch (sites.q) {
         //https://keybase.io/_/api/1.0/user/lookup.json?uid=4a4f61cdab6a13fb904599ef0159bd19
