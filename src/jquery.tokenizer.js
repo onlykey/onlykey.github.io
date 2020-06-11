@@ -298,8 +298,10 @@ var tokenizer = function($, onAddTokenizerItem) {
 
         handleKeydown(event) {
             if ($.inArray(event.keyCode, this.delimiters) > -1) {
+                if(!(event.keyCode == 9)){
                 event.stopPropagation();
                 event.preventDefault();
+                }
                 this.channel.publish("add", this.clearValue());
             }
             else if (event.keyCode === 8 && this.isEmpty()) {
@@ -350,7 +352,7 @@ var tokenizer = function($, onAddTokenizerItem) {
 
     $.fn.tokenizer.defaults = {
         separator: ",",
-        delimiters: [13, 32, 188] // [enter, space, comma]
+        delimiters: [9, 13, 32, 188] // [tab, enter, space, comma]
     };
 
     $.fn.tokenizer.Constructor = Tokenizer;
