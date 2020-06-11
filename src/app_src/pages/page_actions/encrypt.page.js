@@ -89,7 +89,10 @@ var page = {
   setup: function(app, pages) {
     if (!init)
       page.init(app, pages);
-
+    
+    
+    // History.replaceState()
+    
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
 
@@ -149,6 +152,7 @@ var page = {
       try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
       catch (e) {}
       page.button.textContent = 'Encrypt';
+      History.replaceState({ pathname: "encrypt" }, "Encrypt", "./encrypt?type=e");
     }
 
     if (onlykeyApi._status == 'Sign Only') {
@@ -157,6 +161,7 @@ var page = {
       try { document.getElementById('pgpkeyurl_tokenizer').style.display = "none"; }
       catch (e) {}
       page.button.textContent = 'Sign';
+      History.replaceState({ pathname: "encrypt" }, "Encrypt", "./encrypt?type=s");
     }
 
     if (onlykeyApi._status == 'Encrypt and Sign') {
@@ -165,6 +170,7 @@ var page = {
       try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
       catch (e) {}
       page.button.textContent = 'Encrypt and Sign';
+      History.replaceState({ pathname: "encrypt" }, "Encrypt", "./encrypt?type=es");
     }
 
     $(".messageLink").html("");

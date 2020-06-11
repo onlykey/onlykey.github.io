@@ -131,6 +131,7 @@ var page = {
       $("#pgpkeyurl2").show();
       $("#pgpkeyurl_tokenizer").show();
       $("#message").show();
+      History.replaceState({ pathname: "decrypt" }, "Decrypt", "./decrypt?type=dv");
       page.button.textContent = 'Decrypt and Verify';
     }
 
@@ -139,6 +140,7 @@ var page = {
       $("#pgpkeyurl2").show();
       $("#pgpkeyurl_tokenizer").show();
       $("#message").show();
+      History.replaceState({ pathname: "decrypt" }, "Decrypt", "./decrypt?type=d");
       page.button.textContent = 'Decrypt';
     }
 

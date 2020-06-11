@@ -69,7 +69,9 @@ module.exports = {
       return _hash;
     }
 
+    var lastRender = false;
     function renderPage(pageName, init) {
+      lastRender = pageName;
       var p;
       if (pages[pageName].view) {
         p = $(pages[pageName].view);
@@ -82,21 +84,23 @@ module.exports = {
 
       else if (pages[pageName].setup)
         pages[pageName].setup(imports.app, pages);
-
+    
       pages.emit("render", pageName, p);
     }
-
+    
     pages.init = function() {
 
       // Bind to StateChange Event
       History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
+      
         var State = History.getState(); // Note: We are using History.getState() instead of event.state
-        if (State.data.pathname && pages[State.data.pathname]) {
+        if (State.data.pathname && lastRender != State.data.pathname &&pages[State.data.pathname]) {
           renderPage(State.data.pathname);
           app.emit("state.change", State.data.pathname);
         }
         else {
-          window.location = State.hashedUrl;
+          if(lastRender != State.data.pathname)
+            window.location = State.hashedUrl;
         }
       });
 
