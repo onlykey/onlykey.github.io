@@ -161,7 +161,7 @@ var page = {
       try { document.getElementById('pgpkeyurl_tokenizer').style.display = "none"; }
       catch (e) {}
       page.button.textContent = 'Sign';
-      History.replaceState({ pathname: "encrypt" }, "Encrypt", "./encrypt?type=s");
+      History.replaceState({ pathname: "encrypt" }, "Sign", "./encrypt?type=s");
     }
 
     if (onlykeyApi._status == 'Encrypt and Sign') {
@@ -170,7 +170,7 @@ var page = {
       try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
       catch (e) {}
       page.button.textContent = 'Encrypt and Sign';
-      History.replaceState({ pathname: "encrypt" }, "Encrypt", "./encrypt?type=es");
+      History.replaceState({ pathname: "encrypt" }, "Encrypt and Sign", "./encrypt?type=es");
     }
 
     $(".messageLink").html("");
