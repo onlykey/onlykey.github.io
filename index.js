@@ -24,29 +24,32 @@ app.use((req, res, next) => {
       req.url = getFile(u); //+req.url.split("?")[1];
       break;
   }
-  
+
   next();
 });
 
-function getFile(filePath,prev){//   /filename =  /filename || /filename.html || /filename-dev.html
+function getFile(filePath, prev) { //   /filename =  /filename || /filename.html || /filename-dev.html
   try {
-    if (fs.existsSync(dirname+filePath)) {
+    if (fs.existsSync(dirname + filePath)) {
       return filePath;
-    }else throw new Error("Not Found");
+    }
+    else throw new Error("Not Found");
   }
   catch (e) {
     try {
-      if (fs.existsSync(dirname+filePath+".html")) {
-        return filePath+".html";
-      }else throw new Error("Not Found");
+      if (fs.existsSync(dirname + filePath + ".html")) {
+        return filePath + ".html";
+      }
+      else throw new Error("Not Found");
     }
     catch (e) {
       try {
-        if (fs.existsSync(dirname+filePath+"-dev.html")) {
-          return filePath+"-dev.html";
-        }else throw new Error("Not Found");
+        if (fs.existsSync(dirname + filePath + "-dev.html")) {
+          return filePath + "-dev.html";
+        }
+        else throw new Error("Not Found");
       }
-      catch (e) { 
+      catch (e) {
         // if(!prev)
         //   return getFile("/index", filePath);
         // else return prev;
@@ -54,7 +57,7 @@ function getFile(filePath,prev){//   /filename =  /filename || /filename.html ||
       }
     }
   }
-  
+
 }
 
 app.use(express.static(dirname));
@@ -100,6 +103,28 @@ app.get('/protonmail/:action/:address_id*', (req, res, next) => {
   });
 });
 
-server.listen(process.env.PORT, () => {
+
+
+
+var $server = server.listen(process.env.PORT, () => {
   console.log('listening on *:' + process.env.PORT);
 });
+
+
+var Gun = require('gun');
+Gun.log = function() {};
+Gun.log.once = function() {};
+require('gun/axe'); // is there a GUN BUG with this?
+require('gun/nts'); // is there a GUN BUG with this?
+
+
+var gunOptions = {
+    peers: ["https://www.peersocial.io/gun"],
+    file: 'radata',
+    web: $server,
+    super: false,
+    stats: true
+};
+
+var gun = Gun(gunOptions);
+

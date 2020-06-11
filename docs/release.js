@@ -12,4 +12,5 @@ module.exports = {
     "Tim ~ onlykey.io"
   ],
   //"firmware_release_url":"https://github.com/trustcrypto/OnlyKey-Firmware/releases"
-}
+  "mode": process.env.NODE_ENV
+};

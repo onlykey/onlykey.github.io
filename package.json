@@ -31,7 +31,6 @@
     "cross-env": "^7.0.2",
     "csp-html-webpack-plugin": "^4.0.0",
     "file-saver": "^2.0.2",
-    "gun": "^0.2020.520",
     "html-webpack-plugin": "^4.3.0",
     "jquery": "^3.5.1",
     "jszip": "^3.4.0",
@@ -43,6 +42,7 @@
     "webpack-subresource-integrity": "^1.4.1"
   },
   "dependencies": {
+    "gun": "^0.2020.520",
     "express": "^4.17.1"
   }
 }

@@ -12,18 +12,8 @@ var architect = require("./architect.js");
 
 var EventEmitter = require("events").EventEmitter;
 
-architect([
-  
-  //require("./app_src/main.js"),
-  
-  require("./app_src/gun.js"),
-  
-  require("./app_src/onlykey/plugin.js"),
- 
-  require("./app_src/pages/pages.js"),
-  
-  require("./app_src/history.js"),
-  
+
+var architect_plugins = [
   {
     provides: ["$"],
     consumes: [],
@@ -44,8 +34,11 @@ architect([
         randomColor:randomColor
       });
     }
-  }
-], function(err, app) {
+  }];
+  
+  architect_plugins = ([].concat(architect_plugins, require("./plugins.js")));
+
+architect(architect_plugins, function(err, app) {
   if (err) return console.error(err);
   app.services.app.core = app.services;
   for (var i in app.services) {

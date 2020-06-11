@@ -25,22 +25,7 @@ module.exports = {
 
 
     var pages = new EventEmitter();
-    
-    for (var i in pagesList) {
-      try {
-        pages[pagesList[i]] = require("./page_actions/" + pagesList[i] + ".page.js");
-      }
-      catch (e) {
-        pages[pagesList[i]] = {};
-      }
-      if(!pages[pagesList[i]].view)
-        try {
-          pages[pagesList[i]].view = require("./page_files/" + pagesList[i] + ".page.html").default;
-        }
-        catch (e) {
-          pages[pagesList[i]].view = false;
-        }
-    }
+
 
     // Bind to StateChange Event
     History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
@@ -117,21 +102,46 @@ module.exports = {
         $("#container").html(p);
         $("body").data("page", pageName);
       }
-      
-      if (init &&pages[pageName].init)
+
+      if (init && pages[pageName].init)
         pages[pageName].init(imports.app, pages);
-      
+
       else if (pages[pageName].setup)
         pages[pageName].setup(imports.app, pages);
-      
-      pages.emit("render",pageName, p);
+
+      pages.emit("render", pageName, p);
     }
 
-    
-    pages.init = function(){
-      renderPage(init_page_id, true);  
+    pages.list = [];
+
+    pages.init = function() {
+
+
+      for (var i in pagesList) {
+        try {
+          pages[pagesList[i]] = require("./page_actions/" + pagesList[i] + ".page.js");
+        }
+        catch (e) {
+          pages[pagesList[i]] = {};
+        }
+        if (!pages[pagesList[i]].view)
+          try {
+            pages[pagesList[i]].view = require("./page_files/" + pagesList[i] + ".page.html").default;
+          }
+        catch (e) {
+          pages[pagesList[i]].view = false;
+        }
+      }
+
+      for (var i in app.pages.list) {
+
+      }
+
+
+      renderPage(init_page_id, true);
+
     };
-    
+
     register(null, {
       pages: pages
     });
