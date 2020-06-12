@@ -4,7 +4,6 @@ var page = {
   init: function(app, $page, pathname) {
     init = true;
 
-    console.log("page", "init");
 
     page.setup(app, $page, pathname);
   },
@@ -25,7 +24,6 @@ var page = {
         });
       });
     });
-    console.log("page", "setup");
   }
 };
 

@@ -1,6 +1,8 @@
-module.exports = function(onlykeyApi, usevirtru) {
+module.exports = function(imports){
+  var console = imports.console;
+  return function(onlykeyApi, usevirtru) {
 
-  const kbpgp = require('./kbpgp.onlykey.js')(onlykeyApi);
+  const kbpgp = require('./kbpgp.onlykey.js')(onlykeyApi,console);
   const kbpgp2 = require('./kbpgp-2.1.0.js');
   /*globals kbpgp Blob */
   // const url = require("url");
@@ -750,4 +752,6 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
   };
 
   return onlykey_api_pgp;
+};
+
 };

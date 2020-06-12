@@ -26,8 +26,19 @@ module.exports = {
     $(".startHidden").hide().removeClass("startHidden");
 
     var init_page_id = $("body").data("page");
+    
+    var start_title = $("title").text().split("-")[0];
 
     var pages = new EventEmitter();
+    
+    pages.state = {
+      push:function(a,b,c){
+        History.pushState(a,b,c);
+      },
+      replace:function(a,b,c){
+        History.pushState(a,b,c);
+      }
+    };
 
     function hrefTakeover(tag) {
       var urlPath = tag.attr('href');
@@ -45,12 +56,12 @@ module.exports = {
         var page_id = $("body").data("page");
         if (page_id == "index") return;
         
-        var title = $(this).text();
+        // var title = $(this).text();
         
         if (urlPath.indexOf("/") == 0 || urlPath.indexOf("./") == 0) {
           var _hash = pathHref(urlPath);
           if (pages[_hash].view && lastRender != _hash) {
-            History.pushState({ pathname: _hash }, title, urlPath);
+            pages.state.push({ pathname: _hash }, start_title, urlPath);
             e.preventDefault();
             return false; // prevents default click action of <a ...>
           }
@@ -73,6 +84,11 @@ module.exports = {
       if (_hash.indexOf("/") == 0) _hash = _hash.substring(1);
       return _hash;
     }
+    
+    function capitalizeFLetter(input) { 
+      var string = input; 
+      return string[0].toUpperCase() +   string.slice(1); 
+    } 
 
     var lastRender = false;
     function renderPage(pageName, init) {
@@ -102,6 +118,7 @@ module.exports = {
         if (State.data.pathname && lastRender != State.data.pathname &&pages[State.data.pathname]) {
           renderPage(State.data.pathname);
           app.emit("state.change", State.data.pathname);
+          $("title").text(start_title + " - " + capitalizeFLetter(State.data.pathname));
         }
         else {
           if(lastRender != State.data.pathname)

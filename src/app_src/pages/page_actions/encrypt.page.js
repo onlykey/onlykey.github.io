@@ -23,9 +23,6 @@ var page = {
   init: function(app, $page, pathname) {
     init = true;
 
-    console.log("page", "init");
-
-    
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
     var onlykeyPGP = app.onlykeyPGP;
@@ -42,7 +39,9 @@ var page = {
     page.p2g = onlykeyPGP();
 
     var params = onlykeyApi.getAllUrlParams();
-
+    
+    page.initParams = params;
+    
     onlykeyApi._status = $("#action")[0].select_one.value;
 
     if ((onlykeyApi._status) == 'Encrypt and Sign') {
@@ -176,9 +175,30 @@ var page = {
     }
     
     if(pageType)
-      History.replaceState({ pathname: pathname}, page.button.textContent , "./encrypt?type="+pageType);
+      app.pages.state.replace({ pathname: pathname}, $("title").text() , 
+              "./"+pathname+
+              "?type="+pageType + 
+              (page.initParams.recipients ? "&recipients="+page.initParams.recipients : ''));
       
     $(".messageLink").html("");
+    
+    $("#pgpkeyurl").change(function(){
+       switch (onlykeyApi._status) {
+          case 'Encrypt and Sign':
+            pageType = "es";
+            break;
+          case 'Sign Only':
+            pageType = "s";
+            break;
+          case 'Encrypt Only':
+            pageType = "e";
+            break;
+        }
+        
+        if(pageType)
+          app.pages.state.replace({ pathname: pathname}, $("title").text() , "./"+pathname+"?type="+pageType+"&recipients="+page.urlinputbox.value);
+          
+    });
     
     if (!$("#action").data("changeSet")) {
       $("#action").data("changeSet", true);
@@ -193,14 +213,20 @@ var page = {
         switch (onlykeyApi._status) {
           case 'Encrypt and Sign':
             reverse_status = "dv";
+            pageType = "es";
+            break;
+          case 'Sign Only':
+            reverse_status = "dv";
+            pageType = "s";
             break;
           case 'Encrypt Only':
             reverse_status = "d";
+            pageType = "e";
             break;
         }
         
         if(pageType)
-          History.replaceState({ pathname: pathname}, page.button.textContent , "./encrypt?type="+pageType+"&recipients="+page.urlinputbox.value);
+          app.pages.state.replace({ pathname: pathname}, page.button.textContent , "./"+pathname+"?type="+pageType+"&recipients="+page.urlinputbox.value);
           
         switch (onlykeyApi._status) {
           case 'Encrypt and Sign':
@@ -284,7 +310,6 @@ var page = {
 
     }
 
-    console.log("page", "setup");
   }
 };
 

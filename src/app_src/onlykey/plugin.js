@@ -1,13 +1,13 @@
 module.exports = {
-    consumes: ["app"],
+    consumes: ["app", "console"],
     provides: ["onlykeyApi", "onlykeyPGP", "onlykey3rd", "kbpgp", "forge", "nacl"],
     setup: function(options, imports, register) {
 
         var Gun = imports.Gun;
         const request = require('superagent');
 
-        const onlykeyApi = require('./onlykey-api.js');
-        const onlykeyPGP = require('./onlykey-pgp.js');
+        const onlykeyApi = require('./onlykey-api.js')(imports);
+        const onlykeyPGP = require('./onlykey-pgp.js')(imports);
         const onlykey3rd = require('./onlykey-3rd-party.js');
         const kbpgp = require('./kbpgp-2.1.0.js');
         const nacl = require('./nacl.min.js');

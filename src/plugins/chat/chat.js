@@ -13,7 +13,7 @@ module.exports = {
         
         pagesList["chat~"].view = require("./chat.page.html").default;
         
-        console.log("pre-init");
+        // console.log("pre-init");
         
         register(null, {
             plugin_chat:{
@@ -21,11 +21,11 @@ module.exports = {
                 
                 init: function() {
                     
-                    console.log("init");
+                    // console.log("init");
                     
                     imports.app.on("start",function(){
                         
-                        console.log("post-init");
+                        // console.log("post-init");
                         
                     });  
                 }

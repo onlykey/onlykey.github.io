@@ -1,4 +1,7 @@
-(function() {
+module.exports = function(imports) {
+  
+  var console = imports.console;
+  
   /* globals  */
   var EventEmitter = require("events").EventEmitter
   var onlykey_api = new EventEmitter();
@@ -6,7 +9,7 @@
 
   var nacl = require("./nacl.min.js");
   var forge = require("./forge.min.js");
-  const kbpgp = require('./kbpgp.onlykey.js')(onlykey_api);
+  const kbpgp = require('./kbpgp.onlykey.js')(onlykey_api, console);
 
   onlykey_api._status;
   onlykey_api.poll_delay;
@@ -933,5 +936,5 @@
   }
 
 
-  module.exports = onlykey_api;
-})();
+  return onlykey_api;
+}

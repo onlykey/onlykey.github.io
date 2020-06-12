@@ -6,9 +6,6 @@ var page = {
   init: function(app, $page, pathname) {
     init = true;
 
-    console.log("page", "init");
-
-
     var onlykeyApi = app.onlykeyApi;
     var onlykeyPGP = app.onlykeyPGP;
     page.p2g = onlykeyPGP();
@@ -217,7 +214,6 @@ var page = {
       $(window).scrollTo("h4", 800);
     }
 
-    console.log("page", "setup");
   }
 };
 

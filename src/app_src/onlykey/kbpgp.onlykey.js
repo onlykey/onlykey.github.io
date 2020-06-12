@@ -21,7 +21,7 @@
 		}*/
 })
 
-(function(onlykey){
+(function(onlykey,console){
 	var define,module,exports;
 	return (function(){
 		function e(t,n,r){

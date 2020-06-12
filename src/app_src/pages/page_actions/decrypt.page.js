@@ -23,8 +23,6 @@ var page = {
   init: function(app, $page, pathname) {
     init = true;
 
-    console.log("page", "init");
-
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
     var onlykeyPGP = app.onlykeyPGP;
@@ -148,7 +146,8 @@ var page = {
       page.button.textContent = 'Decrypt';
     }
     
-    History.replaceState({ pathname: pathname}, page.button.textContent, "./decrypt?type="+pageType);
+    if(pageType)
+      app.pages.state.replace({ pathname: pathname}, page.button.textContent, "./"+pathname+"?type="+pageType);
       
     if (!$("#action").data("changeSet")) {
       $("#action").data("changeSet", true);
@@ -206,7 +205,6 @@ var page = {
 
     }
 
-    console.log("page", "setup");
   }
 };
 
