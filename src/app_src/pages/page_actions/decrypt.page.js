@@ -149,6 +149,8 @@ var page = {
     if(pageType)
       app.pages.state.replace({ pathname: pathname}, page.button.textContent, "./"+pathname+"?type="+pageType);
       
+    $(window).scrollTo("h1", 1000);
+    
     if (!$("#action").data("changeSet")) {
       $("#action").data("changeSet", true);
       $("#action")[0].select_one.forEach(el => el.addEventListener('change', (function() {

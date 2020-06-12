@@ -130,7 +130,8 @@ var page = {
         }
       });
     };
-
+    
+    
 
     onlykeyApi._status = $("#action")[0].select_one.value;
 
@@ -174,6 +175,9 @@ var page = {
       pageType = "es";
     }
     
+    
+    if (page.initParams.recipients) document.getElementById('pgpkeyurl').value = page.initParams.recipients;
+    
     if(pageType)
       app.pages.state.replace({ pathname: pathname}, $("title").text() , 
               "./"+pathname+
@@ -181,6 +185,8 @@ var page = {
               (page.initParams.recipients ? "&recipients="+page.initParams.recipients : ''));
       
     $(".messageLink").html("");
+    
+    $(window).scrollTo("h1", 1000);
     
     $("#pgpkeyurl").change(function(){
        switch (onlykeyApi._status) {
@@ -207,6 +213,7 @@ var page = {
       }).bind(null, false)));
       page.button.addEventListener('click', async function() {
         
+        $("#pgpkeyurl").data("tokenizer").addInput();
         var message = null;
         var file = null;
         var reverse_status;
