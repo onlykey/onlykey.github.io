@@ -175,7 +175,8 @@ var page = {
       pageType = "es";
     }
     
-    History.replaceState({ pathname: pathname}, page.button.textContent , "./encrypt?type="+pageType);
+    if(pageType)
+      History.replaceState({ pathname: pathname}, page.button.textContent , "./encrypt?type="+pageType);
       
     $(".messageLink").html("");
     
@@ -197,6 +198,10 @@ var page = {
             reverse_status = "d";
             break;
         }
+        
+        if(pageType)
+          History.replaceState({ pathname: pathname}, page.button.textContent , "./encrypt?type="+pageType+"&recipients="+page.urlinputbox.value);
+          
         switch (onlykeyApi._status) {
           case 'Encrypt and Sign':
           case 'Sign Only':
@@ -217,26 +222,39 @@ var page = {
             await page.p2g.startEncryption(page.urlinputbox.value, page.urlinputbox2.value, message, file, async function(data) {
               if (page.messagebox && data)
                 page.messagebox.value = data;
-
-              var hash = await app.SEA.work(data, null, null, { name: "SHA-256" });
-              page.gun.get("ok-messages#").get(hash).put(data, function(res) {
-                console.log(hash, res);
-                var cp = $('<hr/><input type="text" id="messageLink_url"/><button type="submit" id="copylink">Copy 24Hour Share Link</button>');
+              
+                var cp = $('<hr/><input type="text" id="messageLink_url"/><button type="submit" id="copylink">Get and Copy Share Link</button>');
                 $(".messageLink").append(cp);
-                $(".messageLink").find("#messageLink_url").val("https://" + window.location.host + "/app/decrypt?type=" + reverse_status + "&gm=" + gm_encode(hash));
+                
+                var $messageLink_url = $(".messageLink").find("#messageLink_url");
+                var cpb = $(".messageLink").find("#copylink");
+                
                 $(".messageLink").show();
-                var cpb = $(".messageLink").find("button");
-                var origTxt = cpb.text();
-                cpb.click(function() {
-                  var $copybox = $(".messageLink").find("input");
-                  $copybox.focus();
-                  $copybox.select();
-                  document.execCommand('copy');
-                  cpb.text(origTxt + " (copied)");
-                  setTimeout(() => { cpb.text(origTxt); }, 5000);
+                $messageLink_url.hide();
+                
+                cpb.click(async function() {
+                    var pair = await app.SEA.pair();
+                    var secret = gm_encode(await app.SEA.secret(pair, pair));
+                    secret = secret.substring(0, 16);
+                    var $data = await app.SEA.encrypt(data, secret);
+                    
+                    var hash = await app.SEA.work($data, null, null, { name: "SHA-256" });
+                    page.gun.get("ok-messages#").get(hash).put($data, function(res) {
+                      console.log(hash, res);
+                      $messageLink_url.val("https://" + window.location.host + "/app/decrypt?type=" + reverse_status + "&key="+secret+"&gm=" + gm_encode(hash));
+                        $messageLink_url.show();
+                        $messageLink_url.focus();
+                        $messageLink_url.select();
+                        document.execCommand('copy');
+                        cpb.text(origTxt + " (copied)");
+                        setTimeout(() => { cpb.text(origTxt); }, 5000);
+                    });
                 });
-              });
 
+
+              
+                var origTxt = cpb.text();
+              
             });
             break;
           case 'pending_pin':

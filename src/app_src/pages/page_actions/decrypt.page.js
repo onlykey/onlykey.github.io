@@ -41,9 +41,11 @@ var page = {
       if (params.sender) document.getElementById('pgpkeyurl').value = params.sender;
       if (params.type == 'dv') document.getElementById('decrypt_and_verify').checked = true;
       if (params.type == 'd') document.getElementById('decrypt_only').checked = true;
-      if (params.gm) {
-        page.gun_message = gm_decode(params.gm);
-      }
+    }
+    
+    if (params.key && params.gm) {
+      page.gun_message_key = params.key;
+      page.gun_message = gm_decode(params.gm);
     }
 
     page.p2g.on("status", function(message) {
@@ -116,13 +118,14 @@ var page = {
 
 
     (async function() {
-      if (page.gun_message) {
+      if (page.gun_message && page.gun_message_key) {
         page.messagebox.value = "Loading Stored Message";
         var m = page.gun_message;
         page.gun_message = false;
         var stored = await page.gun.get("ok-messages#").get(m);
-        if (stored)
-          page.messagebox.value = stored;
+        if (stored){
+          page.messagebox.value = await app.SEA.decrypt(stored, page.gun_message_key);
+        }
       }
     })();
     
