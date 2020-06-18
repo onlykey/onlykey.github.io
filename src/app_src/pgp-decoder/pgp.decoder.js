@@ -1,4 +1,5 @@
 module.exports = (function() {
+    //https://github.com/ConradIrwin/gpg-decoder
     var Base64 = require("./base64.js");
     var Stream = require("./stream.js");
     var Packet = require("./packet.js");

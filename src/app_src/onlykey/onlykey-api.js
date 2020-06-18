@@ -1,7 +1,7 @@
 module.exports = function(imports) {
-  
+
   var console = imports.console;
-  
+
   /* globals  */
   var EventEmitter = require("events").EventEmitter
   var onlykey_api = new EventEmitter();
@@ -9,39 +9,51 @@ module.exports = function(imports) {
 
   var nacl = require("./nacl.min.js");
   var forge = require("./forge.min.js");
-  const kbpgp = require('./kbpgp.onlykey.js')(onlykey_api, console);
+  // const kbpgp = require('./kbpgp.onlykey.js')(onlykey_api, console);
+  const kbpgp = require('./kbpgp-2.1.0.js');
 
-  onlykey_api._status;
+
+  var {
+    sha256,
+    hexStrToDec,
+    bytes2string,
+    noop,
+    IntToByteArray,
+    getstringlen,
+    mkchallenge,
+    bytes2b64,
+    getOS,
+    ctap_error_codes,
+    getAllUrlParams
+  } = require("./onlykey.extra.js")(imports);
+  onlykey_api.getAllUrlParams = getAllUrlParams;
+
+
+  onlykey_api._status;//this is used in PGP plugin
   onlykey_api.poll_delay;
   onlykey_api.poll_type;
   onlykey_api.custom_keyid;
 
-  var keyHandleDict = {}; // KeyHandle -> PublicKey
-  var hw_RNG = {};
+  // var keyHandleDict = {}; // KeyHandle -> PublicKey
+  // var hw_RNG = {};
 
   var appId = window.location.origin;
-  var version = "U2F_V2";
+  // var version = "U2F_V2";
   var OKversion;
   var FWversion;
   var browser = "Chrome";
   var os = getOS();
   var packetnum = 0;
 
-  var sha256 = function(s) {
-    var md = forge.md.sha256.create();
-    md.update(bytes2string(s));
-    return Array.from(md.digest().toHex().match(/.{2}/g).map(hexStrToDec));
-  };
-
   var appKey;
-  var appPub;
-  var appPubPart;
+  // var appPub;
+  // var appPubPart;
   var okPub;
   var sharedsec;
   var pin;
-  var msgType;
-  var keySlot;
-  var browserid = 0; //Default Chrome
+  // var msgType;
+  // var keySlot;
+  // var browserid = 0; //Default Chrome
   var counter = 0;
   var encrypted_data;
   const OKDECRYPT = 240;
@@ -99,6 +111,7 @@ module.exports = function(imports) {
   /**
    * Use promise and setTimeout to wait x seconds
    */
+  /*
   let wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   function string2bytes(s) {
@@ -112,16 +125,7 @@ module.exports = function(imports) {
     s = s.replace(/-/g, '+').replace(/_/g, '/');
     return window.atob(s + '==='.slice((s.length + 3) % 4));
   }
-
-  var IntToByteArray = function(int) {
-    var byteArray = [0, 0, 0, 0];
-    for (var index = 0; index < 4; index++) {
-      var byte = int & 0xff;
-      byteArray[(3 - index)] = byte;
-      int = (int - byte) / 256;
-    }
-    return byteArray;
-  };
+  */
 
   function get_pin(byte) {
     if (FWversion == 'v0.2-beta.8c') {
@@ -135,16 +139,6 @@ module.exports = function(imports) {
     }
   }
 
-  function hexStrToDec(hexStr) {
-    return ~~(new Number('0x' + hexStr).toString(10));
-  }
-
-  function mkchallenge(challenge) {
-    var s = [];
-    for (var i = 0; i < 32; i++) s[i] = String.fromCharCode(challenge[i]);
-    return u2f_b64(s.join());
-  }
-
   function element_by_id(s) { return document.getElementById(s); }
 
   function msg(s) {
@@ -153,11 +147,17 @@ module.exports = function(imports) {
     if (m) m.innerHTML += "<br>" + s;
   }
 
-  function headermsg(s) { element_by_id('header_messages').innerHTML += "<br>" + s; }
+  function headermsg(s) { 
+    element_by_id('header_messages').innerHTML += "<br>" + s; 
+  }
+    
 
-  function _setStatus(newStatus) {
-    onlykey_api._status = newStatus;
-    console.info("Changed onlykey_api._status to ", newStatus);
+  function _$status(newStatus) {
+    if (newStatus) {
+      onlykey_api._status = newStatus;
+      console.info("Changed onlykey_api._status to ", newStatus);
+    }
+    return onlykey_api._status;
   }
 
   function slotid() {
@@ -165,92 +165,16 @@ module.exports = function(imports) {
       element_by_id('slotid').value :
       element_by_id('onlykey_start').value == 'Encrypt and Sign' ? 2 : 1;
   }
-
-  function u2f_b64(s) {
-    return window.btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  }
-
-
-  function chr(c) {
-    return String.fromCharCode(c);
-  } // Because map passes 3 args
-
-  function noop() {}
-
-  function bytes2string(bytes) {
-    var ret = Array.from(bytes).map(chr).join('');
-    return ret;
-  }
-
-  function getstringlen(bytes) {
-    for (var i = 1; i <= bytes.length; i++) {
-      console.info("getstringlen ", i);
-      if ((bytes[i] > 122 || bytes[i] < 97) && bytes[i] != 32) return i;
+  /*
+    function u2f_b64(s) {
+      return window.btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
     }
-  }
 
-  function bytes2b64(bytes) {
-    return u2f_b64(bytes2string(bytes));
-  }
 
-  onlykey_api.getAllUrlParams = getAllUrlParams;
-
-  function getAllUrlParams(url) {
-    // get query string from url (optional) or window
-    var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
-    // we'll store the parameters here
-    var obj = {};
-    // if query string exists
-    if (queryString) {
-      // stuff after # is not part of query string, so get rid of it
-      queryString = queryString.split('#')[0];
-      // split our query string into its component parts
-      var arr = queryString.split('&');
-      for (var i = 0; i < arr.length; i++) {
-        // separate the keys and the values
-        var a = arr[i].split('=');
-        // set parameter name and value (use 'true' if empty)
-        var paramName = a[0];
-        var paramValue = typeof(a[1]) === 'undefined' ? true : a[1];
-        // (optional) keep case consistent
-        paramName = paramName.toLowerCase();
-        if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
-        // if the paramName ends with square brackets, e.g. colors[] or colors[2]
-        if (paramName.match(/\[(\d+)?\]$/)) {
-          // create key if it doesn't exist
-          var key = paramName.replace(/\[(\d+)?\]/, '');
-          if (!obj[key]) obj[key] = [];
-          // if it's an indexed array e.g. colors[2]
-          if (paramName.match(/\[\d+\]$/)) {
-            // get the index value and add the entry at the appropriate position
-            var index = /\[(\d+)\]/.exec(paramName)[1];
-            obj[key][index] = paramValue;
-          }
-          else {
-            // otherwise add the value to the end of the array
-            obj[key].push(paramValue);
-          }
-        }
-        else {
-          // we're dealing with a string
-          if (!obj[paramName]) {
-            // if it doesn't exist, create property
-            obj[paramName] = paramValue;
-          }
-          else if (obj[paramName] && typeof obj[paramName] === 'string') {
-            // if property does exist and it's a string, convert it to an array
-            obj[paramName] = [obj[paramName]];
-            obj[paramName].push(paramValue);
-          }
-          else {
-            // otherwise add the property
-            obj[paramName].push(paramValue);
-          }
-        }
-      }
-    }
-    return obj;
-  }
+    function chr(c) {
+      return String.fromCharCode(c);
+    } // Because map passes 3 args
+  */
 
   /**
    * Request response from OnlyKey using U2F authentication message
@@ -299,14 +223,14 @@ module.exports = function(imports) {
            //var b64keyhandle = bytes2b64(encryptedkeyHandle);
        } */
       else { //Ping and get Response From OKSIGN or OKDECRYPT
-        if (onlykey_api._status == 'finished') return encrypted_data;
+        if (_$status() == 'finished') return encrypted_data;
         console.info("Sending Ping Request to OnlyKey");
         var message = [];
         var ciphertext = new Uint8Array(64).fill(0);
         Array.prototype.push.apply(message, ciphertext);
         var encryptedkeyHandle = await aesgcm_encrypt(message);
         //var encryptedkeyHandle = Uint8Array.from(message);
-        _setStatus('waiting_ping');
+        _$status('waiting_ping');
         cmd = OKPING;
       }
       //#define DERIVE_PUBLIC_KEY 1
@@ -317,12 +241,12 @@ module.exports = function(imports) {
 
       console.log("DECODED RESPONSE:", response);
       var data = await Promise;
-      if (onlykey_api._status === 'finished') {
+      if (_$status() === 'finished') {
         console.info("Finished");
       }
-      else if (onlykey_api._status === 'waiting_ping') {
+      else if (_$status() === 'waiting_ping') {
         console.info("Ping Successful");
-        _setStatus('pending_challenge');
+        _$status('pending_challenge');
         data = 1;
       }
       else if (type == 1) {
@@ -333,7 +257,7 @@ module.exports = function(imports) {
         OKversion = response[19] == 99 ? 'Color' : 'Original';
         FWversion = bytes2string(response.slice(8, 20));
         msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
-        element_by_id('header_messages').innerHTML = "<br>";
+        // element_by_id('header_messages').innerHTML = "<br>";
         headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
         var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
         console.info("AES Key", key);
@@ -348,14 +272,14 @@ module.exports = function(imports) {
                //Todo finish implementing this
            return pubkey;
          }*/
-      else if (type == 3 && onlykey_api._status == 'finished') {
+      else if (type == 3 && _$status() == 'finished') {
         data = response;
       }
-      else if (type == 4 && onlykey_api._status == 'finished') {
+      else if (type == 4 && _$status() == 'finished') {
         var oksignature = response.slice(0, response.length); //4+32+2+32
         data = oksignature;
       }
-      
+
       if (typeof cb === 'function') cb(null, data);
 
     }, (delay * 1000));
@@ -562,7 +486,7 @@ module.exports = function(imports) {
       if (result) {
         if (finalPacket) {
           console.info("Final packet ");
-          _setStatus('pending_challenge');
+          _$status('pending_challenge');
           cb().then(skey => {
             console.info("skey ", skey);
             mainCallback(skey);
@@ -581,19 +505,19 @@ module.exports = function(imports) {
    */
   onlykey_api.doPinTimer = async function(seconds) {
     return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
+      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 15;
       var button = element_by_id("onlykey_start");
 
-      if (onlykey_api._status === 'done_challenge' || onlykey_api._status === 'waiting_ping') {
-        _setStatus('done_challenge');
+      if (_$status() === 'done_challenge' || _$status() === 'waiting_ping') {
+        _$status('done_challenge');
         const btmsg = `Waiting for OnlyKey to process message.`;
         if (button) button.textContent = btmsg;
         console.info("Delay ", onlykey_api.poll_delay);
         await ping(onlykey_api.poll_delay - 2); //Delay
       }
-      else if (onlykey_api._status === 'pending_challenge') {
+      else if (_$status() === 'pending_challenge') {
         if (secondsRemaining <= 2) {
-          _setStatus('done_challenge');
+          _$status('done_challenge');
         }
         if (secondsRemaining >= 2) {
           const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
@@ -603,7 +527,7 @@ module.exports = function(imports) {
         //await ping(0); //Too many popups with FIDO2
       }
 
-      if (onlykey_api._status === 'finished') {
+      if (_$status() === 'finished') {
         console.info("Parsed Encrypted Data: ", encrypted_data);
         var decrypted_data = await aesgcm_decrypt(encrypted_data);
 
@@ -611,7 +535,7 @@ module.exports = function(imports) {
         return resolve(decrypted_data);
       }
 
-      setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining -= 4), 4000);
+      setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining -= 1), 1000);
     });
   };
 
@@ -704,33 +628,36 @@ module.exports = function(imports) {
       data = signature.slice(1, signature.length);
       if (bytes2string(data.slice(0, 9)) == 'UNLOCKEDv') {
         // Reset shared secret and start over
-        // _setStatus(element_by_id('onlykey_start').value);
+        // _$status(element_by_id('onlykey_start').value);
         onlykey_api.unlocked = true;
       }
       else if (signature.length < 73 && bytes2string(data.slice(0, 6)) == 'Error ') {
         // Something went wrong, read the ascii response and display to user
         var msgtext = data.slice(0, getstringlen(data));
-        const btmsg = `${bytes2string(msgtext)}. Refresh this page and try again.`;
-        var button = element_by_id("onlykey_start");
-        if (button) {
-          button.textContent = btmsg;
-          button.classList.remove('working');
-          button.classList.add('error');
-        }
-        _setStatus('finished');
+        var msg = bytes2string(msgtext);
+        // const btmsg = `${bytes2string(msgtext)}. Refresh this page and try again.`;
+        // var button = element_by_id("onlykey_start");
+        // if (button) {
+        //   button.textContent = btmsg;
+        //   button.classList.remove('working');
+        //   button.classList.add('error');
+        // }
+        onlykey_api.emit("error",msg);
+        
+        _$status('finished');
         throw new Error(bytes2string(msgtext));
       }
-      else if (onlykey_api._status === 'waiting_ping' || onlykey_api._status === 'done_challenge') {
+      else if (_$status() === 'waiting_ping' || _$status() === 'done_challenge') {
         // got data
         encrypted_data = data;
-        _setStatus('finished');
+        _$status('finished');
       }
     }
     else if (error_code == ctap_error_codes['CTAP2_ERR_NO_OPERATION_PENDING']) {
       // No data received, data has already been retreived or wiped due to 5 second timeout
 
       if (button) button.textContent = 'no data received';
-      _setStatus('finished');
+      _$status('finished');
       throw new Error('no data received');
 
     }
@@ -794,7 +721,7 @@ module.exports = function(imports) {
         console.log("RESPONSE:", response);
         if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING') return response.status;
         if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
-          _setStatus('done_challenge');
+          _$status('done_challenge');
           return response.status;
         }
         return response.data;
@@ -804,7 +731,7 @@ module.exports = function(imports) {
         console.log("NAME:", error.name);
         console.log("MESSAGE:", error.message);
         if (error.name == 'NS_ERROR_ABORT' || error.name == 'AbortError' || error.name == 'InvalidStateError') {
-          _setStatus('done_challenge');
+          _$status('done_challenge');
           return 1;
         }
         else if (error.name == 'NotAllowedError' && os == 'Windows') { // Win 10 1903 issue
@@ -831,59 +758,11 @@ module.exports = function(imports) {
     }
   }
 
-  const ctap_error_codes = {
-    0x00: 'CTAP1_SUCCESS',
-    0x01: 'CTAP1_ERR_INVALID_COMMAND',
-    0x02: 'CTAP1_ERR_INVALID_PARAMETER',
-    0x03: 'CTAP1_ERR_INVALID_LENGTH',
-    0x04: 'CTAP1_ERR_INVALID_SEQ',
-    0x05: 'CTAP1_ERR_TIMEOUT',
-    0x06: 'CTAP1_ERR_CHANNEL_BUSY',
-    0x0A: 'CTAP1_ERR_LOCK_REQUIRED',
-    0x0B: 'CTAP1_ERR_INVALID_CHANNEL',
-
-    0x10: 'CTAP2_ERR_CBOR_PARSING',
-    0x11: 'CTAP2_ERR_CBOR_UNEXPECTED_TYPE',
-    0x12: 'CTAP2_ERR_INVALID_CBOR',
-    0x13: 'CTAP2_ERR_INVALID_CBOR_TYPE',
-    0x14: 'CTAP2_ERR_MISSING_PARAMETER',
-    0x15: 'CTAP2_ERR_LIMIT_EXCEEDED',
-    0x16: 'CTAP2_ERR_UNSUPPORTED_EXTENSION',
-    0x17: 'CTAP2_ERR_TOO_MANY_ELEMENTS',
-    0x18: 'CTAP2_ERR_EXTENSION_NOT_SUPPORTED',
-    0x19: 'CTAP2_ERR_CREDENTIAL_EXCLUDED',
-    0x20: 'CTAP2_ERR_CREDENTIAL_NOT_VALID',
-    0x21: 'CTAP2_ERR_PROCESSING',
-    0x22: 'CTAP2_ERR_INVALID_CREDENTIAL',
-    0x23: 'CTAP2_ERR_USER_ACTION_PENDING',
-    0x24: 'CTAP2_ERR_OPERATION_PENDING',
-    0x25: 'CTAP2_ERR_NO_OPERATIONS',
-    0x26: 'CTAP2_ERR_UNSUPPORTED_ALGORITHM',
-    0x27: 'CTAP2_ERR_OPERATION_DENIED',
-    0x28: 'CTAP2_ERR_KEY_STORE_FULL',
-    0x29: 'CTAP2_ERR_NOT_BUSY',
-    0x2A: 'CTAP2_ERR_NO_OPERATION_PENDING',
-    0x2B: 'CTAP2_ERR_UNSUPPORTED_OPTION',
-    0x2C: 'CTAP2_ERR_INVALID_OPTION',
-    0x2D: 'CTAP2_ERR_KEEPALIVE_CANCEL',
-    0x2E: 'CTAP2_ERR_NO_CREDENTIALS',
-    0x2F: 'CTAP2_ERR_USER_ACTION_TIMEOUT',
-    0x30: 'CTAP2_ERR_NOT_ALLOWED',
-    0x31: 'CTAP2_ERR_PIN_INVALID',
-    0x32: 'CTAP2_ERR_PIN_BLOCKED',
-    0x33: 'CTAP2_ERR_PIN_AUTH_INVALID',
-    0x34: 'CTAP2_ERR_PIN_AUTH_BLOCKED',
-    0x35: 'CTAP2_ERR_PIN_NOT_SET',
-    0x36: 'CTAP2_ERR_PIN_REQUIRED',
-    0x37: 'CTAP2_ERR_PIN_POLICY_VIOLATION',
-    0x38: 'CTAP2_ERR_PIN_TOKEN_EXPIRED',
-    0x39: 'CTAP2_ERR_REQUEST_TOO_LARGE',
-  };
-
   /**
    * Parse custom U2F sign response
    * @param {Array} response
    */
+  /*
   async function custom_auth_response(response) {
     console.info("Response", response);
     var err = response['errorCode'];
@@ -907,7 +786,6 @@ module.exports = function(imports) {
     console.info("Parsed Data: ", parsedData);
     return parsedData;
   }
-
   function getOS() {
     var userAgent = window.navigator.userAgent,
       platform = window.navigator.platform,
@@ -935,6 +813,8 @@ module.exports = function(imports) {
     return os;
   }
 
+
+  */
 
   return onlykey_api;
 }

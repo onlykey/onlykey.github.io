@@ -115,7 +115,7 @@ var page = {
               sl.leftDiv.append("<img src='https://www.gravatar.com/avatar/" + forge.md5.create().update(email).digest().toHex() + "?s=1024default=https%3A%2F%2Fgravatar.com%2Favatar%2F" + forge.md5.create().update(default_anonymous_email).digest().toHex() + "' />");
               sl.rightDiv.append("<font color='red'>Protonmail Username = " + username + "</font><br>");
               sl.rightDiv.append("<pre color='red'>GPG KeyID = " + keyid + " (" + keyid_short + ")" + "</pre><br>");
-              sl.rightDiv.append("Send Encrypted <a href='/encrypt-dev.html?type=e&recipients=" + username + "'>Message</a> <a href='/encrypt-file-dev.html?type=e&recipients=" + username + "'>File</a><br>");
+              sl.rightDiv.append("Send Encrypted <a target='_blank' href='./encrypt?type=e&recipients=" + username + "'>Message</a> <a target='_blank' href='./encrypt-file?type=e&recipients=" + username + "'>File</a><br>");
 
               var $getpgp_btn = $("<button>Copy PGP Key</button>");
               var $pgp_copybox = $("<textarea>&nbsp;</textarea>");
@@ -172,7 +172,7 @@ var page = {
                           sl.rightDiv.append("<font color='red'>Keybase Username = " + listItem.username + "</font><br>");
                           if (listItem.full_name) sl.rightDiv.append("Full Name = " + listItem.full_name + "<br><br>");
                           sl.rightDiv.append("View Keybase Profile <a href='https://keybase.io/" + listItem.username + "'>Here</a><br>");
-                          sl.rightDiv.append("Send Encrypted <a href='/encrypt?type=e&recipients=" + listItem.username + "'>Message</a> <a href='/encrypt-file?type=e&recipients=" + listItem.username + "'>File</a><br>");
+                          sl.rightDiv.append("Send Encrypted <a target='_blank' href='./encrypt?type=e&recipients=" + listItem.username + "'>Message</a> <a target='_blank' href='./encrypt-file?type=e&recipients=" + listItem.username + "'>File</a><br>");
 
                           for (var i in element.services_summary) {
                             sl.rightDiv.append("<font color='blue'>" + element.services_summary[i].service_name.toUpperCase() + " Username = " + element.services_summary[i].username + "</font><br>");
