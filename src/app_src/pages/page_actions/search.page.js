@@ -6,17 +6,17 @@ var page = {
   init: function(app, $page, pathname) {
     init = true;
 
-    var onlykeyApi = app.onlykeyApi;
+    // var onlykeyApi = app.onlykeyApi;
     var onlykeyPGP = app.onlykeyPGP;
     page.p2g = onlykeyPGP();
 
-    var params = onlykeyApi.getAllUrlParams();
+    // var params = onlykeyApi.getAllUrlParams();
 
 
-    if (params.q) {
-      app.$('#user').val(params.q);
-      // $('#submit').click();
-    }
+    // if (params.q) {
+    //   app.$('#user').val(params.q);
+    //   // $('#submit').click();
+    // }
 
     page.setup(app, $page, pathname);
   },
@@ -48,6 +48,14 @@ var page = {
       searchKeybase(sites, users);
     });
 
+    var onlykeyApi = app.onlykeyApi;
+    var params = onlykeyApi.getAllUrlParams();
+
+
+    if (params.q) {
+      app.$('#user').val(params.q);
+      // $('#submit').click();
+    }
 
     if ($('#user').val())
       $('#submit').click();
