@@ -14,6 +14,9 @@ app.use((req, res, next) => {
     case "/":
       req.url = getFile("/index");
       break;
+    case "/beta7/":
+      res.redirect("/past_releases/beta7/");
+      break;
     case "/search":
     case "/encrypt":
     case "/decrypt":

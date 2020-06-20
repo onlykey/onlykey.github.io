@@ -207,13 +207,16 @@ var page = {
     });
     
     if (!$("#action").data("changeSet")) {
+      
       $("#action").data("changeSet", true);
       $("#action")[0].select_one.forEach(el => el.addEventListener('change', (function() {
         page.setup(app, $page, pathname);
       }).bind(null, false)));
+      
       page.button.addEventListener('click', async function() {
         
-        $("#pgpkeyurl").data("tokenizer").addInput();
+        $("#pgpkeyurl").data("tokenizer").addInput();//add input that is not "SET" fully
+        
         var message = null;
         var file = null;
         var reverse_status;
@@ -233,7 +236,7 @@ var page = {
         }
         
         if(pageType)
-          app.pages.state.replace({ pathname: pathname}, page.button.textContent , "./"+pathname+"?type="+pageType+"&recipients="+page.urlinputbox.value);
+          app.pages.state.replace({ pathname: pathname}, $("title").text() , "./"+pathname+"?type="+pageType+"&recipients="+page.urlinputbox.value);
           
         switch (onlykeyApi._status) {
           case 'Encrypt and Sign':
@@ -256,11 +259,15 @@ var page = {
               if (page.messagebox && data)
                 page.messagebox.value = data;
               
-                var cp = $('<hr/><input type="text" id="messageLink_url"/><button type="submit" id="copylink">Get and Copy Share Link</button>');
+                var cp = $('<hr/><input type="text" id="messageLink_url"/><button type="submit" id="copylink">Get and Copy Share Link</button><button type="submit" id="resetstate">Reset</button>');
                 $(".messageLink").append(cp);
                 
                 var $messageLink_url = $(".messageLink").find("#messageLink_url");
                 var cpb = $(".messageLink").find("#copylink");
+                var rb = $(".messageLink").find("#resetstate");
+                rb.click(function(){
+                  page.setup(app, $page, pathname);
+                });
                 
                 $(".messageLink").show();
                 $messageLink_url.hide();
@@ -317,6 +324,10 @@ var page = {
 
     }
 
+  },
+  dispose: function(app, pathname){
+    //init = false;
+    console.log("disposed" , pathname);
   }
 };
 

@@ -3,7 +3,7 @@ module.exports = {
   "version": "2.1.0",
   "stage": "prodc",
   "change_log": [
-    "Added Multiple Recipient Support for GPG",
+    "Added Multiple Recipient Support for GPG Encryption",
     "Added Password Generator",
     "~Added Build&Plugin for source"
   ],

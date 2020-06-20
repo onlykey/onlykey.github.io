@@ -10,14 +10,6 @@ var page = {
     var onlykeyPGP = app.onlykeyPGP;
     page.p2g = onlykeyPGP();
 
-    // var params = onlykeyApi.getAllUrlParams();
-
-
-    // if (params.q) {
-    //   app.$('#user').val(params.q);
-    //   // $('#submit').click();
-    // }
-
     page.setup(app, $page, pathname);
   },
   setup: function(app, $page, pathname) {
@@ -94,7 +86,7 @@ var page = {
       //use pgpDecoder to grab keyid and search keyid instead of user.q
       
       
-      History.replaceState({ pathname: pathname}, "OnlyKey Search", "./search?q="+user.q);
+      app.pages.state.replace({ pathname: pathname}, $("title").text(), "./search?q="+user.q);
       
       switch (true) {
         case (sites.q == 'protonmail' || sites.q == 'all'):

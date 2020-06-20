@@ -147,7 +147,7 @@ var page = {
     }
     
     if(pageType)
-      app.pages.state.replace({ pathname: pathname}, page.button.textContent, "./"+pathname+"?type="+pageType);
+      app.pages.state.replace({ pathname: pathname}, $("title").text(), "./"+pathname+"?type="+pageType);
       
     $(window).scrollTo("h1", 1000);
     

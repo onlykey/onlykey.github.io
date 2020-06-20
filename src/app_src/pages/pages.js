@@ -26,17 +26,18 @@ module.exports = {
     $(".startHidden").hide().removeClass("startHidden");
 
     var init_page_id = $("body").data("page");
-    
+
     var start_title = $("title").text().split("-")[0];
 
     var pages = new EventEmitter();
-    
+
     pages.state = {
-      push:function(a,b,c){
-        History.pushState(a,b,c);
+      push: function(data, title, url) {
+        History.pushState(data, title, url);
       },
-      replace:function(a,b,c){
-        History.pushState(a,b,c);
+      replace: function(data, title, url) {
+        if(url.indexOf("index") > -1) url = url.replace("index","");
+        History.replaceState(data, title, url);
       }
     };
 
@@ -54,27 +55,31 @@ module.exports = {
       tag.click(function(e) {
 
         var page_id = $("body").data("page");
-        if (page_id == "index") return;
-        
+        if (page_id == "index") return true;
+
         // var title = $(this).text();
-        
+
         if (urlPath.indexOf("/") == 0 || urlPath.indexOf("./") == 0) {
           var _hash = pathHref(urlPath);
           if (pages[_hash].view && lastRender != _hash) {
-            pages.state.push({ pathname: _hash }, start_title, urlPath);
+            pages.state.push({ pathname: _hash }, start_title + " - " + capitalizeFLetter(_hash), urlPath);
             e.preventDefault();
             return false; // prevents default click action of <a ...>
           }
-          else if(lastRender == _hash){
+          else if (lastRender == _hash) {
             e.preventDefault();
             return false;
-          } else
+          }
+          else
             return true;
         }
-        else if (urlPath.indexOf("#") > -1) {
+        
+        
+        return true;
+        //else if (urlPath.indexOf("#") > -1) {
           //urlPath = "/"+urlPath.substring(urlPath.indexOf("#")+1);
           //_self.pushState(urlPath, title, urlPath);
-        }
+        //}
 
       });
     }
@@ -84,15 +89,23 @@ module.exports = {
       if (_hash.indexOf("/") == 0) _hash = _hash.substring(1);
       return _hash;
     }
-    
-    function capitalizeFLetter(input) { 
-      var string = input; 
-      return string[0].toUpperCase() +   string.slice(1); 
-    } 
+
+    function capitalizeFLetter(input) {
+      var string = input;
+      return string[0].toUpperCase() + string.slice(1);
+    }
 
     var lastRender = false;
+
     function renderPage(pageName, init) {
+      
+      if (pageName == "index") return true;
+        
+      if (lastRender && typeof pages[lastRender].dispose == "function")
+        pages[lastRender].dispose();
+
       lastRender = pageName;
+
       var $p;
       if (pages[pageName].view) {
         $p = $(pages[pageName].view);
@@ -105,26 +118,31 @@ module.exports = {
 
       else if (pages[pageName].setup)
         pages[pageName].setup(imports.app, $p, pageName);
-    
-      pages.emit("render", pageName, $p);
-    }
-    
-    pages.init = function() {
-
-      // Bind to StateChange Event
-      History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
       
-        var State = History.getState(); // Note: We are using History.getState() instead of event.state
-        if (State.data.pathname && lastRender != State.data.pathname &&pages[State.data.pathname]) {
-          renderPage(State.data.pathname);
-          app.emit("state.change", State.data.pathname);
-          $("title").text(start_title + " - " + capitalizeFLetter(State.data.pathname));
-        }
-        else {
-          if(lastRender != State.data.pathname)
-            window.location = State.hashedUrl;
-        }
-      });
+      
+      $("title").text(start_title + " - " + capitalizeFLetter(pageName));
+      
+      pages.emit("render", pageName, $p);
+      
+      return $p;
+    }
+
+    // Bind to StateChange Event
+    History.Adapter.bind(window, 'statechange', function() { // Note: We are using statechange instead of popstate
+
+      var State = History.getState(); // Note: We are using History.getState() instead of event.state
+      if (State.data.pathname && lastRender != State.data.pathname && pages[State.data.pathname]) {
+        renderPage(State.data.pathname);
+        app.emit("state.change", State.data.pathname);
+      }
+      else {
+        if (lastRender != State.data.pathname)
+          window.location = State.hashedUrl;
+      }
+    });
+
+
+    pages.init = function() {
 
       $("a").each(function(i, v) {
         hrefTakeover($(v));
@@ -175,7 +193,9 @@ module.exports = {
           }
         }
       }
-
+      
+      // pages.state.replace({ pathname: init_page_id }, $("title").text(),  "./"+init_page_id);
+        
       renderPage(init_page_id, true);
 
     };

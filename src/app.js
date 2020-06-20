@@ -1,11 +1,16 @@
 
+/*
+  This is the main start to building the app
+  we pull a app plugins from plugins.js file  
+
+*/
 var $ = require("jquery");
 window.jQuery = $;
 require("./jquery.history.js");
 require("./jquery.scrollTo.min.js");
 
 
-const randomColor = require('randomcolor');
+var randomColor = require('randomcolor');
 
 
 var architect = require("./architect.js");
