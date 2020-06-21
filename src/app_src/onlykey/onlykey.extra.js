@@ -4,7 +4,7 @@ module.exports = function(imports) {
 
   var forge = require("./forge.min.js");
 
-  var $exports = {}
+  var $exports = {};
   
   $exports.sha256 = function(s) {
     var md = forge.md.sha256.create();
@@ -12,9 +12,6 @@ module.exports = function(imports) {
     return Array.from(md.digest().toHex().match(/.{2}/g).map($exports.hexStrToDec));
   };
 
-  /**
-   * Use promise and setTimeout to wait x seconds
-   */
   $exports.wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   $exports.string2bytes = function string2bytes(s) {
@@ -38,7 +35,6 @@ module.exports = function(imports) {
     }
     return byteArray;
   };
-
 
   $exports.hexStrToDec = function hexStrToDec(hexStr) {
     return ~~(new Number('0x' + hexStr).toString(10));
@@ -210,6 +206,75 @@ module.exports = function(imports) {
     0x38: 'CTAP2_ERR_PIN_TOKEN_EXPIRED',
     0x39: 'CTAP2_ERR_REQUEST_TOO_LARGE',
   };
+  
+  
+  
+  
+  
+  
+  var counter = 0;
+  /**
+   * Perform AES_256_GCM decryption using NACL shared secret
+   * @param {Array} encrypted
+   * @return {Array}
+   */
+  $exports.aesgcm_decrypt = function aesgcm_decrypt(encrypted, shared_sec) {
+    return new Promise(resolve => {
+      forge.options.usePureJavaScript = true;
+      var key = $exports.sha256(shared_sec); //AES256 key sha256 hash of shared secret
+      console.log("Key", key);
+      var iv = $exports.IntToByteArray(counter);
+      while (iv.length < 12) iv.push(0);
+      iv = Uint8Array.from(iv);
+      console.log("IV", iv);
+      var decipher = forge.cipher.createDecipher('AES-GCM', key);
+      decipher.start({
+        iv: iv,
+        tagLength: 0, // optional, defaults to 128 bits
+      });
+      console.log("Encrypted", encrypted);
+      var buffer = forge.util.createBuffer(Uint8Array.from(encrypted));
+      console.log("Encrypted length", buffer.length());
+      console.log(buffer);
+      decipher.update(buffer);
+      decipher.finish();
+      var plaintext = decipher.output.toHex();
+      console.log("Plaintext", plaintext);
+      //console.log("Decrypted AES-GCM Hex", forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec));
+      //encrypted = forge.util.bytesToHex(decrypted).match(/.{2}/g).map(hexStrToDec);
+      resolve(plaintext.match(/.{2}/g).map($exports.hexStrToDec));
+    });
+  };
+
+  /**
+   * Perform AES_256_GCM encryption using NACL shared secret
+   * @param {Array} plaintext
+   * @return {Array}
+   */
+  $exports.aesgcm_encrypt = function aesgcm_encrypt(plaintext, shared_sec) {
+    return new Promise(resolve => {
+      forge.options.usePureJavaScript = true;
+      var key = $exports.sha256(shared_sec); //AES256 key sha256 hash of shared secret
+      console.log("Key", key);
+      var iv = $exports.IntToByteArray(counter);
+      while (iv.length < 12) iv.push(0);
+      iv = Uint8Array.from(iv);
+      console.log("IV", iv);
+      //Counter used as IV, unique for each message
+      var cipher = forge.cipher.createCipher('AES-GCM', key);
+      cipher.start({
+        iv: iv, // should be a 12-byte binary-encoded string or byte buffer
+        tagLength: 0
+      });
+      console.log("Plaintext", plaintext);
+      cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
+      cipher.finish();
+      var ciphertext = cipher.output;
+      ciphertext = ciphertext.toHex(),
+        resolve(ciphertext.match(/.{2}/g).map($exports.hexStrToDec));
+    });
+  };
+
 
   return $exports;
-}
+};
