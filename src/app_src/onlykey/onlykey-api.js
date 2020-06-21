@@ -126,15 +126,16 @@ module.exports = function(imports) {
    * Type of response requested - OKSETTIME, OKGETPUBKEY, OKSIGN, OKDECRYPT
    */
   async function msg_polling(params = {}, callback) {
-    // return new Promise(async function(resolve, reject) {
-
-    //   function cb(err, data) {
-    //     if (typeof cb === 'function') callback(err, data);
-    //     if (err) return reject(err);
-    //     resolve(data);
-    //   }
     
-      var cb = callback || noop;
+    return new Promise(async function(resolve, reject) {
+
+      function cb(err, data) {
+        if (typeof callback === 'function') callback(err, data);
+        if (err) return reject(err);
+        resolve(data);
+      }
+    
+      // var cb = callback || noop;
 
       var delay = params.delay || 0;
       var type = params.type || 1; // default type to 1
@@ -239,7 +240,7 @@ module.exports = function(imports) {
 
       }, (delay * 1000));
 
-    // });
+    });
   }
   
   onlykey_api.doPinTimer = async function(seconds) {
