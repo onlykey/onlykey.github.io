@@ -18,6 +18,7 @@ module.exports = function(imports) {
 
 
   var {
+    wait,
     sha256,
     hexStrToDec,
     bytes2string,
@@ -86,8 +87,9 @@ module.exports = function(imports) {
       if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1) browser = "Firefox";
       
       //Set time on OnlyKey, get firmware version, get ecc public
-      msg_polling({ type: 1, delay: 0 }, function() {
-
+      msg_polling({ type: 1, delay: 0 }, async function() {
+        if (os == 'Android') await wait(6000);
+        else await wait(1000);
         if (typeof(sharedsec) === "undefined") {
           if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
           else headermsg("OnlyKey not connected! Refresh this page to try again.");
