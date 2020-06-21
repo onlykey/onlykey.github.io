@@ -61,7 +61,7 @@ module.exports = function(imports) {
 
   $exports.getstringlen = function getstringlen(bytes) {
     for (var i = 1; i <= bytes.length; i++) {
-      console.info("getstringlen ", i);
+      // console.info("getstringlen ", i);
       if ((bytes[i] > 122 || bytes[i] < 97) && bytes[i] != 32) return i;
     }
   };

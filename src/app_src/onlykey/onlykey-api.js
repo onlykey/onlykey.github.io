@@ -85,11 +85,10 @@ module.exports = function(imports) {
 
       //Initialize OnlyKey
       if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1) browser = "Firefox";
-      
+
       //Set time on OnlyKey, get firmware version, get ecc public
       msg_polling({ type: 1, delay: 0 }, async function() {
-        if (os == 'Android') await wait(6000);
-        
+
         if (typeof(sharedsec) === "undefined") {
           if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
           else headermsg("OnlyKey not connected! Refresh this page to try again.");
@@ -105,8 +104,8 @@ module.exports = function(imports) {
           resolve();
 
         }
-      }); 
-      
+      });
+
       // if (os == 'Android') await wait(6000);
       // else await wait(3000);
       // await wait(1000);
@@ -144,97 +143,97 @@ module.exports = function(imports) {
       }
 
       //setTimeout(async function() {
-        console.info("Requesting response from OnlyKey");
-        var cmd;
-        var encryptedkeyHandle;
-        var message;
+      console.info("Requesting response from OnlyKey");
+      var cmd;
+      var encryptedkeyHandle;
+      var message;
 
-        if (type == 1) { //OKSETTIME
-          cmd = OKSETTIME;
-          message = [255, 255, 255, 255, OKSETTIME]; //Add header and message type
-          var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-          msg("Setting current time on OnlyKey to " + new Date());
-          var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-          Array.prototype.push.apply(message, timePart);
-          appKey = nacl.box.keyPair();
-          console.info(appKey);
-          console.info(appKey.publicKey);
-          console.info(appKey.secretKey);
-          console.info("Application ECDH Public Key: ", appKey.publicKey);
-          Array.prototype.push.apply(message, appKey.publicKey);
-          var env = [browser.charCodeAt(0), os.charCodeAt(0)];
-          Array.prototype.push.apply(message, env);
-          msg(browser + " Browser running on " + os + " Operating System");
-          encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
-        }
-        /*
-         else if (type == 2) { //OKGETPUB
-             var message = [255, 255, 255, 255, OKGETPUBKEY]; //Add header and message type
-             msg("Checking to see if this key is assigned to an OnlyKey Slot " + onlykey_api.custom_keyid);
-             var empty = new Array(50).fill(0);
-             Array.prototype.push.apply(message, onlykey_api.custom_keyid);
-             Array.prototype.push.apply(message, empty);
-             while (message.length < 64) message.push(0);
-             var encryptedkeyHandle = await aesgcm_encrypt(message);
-             //var b64keyhandle = bytes2b64(encryptedkeyHandle);
-         } */
-        else { //Ping and get Response From OKSIGN or OKDECRYPT
-          if (_$status_is('finished'))
-            return encrypted_data;
-          console.info("Sending Ping Request to OnlyKey");
-          message = [];
-          var ciphertext = new Uint8Array(64).fill(0);
-          Array.prototype.push.apply(message, ciphertext);
-          encryptedkeyHandle = await aesgcm_encrypt(message, sharedsec);
-          //var encryptedkeyHandle = Uint8Array.from(message);
-          _$status('waiting_ping');
-          cmd = OKPING;
-        }
+      if (type == 1) { //OKSETTIME
+        cmd = OKSETTIME;
+        message = [255, 255, 255, 255, OKSETTIME]; //Add header and message type
+        var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+        msg("Setting current time on OnlyKey to " + new Date());
+        var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+        Array.prototype.push.apply(message, timePart);
+        appKey = nacl.box.keyPair();
+        console.info(appKey);
+        console.info(appKey.publicKey);
+        console.info(appKey.secretKey);
+        console.info("Application ECDH Public Key: ", appKey.publicKey);
+        Array.prototype.push.apply(message, appKey.publicKey);
+        var env = [browser.charCodeAt(0), os.charCodeAt(0)];
+        Array.prototype.push.apply(message, env);
+        msg(browser + " Browser running on " + os + " Operating System");
+        encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
+      }
+      /*
+       else if (type == 2) { //OKGETPUB
+           var message = [255, 255, 255, 255, OKGETPUBKEY]; //Add header and message type
+           msg("Checking to see if this key is assigned to an OnlyKey Slot " + onlykey_api.custom_keyid);
+           var empty = new Array(50).fill(0);
+           Array.prototype.push.apply(message, onlykey_api.custom_keyid);
+           Array.prototype.push.apply(message, empty);
+           while (message.length < 64) message.push(0);
+           var encryptedkeyHandle = await aesgcm_encrypt(message);
+           //var b64keyhandle = bytes2b64(encryptedkeyHandle);
+       } */
+      else { //Ping and get Response From OKSIGN or OKDECRYPT
+        if (_$status_is('finished'))
+          return encrypted_data;
+        console.info("Sending Ping Request to OnlyKey");
+        message = [];
+        var ciphertext = new Uint8Array(64).fill(0);
+        Array.prototype.push.apply(message, ciphertext);
+        encryptedkeyHandle = await aesgcm_encrypt(message, sharedsec);
+        //var encryptedkeyHandle = Uint8Array.from(message);
+        _$status('waiting_ping');
+        cmd = OKPING;
+      }
 
-        var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000);
+      var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000);
 
-        console.log("DECODED RESPONSE:", response);
-        var data = await Promise;
-        if (_$status_is('finished')) {
-          console.info("Finished");
-        }
-        else if (_$status_is('waiting_ping')) {
-          console.info("Ping Successful");
-          _$status('pending_challenge');
-          data = 1;
-        }
-        else if (type == 1) {
-          okPub = response.slice(21, 53);
-          console.info("OnlyKey Public Key: ", okPub);
-          sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-          console.info("NACL shared secret: ", sharedsec);
-          OKversion = response[19] == 99 ? 'Color' : 'Original';
-          FWversion = bytes2string(response.slice(8, 20));
-          msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
-          element_by_id('header_messages').innerHTML = "<br>";
-          headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-          var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
-          console.info("AES Key", key);
-          cb(null, data);
-          return;
-        }
-        /*else if (type == 2) {
-                 var pubkey = response.slice(0, 1); //slot number containing matching key
-                 msg("Public Key found in slot" + pubkey);
-                 var entropy = response.slice(2, response.length);
-                 msg("HW generated entropy" + entropy);
-                 //Todo finish implementing this
-             return pubkey;
-           }*/
-        else if (type == 3 && _$status_is('finished')) {
-          data = response;
-        }
-        else if (type == 4 && _$status_is('finished')) {
-          var oksignature = response.slice(0, response.length); //4+32+2+32
-          data = oksignature;
-        }
-
+      console.log("DECODED RESPONSE:", response);
+      var data = await Promise;
+      if (_$status_is('finished')) {
+        console.info("Finished");
+      }
+      else if (_$status_is('waiting_ping')) {
+        console.info("Ping Successful");
+        _$status('pending_challenge');
+        data = 1;
+      }
+      else if (type == 1) {
+        okPub = response.slice(21, 53);
+        console.info("OnlyKey Public Key: ", okPub);
+        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+        console.info("NACL shared secret: ", sharedsec);
+        OKversion = response[19] == 99 ? 'Color' : 'Original';
+        FWversion = bytes2string(response.slice(8, 20));
+        msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
+        element_by_id('header_messages').innerHTML = "<br>";
+        headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
+        var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+        console.info("AES Key", key);
         cb(null, data);
+        return;
+      }
+      /*else if (type == 2) {
+               var pubkey = response.slice(0, 1); //slot number containing matching key
+               msg("Public Key found in slot" + pubkey);
+               var entropy = response.slice(2, response.length);
+               msg("HW generated entropy" + entropy);
+               //Todo finish implementing this
+           return pubkey;
+         }*/
+      else if (type == 3 && _$status_is('finished')) {
+        data = response;
+      }
+      else if (type == 4 && _$status_is('finished')) {
+        var oksignature = response.slice(0, response.length); //4+32+2+32
+        data = oksignature;
+      }
+
+      cb(null, data);
 
       //}, (delay * 1000));
 
@@ -245,7 +244,7 @@ module.exports = function(imports) {
     return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
       secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 21;
       var res;
-      
+
       if (_$status_is('done_challenge') || _$status_is('waiting_ping')) {
         _$status('done_challenge');
         onlykey_api.emit("pin-timer", `Waiting for OnlyKey to process message.`);
@@ -260,17 +259,17 @@ module.exports = function(imports) {
           onlykey_api.emit("pin-timer", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
           console.info("enter challenge code", pin);
         }
-        
-        if (!(os == 'Android') && [15,10,5].indexOf(secondsRemaining) > -1) {
+
+        if (!(os == 'Android') && [15, 10, 5].indexOf(secondsRemaining) > -1) {
           res = await ping(0); //Delay
         }
         //await ping(0); //Too many popups with FIDO2
       }
-      
-      await res;//resolve any pointer for ping responce completion
-      
+
+      await res; //resolve any pointer for ping responce completion
+
       if (_$status_is('finished')) {
-        
+
         console.info("Parsed Encrypted Data: ", encrypted_data);
         var decrypted_data = await aesgcm_decrypt(encrypted_data, sharedsec);
 
@@ -605,7 +604,7 @@ module.exports = function(imports) {
     };
   }
 
-  async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
+  function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
     // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
     // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
     //
@@ -640,25 +639,13 @@ module.exports = function(imports) {
 
     if (browser != "testingu2f") {
 
-      return new Promise(function(resolve) {
+      return new Promise(async function(resolve) {
         // return 
-        window.navigator.credentials.get({
+        var gc = window.navigator.credentials.get({
           publicKey: request_options
-        }).then(assertion => {
-          console.log("GOT ASSERTION", assertion);
-          console.log("RESPONSE", assertion.response);
-          let response = decode_ctaphid_response_from_signature(assertion.response);
-          console.log("RESPONSE:", response);
+        });
 
-          if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING')
-            return resolve(response.status); //response.status;
-          if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
-            _$status('done_challenge');
-            return resolve(response.status); //response.status;
-          }
-          resolve(response.data);
-          // return response.data;
-        }).catch(error => {
+        gc.catch(error => {
           console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
           console.log("THE ERROR:", error);
           console.log("NAME:", error.name);
@@ -676,6 +663,24 @@ module.exports = function(imports) {
           return resolve(0); // 0 = unset error: 
 
         });
+
+        var assertion = await gc;
+        // gc.then(assertion => {
+        console.log("GOT ASSERTION", assertion);
+        console.log("RESPONSE", assertion.response);
+        let response = decode_ctaphid_response_from_signature(assertion.response);
+        console.log("RESPONSE:", response);
+
+        if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING')
+          return resolve(response.status); //response.status;
+        if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
+          _$status('done_challenge');
+          return resolve(response.status); //response.status;
+        }
+        resolve(response.data);
+        // return response.data;
+        // });
+
       });
     }
     else {
