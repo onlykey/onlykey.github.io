@@ -126,13 +126,15 @@ module.exports = function(imports) {
    * Type of response requested - OKSETTIME, OKGETPUBKEY, OKSIGN, OKDECRYPT
    */
   async function msg_polling(params = {}, callback) {
-    return new Promise(async function(resolve, reject) {
+    // return new Promise(async function(resolve, reject) {
 
-      function cb(err, data) {
-        if (typeof cb === 'function') callback(err, data);
-        if (err) return reject(err);
-        resolve(data);
-      }
+    //   function cb(err, data) {
+    //     if (typeof cb === 'function') callback(err, data);
+    //     if (err) return reject(err);
+    //     resolve(data);
+    //   }
+    
+      var cb = callback || noop;
 
       var delay = params.delay || 0;
       var type = params.type || 1; // default type to 1
@@ -237,8 +239,44 @@ module.exports = function(imports) {
 
       }, (delay * 1000));
 
-    });
+    // });
   }
+  
+  onlykey_api.doPinTimer = async function(seconds) {
+    return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
+      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 15;
+      var button = element_by_id("onlykey_start");
+
+      if (_$status() === 'done_challenge' || _$status() === 'waiting_ping') {
+        _$status('done_challenge');
+        const btmsg = `Waiting for OnlyKey to process message.`;
+        if (button) button.textContent = btmsg;
+        console.info("Delay ", onlykey_api.poll_delay);
+        await ping(onlykey_api.poll_delay - 2); //Delay
+      }
+      else if (_$status() === 'pending_challenge') {
+        if (secondsRemaining <= 2) {
+          _$status('done_challenge');
+        }
+        if (secondsRemaining >= 2) {
+          const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
+          if (button) button.textContent = btmsg;
+          console.info("enter challenge code", pin);
+        }
+        //await ping(0); //Too many popups with FIDO2
+      }
+
+      if (_$status() === 'finished') {
+        console.info("Parsed Encrypted Data: ", encrypted_data);
+        var decrypted_data = await aesgcm_decrypt(encrypted_data, sharedsec);
+
+        console.info("Parsed Decrypted Data: ", decrypted_data);
+        return resolve(decrypted_data);
+      }
+
+      setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining -= 1), 1000);
+    });
+  };
 
   function _$status(newStatus) {
     if (newStatus) {
@@ -432,42 +470,6 @@ module.exports = function(imports) {
     });
   }
 
-
-  onlykey_api.doPinTimer = async function(seconds) {
-    return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 15;
-      var button = element_by_id("onlykey_start");
-
-      if (_$status() === 'done_challenge' || _$status() === 'waiting_ping') {
-        _$status('done_challenge');
-        const btmsg = `Waiting for OnlyKey to process message.`;
-        if (button) button.textContent = btmsg;
-        console.info("Delay ", onlykey_api.poll_delay);
-        await ping(onlykey_api.poll_delay - 2); //Delay
-      }
-      else if (_$status() === 'pending_challenge') {
-        if (secondsRemaining <= 2) {
-          _$status('done_challenge');
-        }
-        if (secondsRemaining >= 2) {
-          const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
-          if (button) button.textContent = btmsg;
-          console.info("enter challenge code", pin);
-        }
-        //await ping(0); //Too many popups with FIDO2
-      }
-
-      if (_$status() === 'finished') {
-        console.info("Parsed Encrypted Data: ", encrypted_data);
-        var decrypted_data = await aesgcm_decrypt(encrypted_data, sharedsec);
-
-        console.info("Parsed Decrypted Data: ", decrypted_data);
-        return resolve(decrypted_data);
-      }
-
-      setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining -= 1), 1000);
-    });
-  };
 
   // The idea is to encode CTAPHID_VENDOR commands
   // in the keyhandle, that is sent via WebAuthn or U2F
