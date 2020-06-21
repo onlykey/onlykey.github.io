@@ -450,7 +450,10 @@ module.exports = function(imports) {
     console.info("Encrypted Handlekey bytes ", encryptedmsg);
 
     var response = await ctaphid_via_webauthn(element_by_id('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotid(), finalPacket, packetnum, encryptedmsg, 6000);
-
+    
+    if (os == 'Android') await wait(6000);
+    else await wait(1000);
+        
     if (finalPacket) packetnum = 0;
 
     // .then(async response => {
