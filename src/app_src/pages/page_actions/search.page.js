@@ -15,6 +15,8 @@ var page = {
   setup: function(app, $page, pathname) {
     if (!init)
       return page.init(app, $page);
+      
+      var pgpDecoder = require("../../pgp-decoder/pgp.decoder.js");
 
     var default_anonymous_email = "onlykey@crp.to";
 
@@ -42,8 +44,12 @@ var page = {
 
     var onlykeyApi = app.onlykeyApi;
     var params = onlykeyApi.getAllUrlParams();
-
-
+    
+    
+    //if (params.q.slice(0, 10) == "-----BEGIN") {
+    if (params.q) 
+      params.q = unescape(params.q);
+    //}
     if (params.q) {
       app.$('#user').val(params.q);
       // $('#submit').click();
@@ -84,9 +90,30 @@ var page = {
       // var decodedkey = pgpDecoder(response_text);
       // console.log(decodedkey);
       //use pgpDecoder to grab keyid and search keyid instead of user.q
-      
-      
-      app.pages.state.replace({ pathname: pathname}, $("title").text(), "./search?q="+user.q);
+      if (user.q.slice(0, 10) == "-----BEGIN") {
+        var decodedkey = pgpDecoder(user.q);
+        app.pages.state.replace({ pathname: pathname}, $("title").text(), "./search?q="+escape(user.q));
+        console.log(decodedkey);
+        
+        for(var i in decodedkey){
+          if(decodedkey[i]){
+            console.log(decodedkey[i]);
+            
+            if(decodedkey[i].algorithm)
+              console.log(decodedkey[i].algorithm.toJSON());
+              
+            if(decodedkey[i].hashAlgorithm)
+              console.log(decodedkey[i].hashAlgorithm.toJSON());
+              
+            if(decodedkey[i].packet)
+              console.log(decodedkey[i].packet.toJSON());
+          }
+          console.log("--------");
+        }
+        
+        return;
+      }else
+        app.pages.state.replace({ pathname: pathname}, $("title").text(), "./search?q="+user.q);
       
       switch (true) {
         case (sites.q == 'protonmail' || sites.q == 'all'):
@@ -175,8 +202,26 @@ var page = {
                           sl.rightDiv.append("Send Encrypted <a target='_blank' href='./encrypt?type=e&recipients=" + listItem.username + "'>Message</a> <a target='_blank' href='./encrypt-file?type=e&recipients=" + listItem.username + "'>File</a><br>");
 
                           for (var i in element.services_summary) {
-                            sl.rightDiv.append("<font color='blue'>" + element.services_summary[i].service_name.toUpperCase() + " Username = " + element.services_summary[i].username + "</font><br>");
+                            var srv = element.services_summary[i].service_name.toUpperCase();
+                            switch (srv) {
+                              case 'GITHUB':
+                                sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://github.com/"+element.services_summary[i].username+"'>"  
+                                    + srv + " Username = " + element.services_summary[i].username + "</a><br>");
+                                break;
+                              case 'REDDIT':
+                                sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://www.reddit.com/user/"+element.services_summary[i].username+"'>"  
+                                    + srv + " Username = " + element.services_summary[i].username + "</a><br>");
+                                break;
+                              case 'TWITTER':
+                                sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://twitter.com/"+element.services_summary[i].username+"'>"  
+                                    + srv + " Username = " + element.services_summary[i].username + "</a><br>");
+                                break;
+                              
+                              default:
+                                sl.rightDiv.append("<font color='blue'>" + element.services_summary[i].service_name.toUpperCase() + " Username = " + element.services_summary[i].username + "</font><br>");
+                            }
                           }
+                          
                           var $getpgp_btn = $("<button>Copy PGP Key</button>");
                           var $pgp_copybox = $("<textarea>&nbsp;</textarea>");
                           sl.rightDiv.append($getpgp_btn);

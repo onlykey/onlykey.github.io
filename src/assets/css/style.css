@@ -227,3 +227,17 @@ fieldset * {
         max-width: 92%;
     }
 }
+
+
+.color-blue{
+    color:blue;
+}
+.color-red{
+    color:red;
+}
+.color-green{
+    color:green;
+}
+.color-yellow{
+    color:yellow;
+}

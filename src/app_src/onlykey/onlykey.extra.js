@@ -92,9 +92,11 @@ module.exports = function(imports) {
         // set parameter name and value (use 'true' if empty)
         var paramName = a[0];
         var paramValue = typeof(a[1]) === 'undefined' ? true : a[1];
+        
         // (optional) keep case consistent
-        paramName = paramName.toLowerCase();
-        if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
+        //paramName = paramName.toLowerCase();
+        //if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
+        
         // if the paramName ends with square brackets, e.g. colors[] or colors[2]
         if (paramName.match(/\[(\d+)?\]$/)) {
           // create key if it doesn't exist
