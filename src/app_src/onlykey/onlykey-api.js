@@ -22,8 +22,6 @@ module.exports = function(imports) {
     hexStrToDec,
     bytes2string,
     noop,
-    // string2bytes,
-    // u2f_unb64,
     getstringlen,
     mkchallenge,
     bytes2b64,
@@ -77,7 +75,6 @@ module.exports = function(imports) {
    */
   onlykey_api.init = false;
   onlykey_api.initok = async function(callback) {
-
     return new Promise(async function(resolve) {
       if (onlykey_api.init) {
         if (callback && typeof callback == "function")
@@ -87,7 +84,8 @@ module.exports = function(imports) {
 
       //Initialize OnlyKey
       if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1) browser = "Firefox";
-
+      
+      //Set time on OnlyKey, get firmware version, get ecc public
       msg_polling({ type: 1, delay: 0 }, function() {
 
         if (typeof(sharedsec) === "undefined") {
@@ -105,7 +103,8 @@ module.exports = function(imports) {
           resolve();
 
         }
-      }); //Set time on OnlyKey, get firmware version, get ecc public
+      }); 
+      
       // if (os == 'Android') await wait(6000);
       // else await wait(3000);
       // await wait(1000);
@@ -113,9 +112,9 @@ module.exports = function(imports) {
     });
   };
 
-  async function ping(delay) {
+  function ping(delay) {
     console.info(onlykey_api.poll_type);
-    return await msg_polling({ type: onlykey_api.poll_type, delay: delay });
+    return msg_polling({ type: onlykey_api.poll_type, delay: delay });
   }
 
   /**
@@ -126,7 +125,6 @@ module.exports = function(imports) {
    * Type of response requested - OKSETTIME, OKGETPUBKEY, OKSIGN, OKDECRYPT
    */
   async function msg_polling(params = {}, callback) {
-    
     return new Promise(async function(resolve, reject) {
 
       function cb(err, data) {
@@ -134,7 +132,7 @@ module.exports = function(imports) {
         if (err) return reject(err);
         resolve(data);
       }
-    
+
       // var cb = callback || noop;
 
       var delay = params.delay || 0;
@@ -143,7 +141,7 @@ module.exports = function(imports) {
         delay = delay * 4;
       }
 
-      setTimeout(async function() {
+      //setTimeout(async function() {
         console.info("Requesting response from OnlyKey");
         var cmd;
         var encryptedkeyHandle;
@@ -179,7 +177,8 @@ module.exports = function(imports) {
              //var b64keyhandle = bytes2b64(encryptedkeyHandle);
          } */
         else { //Ping and get Response From OKSIGN or OKDECRYPT
-          if (_$status_is('finished')) return encrypted_data;
+          if (_$status_is('finished'))
+            return encrypted_data;
           console.info("Sending Ping Request to OnlyKey");
           message = [];
           var ciphertext = new Uint8Array(64).fill(0);
@@ -189,10 +188,7 @@ module.exports = function(imports) {
           _$status('waiting_ping');
           cmd = OKPING;
         }
-        //#define DERIVE_PUBLIC_KEY 1
-        //#define DERIVE_SHARED_SECRET 2
-        //#define NO_ENCRYPT_RESP 0
-        //#define ENCRYPT_RESP 1
+
         var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000);
 
         console.log("DECODED RESPONSE:", response);
@@ -238,36 +234,41 @@ module.exports = function(imports) {
 
         cb(null, data);
 
-      }, (delay * 1000));
+      //}, (delay * 1000));
 
     });
   }
-  
+
   onlykey_api.doPinTimer = async function(seconds) {
     return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 15;
-      var button = element_by_id("onlykey_start");
-
-      if (_$status() === 'done_challenge' || _$status() === 'waiting_ping') {
+      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 21;
+      var res;
+      
+      if (_$status_is('done_challenge') || _$status_is('waiting_ping')) {
         _$status('done_challenge');
-        const btmsg = `Waiting for OnlyKey to process message.`;
-        if (button) button.textContent = btmsg;
+        onlykey_api.emit("pin-timer", `Waiting for OnlyKey to process message.`);
         console.info("Delay ", onlykey_api.poll_delay);
-        await ping(onlykey_api.poll_delay - 2); //Delay
+        res = await ping(onlykey_api.poll_delay); //Delay
       }
-      else if (_$status() === 'pending_challenge') {
-        if (secondsRemaining <= 2) {
+      else if (_$status_is('pending_challenge')) {
+        if (secondsRemaining <= 1) {
           _$status('done_challenge');
         }
-        if (secondsRemaining >= 2) {
-          const btmsg = `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`;
-          if (button) button.textContent = btmsg;
+        if (secondsRemaining >= 1) {
+          onlykey_api.emit("pin-timer", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
           console.info("enter challenge code", pin);
+        }
+        
+        if (!(os == 'Android') && [15,10,5].indexOf(secondsRemaining) > -1) {
+          res = await ping(0); //Delay
         }
         //await ping(0); //Too many popups with FIDO2
       }
-
-      if (_$status() === 'finished') {
+      
+      await res;//resolve any pointer for ping responce completion
+      
+      if (_$status_is('finished')) {
+        
         console.info("Parsed Encrypted Data: ", encrypted_data);
         var decrypted_data = await aesgcm_decrypt(encrypted_data, sharedsec);
 
@@ -303,6 +304,8 @@ module.exports = function(imports) {
     }
   }
 
+
+  //todo get this outta here (element_by_id, msg, headermsg, slotid)
   function element_by_id(s) { return document.getElementById(s); }
 
   function msg(s) {
@@ -437,38 +440,41 @@ module.exports = function(imports) {
 
     Array.prototype.push.apply(message, ctChunk);
 
-    var cb = finalPacket ? onlykey_api.doPinTimer.bind(null, 10) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
+    var cb = finalPacket ? onlykey_api.doPinTimer.bind(null) : u2fSignBuffer.bind(null, cipherText.slice(maxPacketSize), mainCallback);
 
     //while (message.length < 228) message.push(0);
     console.info("Handlekey bytes ", message);
     var encryptedmsg = await aesgcm_encrypt(message, sharedsec);
     console.info("Encrypted Handlekey bytes ", encryptedmsg);
 
-    await ctaphid_via_webauthn(element_by_id('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotid(), finalPacket, packetnum, encryptedmsg, 6000).then(async response => {
-      if (finalPacket) packetnum = 0;
-      //decrypt data
-      if (response != 1) {
-        var decryptedparsedData = await aesgcm_decrypt(response, sharedsec);
-        console.log("DECODED RESPONSE:", response);
-        console.log("DECRYPTED RESPONSE:", decryptedparsedData);
+    var response = await ctaphid_via_webauthn(element_by_id('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotid(), finalPacket, packetnum, encryptedmsg, 6000);
+
+    if (finalPacket) packetnum = 0;
+
+    // .then(async response => {
+    //decrypt data
+    if (response != 1) {
+      var decryptedparsedData = await aesgcm_decrypt(response, sharedsec);
+      console.log("DECODED RESPONSE:", response);
+      console.log("DECRYPTED RESPONSE:", decryptedparsedData);
+    }
+    console.log("Returning just the decoded response:");
+    var result = response;
+    msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
+    if (result) {
+      if (finalPacket) {
+        console.info("Final packet ");
+        _$status('pending_challenge');
+        cb().then(skey => {
+          console.info("skey ", skey);
+          mainCallback(skey);
+        }).catch(err => console.info(err));
       }
-      console.log("Returning just the decoded response:");
-      var result = response;
-      msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
-      if (result) {
-        if (finalPacket) {
-          console.info("Final packet ");
-          _$status('pending_challenge');
-          cb().then(skey => {
-            console.info("skey ", skey);
-            mainCallback(skey);
-          }).catch(err => console.info(err));
-        }
-        else {
-          cb();
-        }
+      else {
+        cb();
       }
-    });
+    }
+    // });
   }
 
 
@@ -607,6 +613,10 @@ module.exports = function(imports) {
     // problem: the popup to press button flashes up briefly :(
     //
 
+    //#define DERIVE_PUBLIC_KEY 1
+    //#define DERIVE_SHARED_SECRET 2
+    //#define NO_ENCRYPT_RESP 0
+    //#define ENCRYPT_RESP 1
     var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data);
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     var request_options = {
@@ -627,32 +637,43 @@ module.exports = function(imports) {
 
 
     if (browser != "testingu2f") {
-      return window.navigator.credentials.get({
-        publicKey: request_options
-      }).then(assertion => {
-        console.log("GOT ASSERTION", assertion);
-        console.log("RESPONSE", assertion.response);
-        let response = decode_ctaphid_response_from_signature(assertion.response);
-        console.log("RESPONSE:", response);
-        if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING') return response.status;
-        if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
-          _$status('done_challenge');
-          return response.status;
-        }
-        return response.data;
-      }).catch(error => {
-        console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
-        console.log("THE ERROR:", error);
-        console.log("NAME:", error.name);
-        console.log("MESSAGE:", error.message);
-        if (error.name == 'NS_ERROR_ABORT' || error.name == 'AbortError' || error.name == 'InvalidStateError') {
-          _$status('done_challenge');
-          return 1;
-        }
-        else if (error.name == 'NotAllowedError' && os == 'Windows') { // Win 10 1903 issue
-          return 1;
-        }
-        return Promise.resolve(); // error;
+
+      return new Promise(function(resolve) {
+        // return 
+        window.navigator.credentials.get({
+          publicKey: request_options
+        }).then(assertion => {
+          console.log("GOT ASSERTION", assertion);
+          console.log("RESPONSE", assertion.response);
+          let response = decode_ctaphid_response_from_signature(assertion.response);
+          console.log("RESPONSE:", response);
+
+          if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING')
+            return resolve(response.status); //response.status;
+          if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
+            _$status('done_challenge');
+            return resolve(response.status); //response.status;
+          }
+          resolve(response.data);
+          // return response.data;
+        }).catch(error => {
+          console.log("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
+          console.log("THE ERROR:", error);
+          console.log("NAME:", error.name);
+          console.log("MESSAGE:", error.message);
+          if (error.name == 'NS_ERROR_ABORT' || error.name == 'AbortError' || error.name == 'InvalidStateError') {
+            _$status('done_challenge');
+            return resolve(1); // 1 = set error: aborted or bad hw-key-state
+          }
+
+          if (error.name == 'NotAllowedError' && os == 'Windows') {
+            return resolve(2); // 2 = set error: Win 10 1903 issue
+            // return 1;
+          }
+
+          return resolve(0); // 0 = unset error: 
+
+        });
       });
     }
     else {

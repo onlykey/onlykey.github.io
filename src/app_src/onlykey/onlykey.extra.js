@@ -70,7 +70,7 @@ module.exports = function(imports) {
     return $exports.u2f_b64($exports.bytes2string(bytes));
   };
 
-
+  //todo: move getAllUrlParams to pages plugin
   $exports.getAllUrlParams = function getAllUrlParams(url) {
     // get query string from url (optional) or window
     var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
@@ -206,10 +206,6 @@ module.exports = function(imports) {
     0x38: 'CTAP2_ERR_PIN_TOKEN_EXPIRED',
     0x39: 'CTAP2_ERR_REQUEST_TOO_LARGE',
   };
-  
-  
-  
-  
   
   
   var counter = 0;
