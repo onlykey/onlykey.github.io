@@ -88,6 +88,7 @@ module.exports = function(imports) {
       
       //Set time on OnlyKey, get firmware version, get ecc public
       msg_polling({ type: 1, delay: 0 }, async function() {
+        if (os == 'Android') await wait(6000);
         
         if (typeof(sharedsec) === "undefined") {
           if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
@@ -643,10 +644,7 @@ module.exports = function(imports) {
         // return 
         window.navigator.credentials.get({
           publicKey: request_options
-        }).then(async function (assertion) {
-          
-          if (os == 'Android') await wait(6000);
-          
+        }).then(assertion => {
           console.log("GOT ASSERTION", assertion);
           console.log("RESPONSE", assertion.response);
           let response = decode_ctaphid_response_from_signature(assertion.response);
