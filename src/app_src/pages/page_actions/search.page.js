@@ -60,11 +60,11 @@ var page = {
 
 
     function searchLayout() {
-      var outDiv = $("<div class='outline'>");
+      var outDiv = $("<div class='outline row'>");
       $("#results").append(outDiv);
-      var leftDiv_outter = $("<div class='yui3-u-1-2'>");
+      var leftDiv_outter = $("<div class='col-sm'>");
       outDiv.append(leftDiv_outter);
-      var rightDiv_outter = $("<div class='yui3-u-1-2'>");
+      var rightDiv_outter = $("<div class='col-sm'>");
       outDiv.append(rightDiv_outter);
       var leftDiv = $("<div class='block-inner'>");
       leftDiv_outter.append(leftDiv);
@@ -141,7 +141,7 @@ var page = {
 
               sl.leftDiv.append("<img src='https://www.gravatar.com/avatar/" + forge.md5.create().update(email).digest().toHex() + "?s=1024default=https%3A%2F%2Fgravatar.com%2Favatar%2F" + forge.md5.create().update(default_anonymous_email).digest().toHex() + "' />");
               sl.rightDiv.append("<font color='red'>Protonmail Username = " + username + "</font><br>");
-              sl.rightDiv.append("<pre color='red'>GPG KeyID = " + keyid + " (" + keyid_short + ")" + "</pre><br>");
+              sl.rightDiv.append("<p color='red'>GPG KeyID = " + keyid + " (" + keyid_short + ")" + "</p><br>");
               sl.rightDiv.append("Send Encrypted <a target='_blank' href='./encrypt?type=e&recipients=" + username + "'>Message</a> <a target='_blank' href='./encrypt-file?type=e&recipients=" + username + "'>File</a><br>");
 
               var $getpgp_btn = $("<button>Copy PGP Key</button>");
