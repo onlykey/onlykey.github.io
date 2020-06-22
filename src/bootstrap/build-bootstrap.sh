@@ -4,7 +4,7 @@
 
 
 
-# npm install -g grunt-cli@1.3.2
+npm install -g grunt-cli@1.3.2
 
 
 rm -rf ./bootswatch
