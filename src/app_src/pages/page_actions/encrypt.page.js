@@ -81,6 +81,17 @@ var page = {
       page.button.classList.add('error');
       page.button.classList.remove('working');
     });
+    
+    onlykeyApi.on("status",function(message) {
+      page.button.textContent = message;
+    });
+    
+    onlykeyApi.on("error",function(message) {
+      console.log("okapi-error", message);
+      page.button.textContent = message;
+      page.button.classList.add('error');
+      page.button.classList.remove('working');
+    });
 
 
     page.setup(app, $page, pathname);

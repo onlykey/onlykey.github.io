@@ -112,7 +112,8 @@ module.exports = function(imports) {
 
     });
   };
-
+  
+  
   function ping(delay) {
     console.info(onlykey_api.poll_type);
     return msg_polling({ type: onlykey_api.poll_type, delay: delay });
@@ -190,10 +191,14 @@ module.exports = function(imports) {
         cmd = OKPING;
       }
 
-      var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000);
-
+      var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(err, data){
+        console.log(data);
+      });
+      await wait(1000);
+      
       console.log("DECODED RESPONSE:", response);
-      var data = await Promise;
+      var data;// = await Promise;
+      
       if (_$status_is('finished')) {
         console.info("Finished");
       }
@@ -242,12 +247,12 @@ module.exports = function(imports) {
 
   onlykey_api.doPinTimer = async function(seconds) {
     return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 21;
+      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 16;
       var res;
 
       if (_$status_is('done_challenge') || _$status_is('waiting_ping')) {
         _$status('done_challenge');
-        onlykey_api.emit("pin-timer", `Waiting for OnlyKey to process message.`);
+        onlykey_api.emit("status", `Waiting for OnlyKey to process message.`);
         console.info("Delay ", onlykey_api.poll_delay);
         res = await ping(onlykey_api.poll_delay); //Delay
       }
@@ -256,7 +261,7 @@ module.exports = function(imports) {
           _$status('done_challenge');
         }
         if (secondsRemaining >= 1) {
-          onlykey_api.emit("pin-timer", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
+          onlykey_api.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
           console.info("enter challenge code", pin);
         }
 
@@ -563,13 +568,14 @@ module.exports = function(imports) {
       else if (signature.length < 73 && bytes2string(data.slice(0, 6)) == 'Error ') {
         // Something went wrong, read the ascii response and display to user
         var msgtext = data.slice(0, getstringlen(data));
-        const btmsg = `${bytes2string(msgtext)}. Refresh this page and try again.`;
+        /*const btmsg = `${bytes2string(msgtext)}. Refresh this page and try again.`;
         var button = element_by_id("onlykey_start");
         if (button) {
           button.textContent = btmsg;
           button.classList.remove('working');
           button.classList.add('error');
-        }
+        }*/
+        onlykey_api.emit("error", `${bytes2string(msgtext)}. Refresh this page and try again.`);
         _$status('finished');
         throw new Error(bytes2string(msgtext));
       }
@@ -581,8 +587,8 @@ module.exports = function(imports) {
     }
     else if (error_code == ctap_error_codes['CTAP2_ERR_NO_OPERATION_PENDING']) {
       // No data received, data has already been retreived or wiped due to 5 second timeout
-
-      if (button) button.textContent = 'no data received';
+      onlykey_api.emit("error", 'no data received');
+      
       _$status('finished');
       throw new Error('no data received');
 
@@ -604,7 +610,7 @@ module.exports = function(imports) {
     };
   }
 
-  function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
+  function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout, cb) {
     // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
     // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
     //
@@ -670,7 +676,7 @@ module.exports = function(imports) {
         console.log("RESPONSE", assertion.response);
         let response = decode_ctaphid_response_from_signature(assertion.response);
         console.log("RESPONSE:", response);
-
+        if(cb) cb(null, response);
         if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING')
           return resolve(response.status); //response.status;
         if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
@@ -698,7 +704,7 @@ module.exports = function(imports) {
         //var result = custom_auth_response(response);
         //return resolve(result);
         //});
-      });
+       });
     }
   }
 
