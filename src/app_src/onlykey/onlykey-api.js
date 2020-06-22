@@ -265,7 +265,7 @@ module.exports = function(imports) {
           console.info("enter challenge code", pin);
         }
 
-        if (!(os == 'Android') && [15, 10, 5].indexOf(secondsRemaining) > -1) {
+        if (!(os == 'Android') && [10, 5].indexOf(secondsRemaining) > -1) {
           res = await ping(0); //Delay
         }
         //await ping(0); //Too many popups with FIDO2
