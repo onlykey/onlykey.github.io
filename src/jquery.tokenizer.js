@@ -168,7 +168,7 @@ var tokenizer = function($, onAddTokenizerItem) {
                 var values = this.$formInput.val().split(this.options.separator);
                 for (var i = 0, j = 0; i < values.length; ++i) {
                     if (values[i]) {
-                        this.list.add(new Item(this.channel, values[i]), j++);
+                        this.list.add(new Item(this.channel, unescape(values[i])), j++);
                     }
                 }
                 this.input.focus().blur();
@@ -191,7 +191,9 @@ var tokenizer = function($, onAddTokenizerItem) {
             },
 
             updateFormInput() {
-                this.$formInput.attr("value", this.list.values().join(this.options.separator));
+                this.$formInput.attr("value", this.list.values().map(function(val){
+                    return escape(val);
+                }).join(this.options.separator));
                 this.$formInput.change();
             }
         };

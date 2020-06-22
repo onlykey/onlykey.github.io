@@ -231,7 +231,12 @@ module.exports = function(imports){
     if ( /*urlinputbox.value.slice(0,10) != '-----BEGIN' && */ onlykeyApi._status != 'Sign Only') { // Check if its a pasted public key
       //console.info(urlinputbox.value.slice(0,10));
 
-      r_inputs = to_pgpkeys.split(",");
+      r_inputs = to_pgpkeys.split(",").map(function(val){
+        if (val.slice(0, 11) == '-----BEGIN%')// a pgp was escaped we should unescape it
+        return unescape(val);
+        else return val;
+      });
+      
       keys = [];
       for (var i in r_inputs) {
         var jquery_data_input = false; //$(urlinputbox).data("data-" + r_inputs[i]);

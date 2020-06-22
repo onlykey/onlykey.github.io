@@ -75,7 +75,9 @@ module.exports = function(imports) {
     // get query string from url (optional) or window
     var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
     // we'll store the parameters here
-    var obj = {};
+    var obj = {
+      "#": window.location.hash.split('#')[1]// add the hash
+    };
     // if query string exists
     if (queryString) {
       // stuff after # is not part of query string, so get rid of it

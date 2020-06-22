@@ -41,9 +41,10 @@ var page = {
       if (params.type == 'd') document.getElementById('decrypt_only').checked = true;
     }
     
-    if (params.key && params.gm) {
-      page.gun_message_key = params.key;
-      page.gun_message = gm_decode(params.gm);
+    if (params.gm == 1) {
+      var gm = params["#"].split("-");
+      page.gun_message_key = gm[1];
+      page.gun_message = gm_decode(gm[0]);
     }
 
     page.p2g.on("status", function(message) {

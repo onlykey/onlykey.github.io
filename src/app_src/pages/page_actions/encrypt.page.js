@@ -46,7 +46,7 @@ var page = {
 
     if ((onlykeyApi._status) == 'Encrypt and Sign') {
       if (params.sender) document.getElementById('pgpkeyurl2').value = params.sender;
-      if (params.recipients) document.getElementById('pgpkeyurl').value = params.recipients;
+      // if (params.recipients) document.getElementById('pgpkeyurl').value = params.recipients;
       if (params.type == 'e') {
         document.getElementById('encrypt_only').checked = true;
         onlykeyApi._status = 'Encrypt Only';
@@ -101,11 +101,12 @@ var page = {
       return page.init(app, $page, pathname);
     
     
-    // History.replaceState()
-    
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
-
+    
+    if (page.initParams.recipients) document.getElementById('pgpkeyurl').value = page.initParams.recipients;
+    
+    //enable tokenizedr
     $("input[data-provide='tokenizer']").each(function() {
         var $element = $(this);
         if ($element.data("tokenizer")) {
@@ -143,7 +144,6 @@ var page = {
     };
     
     
-
     onlykeyApi._status = $("#action")[0].select_one.value;
 
 
@@ -186,8 +186,6 @@ var page = {
       pageType = "es";
     }
     
-    
-    if (page.initParams.recipients) document.getElementById('pgpkeyurl').value = page.initParams.recipients;
     
     if(pageType)
       app.pages.state.replace({ pathname: pathname}, $("title").text() , 
@@ -292,7 +290,7 @@ var page = {
                     var hash = await app.SEA.work($data, null, null, { name: "SHA-256" });
                     page.gun.get("ok-messages#").get(hash).put($data, function(res) {
                       console.log(hash, res);
-                      $messageLink_url.val("https://" + window.location.host + "/app/decrypt?type=" + reverse_status + "&key="+secret+"&gm=" + gm_encode(hash));
+                      $messageLink_url.val("https://" + window.location.host + "/app/decrypt?type=" + reverse_status + "&gm=1#" + gm_encode(hash)+"-"+secret);
                         $messageLink_url.show();
                         $messageLink_url.focus();
                         $messageLink_url.select();
