@@ -3,7 +3,7 @@
 
 
 
-
+# run this before building
 # npm install -g grunt-cli@1.3.2
 
 
