@@ -22,7 +22,7 @@ npm install
 
 cp -a ../onlykey-template ./dist/onlykey
 
-grunt swatch:onlykey
+../../node_modules/grunt-cli/bin/grunt swatch:onlykey
 
 cp ./dist/onlykey/*.css ../../assets/css/.
 
