@@ -33,12 +33,14 @@ echo "Build Production"
 npm run build-release
 else
 npm run build-site
-fi
 
 #build theme css
 cd ./src/bootstrap
 bash ./build-bootstrap.sh
 cd ../..
+
+fi
+
 
 #copy assets
 cp -a ./src/assets/* ./build/app/.
