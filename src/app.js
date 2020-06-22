@@ -8,6 +8,7 @@ var $ = require("jquery");
 window.jQuery = $;
 require("./jquery.history.js");
 require("./jquery.scrollTo.min.js");
+require("bootstrap");
 
 
 var randomColor = require('randomcolor');

@@ -1,10 +1,10 @@
 const path = require('path');
-const webpack = require('webpack');
-const MinifyPlugin = require("babel-minify-webpack-plugin");
+// const webpack = require('webpack');
+// const MinifyPlugin = require("babel-minify-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 // const CopyWebpackPlugin = require('copy-webpack-plugin');
 // const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
-const SriPlugin = require('webpack-subresource-integrity');
+// const SriPlugin = require('webpack-subresource-integrity');
 const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
 
 var cspOptions = {
@@ -17,6 +17,7 @@ var cspOptions = {
         'style-src': ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
         'img-src': [
             "'self'",
+            "data:",
             "https://www.gravatar.com",
             "https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png",
             "https://s3.amazonaws.com/keybase_processed_uploads/",
@@ -25,11 +26,10 @@ var cspOptions = {
         'connect-src': [
             "'self'", 
             "https://keybase.io",
-            "https://onlykey.herokuapp.com",
-            "wss://onlykey.herokuapp.com",
+            "https://onlykey.herokuapp.com",//for api
+            "wss://onlykey.herokuapp.com",//for gun
             // "https://api.protonmail.ch",
-            // "wss://www.peersocial.io",
-            // "https://onlykey.herokuapp.com"
+            // "wss://www.peersocial.io"
         ]
     },
     hashEnabled: {
@@ -93,7 +93,7 @@ for (var i in pageFiles) {
 }
 
 
-plugins.push(new CspHtmlWebpackPlugin({}, {}))
+plugins.push(new CspHtmlWebpackPlugin({}, {}));
 
 
 module.exports = {
@@ -131,7 +131,7 @@ function getPagesList() {
         });
     }else{
                
-         var plugins = require("./src/plugins.js")
+         var plugins = require("./src/plugins.js");
          
          for(var i in plugins){
            if(plugins[i].pagesList){

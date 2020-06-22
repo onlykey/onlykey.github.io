@@ -35,6 +35,11 @@ else
 npm run build-site
 fi
 
+#build theme css
+cd ./src/bootstrap
+bash ./build-bootstrap.sh
+cd ../..
+
 #copy assets
 cp -a ./src/assets/* ./build/app/.
 cp -a ./src/release.js ./build/.

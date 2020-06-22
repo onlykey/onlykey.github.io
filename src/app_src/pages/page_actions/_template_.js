@@ -13,6 +13,10 @@ var page = {
       return page.init(app, $page, pathname);
       
     console.log("page", "setup");
+  },
+  dispose: function(app, pathname){
+    //init = false;
+    console.log("disposed" , pathname);
   }
 };
 

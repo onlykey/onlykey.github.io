@@ -1,45 +1,64 @@
-<html><head><meta http-equiv="Content-Security-Policy" content="base-uri 'none'; object-src 'none'; script-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-Vwae04rB9sdqUC28qqsIdw=='; style-src 'unsafe-inline' 'self' 'unsafe-eval' 'sha256-0O6J2IWUxRRvzD0dvDYCaDpVAztuyAU4BDoO8WPiMUc=' 'nonce-jz0cJYQP8BTJjGuVC1ORTg==' 'nonce-HCefan9oV26NVbhJXTT67A==' 'nonce-59sEiYq/WblqjRGrxUhOtw==' 'nonce-2/rqc/2diCymrEQJR4InbA==' 'nonce-H0eh4zeeQYt1aaaLn7gGmQ==' 'nonce-MPq/qyva5lsZ3wuhCED4vQ==' 'nonce-TKWlVsifYBdrXpCpMDKPWw==' 'nonce-Bj/GtY4NKpM89hjqo4jknQ==' 'nonce-uiVcmxYLaSpAi1sdkbQz0g==' 'nonce-SmbeEuqlpu9eZWJO/l7npA==' 'nonce-GnHntAWL1cM9vRAD/eeosA=='; default-src 'self'; img-src 'self' https://www.gravatar.com https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png https://s3.amazonaws.com/keybase_processed_uploads/; connect-src 'self' https://keybase.io https://onlykey.herokuapp.com wss://onlykey.herokuapp.com">
-    <title>OnlyKey - Encrypt & sign messages in your browser using Keybase PGP</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
-    <link rel="stylesheet" href="css/gallerycss-csstable-min.css" nonce="jz0cJYQP8BTJjGuVC1ORTg==">
-    <link rel="stylesheet" href="css/gallerycss-csslist-min.css" nonce="HCefan9oV26NVbhJXTT67A==">
-    <link rel="stylesheet" href="css/gallerycss-cssform-min.css" nonce="59sEiYq/WblqjRGrxUhOtw==">
-    <link rel="stylesheet" href="css/cssnormalize-min.css" nonce="2/rqc/2diCymrEQJR4InbA==">
-    <link rel="stylesheet" href="css/cssgrids-responsive-min.css" nonce="H0eh4zeeQYt1aaaLn7gGmQ==">
-    <link rel="stylesheet" href="css/cssbutton-min.css" nonce="MPq/qyva5lsZ3wuhCED4vQ==">
-    <!-- Some custom styles to make things pretty. -->
-    <link rel="stylesheet" type="text/css" href="css/ui.css" nonce="TKWlVsifYBdrXpCpMDKPWw==">
-    <!-- pgp2go styles -->
-    <link href="css/ShareTechMono.css" rel="stylesheet" nonce="Bj/GtY4NKpM89hjqo4jknQ==">
-    <link href="css/font-awesome.min.css" rel="stylesheet" nonce="uiVcmxYLaSpAi1sdkbQz0g==">
-    <link href="css/tokenizer.css" rel="stylesheet" nonce="SmbeEuqlpu9eZWJO/l7npA==">
-    <link href="css/style.css" rel="stylesheet" nonce="GnHntAWL1cM9vRAD/eeosA==">
-    <!-- Modify header colors here to customize the look and feel of the site-->
-    <style>
-        .header {
-            background: white;
-        }
+<html><head><meta http-equiv="Content-Security-Policy" content="base-uri 'none'; object-src 'none'; script-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-LO4A747uT+w6pfxtA7+hRg=='; style-src 'unsafe-inline' 'self' 'unsafe-eval' 'sha256-9tavEfsSbu5VrAJl1vIjNli060JbtpVlsu50kQijEJo=' 'nonce-qMvlXcrmeAG2b7XkBk0gvw==' 'nonce-RQrsgSpAEKb24zQVsYmyfA==' 'nonce-j3c5DVCGDvX5uBwhLt0mLw==' 'nonce-BdoFp0OWWQ+aBBic4HYV1g=='; default-src 'self'; img-src 'self' data: https://www.gravatar.com https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png https://s3.amazonaws.com/keybase_processed_uploads/; connect-src 'self' https://keybase.io https://onlykey.herokuapp.com wss://onlykey.herokuapp.com">
+  <title>OnlyKey - Encrypt & sign messages in your browser using Keybase PGP</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
+  <link href="css/bootstrap.min.css" rel="stylesheet" nonce="qMvlXcrmeAG2b7XkBk0gvw==">
 
-        .header h1 {
-            color: rgb(97, 97, 97);
-        }
+  <!--<link rel="stylesheet" href="css/gallerycss-csstable-min.css">-->
+  <!--<link rel="stylesheet" href="css/gallerycss-csslist-min.css">-->
+  <!--<link rel="stylesheet" href="css/gallerycss-cssform-min.css">-->
+  <!--<link rel="stylesheet" href="css/cssnormalize-min.css">-->
+  <!--<link rel="stylesheet" href="css/cssgrids-responsive-min.css">-->
+  <!--<link rel="stylesheet" href="css/cssbutton-min.css">-->
+  <!-- Some custom styles to make things pretty. -->
+  <!--<link rel="stylesheet" type="text/css" href="css/ui.css">-->
+  <!-- pgp2go styles -->
+  <link href="css/ShareTechMono.css" rel="stylesheet" nonce="RQrsgSpAEKb24zQVsYmyfA==">
+  <link href="css/font-awesome.min.css" rel="stylesheet" nonce="j3c5DVCGDvX5uBwhLt0mLw==">
 
-        .header h2 {
-            font-weight: 300;
-            margin: 0;
-            color: rgb(137, 137, 137);
-        }
-        
-        .doOverflow-x {
-            width: 100%;
-            overflow-x: hidden;
-        }
-    </style>
+  <link href="css/tokenizer.css" rel="stylesheet" nonce="BdoFp0OWWQ+aBBic4HYV1g==">
+  <!--<link href="css/style.css" rel="stylesheet">-->
+  <!-- Modify header colors here to customize the look and feel of the site-->
+  <style>
+    
+    
+  </style>
 </head>
 
-<body class="yui3-skin-sam" data-page="decrypt">
+<body data-page="decrypt">
 
+  <nav class="navbar navbar-dark bg-dark">
+
+      <a class="navbar-brand">Apps</a>
+      <a class="navbar-brand" href="./encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./decrypt-file"><i class="fa fa-file-text" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./encrypt-file"><i class="fa fa-file-archive-o" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./search"><i class="fa fa-search" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./password-generator"><i class="fa fa-key" aria-hidden="true"></i></a>
+      
+    <div class="mr-auto">
+      <a class="navbar-brand">Links</a>
+      <a class="navbar-brand" href="/"><i class="fa fa-home" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="https://docs.crp.to/webcrypt.html"><i class="fa fa-question" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="https://docs.crp.to/"><i class="fa fa-book" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="https://onlykey.io"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+    </div>
+
+  </nav>
+  <div class="container text-center pt-1">
+    <p class="doOverflow-x">
+      <img src="ok-plugged4.png" alt="logo" align="middle">
+    </p>
+    <h1>
+      <i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i> <i class="fa fa-long-arrow-right fa-2x" aria-hidden="true"></i> <i class="fa fa-lock fa-2x" aria-hidden="true"></i>
+    </h1>
+    <code data-language="javascript">
+      <div id="header_messages"></div>
+    </code>
+  </div>
+  <!--
+    
     <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
         <span class="yui3-menu-heading">Apps</span>
         <ul>
@@ -98,25 +117,28 @@
             </li>
         </ul>
     </div>
+    
     <div class="header yui3-u-1">
         <p class="doOverflow-x">
             <img src="ok-plugged4.png" alt="logo" align="middle">
         </p>
         <h1>
-            <i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i> <i class="fa fa-long-arrow-right fa-2x" aria-hidden="true"></i> <i class="fa fa-lock fa-2x" aria-hidden="true"></i>
+            <i class="fa fa-paper-plane fa-2x" aria-hidden="true"></i></i> <i class="fa fa-long-arrow-right fa-2x" aria-hidden="true"></i> <i class="fa fa-lock fa-2x" aria-hidden="true"></i>
         </h1>
         <code data-language="javascript">
             <div id="header_messages"></div>
         </code>
     </div>
-    <div id="container">
-        <h1>Loading</h1>
-    </div>
-    <div>
-        CryptoTrust LLC © 2020
-    </div>
+    
+    -->
+  <div id="container">
+    <h1>Loading</h1>
+  </div>
+  <div>
+    CryptoTrust LLC © 2020
+  </div>
 
-<script src=".././app/bundle.aa90775ff850478dbae9.js" nonce="Vwae04rB9sdqUC28qqsIdw=="></script>
+<script src=".././app/bundle.c63b01dd4ed89c0b659f.js" nonce="LO4A747uT+w6pfxtA7+hRg=="></script>
 
 
 </body></html>
