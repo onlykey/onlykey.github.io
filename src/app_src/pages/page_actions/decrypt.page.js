@@ -156,6 +156,10 @@ var page = {
           mb.change();
         }else if(dlgmI < 30){
           dlgmI += 1;
+          var ex = "";
+          for(var i = 0; i < dlgmI; i++)
+            ex += ".";
+          page.messagebox.value = "Loading Stored Message"+ex;
           setTimeout(dlGM, 1000);
         }else{
           page.gun_message = false;
