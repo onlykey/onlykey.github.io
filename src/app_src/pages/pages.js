@@ -1,6 +1,17 @@
 var pagesList = {
   "index": {
-    view: false
+    view: false,
+    init:function(app){
+      app.$("#setTime").click(function(){
+        app.onlykey3rd(1,0).connect(function(err){
+          if(!err){
+            app.$("#setTime").after("<h2 class='text-danger'>Time Set</h2>");
+            app.$("#setTime").remove();
+          }
+        });
+      });
+      console.log("INDEX INIT");
+    }
   },
   "decrypt": true,
   "decrypt-file": true,
@@ -99,7 +110,10 @@ module.exports = {
 
     function renderPage(pageName, init) {
       
-      if (pageName == "index") return true;
+      if (pageName == "index"){
+        if(pages[pageName].init) pages[pageName].init(imports.app);
+        return true;
+      } 
         
       if (lastRender && typeof pages[lastRender].dispose == "function")
         pages[lastRender].dispose();

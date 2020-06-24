@@ -1,120 +1,101 @@
-<html><head><meta http-equiv="Content-Security-Policy" content="base-uri 'none'; object-src 'none'; script-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-3Y6TgzBa3tGy1I83g+NFjA=='; style-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-eaO5ElmXveXFf/doGYIuAg==' 'nonce-+ERX+jzgOS3boq9ZfHzvLw==' 'nonce-Vl3tMeOghf1WZY37Aa7njg==' 'nonce-GFVyvhBBAHFinSx3Iob4zQ==' 'nonce-FLSu4QA4ZOus2aQxSQd5Nw==' 'nonce-15L1Qk81PMjuQdl3PTsCVQ==' 'nonce-8gJZfVYgFWysVVsvAGEuqw==' 'nonce-nQsNUc7AAYgvU8oGVF+tLg==' 'nonce-Q7DudYk0O28FHHocBrdmvg==' 'nonce-0Whm+p08ULgaTnqQM8WFWQ=='; default-src 'self'; img-src 'self' data: https://www.gravatar.com https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png https://s3.amazonaws.com/keybase_processed_uploads/; connect-src 'self' https://keybase.io https://onlykey.herokuapp.com wss://onlykey.herokuapp.com">
-  <title>OnlyKey Apps - Tools for encrypting messages, files, and searching for users</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
-  <link rel="stylesheet" href="./app/css/gallerycss-csstable-min.css" nonce="eaO5ElmXveXFf/doGYIuAg==">
-  <link rel="stylesheet" href="./app/css/gallerycss-csslist-min.css" nonce="+ERX+jzgOS3boq9ZfHzvLw==">
-  <link rel="stylesheet" href="./app/css/gallerycss-cssform-min.css" nonce="Vl3tMeOghf1WZY37Aa7njg==">
-  <link rel="stylesheet" href="./app/css/cssnormalize-min.css" nonce="GFVyvhBBAHFinSx3Iob4zQ==">
-  <link rel="stylesheet" href="./app/css/cssgrids-responsive-min.css" nonce="FLSu4QA4ZOus2aQxSQd5Nw==">
-  <link rel="stylesheet" href="./app/css/cssbutton-min.css" nonce="15L1Qk81PMjuQdl3PTsCVQ==">
-  <!-- Some custom styles to make things pretty. -->
-  <link rel="stylesheet" type="text/css" href="./app/css/ui.css" nonce="8gJZfVYgFWysVVsvAGEuqw==">
-  <!-- pgp2go styles -->
-  <link href="./app/css/ShareTechMono.css" rel="stylesheet" nonce="nQsNUc7AAYgvU8oGVF+tLg==">
-  <link href="./app/css/font-awesome.min.css" rel="stylesheet" nonce="Q7DudYk0O28FHHocBrdmvg==">
-  <link href="./app/css/style.css" rel="stylesheet" nonce="0Whm+p08ULgaTnqQM8WFWQ==">
-  <!-- Modify header colors here to customize the look and feel of the site-->
-
-</head>
-
-<body class="yui3-skin-sam" data-page="index">
-  <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
-    <span class="yui3-menu-heading">Apps</span>
-    <ul>
-      <li>
-        <a href="./app/encrypt">
-                  <i class="fa fa-lock" aria-hidden="true"></i>
-              </a>
-      </li>
-      <li>
-        <a href="./app/decrypt">
-                  <i class="fa fa-unlock" aria-hidden="true"></i>
-              </a>
-      </li>
-      <li>
-        <a href="./app/decrypt-file">
-                  <i class="fa fa-file-text" aria-hidden="true"></i>
-              </a>
-      </li>
-      <li>
-        <a href="./app/encrypt-file">
-                  <i class="fa fa-file-archive-o" aria-hidden="true"></i>
-              </a>
-      </li>
-      <li>
-        <a href="./app/search">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-              </a>
-      </li>
-      <li>
-        <a href="./app/password-generator">
-                  <i class="fa fa-key" aria-hidden="true"></i>
-              </a>
-      </li>
-    </ul>
-    <span class="yui3-menu-heading">Links</span>
-    <ul>
-      <li class="yui3-menu-active">
-        <a href="/">
-                  <i class="fa fa-home" aria-hidden="true"></i>
-              </a>
-      </li>
-      <li>
-        <a href="https://docs.crp.to/webcrypt.html">
-                  <i class="fa fa-question" aria-hidden="true"></i>
-              </a>
-      </li>
-      <li>
-        <a href="https://docs.crp.to/">
-                  <i class="fa fa-book" aria-hidden="true"></i>
-              </a>
-      </li>
-      <li>
-        <a href="https://onlykey.io">
-                  <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-              </a>
-      </li>
-    </ul>
-  </div>
-  <div class="header yui3-u-1">
-    <p><img src="./app/ok0.jpg" alt="logo" align="middle"></p>
-    <h1><i class="fa fa-rocket"></i> OnlyKey Apps</h1>
-    <code data-language="javascript">
-          <div id="header_messages"></div>
-      </code>
-  </div>
-
-  <div class="content" align="middle" id="onlykey_start" value="Encrypt and Sign">
-    <h2><i class="fa fa-lock" aria-hidden="true"></i> Encryption</h2>
-    <p>Securely encrypt and sign text messages or files using
-      <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></p>
-    <a href="./app/encrypt" class="yui3-button primary-button">Encrypt & Sign Messages</a><br>
-    <a href="./app/encrypt-file" class="yui3-button primary-button">Encrypt & Sign Files</a>
-
-    <h2><i class="fa fa-unlock" aria-hidden="true"></i> Decryption</h2>
-    <p>Securely decrypt and verify text messages or files using <a href="https://onlykey.io" target="_blank">OnlyKey</a> and
-      <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></p>
-    <a href="./app/decrypt" class="yui3-button primary-button">Decrypt & Sign Messages</a><br>
-    <a href="./app/decrypt-file" class="yui3-button primary-button">Decrypt & Sign Files</a>
-
-    <h2><i class="fa fa-search" aria-hidden="true"></i> Keybase User Search</h2>
-    <p>Find Keybase user to send encrypted messages and files using
-      <a href="https://onlykey.io" target="_blank">OnlyKey</a> and
-      <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></p>
-    <a href="./app/search" class="yui3-button primary-button">User Search</a><br>
-  </div>
-  <br>
-  <br>
-  <div class="content">
-    <h3>Looking for the <a href="./app/past_releases">old Webcrypt app releases?</a><br>
-      <a href="./app/past_releases?version=beta7" target="_blank">Click here for Beta7 firmware compatible Webcrypt app version</a></h3>
-  </div>
-  <div>
-    CryptoTrust LLC © 2020
-  </div>
-
-<script src="./app/bundle.94d5cb1ec8a3b90800c8.js" nonce="3Y6TgzBa3tGy1I83g+NFjA=="></script>
-
+<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="base-uri 'none'; object-src 'none'; script-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-ASP0yXqwq1ahSBWCV4V5DA=='; style-src 'unsafe-inline' 'self' 'unsafe-eval' 'sha256-TcUB1mzXiQO4GxpTRZ0EMpOXKMU3u+n/q1WrgVIcs1I=' 'nonce-oR3J+yDcNcsAZyJYI4MhdA==' 'nonce-fbIHip0uW5RgzNRuYgdX5g==' 'nonce-CJE0OFHWssySsEk24dTHfQ=='; default-src 'self'; img-src 'self' data: https://www.gravatar.com https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png https://s3.amazonaws.com/keybase_processed_uploads/; connect-src 'self' https://keybase.io https://onlykey.herokuapp.com wss://onlykey.herokuapp.com">
+    <title>OnlyKey Apps - Tools for encrypting messages, files, and searching for users</title>
+    <meta name="viewport" content="width=device-width,initial-scale=0.75">
+    <link href="./app/css/bootstrap.min.css" rel="stylesheet" nonce="oR3J+yDcNcsAZyJYI4MhdA==">
+    <link href="./app/css/ShareTechMono.css" rel="stylesheet" nonce="fbIHip0uW5RgzNRuYgdX5g==">
+    <link href="./app/css/font-awesome.min.css" rel="stylesheet" nonce="CJE0OFHWssySsEk24dTHfQ==">
+    <style>
+    </style>
+  </head>
+  <body data-page="index">
+    <nav class="navbar navbar-dark bg-dark">
+      <a class="navbar-brand">OnlyKey WebCrypt</a>
+      <div class="mr-auto text-center">
+        <a class> Apps </a>
+        <a class="navbar-brand" href="/app/encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="/app/decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="/app/decrypt-file"><i class="fa fa-file-text" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="/app/encrypt-file"><i class="fa fa-file-archive-o" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="/app/search"><i class="fa fa-search" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="/app/password-generator"><i class="fa fa-key" aria-hidden="true"></i></a>
+        <br class="d-block d-sm-none">
+        <a class> Links </a>
+        <a class="navbar-brand" href="/"><i class="fa fa-home" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="https://docs.crp.to/webcrypt.html"><i class="fa fa-question" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="https://docs.crp.to/"><i class="fa fa-book" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="https://onlykey.io"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+      </div>
+    </nav>
+    <div class="container text-center pt-4">
+      <p><img src="./app/ok0.jpg" alt="logo" align="middle"></p>
+      <h1><i class="fa fa-rocket"></i> OnlyKey Apps</h1>
+      <div id="header_messages"></div>
+    </div>
+    <input id="onlykey_start" value="Encrypt and Sign" type="hidden">
+    <div class="container">
+      
+      <div class="row pt-4">
+        <div class="col-sm text-center">
+          <a id="setTime" class="btn btn-success ShareTechMono">SetTime On OnlyKey</a>
+        </div>
+      </div>
+      
+      <div class="row pt-4">
+        <div class="col-sm text-center">
+          <h2><i class="fa fa-lock" aria-hidden="true"></i> Encryption</h2>
+          <p>Securely encrypt and sign text messages or files using
+            <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a>
+          </p>
+          <div class="pt-4">
+            <a href="./app/encrypt" class="btn btn-success ShareTechMono">Encrypt & Sign Messages</a>
+          </div>
+          <div class="pt-4">
+            <a href="./app/encrypt-file" class="btn btn-success ShareTechMono">Encrypt & Sign Files</a>
+          </div>
+        </div>
+      </div>
+  
+      <div class="row pt-4">
+        <div class="col-sm text-center">
+          <h2><i class="fa fa-unlock" aria-hidden="true"></i> Decryption</h2>
+          <p>Securely decrypt and verify text messages or files using <a href="https://onlykey.io" target="_blank">OnlyKey</a> and
+            <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a>
+          </p>
+          <div class="pt-4">
+            <a href="./app/decrypt" class="btn btn-success ShareTechMono">Decrypt & Sign Messages</a>
+          </div>
+          <div class="pt-4">
+            <a href="./app/decrypt-file" class="btn btn-success ShareTechMono">Decrypt & Sign Files</a>
+          </div>
+        </div>
+      </div>
+  
+      <div class="row pt-4">
+        <div class="col-sm text-center">
+          <h2><i class="fa fa-search" aria-hidden="true"></i> Keybase User Search</h2>
+          <p>Find Keybase user to send encrypted messages and files using
+            <a href="https://onlykey.io" target="_blank">OnlyKey</a> and
+            <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a>
+          </p>
+          <a href="./app/search" class="btn btn-success ShareTechMono">User Search</a>
+        </div>
+      </div>
+  
+      <hr>
+  
+      <div class="row pt-4">
+        <div class="col-sm text-center">
+          <h3>Looking for the <a href="./app/past_releases">old Webcrypt app releases?</a></h3>
+          <br>
+          <a href="./app/past_releases?version=beta7" target="_blank">Click here for Beta7 firmware compatible Webcrypt app version</a>
+        </div>
+      </div>
+  
+      <div class="row pt-4 text-center">
+        <a href="https://crp.to/">CryptoTrust LLC</a> © 2020
+      </div>
+      
+    </div>
+  <script src="./app/bundle.7d5d2d74b06fdac80751.js" nonce="ASP0yXqwq1ahSBWCV4V5DA=="></script>
 
 </body></html>
