@@ -30,7 +30,7 @@ module.exports = {
                         
                     }
                     
-                    var cancel = `<button type="button" class="btn btn-secondary">Cancel</button>`;
+                    var cancel = $(`<button type="button" class="btn btn-secondary">Cancel</button>`);
                     cancel.click(function(){
                         m.modal("hide");
                         done(true);

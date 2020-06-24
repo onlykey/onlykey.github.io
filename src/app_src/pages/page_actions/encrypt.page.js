@@ -28,20 +28,20 @@ var page = {
     var onlykeyPGP = app.onlykeyPGP;
 
     var tokenizer = require("../../../jquery.tokenizer.js");
-    
+
     if (tokenizer) {
       tokenizer($, async function(itemName, returnValueFN) {
         returnValueFN(await onlykeyApi.getKey(itemName));
       });
     }
-    
+
     page.gun = app.newGun();
     page.p2g = onlykeyPGP();
 
     var params = onlykeyApi.getAllUrlParams();
-    
+
     page.initParams = params;
-    
+
     onlykeyApi._status = $("#action")[0].select_one.value;
 
     if ((onlykeyApi._status) == 'Encrypt and Sign') {
@@ -81,12 +81,12 @@ var page = {
       page.button.classList.add('error');
       page.button.classList.remove('working');
     });
-    
-    onlykeyApi.on("status",function(message) {
+
+    onlykeyApi.on("status", function(message) {
       page.button.textContent = message;
     });
-    
-    onlykeyApi.on("error",function(message) {
+
+    onlykeyApi.on("error", function(message) {
       console.log("okapi-error", message);
       page.button.textContent = message;
       page.button.classList.add('error');
@@ -99,26 +99,42 @@ var page = {
   setup: function(app, $page, pathname) {
     if (!init)
       return page.init(app, $page, pathname);
-    
-    
+
+
     var $ = app.$;
     var onlykeyApi = app.onlykeyApi;
-    
+
     if (page.initParams.recipients) document.getElementById('pgpkeyurl').value = page.initParams.recipients;
-    
+
     //enable tokenizedr
     $("input[data-provide='tokenizer']").each(function() {
-        var $element = $(this);
-        if ($element.data("tokenizer")) {
-            return;
-        }
-        $element.tokenizer($element.data());
+      var $element = $(this);
+      if ($element.data("tokenizer")) {
+        return;
+      }
+      $element.tokenizer($element.data());
     });
-    
-    
-    $("#message").focus(function(){
+
+
+    $("#message").focus(function() {
       $("#pgpkeyurl").data("tokenizer").addInput();
     });
+
+    var mb = $("#message");
+    mb.keyup(mbReSize);
+    mb.change(mbReSize);
+
+    function mbReSize() {
+      var _s = $(this)[0];
+      if ($(this).val().indexOf("\r\n") == -1)
+        _s.style.height = 'auto';
+      if (_s.scrollHeight < $(window).height()) {
+        // var y = window.scrollY;
+        _s.style.height = 'auto';
+        $(_s).height(_s.scrollHeight + 2);
+        // window.scrollY = y;
+      }
+    }
 
     onlykeyApi.request_pgp_pubkey = function() {
       function error_1(err) {
@@ -142,8 +158,8 @@ var page = {
         }
       });
     };
-    
-    
+
+
     onlykeyApi._status = $("#action")[0].select_one.value;
 
 
@@ -158,7 +174,7 @@ var page = {
     page.button = document.getElementById('onlykey_start');
 
     var pageType = false;
-    
+
     if (onlykeyApi._status == 'Encrypt Only') {
       document.getElementById('pgpkeyurl2').style.display = "none";
       document.getElementById('pgpkeyurl').style.display = "initial";
@@ -185,47 +201,47 @@ var page = {
       page.button.textContent = 'Encrypt and Sign';
       pageType = "es";
     }
-    
-    
-    if(pageType)
-      app.pages.state.replace({ pathname: pathname}, $("title").text() , 
-              "./"+pathname+
-              "?type="+pageType + 
-              (page.initParams.recipients ? "&recipients="+page.initParams.recipients : ''));
-      
+
+
+    if (pageType)
+      app.pages.state.replace({ pathname: pathname }, $("title").text(),
+        "./" + pathname +
+        "?type=" + pageType +
+        (page.initParams.recipients ? "&recipients=" + page.initParams.recipients : ''));
+
     $(".messageLink").html("");
-    
+
     $(window).scrollTo("h1", 1000);
-    
-    $("#pgpkeyurl").change(function(){
-       switch (onlykeyApi._status) {
-          case 'Encrypt and Sign':
-            pageType = "es";
-            break;
-          case 'Sign Only':
-            pageType = "s";
-            break;
-          case 'Encrypt Only':
-            pageType = "e";
-            break;
-        }
-        
-        if(pageType)
-          app.pages.state.replace({ pathname: pathname}, $("title").text() , "./"+pathname+"?type="+pageType+"&recipients="+page.urlinputbox.value);
-          
+
+    $("#pgpkeyurl").change(function() {
+      switch (onlykeyApi._status) {
+        case 'Encrypt and Sign':
+          pageType = "es";
+          break;
+        case 'Sign Only':
+          pageType = "s";
+          break;
+        case 'Encrypt Only':
+          pageType = "e";
+          break;
+      }
+
+      if (pageType)
+        app.pages.state.replace({ pathname: pathname }, $("title").text(), "./" + pathname + "?type=" + pageType + "&recipients=" + page.urlinputbox.value);
+
     });
-    
+
     if (!$("#action").data("changeSet")) {
-      
+
       $("#action").data("changeSet", true);
       $("#action")[0].select_one.forEach(el => el.addEventListener('change', (function() {
         page.setup(app, $page, pathname);
       }).bind(null, false)));
-      
+
       page.button.addEventListener('click', async function() {
-        
-        $("#pgpkeyurl").data("tokenizer").addInput();//add input that is not "SET" fully
-        
+
+        $("#pgpkeyurl").data("tokenizer").addInput(); //add input that is not "SET" fully
+
         var message = null;
         var file = null;
         var reverse_status;
@@ -243,10 +259,10 @@ var page = {
             pageType = "e";
             break;
         }
-        
-        if(pageType)
-          app.pages.state.replace({ pathname: pathname}, $("title").text() , "./"+pathname+"?type="+pageType+"&recipients="+page.urlinputbox.value);
-          
+
+        if (pageType)
+          app.pages.state.replace({ pathname: pathname }, $("title").text(), "./" + pathname + "?type=" + pageType + "&recipients=" + page.urlinputbox.value);
+
         switch (onlykeyApi._status) {
           case 'Encrypt and Sign':
           case 'Sign Only':
@@ -267,43 +283,53 @@ var page = {
             await page.p2g.startEncryption(page.urlinputbox.value, page.urlinputbox2.value, message, file, async function(data) {
               if (page.messagebox && data)
                 page.messagebox.value = data;
-              
-                var cp = $('<hr/><input type="text" id="messageLink_url"/><button type="submit" id="copylink">Get and Copy Share Link</button><button type="submit" id="resetstate">Reset</button>');
-                $(".messageLink").append(cp);
+                $(page.messagebox).change();
                 
-                var $messageLink_url = $(".messageLink").find("#messageLink_url");
-                var cpb = $(".messageLink").find("#copylink");
-                var rb = $(".messageLink").find("#resetstate");
-                rb.click(function(){
-                  page.setup(app, $page, pathname);
-                });
-                
-                $(".messageLink").show();
-                $messageLink_url.hide();
-                
-                cpb.click(async function() {
-                    var pair = await app.SEA.pair();
-                    var secret = gm_encode(await app.SEA.secret(pair, pair));
-                    secret = secret.substring(0, 16);
-                    var $data = await app.SEA.encrypt(data, secret);
-                    
-                    var hash = await app.SEA.work($data, null, null, { name: "SHA-256" });
-                    page.gun.get("ok-messages#").get(hash).put($data, function(res) {
-                      console.log(hash, res);
-                      $messageLink_url.val("https://" + window.location.host + "/app/decrypt?type=" + reverse_status + "&gm=1#" + gm_encode(hash)+"-"+secret);
+              var cp = $('<hr/><input type="text" id="messageLink_url"/><button type="submit" id="copylink">Get and Copy Share Link</button><button type="submit" id="resetstate">Reset</button>');
+              $(".messageLink").append(cp);
+
+              var $messageLink_url = $(".messageLink").find("#messageLink_url");
+              var cpb = $(".messageLink").find("#copylink");
+              var rb = $(".messageLink").find("#resetstate");
+              rb.click(function() {
+                page.setup(app, $page, pathname);
+              });
+
+              $(".messageLink").show();
+              $messageLink_url.hide();
+
+              cpb.click(function() {
+
+                app.bs_modal_dialog.confirm("Copy Share Link",
+                  `Generating a share link stores PGP message data on a P2P network using 
+                    'https://gun.eco/', data is encrypted in network, do you wish to continue?`, ["Yes"],
+                  async function(cancel, ans) {
+                    if (ans == "Yes") {
+                      var pair = await app.SEA.pair();
+                      var secret = gm_encode(await app.SEA.secret(pair, pair));
+                      secret = secret.substring(0, 16);
+                      var $data = await app.SEA.encrypt(data, secret);
+
+                      var hash = await app.SEA.work($data, null, null, { name: "SHA-256" });
+                      page.gun.get("ok-messages#").get(hash).put($data, function(res) {
+                        console.log(hash, res);
+                        $messageLink_url.val("https://" + window.location.host + "/app/decrypt?type=" + reverse_status + "&gm=1#" + gm_encode(hash) + "-" + secret);
                         $messageLink_url.show();
                         $messageLink_url.focus();
                         $messageLink_url.select();
                         document.execCommand('copy');
                         cpb.text(origTxt + " (copied)");
                         setTimeout(() => { cpb.text(origTxt); }, 5000);
-                    });
-                });
+                      });
+                    }
+                  });
+
+              });
 
 
-              
-                var origTxt = cpb.text();
-              
+
+              var origTxt = cpb.text();
+
             });
             break;
           case 'pending_pin':
@@ -334,9 +360,9 @@ var page = {
     }
 
   },
-  dispose: function(app, pathname){
+  dispose: function(app, pathname) {
     //init = false;
-    console.log("disposed" , pathname);
+    console.log("disposed", pathname);
   }
 };
 
