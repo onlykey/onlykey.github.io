@@ -5,7 +5,7 @@ var pagesList = {
       function doSetTime(){
         app.onlykey3rd(1,0).connect(function(err){
           if(!err){
-            app.$("#setTime").after("<h2 class='text-danger'>OnlyKey Time Set</h2>");
+            app.$("#setTime").after("<h2 class='text-danger'>OnlyKey Time Set<br/> OTP/2FA Authentication Ready</h2>");
             app.$("#setTime").remove();
           }
         });
