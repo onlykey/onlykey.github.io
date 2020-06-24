@@ -163,6 +163,7 @@ var page = {
           setTimeout(dlGM, 1000);
         }else{
           page.gun_message = false;
+          page.messagebox.value = "Unable to load Stored Message";
         }
       }
     };
