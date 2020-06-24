@@ -1,52 +1,58 @@
-<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="base-uri 'none'; object-src 'none'; script-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-/1OanYXrMmGq7LXOUeMMug=='; style-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-Y8qHASW7SoCsCGvvwGxM0Q==' 'nonce-qEbJGd40w7F7II+fvG3BiQ==' 'nonce-71izFS5mJwjUtKXtd5qMsA==' 'nonce-I16CCjWzkpmFyr8010dwJA=='; default-src 'self'; img-src 'self' data: https://www.gravatar.com https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png https://s3.amazonaws.com/keybase_processed_uploads/; connect-src 'self' https://keybase.io https://onlykey.herokuapp.com wss://onlykey.herokuapp.com">
-    <title>OnlyKey - Encrypt & sign messages in your browser using Keybase PGP</title>
-    <meta name="viewport" content="width=device-width,initial-scale=0.75">
-      <link href="css/bootstrap.min.css" rel="stylesheet" nonce="Y8qHASW7SoCsCGvvwGxM0Q==">
-      <link href="css/ShareTechMono.css" rel="stylesheet" nonce="qEbJGd40w7F7II+fvG3BiQ==">
-      <link href="css/font-awesome.min.css" rel="stylesheet" nonce="71izFS5mJwjUtKXtd5qMsA==">
-      <link href="css/tokenizer.css" rel="stylesheet" nonce="I16CCjWzkpmFyr8010dwJA==">
-  </head>
-  <body data-page="chat~">
-    <nav class="navbar navbar-dark bg-dark">
-      <a class="navbar-brand">OnlyKey WebCrypt</a>
-      <div class="mr-auto text-center">
-        <a class> Apps </a>
-        <a class="navbar-brand" href="./encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a>
-        <a class="navbar-brand" href="./decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a>
-        <a class="navbar-brand" href="./decrypt-file"><i class="fa fa-file-text" aria-hidden="true"></i></a>
-        <a class="navbar-brand" href="./encrypt-file"><i class="fa fa-file-archive-o" aria-hidden="true"></i></a>
-        <a class="navbar-brand" href="./search"><i class="fa fa-search" aria-hidden="true"></i></a>
-        <a class="navbar-brand" href="./password-generator"><i class="fa fa-key" aria-hidden="true"></i></a>
-        <br class="d-block d-sm-none">
-        <a class> Links </a>
-        <a class="navbar-brand" href="/"><i class="fa fa-home" aria-hidden="true"></i></a>
-        <a class="navbar-brand" href="https://docs.crp.to/webcrypt.html"><i class="fa fa-question" aria-hidden="true"></i></a>
-        <a class="navbar-brand" href="https://docs.crp.to/"><i class="fa fa-book" aria-hidden="true"></i></a>
-        <a class="navbar-brand" href="https://onlykey.io"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
-      </div>
-    </nav>
-    <div class="container text-center pt-1">
-      <p class="doOverflow-x">
-        <img src="ok-plugged4.png" alt="logo" align="middle">
-      </p>
-      <h1 id="fancy-icons">
-        <i class="fi-a fa fa-paper-plane fa-2x" aria-hidden="true"></i>
-        <i class="fi-b fa fa-long-arrow-right fa-2x" aria-hidden="true"></i> 
-        <i class="fi-c fa fa-lock fa-2x" aria-hidden="true"></i>
-      </h1>
-      <div id="header_messages" class="text-primary"></div>
+<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="base-uri 'none'; object-src 'none'; script-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-yEFvdiahH3sbE9zXWkELGQ=='; style-src 'unsafe-inline' 'self' 'unsafe-eval' 'nonce-5xxdYe/A4FU/8VWB0c2kzQ==' 'nonce-VVYwI/aF1lkEUY4mY2mRtA==' 'nonce-N/sHw+qvSmXPTfleaBJs6g==' 'nonce-eImNqQahuFKg8FgyxaF+NQ=='; default-src 'self'; img-src 'self' data: https://www.gravatar.com https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png https://s3.amazonaws.com/keybase_processed_uploads/; connect-src 'self' https://keybase.io https://onlykey.herokuapp.com wss://onlykey.herokuapp.com">
+  <title>OnlyKey - Encrypt & sign messages in your browser using Keybase PGP</title>
+  <meta name="viewport" content="width=device-width,initial-scale=0.75">
+  <link href="css/bootstrap.min.css" rel="stylesheet" nonce="5xxdYe/A4FU/8VWB0c2kzQ==">
+  <link href="css/ShareTechMono.css" rel="stylesheet" nonce="VVYwI/aF1lkEUY4mY2mRtA==">
+  <link href="css/font-awesome.min.css" rel="stylesheet" nonce="N/sHw+qvSmXPTfleaBJs6g==">
+  <link href="css/tokenizer.css" rel="stylesheet" nonce="eImNqQahuFKg8FgyxaF+NQ==">
+</head>
+
+<body data-page="chat~">
+  <nav class="navbar navbar-dark bg-dark">
+    <a class="navbar-brand">OnlyKey WebCrypt</a>
+    <div class="mr-auto text-center">
+      <a class> Apps </a>
+      <a class="navbar-brand" href="./encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./decrypt-file"><i class="fa fa-file-text" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./encrypt-file"><i class="fa fa-file-archive-o" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./search"><i class="fa fa-search" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="./password-generator"><i class="fa fa-key" aria-hidden="true"></i></a>
+      <br class="d-block d-sm-none">
+      <a class> Links </a>
+      <a class="navbar-brand" href="/"><i class="fa fa-home" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="https://docs.crp.to/webcrypt.html"><i class="fa fa-question" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="https://docs.crp.to/"><i class="fa fa-book" aria-hidden="true"></i></a>
+      <a class="navbar-brand" href="https://onlykey.io"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
     </div>
-    <div id="container">
-      <div class="text-center">
-        <h1>Loading...</h1>
-        <noscript>
+  </nav>
+  <div class="container text-center pt-1">
+    <p class="doOverflow-x">
+      <img src="ok-plugged4.png" alt="logo" align="middle">
+    </p>
+    <h1 id="fancy-icons">
+      <i class="fi-a fa fa-paper-plane fa-2x" aria-hidden="true"></i>
+      <i class="fi-b fa fa-long-arrow-right fa-2x" aria-hidden="true"></i>
+      <i class="fi-c fa fa-lock fa-2x" aria-hidden="true"></i>
+    </h1>
+    <div id="header_messages" class="text-primary"></div>
+  </div>
+  <div id="container">
+    <div class="text-center">
+      <h1>Loading...</h1>
+      <noscript>
           <h2 class="text-danger">This App Requires JavaScript to work.</h2>
         </noscript>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row pt-4">
+      <div class="col-sm text-center">
+        <a href="https://crp.to/">CryptoTrust LLC</a> © 2020
       </div>
     </div>
-    <div class="text-center">
-      <a href="https://crp.to/">CryptoTrust LLC</a> © 2020
-    </div>
-  <script src=".././app/bundle.ed04c33f9361834bf602.js" nonce="/1OanYXrMmGq7LXOUeMMug=="></script>
+  </div>
+<script src=".././app/bundle.6e1a0c36870a9f066a32.js" nonce="yEFvdiahH3sbE9zXWkELGQ=="></script>
+
 
 </body></html>
