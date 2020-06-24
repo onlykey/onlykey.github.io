@@ -2,15 +2,16 @@ var pagesList = {
   "index": {
     view: false,
     init:function(app){
-      app.$("#setTime").click(function(){
+      function doSetTime(){
         app.onlykey3rd(1,0).connect(function(err){
           if(!err){
-            app.$("#setTime").after("<h2 class='text-danger'>Time Set</h2>");
+            app.$("#setTime").after("<h2 class='text-danger'>OnlyKey Time Set</h2>");
             app.$("#setTime").remove();
           }
         });
-      });
-      console.log("INDEX INIT");
+      }
+      app.$("#setTime").click(doSetTime);
+      app.$("#setTime").click();
     }
   },
   "decrypt": true,
