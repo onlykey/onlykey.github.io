@@ -113,6 +113,21 @@ var page = {
         }
       });
     };
+    
+    var mb = $("#message");
+    mb.keyup(mbReSize);
+    mb.change(mbReSize);
+    function mbReSize() {
+      var _s = $(this)[0];
+      if ($(this).val().indexOf("\r\n") == -1)
+        _s.style.height = 'auto';
+      if (_s.scrollHeight < $(window).height()) {
+        // var y = window.scrollY;
+        _s.style.height = 'auto';
+        $(_s).height(_s.scrollHeight + 2);
+        // window.scrollY = y;
+      }
+    }
 
 
     onlykeyApi._status = $("#action")[0].select_one.value;
@@ -128,18 +143,26 @@ var page = {
     page.messagebox = document.getElementById('message');
     page.button = document.getElementById('onlykey_start');
 
-
-    (async function() {
+    
+    var dlgmI = 0;
+    var dlGM = async function() {
       if (page.gun_message && page.gun_message_key) {
         page.messagebox.value = "Loading Stored Message";
         var m = page.gun_message;
-        page.gun_message = false;
         var stored = await page.gun.get("ok-messages#").get(m);
         if (stored){
+          page.gun_message = false;
           page.messagebox.value = await app.SEA.decrypt(stored, page.gun_message_key);
+          mb.change();
+        }else if(dlgmI < 30){
+          dlgmI += 1;
+          setTimeout(dlGM, 1000);
+        }else{
+          page.gun_message = false;
         }
       }
-    })();
+    };
+    dlGM();
     
     var pageType = false;
     if (onlykeyApi._status == 'Decrypt and Verify') {
