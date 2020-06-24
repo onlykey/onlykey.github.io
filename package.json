@@ -1,6 +1,6 @@
 {
   "name": "OnlyKey-Web-apps",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "description": "Securely encrypt, sign, decrypt and verify messages in your browser using Keybase PGP and OnlyKey",
   "main": "src/app.js",
