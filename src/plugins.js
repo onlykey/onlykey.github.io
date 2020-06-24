@@ -1,3 +1,5 @@
+console.log("OnlyKey App Mode", process.env.NODE_ENV);
+
 /*
 This is the plugins.js file. We loads all the app plugins
 
@@ -16,10 +18,15 @@ module.exports = [
 
 ];
 
-console.log("OnlyKey App Mode", process.env.NODE_ENV);
+module.exports.push(require("./plugins/bs_modal_dialog/bs_modal_dialog.js"));
 
+module.exports.push(require("./plugins/fancy-icons/fi.js"));
+  
+
+//need to move development plugins list to its own js file.. 
+// needs not to include these plugins in production because its inert within prod source
 if (!(process.env.NODE_ENV === "production")) {
-  //developer plugins
+  //these plugins still in development
   
   /* debug console emitter */
   module.exports.push(require("./plugins/console/console_debug.js"));
@@ -29,6 +36,8 @@ if (!(process.env.NODE_ENV === "production")) {
   
   /* for encrypted data to for onlykey devices */
   module.exports.push(require("./app_src/history.js"));
+  
+  
 }
 else {
   //production plugins

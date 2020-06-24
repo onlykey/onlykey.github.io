@@ -113,6 +113,9 @@ module.exports = {
         rules: [{
             test: /\.page\.html$/i,
             use: 'raw-loader',
+        },{
+            test: /\.modal\.html$/i,
+            use: 'raw-loader',
         }]
     },
 };

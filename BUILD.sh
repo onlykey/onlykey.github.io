@@ -35,9 +35,10 @@ else
 npm run build-site
 
 #build theme css
-cd ./src/bootstrap
-bash ./build-bootstrap.sh
-cd ../..
+
+#cd ./src/bootstrap
+#bash ./build-bootstrap.sh
+#cd ../..
 
 fi
 
