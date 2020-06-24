@@ -366,7 +366,7 @@ function onlykey(keytype, enc_resp) {
 
                 if (!response || response == 1) {
                     htmlLog("Problem setting time on onlykey");
-                    cb(false);
+                    cb(true);
                     // $onStatus("Problem setting time on onlykey");
                     return;
                 }
