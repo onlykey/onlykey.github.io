@@ -49,10 +49,10 @@ module.exports = {
                     
                     imports.app.on("start",function(){
                         
-                        bs_modal_dialog.confirm("Test Confirm","Would you like to do something?", ["Yes"], function(cancel, answer){
+                        /*bs_modal_dialog.confirm("Test Confirm","Would you like to do something?", ["Yes"], function(cancel, answer){
                             console.log(cancel, answer);
                             if(answer)alert(answer);
-                        });
+                        });*/
                         
                     });  
                 }
