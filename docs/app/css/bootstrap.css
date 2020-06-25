@@ -10874,6 +10874,10 @@ a.text-dark:hover, a.text-dark:focus {
   }
 }
 
+.modal-body {
+  color: black;
+}
+
 .btn-success {
   color: #227930;
 }

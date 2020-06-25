@@ -16,7 +16,7 @@ module.exports = {
                     var m = $(modal);
                     
                     m.find(".modal-title").text(title);
-                    m.find(".modal-body").text(question);
+                    m.find(".modal-body").html(question);
                     
                     for(var i in answers){
                         ((ans)=>{

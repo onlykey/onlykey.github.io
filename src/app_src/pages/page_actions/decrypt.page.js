@@ -119,13 +119,15 @@ var page = {
     mb.change(mbReSize);
     function mbReSize() {
       var _s = $(this)[0];
-      if ($(this).val().indexOf("\r\n") == -1)
+      if ($(this).val() == "")
         _s.style.height = 'auto';
-      if (_s.scrollHeight < $(window).height()) {
+      if (_s.scrollHeight + 25 <  ( $(window).height()) ) {
         // var y = window.scrollY;
         _s.style.height = 'auto';
         $(_s).height(_s.scrollHeight + 2);
         // window.scrollY = y;
+      }else{
+        $(_s).height( parseInt($(window).height())-25 );
       }
     }
 

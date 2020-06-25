@@ -126,13 +126,15 @@ var page = {
 
     function mbReSize() {
       var _s = $(this)[0];
-      if ($(this).val().indexOf("\r\n") == -1)
+      if ($(this).val() == "")
         _s.style.height = 'auto';
-      if (_s.scrollHeight < $(window).height()) {
+      if (_s.scrollHeight + 25 <  ( $(window).height()) ) {
         // var y = window.scrollY;
         _s.style.height = 'auto';
         $(_s).height(_s.scrollHeight + 2);
         // window.scrollY = y;
+      }else{
+        $(_s).height( parseInt($(window).height())-25 );
       }
     }
 
@@ -301,8 +303,8 @@ var page = {
               cpb.click(function() {
 
                 app.bs_modal_dialog.confirm("Copy Share Link",
-                  `Generating a share link stores PGP message data on a P2P network using 
-                    'https://gun.eco/', data is encrypted in network, do you wish to continue?`, ["Yes"],
+                  `Generating a share link stores 'PGP Message' on a P2P network using 
+                    <a href="https://gun.eco/" target="_blank">GUN</a>, and data is encrypted before storing in the network using <a href="https://gun.eco/docs/SEA" target="_blank">SEA</a>.<br/><br/><b>Do you wish to continue?</b>`, ["Yes"],
                   async function(cancel, ans) {
                     if (ans == "Yes") {
                       var pair = await app.SEA.pair();

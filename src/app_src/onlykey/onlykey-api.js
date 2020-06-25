@@ -626,6 +626,7 @@ module.exports = function(imports) {
     //#define ENCRYPT_RESP 1
     var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data);
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
+    var id = window.location.hostname;
     var request_options = {
       challenge: challenge,
       allowCredentials: [{
@@ -634,12 +635,14 @@ module.exports = function(imports) {
       }],
       timeout: timeout,
       //rpId: 'apps.crp.to',
+      rpId: id ,
       userVerification: 'discouraged',
       //userPresence: 'false',
       //mediation: 'silent',
-      //extensions: {
-      //  appid: 'https://apps.crp.to',
-      //},
+      extensions: {
+        // appid: 'https://apps.crp.to',
+        appid: 'https://'+id 
+      },
     };
 
 
