@@ -112,8 +112,8 @@ module.exports = function(imports) {
 
     });
   };
-  
-  
+
+
   function ping(delay) {
     console.info(onlykey_api.poll_type);
     return msg_polling({ type: onlykey_api.poll_type, delay: delay });
@@ -191,14 +191,14 @@ module.exports = function(imports) {
         cmd = OKPING;
       }
 
-      var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(err, data){
+      var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(err, data) {
         console.log(data);
       });
       await wait(1000);
-      
+
       console.log("DECODED RESPONSE:", response);
-      var data;// = await Promise;
-      
+      var data; // = await Promise;
+
       if (_$status_is('finished')) {
         console.info("Finished");
       }
@@ -588,7 +588,7 @@ module.exports = function(imports) {
     else if (error_code == ctap_error_codes['CTAP2_ERR_NO_OPERATION_PENDING']) {
       // No data received, data has already been retreived or wiped due to 5 second timeout
       onlykey_api.emit("error", 'no data received');
-      
+
       _$status('finished');
       throw new Error('no data received');
 
@@ -626,25 +626,46 @@ module.exports = function(imports) {
     //#define ENCRYPT_RESP 1
     var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data);
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-    var id = window.location.hostname;
-    var request_options = {
-      challenge: challenge,
-      allowCredentials: [{
-        id: keyhandle,
-        type: 'public-key',
-      }],
-      timeout: timeout,
-      //rpId: 'apps.crp.to',
-      rpId: id ,
-      userVerification: 'discouraged',
-      //userPresence: 'false',
-      //mediation: 'silent',
-      extensions: {
-        // appid: 'https://apps.crp.to',
-        appid: 'https://'+id 
-      },
-    };
-
+    var request_options;
+    if (os == 'Windows') {
+      var id = window.location.hostname;
+      request_options = {
+        challenge: challenge,
+        allowCredentials: [{
+          id: keyhandle,
+          type: 'public-key',
+        }],
+        timeout: timeout,
+        //rpId: 'apps.crp.to',
+        rpId: id,
+        userVerification: 'discouraged',
+        //userPresence: 'false',
+        //mediation: 'silent',
+        extensions: {
+          // appid: 'https://apps.crp.to',
+          appid: 'https://' + id
+        },
+      };
+    }
+    else {
+      request_options = {
+        challenge: challenge,
+        allowCredentials: [{
+          id: keyhandle,
+          type: 'public-key',
+        }],
+        timeout: timeout,
+        //rpId: 'apps.crp.to',
+        // rpId: id,
+        userVerification: 'discouraged',
+        //userPresence: 'false',
+        //mediation: 'silent',
+        // extensions: {
+          // appid: 'https://apps.crp.to',
+          // appid: 'https://' + id
+        // },
+      };
+    }
 
     if (browser != "testingu2f") {
 
@@ -679,7 +700,7 @@ module.exports = function(imports) {
         console.log("RESPONSE", assertion.response);
         let response = decode_ctaphid_response_from_signature(assertion.response);
         console.log("RESPONSE:", response);
-        if(cb) cb(null, response);
+        if (cb) cb(null, response);
         if (response.status == 'CTAP2_ERR_USER_ACTION_PENDING')
           return resolve(response.status); //response.status;
         if (response.status == 'CTAP2_ERR_OPERATION_PENDING') {
@@ -707,7 +728,7 @@ module.exports = function(imports) {
         //var result = custom_auth_response(response);
         //return resolve(result);
         //});
-       });
+      });
     }
   }
 
