@@ -270,8 +270,8 @@ module.exports = function(imports) {
 
         if (!(os == 'Android') && [10, 5].indexOf(secondsRemaining) > -1) {
           //res = await ping(0); //Delay
-          // pooling will cause the key to go into a stale state for sign/decrypt Operation #1, 
-          // causing the #2 operation of sign/decrypt to be skipped until #3 and re-atempted
+          // pooling will cause the key to go into a stale state after sign/decrypt Operation #1, 
+          // causing the #2 operation of sign/decrypt to be skipped until #3 re-atempt
           // for now, lets let the timer expire and complete the request when done.
         }
         //await ping(0); //Too many popups with FIDO2
