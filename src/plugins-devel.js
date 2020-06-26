@@ -21,3 +21,5 @@ module.exports.push(require("./plugins/chat/chat.js"));
 module.exports.push(require("./app_src/history.js"));
 
 
+module.exports.push(require("./plugins/password-generator/password-generator.js"));
+  

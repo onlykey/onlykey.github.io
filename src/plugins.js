@@ -33,10 +33,8 @@ module.exports.push(require("./plugins/decrypt/decrypt.js"));
 
 module.exports.push(require("./plugins/search/search.js"));
 
-module.exports.push(require("./plugins/password-generator/password-generator.js"));
-  
 
-if (!!(process.env.NODE_ENV === "production")) {
+if (!!(process.env.NODE_ENV === "production")) {//is production
   
   //production only plugins (we should have sister plugins enabled in plugins-devel.js)
   

@@ -7,7 +7,6 @@ var pagesList = {
   }
 };
 
-
 module.exports = {
     pagesList: pagesList,
     consumes: ["app"],
@@ -15,6 +14,8 @@ module.exports = {
     setup: function(options, imports, register) {
         
         var init = false;
+        
+        console.log("chat plugin")
         
         var page = {
             view : require("./chat.page.html").default,
