@@ -26,6 +26,20 @@ module.exports = {
                 var onlykeyPGP = app.onlykeyPGP;
                 page.p2g = onlykeyPGP();
 
+                var onlykeyApi = app.onlykeyApi;
+                var params = onlykeyApi.getAllUrlParams();
+
+
+                //if (params.q.slice(0, 10) == "-----BEGIN") {
+                if (params.q)
+                    params.q = unescape(params.q);
+                //}
+                if (params.q) {
+                    app.$('#user').val(params.q);
+                    // $('#submit').click();
+                }
+
+
                 page.setup(app, $page, pathname);
             },
             setup: function(app, $page, pathname) {
@@ -60,23 +74,10 @@ module.exports = {
                     e.preventDefault();
                     return false; // prevents default click action
                 });
-
-                var onlykeyApi = app.onlykeyApi;
-                var params = onlykeyApi.getAllUrlParams();
-
-
-                //if (params.q.slice(0, 10) == "-----BEGIN") {
-                if (params.q)
-                    params.q = unescape(params.q);
-                //}
-                if (params.q) {
-                    app.$('#user').val(params.q);
-                    // $('#submit').click();
-                }
-
+                
+                
                 if ($('#user').val())
                     $('#submit').click();
-
 
                 function searchLayout() {
                     var outDiv = $("<div class='outline row'>");
@@ -276,7 +277,7 @@ module.exports = {
                     }
 
 
-                    $(window).scrollTo("h4", 800);
+                    $(window).scrollTo("#results", 800);
                 }
 
             }
