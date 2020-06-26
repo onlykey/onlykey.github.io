@@ -1,7 +1,11 @@
 //change   _template_  to your plugin name  
 
 var pagesList = {
-  "chat~":{}
+  "chat":{
+      icon:"fa-comments-o",
+      sort:40
+    //   title: "Chat"
+  }
 };
 
 
@@ -11,7 +15,7 @@ module.exports = {
     provides: ["plugin_chat"],
     setup: function(options, imports, register) {
         
-        pagesList["chat~"].view = require("./chat.page.html").default;
+        pagesList["chat"].view = require("./chat.page.html").default;
         
         // console.log("pre-init");
         

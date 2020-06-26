@@ -10,6 +10,7 @@ const fs = require('fs')
 
 app.use((req, res, next) => {
   var u = req.url.split("?")[0]
+  var q = req.url.split("?")[1];
   switch (u) {
     case "/":
       req.url = getFile("/index");
@@ -23,12 +24,15 @@ app.use((req, res, next) => {
     case "/encrypt-file":
     case "/decrypt-file":
     case "/password-generator":
+      res.redirect("/app"+u+ (q && q.length ? "?"+req.url.split("?")[1] : ""));
+      break;
     default:
-      req.url = getFile(u); //+req.url.split("?")[1];
+      req.url = getFile(u)+(q && q.length ? "?"+req.url.split("?")[1] : "");
       break;
   }
 
-  next();
+      next();
+  
 });
 
 function getFile(filePath, prev) { //   /filename =  /filename || /filename.html || /filename-dev.html

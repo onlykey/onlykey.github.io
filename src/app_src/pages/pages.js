@@ -1,31 +1,4 @@
-var pagesList = {
-  "index": {
-    view: false,
-    init:function(app){
-      function doSetTime(){
-        app.onlykey3rd(1,0).connect(function(err){
-          if(!err){
-            app.$("#setTime").after("<h2 class='text-danger'>OnlyKey Time Set<br/> OTP/2FA Authentication Ready</h2>");
-            app.$("#setTime").remove();
-          }
-        });
-      }
-      app.$("#setTime").click(doSetTime);
-      app.$("#setTime").click();
-    }
-  },
-  "decrypt": true,
-  "decrypt-file": true,
-  "encrypt": true,
-  "encrypt-file": true,
-  "search": true,
-  "password-generator": true,
-  "past_releases": true,
-};
-
 module.exports = {
-  pagesList: pagesList,
-
   consumes: ["app", "$"],
   provides: ["pages"],
   setup: function(options, imports, register) {
@@ -174,28 +147,7 @@ module.exports = {
           });
         }
       });
-
-
-      for (var i in pagesList) {
-        if (typeof pagesList[i] == "object") {
-          pages[i] = pagesList[i];
-          continue;
-        }
-        try {
-          pages[i] = require("./page_actions/" + i + ".page.js");
-        }
-        catch (e) {
-          pages[i] = {};
-        }
-        if (!pages[i].view)
-          try {
-            pages[i].view = require("./page_files/" + i + ".page.html").default;
-          }
-        catch (e) {
-          pages[i].view = false;
-        }
-      }
-
+      
       for (var k in app) {
         if (k == "pages") continue;
         if (app[k] && app[k].pagesList) {
@@ -208,8 +160,6 @@ module.exports = {
           }
         }
       }
-      
-      // pages.state.replace({ pathname: init_page_id }, $("title").text(),  "./"+init_page_id);
         
       renderPage(init_page_id, true);
 

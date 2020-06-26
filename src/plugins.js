@@ -14,13 +14,26 @@ module.exports = [
   require("./app_src/onlykey/plugin.js"),
   
   /* pages plugin is the heart of the app state */
-  require("./app_src/pages/pages.js")
+  require("./app_src/pages/pages.js"),
+  
+  
+  require("./plugins/past_releases/past_releases.js")
 
 ];
 
 module.exports.push(require("./plugins/bs_modal_dialog/bs_modal_dialog.js"));
 
 module.exports.push(require("./plugins/fancy-icons/fi.js"));
+
+module.exports.push(require("./plugins/index/index.js"));
+
+module.exports.push(require("./plugins/encrypt/encrypt.js"));
+
+module.exports.push(require("./plugins/decrypt/decrypt.js"));
+
+module.exports.push(require("./plugins/search/search.js"));
+
+module.exports.push(require("./plugins/password-generator/password-generator.js"));
   
 
 if (!!(process.env.NODE_ENV === "production")) {

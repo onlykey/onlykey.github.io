@@ -15,12 +15,25 @@
     <a class="navbar-brand">OnlyKey WebCrypt</a>
     <div class="mr-auto text-center">
       <a class="">&nbsp;Apps&nbsp;</a>
+      <!--
       <a class="navbar-brand" href="./encrypt"><i class="fa fa-lock" aria-hidden="true"></i></a>
       <a class="navbar-brand" href="./decrypt"><i class="fa fa-unlock" aria-hidden="true"></i></a>
       <a class="navbar-brand" href="./decrypt-file"><i class="fa fa-file-text" aria-hidden="true"></i></a>
       <a class="navbar-brand" href="./encrypt-file"><i class="fa fa-file-archive-o" aria-hidden="true"></i></a>
       <a class="navbar-brand" href="./search"><i class="fa fa-search" aria-hidden="true"></i></a>
       <a class="navbar-brand" href="./password-generator"><i class="fa fa-key" aria-hidden="true"></i></a>
+      -->
+      
+      <% if(htmlWebpackPlugin.options.app_pages)
+        for(var i in htmlWebpackPlugin.options.app_pages) { 
+          var ap = htmlWebpackPlugin.options.app_pages[i];
+          if(ap.icon){ %>
+            <a class="navbar-brand" href="./<%= ap.name %>"><i class="fa <%= ap.icon %>" aria-hidden="true"></i></a>
+       <% }else if(ap.title){ %>
+            <a class="navbar-brand" href="./<%= ap.name %>"><%= ap.title %></a>
+       <% } } %>
+      
+      
       <br class="d-block d-sm-none" />
       <a class="">&nbsp;Links&nbsp;</a>
       <a class="navbar-brand" href="/"><i class="fa fa-home" aria-hidden="true"></i></a>

@@ -21,13 +21,13 @@ var cspOptions = {
             "https://www.gravatar.com",
             "https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png",
             "https://s3.amazonaws.com/keybase_processed_uploads/",
-            
+
         ],
         'connect-src': [
-            "'self'", 
+            "'self'",
             "https://keybase.io",
-            "https://onlykey.herokuapp.com",//for api
-            "wss://onlykey.herokuapp.com",//for gun
+            "https://onlykey.herokuapp.com", //for api
+            "wss://onlykey.herokuapp.com", //for gun
             // "https://api.protonmail.ch",
             // "wss://www.peersocial.io"
         ]
@@ -43,9 +43,12 @@ var cspOptions = {
     //processFn: defaultProcessFn
 };
 
+var pageFiles = getPagesList();
+
 let plugins = [
 
     new HtmlWebpackPlugin({
+        app_pages: pageFiles,
         dir_name: "./app",
         filename: './index.html',
         template: './src/index-src.html',
@@ -59,6 +62,7 @@ let plugins = [
     }),
 
     new HtmlWebpackPlugin({
+        app_pages: pageFiles,
         dir_name: ".",
         filename: './app/index.html',
         template: './src/index-src.html',
@@ -73,11 +77,11 @@ let plugins = [
 
 ];
 
-var pageFiles = getPagesList();
 for (var i in pageFiles) {
-    var filename = pageFiles[i];
+    var filename = pageFiles[i].name;
     plugins.push(
         new HtmlWebpackPlugin({
+            app_pages: pageFiles,
             page: filename,
             filename: (process.env.NODE_ENV === 'production') ? './app/' + filename + '.html' : './app/' + filename + '.html',
             template: './src/app-src.html',
@@ -98,7 +102,7 @@ plugins.push(new CspHtmlWebpackPlugin({}, {}));
 
 module.exports = {
     mode: process.env.NODE_ENV,
-    entry: [ (process.env.NODE_ENV === 'production') ? './src/entry.js' : './src/entry-devel.js' ],
+    entry: [(process.env.NODE_ENV === 'production') ? './src/entry.js' : './src/entry-devel.js'],
     externals: {
         // u2f: './src/u2f-api.js',
         // Virtru: './src/virtru-sdk.min.js'
@@ -113,7 +117,7 @@ module.exports = {
         rules: [{
             test: /\.page\.html$/i,
             use: 'raw-loader',
-        },{
+        }, {
             test: /\.modal\.html$/i,
             use: 'raw-loader',
         }]
@@ -121,33 +125,34 @@ module.exports = {
 };
 
 function getPagesList() {
-    
+
     var _files = [];
-    
-    if(false){
-        const path = require('path');
-        const fs = require('fs');
-        const directoryPath = path.join(__dirname, 'src', 'app_src', 'pages', 'page_files');
-        var files = fs.readdirSync(directoryPath);
-        files.forEach(function(file) {
-            _files.push(file.split(".")[0]);
-        });
-    }else{
-               
-         var plugins = require("./src/plugins.js");
-         if(!(process.env.NODE_ENV === 'production')){
-             plugins = [].concat(plugins, require("./src/plugins-devel.js"));
-         }
-         
-         for(var i in plugins){
-           if(plugins[i].pagesList){
-               for(var j in plugins[i].pagesList){
-                _files.push(j);
-               }
-           }
-         }
-         
+
+
+    var plugins = require("./src/plugins.js");
+    if (!(process.env.NODE_ENV === 'production')) {
+        plugins = [].concat(plugins, require("./src/plugins-devel.js"));
     }
-    
+
+    for (var i in plugins) {
+        if (plugins[i].pagesList) {
+            for (var j in plugins[i].pagesList) {
+                _files.push({
+                    name: j,
+                    icon: plugins[i].pagesList[j].icon,
+                    title: plugins[i].pagesList[j].title,
+                    sort: plugins[i].pagesList[j].sort
+                });
+            }
+        }
+    }
+
+    _files.sort(function(a,b){
+        if(!a.sort)a.sort=10000;
+        if(!b.sort)b.sort=10000;
+        return b.sort - a.sort;
+    });
+    _files.reverse();
+    console.log(_files);
     return _files;
 }
