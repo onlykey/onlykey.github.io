@@ -23,24 +23,9 @@ module.exports.push(require("./plugins/bs_modal_dialog/bs_modal_dialog.js"));
 module.exports.push(require("./plugins/fancy-icons/fi.js"));
   
 
-//need to move development plugins list to its own js file.. 
-// needs not to include these plugins in production because its inert within prod source
-if (!(process.env.NODE_ENV === "production")) {
-  //these plugins still in development
+if (!!(process.env.NODE_ENV === "production")) {
   
-  /* debug console emitter */
-  module.exports.push(require("./plugins/console/console_debug.js"));
-
-  /* chat plugin */
-  module.exports.push(require("./plugins/chat/chat.js"));
-  
-  /* for encrypted data to for onlykey devices */
-  module.exports.push(require("./app_src/history.js"));
-  
-  
-}
-else {
-  //production plugins
+  //production only plugins (we should have sister plugins enabled in plugins-devel.js)
   
   /* debug console omitter (remove console output)
       you can use `window.console` to force output in production  */

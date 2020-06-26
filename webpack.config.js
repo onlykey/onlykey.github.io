@@ -98,7 +98,7 @@ plugins.push(new CspHtmlWebpackPlugin({}, {}));
 
 module.exports = {
     mode: process.env.NODE_ENV,
-    entry: ['./src/app.js'],
+    entry: [ (process.env.NODE_ENV === 'production') ? './src/entry.js' : './src/entry-devel.js' ],
     externals: {
         // u2f: './src/u2f-api.js',
         // Virtru: './src/virtru-sdk.min.js'
@@ -135,6 +135,9 @@ function getPagesList() {
     }else{
                
          var plugins = require("./src/plugins.js");
+         if(!(process.env.NODE_ENV === 'production')){
+             plugins = [].concat(plugins, require("./src/plugins-devel.js"));
+         }
          
          for(var i in plugins){
            if(plugins[i].pagesList){
