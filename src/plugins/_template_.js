@@ -1,4 +1,9 @@
-//change   _template_  to your plugin name  
+
+
+//this area runs in webpack + browser (so becareful of js scope)
+
+// search and replace  `_template_` to fit your plugin name  ie `myplugin`
+
 module.exports = {
     consumes: ["app"],
     provides: ["_template_"],

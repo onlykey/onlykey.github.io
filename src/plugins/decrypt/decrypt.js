@@ -216,7 +216,7 @@ module.exports = {
                 if (pageType)
                     app.pages.state.replace({ pathname: pathname }, $("title").text(), "./" + pathname + "?type=" + pageType);
 
-                $(window).scrollTo("h1", 1000);
+                //$(window).scrollTo("h1", 1000);
 
                 if (!$("#action").data("changeSet")) {
                     $("#action").data("changeSet", true);

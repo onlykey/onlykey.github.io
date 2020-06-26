@@ -234,7 +234,7 @@ module.exports = {
 
                 $(".messageLink").html("");
 
-                $(window).scrollTo("h1", 1000);
+                //$(window).scrollTo("h1", 1000);
 
                 $("#pgpkeyurl").change(function() {
                     switch (onlykeyApi._status) {

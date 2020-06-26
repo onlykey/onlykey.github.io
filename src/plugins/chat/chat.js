@@ -1,10 +1,9 @@
-//change   _template_  to your plugin name  
+
 
 var pagesList = {
   "chat":{
       icon:"fa-comments-o",
       sort:40
-    //   title: "Chat"
   }
 };
 
@@ -15,24 +14,34 @@ module.exports = {
     provides: ["plugin_chat"],
     setup: function(options, imports, register) {
         
-        pagesList["chat"].view = require("./chat.page.html").default;
+        var init = false;
+        
+        var page = {
+            view : require("./chat.page.html").default,
+            init:function(app, $page, pathname){
+                init = true;
+                
+                page.setup(app, $page, pathname);
+            },
+            setup:function(app, $page, pathname){
+                 if (!init)
+                    return page.init(app, $page, pathname);
+                    
+                app.$(".app-head").hide();
+                
+            },
+            dispose:function(app, pathname){
+                app.$(".app-head").show();
+            }
+        };
+        
+        pagesList["chat"] = page;
         
         // console.log("pre-init");
         
         register(null, {
             plugin_chat:{
-                pagesList:pagesList,
-                
-                init: function() {
-                    
-                    // console.log("init");
-                    
-                    imports.app.on("start",function(){
-                        
-                        // console.log("post-init");
-                        
-                    });  
-                }
+                pagesList:pagesList
             }
         });
         

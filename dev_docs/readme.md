@@ -1,9 +1,8 @@
 
 
 
-Installing, Building
+Installing, Building, Versioning
 -------
-
 
 __Installing build tools__
 
@@ -17,7 +16,7 @@ __Running build__
 npm run build
 ```
 
-This runs `bash ./BUILD.sh` script that tells it to build the `./docs` folder
+This runs `bash ./BUILD.sh` script that tells it to build the `./docs` folder in `development` mode
 
 _All source modifications need to be in `./src` folder_
 
@@ -30,29 +29,42 @@ __Running the app__
 Run `node ./index.js`, This will fire up a nodejs-express app to serv the app
 
 
-Createing a new `/app/page`
---------
+**production**
+to build production
+```
+npm run build-production
+```
+
+_heroku will build production automaticly to serve, so no need to do this ourselves_
 
 
-Start by creating a html file in folder  `./src/app_src/pages/page_files/`, name it `page-name.page.html`
-
-Clone a copy of `_template_.js` in `./src/app_src/pages/page_actions` to `page-name.page.js`
-
-Edit `./src/app_src/pages/pages.js`,  and add your `page-name`  to the pagesList array.
-
-_the source in `_template_.js` will show more details_
-
-
-Createing a new `architect plugin`
+Createing Plugins using `architect`
 --------
 
 This project uses [https://github.com/c9/architect](https://github.com/c9/architect)
 
 
-Start by heading to dir `./app_src` and make a new folder for your plugin,  then copy `./app_src/_template_.js`
-to your new folder, renaming the file to your project name
-
-Change `_template_.js` source accordingly to match your plugin_name
+**Createing a new Page Plugin**
 
 
-_the source in `_template_.js` will show more details_
+Example to create `/app/myplugin`
+
+Start by creating a new folder in  `./src/plugins/myplugin`, 
+
+Copy file  `./src/plugins/_template_page_.js` to `./src/plugins/myplugin/myplugin.js`
+
+_the source `./src/plugins/myplugin/myplugin.js` will show more details on createing html file naming_
+
+Start Developing in `./src/plugins/myplugin/myplugin.js`
+
+**To add plugin to build**
+
+Edit file `./src/plugins-devel.js`
+
+and add code below to bottom
+
+```
+module.exports.push(require("./plugins/myplugin/myplugin.js"));
+```
+
+This will add enable the new app page

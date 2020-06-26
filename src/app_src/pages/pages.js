@@ -90,7 +90,7 @@ module.exports = {
       } 
         
       if (lastRender && typeof pages[lastRender].dispose == "function")
-        pages[lastRender].dispose();
+        pages[lastRender].dispose(imports.app, lastRender);
 
       lastRender = pageName;
 
