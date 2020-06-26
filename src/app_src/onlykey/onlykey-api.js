@@ -364,12 +364,12 @@ module.exports = function(imports) {
         
         for (var i in mypubkeyids) {
           var target = Array.from(mypubkeyids[i]).join("-");
-          msg("target keyid" + target);
+          msg("target keyid " + target);
           for (var j in ct_array) {
             var check = Array.from(ct_array[j].key_id).join("-");
-            msg("target-check keyid" + check);
+            msg("target-check keyid " + check);
             if (target == check) {
-              msg("target-match keyid" + check);
+              msg("match keyid " + check);
               return complete(ct_array[j]);
             }
           }
@@ -430,6 +430,7 @@ module.exports = function(imports) {
     var pin_hash = sha256(ct);
     cb = cb || noop;
     console.info("Signature Packet bytes ", Array.from(ct));
+    msg("Signature Packet bytes "+ Array.from(ct));
     pin = [get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31])];
     console.info("Generated PIN", pin);
     return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
