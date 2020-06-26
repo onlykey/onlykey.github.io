@@ -44,7 +44,7 @@ module.exports = {
             },
             setup: function(app, $page, pathname) {
                 if (!init)
-                    return page.init(app, $page);
+                    return page.init(app, $page, pathname);
 
                 var pgpDecoder = require("../../pgp-decoder/pgp.decoder.js");
 

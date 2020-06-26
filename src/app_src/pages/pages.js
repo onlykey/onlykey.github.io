@@ -85,7 +85,7 @@ module.exports = {
     function renderPage(pageName, init) {
       
       if (pageName == "index"){
-        if(pages[pageName].init) pages[pageName].init(imports.app);
+        if(pages[pageName].init) pages[pageName].init(imports.app, false, pageName);
         return true;
       } 
         
