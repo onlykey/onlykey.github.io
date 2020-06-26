@@ -364,12 +364,12 @@ module.exports = function(imports) {
         
         for (var i in mypubkeyids) {
           var target = Array.from(mypubkeyids[i]).join("-");
-          msg("target keyid " + target);
+              msg("----input keyid " + target);
           for (var j in ct_array) {
             var check = Array.from(ct_array[j].key_id).join("-");
-            msg("target-check keyid " + check);
+              msg("msg-check keyid " + check);
             if (target == check) {
-              msg("match keyid " + check);
+              msg("----match keyid " + check);
               return complete(ct_array[j]);
             }
           }
