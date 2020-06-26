@@ -10,7 +10,7 @@ __Installing build tools__
 npm install
 ```
 
-__Running build__
+__Building__
 
 ```
 npm run build
@@ -28,14 +28,15 @@ __Running the app__
 
 Run `node ./index.js`, This will fire up a nodejs-express app to serv the app
 
+_NOTE: webauthm/fido2 and native browser crypto libs require https_
 
-**production**
-to build production
+
+__Run production building__
 ```
 npm run build-production
 ```
 
-_heroku will build production automaticly to serve, so no need to do this ourselves_
+_heroku will build production automaticly to serve, so no need to do this ourselves in most cases_
 
 
 Createing Plugins using `architect`
