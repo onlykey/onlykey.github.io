@@ -35,6 +35,7 @@ div.tokenizer ul * {
 div.tokenizer ul li {
     display: inline-block;
     margin-right: 3px;
+    vertical-align: top;
 }
 
 div.tokenizer ul li span:hover {
