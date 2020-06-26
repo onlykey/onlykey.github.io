@@ -1,4 +1,8 @@
 
+
+console.log("WARNING LOADING DEVEL PLUGINS!  WARNING!");
+  
+  
 module.exports = [];
 
 
