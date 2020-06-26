@@ -361,12 +361,15 @@ module.exports = function(imports) {
         }
 
         var mypubkeyids = sender.get_all_pgp_key_ids();
-
+        
         for (var i in mypubkeyids) {
           var target = Array.from(mypubkeyids[i]).join("-");
+          msg("target keyid" + target);
           for (var j in ct_array) {
             var check = Array.from(ct_array[j].key_id).join("-");
+            msg("target-check keyid" + check);
             if (target == check) {
+              msg("target-match keyid" + check);
               return complete(ct_array[j]);
             }
           }
