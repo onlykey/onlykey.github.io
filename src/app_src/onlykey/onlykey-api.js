@@ -142,7 +142,9 @@ module.exports = function(imports) {
       if (OKversion == 'Original') {
         delay = delay * 4;
       }
-
+      
+      await wait(delay*1000);
+      
       //setTimeout(async function() {
       console.info("Requesting response from OnlyKey");
       var cmd;
@@ -194,7 +196,7 @@ module.exports = function(imports) {
       var response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(err, data) {
         console.log(data);
       });
-      await wait(1000);
+      //await wait(1000);
 
       console.log("DECODED RESPONSE:", response);
       var data; // = await Promise;
@@ -245,9 +247,10 @@ module.exports = function(imports) {
     });
   }
 
+
   onlykey_api.doPinTimer = async function(seconds) {
     return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
-      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 16;
+      secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
       var res;
 
       if (_$status_is('done_challenge') || _$status_is('waiting_ping')) {
@@ -266,7 +269,10 @@ module.exports = function(imports) {
         }
 
         if (!(os == 'Android') && [10, 5].indexOf(secondsRemaining) > -1) {
-          res = await ping(0); //Delay
+          //res = await ping(0); //Delay
+          // pooling will cause the key to go into a stale state for sign/decrypt Operation #1, 
+          // causing the #2 operation of sign/decrypt to be skipped until #3 and re-atempted
+          // for now, lets let the timer expire and complete the request when done.
         }
         //await ping(0); //Too many popups with FIDO2
       }
@@ -285,6 +291,7 @@ module.exports = function(imports) {
       setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining -= 1), 1000);
     });
   };
+
 
   function _$status(newStatus) {
     if (newStatus) {
@@ -627,26 +634,26 @@ module.exports = function(imports) {
     var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data);
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
     var request_options;
-    if (os == 'Windows') {
-      var id = window.location.hostname;
-      request_options = {
-        challenge: challenge,
-        allowCredentials: [{
-          id: keyhandle,
-          type: 'public-key',
-        }],
-        timeout: timeout,
-        //rpId: 'apps.crp.to',
-        rpId: id,
-        userVerification: 'discouraged',
-        //userPresence: 'false',
-        //mediation: 'silent',
-        extensions: {
-          // appid: 'https://apps.crp.to',
-          appid: 'https://' + id
-        },
-      };
-    }
+    // if (os == 'Windows') {
+    var id = window.location.hostname;
+    request_options = {
+      challenge: challenge,
+      allowCredentials: [{
+        id: keyhandle,
+        type: 'public-key',
+      }],
+      timeout: timeout,
+      //rpId: 'apps.crp.to',
+      rpId: id,
+      userVerification: 'discouraged',
+      //userPresence: 'false',
+      //mediation: 'silent',
+      extensions: {
+        // appid: 'https://apps.crp.to',
+        appid: 'https://' + id
+      },
+    };
+    /*}
     else {
       request_options = {
         challenge: challenge,
@@ -665,7 +672,7 @@ module.exports = function(imports) {
           // appid: 'https://' + id
         // },
       };
-    }
+    }*/
 
     if (browser != "testingu2f") {
 
