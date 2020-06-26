@@ -1,7 +1,7 @@
 
 
 
-Installing, Building, Versioning
+Installing, Building, Running, Versioning, Production
 -------
 
 __Installing build tools__
@@ -20,7 +20,7 @@ This runs `bash ./BUILD.sh` script that tells it to build the `./docs` folder in
 
 _All source modifications need to be in `./src` folder_
 
-*Do Not Touch ``./past_releases` folder*
+*Do Not Touch ``./past_releases` folder, this is our archive*
 
 For final release run `npm run build` then change `version` in `./src/release.json`, then re-run `npm run build`
 
@@ -68,4 +68,4 @@ and add code below to bottom
 module.exports.push(require("./plugins/myplugin/myplugin.js"));
 ```
 
-This will add enable the new app page
+This will add/enable the new app page

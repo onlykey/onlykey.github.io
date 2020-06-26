@@ -45,8 +45,8 @@ module.exports = {
                 });
 
 
-                $('#submit').click(function() {
-
+                $('#submit').click(function(e) {
+                    
                     var sites = {
                         q: $("#sites option:selected").val(),
                         rpp: 5
@@ -56,6 +56,9 @@ module.exports = {
                         rpp: 5
                     };
                     searchKeybase(sites, users);
+                    
+                    e.preventDefault();
+                    return false; // prevents default click action
                 });
 
                 var onlykeyApi = app.onlykeyApi;
