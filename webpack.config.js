@@ -153,6 +153,6 @@ function getPagesList() {
         return b.sort - a.sort;
     });
     _files.reverse();
-    console.log(_files);
+    
     return _files;
 }
