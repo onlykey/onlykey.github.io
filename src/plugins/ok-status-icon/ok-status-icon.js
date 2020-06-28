@@ -111,6 +111,7 @@ module.exports = {
         }
         function connection_pos(inserted) {
             _inserted = !!inserted;
+            if(!html_template) return;
             if (inserted) {
                 html_template.animate({
                     "margin-left": insertDist
@@ -130,6 +131,7 @@ module.exports = {
         }
         html_template = imports.$(require("./ok-status.template.html").default);
         html_template.find("img").on("load", function() {
+            if(!html_template) return;
             $('[src="ok-plugged4.png"]').attr("src", "ok-plugged5.png");
             html_template.css("position", "absolute");
             html_template.css("display", "inline");

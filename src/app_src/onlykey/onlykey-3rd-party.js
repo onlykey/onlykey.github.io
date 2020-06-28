@@ -1,3 +1,4 @@
+module.exports = function(imports){
 /* global $ TextEncoder */
 var $ = require("jquery");
 var nacl = require("./nacl.min.js");
@@ -361,15 +362,19 @@ function onlykey(keytype, enc_resp) {
 
             //build message
             var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
-
+            
+            imports.app.emit("ok-connecting");
             await ctaphid_via_webauthn(OKCONNECT, null, null, null, encryptedkeyHandle, 6000).then(async(response) => {
-
+        
                 if (!response || response == 1) {
                     htmlLog("Problem setting time on onlykey");
-                    cb(true);
+                    
+                    imports.app.emit("ok-disconnected");
+                    if(typeof cb == "function") cb(true);
                     // $onStatus("Problem setting time on onlykey");
                     return;
                 }
+                imports.app.emit("ok-connected");
 
                 okPub = response.slice(21, 53);
                 OKversion = response[19] == 99 ? 'Color' : 'Original';
@@ -382,7 +387,7 @@ function onlykey(keytype, enc_resp) {
                 htmlLog("OnlyKey " + OKversion + " " + FWversion + " connection established\n")();
                 // $onStatus("OnlyKey " + FWversion + " Connection Established");
                 
-                cb(null);
+                if(typeof cb == "function") cb(null);
 
             });
         }, (1));
@@ -746,8 +751,8 @@ function onlykey(keytype, enc_resp) {
 
 
 
-
-module.exports = onlykey;
+return onlykey;
+}
 
 
 
