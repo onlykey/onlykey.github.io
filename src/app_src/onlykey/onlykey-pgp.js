@@ -4,6 +4,8 @@ module.exports = function(imports){
 
   const kbpgp = require('./kbpgp.onlykey.js')(onlykeyApi,console);
   const kbpgp2 = require('./kbpgp-2.1.0.js');
+  window.kbpgp = kbpgp2;
+  
   /*globals kbpgp Blob */
   // const url = require("url");
   var saveAs = require("file-saver").saveAs;
@@ -485,7 +487,7 @@ module.exports = function(imports){
   function pgpkeyStore() {
     var keyStore = {};
 
-    keyStore.ring = new kbpgp.keyring.KeyRing;
+    keyStore.ring = new kbpgp.keyring.KeyRing();
 
     // var sender_public_key;
     // var recipient_public_key;
@@ -714,7 +716,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
   }
 
   onlykey_api_pgp.getMessageKeyIds = function(message,callback) {
-    var ring = new kbpgp2.keyring.KeyRing;
+    var ring = new kbpgp2.keyring.KeyRing();
     kbpgp2.unbox({
       keyfetch: ring,
       armored: message
