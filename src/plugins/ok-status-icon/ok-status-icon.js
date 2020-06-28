@@ -131,6 +131,8 @@ module.exports = {
         }
         html_template = imports.$(require("./ok-status.template.html").default);
         html_template.find("img").on("load", function() {
+            finishRegister();
+            
             if(!html_template) return;
             $('[src="ok-plugged4.png"]').attr("src", "ok-plugged5.png");
             html_template.css("position", "absolute");
@@ -138,7 +140,7 @@ module.exports = {
             html_template.css("float", "left");
             html_template.css("z-index", "-1");
             html_template.css("top", "185px");
-            connection_pos();
+            // connection_pos();
             setInterval(un_inserted_animation.interval, 500);
         });
         var un_inserted_animation = {
@@ -179,6 +181,8 @@ module.exports = {
         if(ch[0])
             ch.parent().prepend(html_template);
         else html_template = false;
+        
+        function finishRegister(){
         register(null, {
             "ok-status-icon": {
                 setColor: setColor,
@@ -227,5 +231,6 @@ module.exports = {
                 }
             }
         });
+        }
     }
 };
