@@ -120,6 +120,9 @@ module.exports = {
         }, {
             test: /\.modal\.html$/i,
             use: 'raw-loader',
+        }, {
+            test: /\.template\.html$/i,
+            use: 'raw-loader',
         }]
     },
 };

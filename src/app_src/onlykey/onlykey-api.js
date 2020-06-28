@@ -152,6 +152,8 @@ module.exports = function(imports) {
       var message;
 
       if (type == 1) { //OKSETTIME
+        imports.app.emit("ok-connecting");
+        
         cmd = OKSETTIME;
         message = [255, 255, 255, 255, OKSETTIME]; //Add header and message type
         var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
@@ -203,11 +205,13 @@ module.exports = function(imports) {
 
       if (_$status_is('finished')) {
         console.info("Finished");
+        imports.app.emit("ok-connected");
       }
       else if (_$status_is('waiting_ping')) {
         console.info("Ping Successful");
         _$status('pending_challenge');
         data = 1;
+        imports.app.emit("ok-connected");
       }
       else if (type == 1) {
         okPub = response.slice(21, 53);
@@ -221,6 +225,8 @@ module.exports = function(imports) {
         headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
         var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
         console.info("AES Key", key);
+        
+        imports.app.emit("ok-connected");
         cb(null, data);
         return;
       }
@@ -234,10 +240,12 @@ module.exports = function(imports) {
          }*/
       else if (type == 3 && _$status_is('finished')) {
         data = response;
+        imports.app.emit("ok-connected");
       }
       else if (type == 4 && _$status_is('finished')) {
         var oksignature = response.slice(0, response.length); //4+32+2+32
         data = oksignature;
+        imports.app.emit("ok-connected");
       }
 
       cb(null, data);
@@ -261,6 +269,7 @@ module.exports = function(imports) {
       }
       else if (_$status_is('pending_challenge')) {
         if (secondsRemaining <= 1) {
+          imports.app.emit("ok-waiting");
           _$status('done_challenge');
         }
         if (secondsRemaining >= 1) {
@@ -463,8 +472,12 @@ module.exports = function(imports) {
     console.info("Handlekey bytes ", message);
     var encryptedmsg = await aesgcm_encrypt(message, sharedsec);
     console.info("Encrypted Handlekey bytes ", encryptedmsg);
-
-    var response = await ctaphid_via_webauthn(element_by_id('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT, slotid(), finalPacket, packetnum, encryptedmsg, 6000);
+    
+    var SorD = element_by_id('onlykey_start').value == 'Encrypt and Sign' ? OKSIGN : OKDECRYPT;
+    if(OKSIGN == SorD) imports.app.emit("ok-signing");
+    if(OKDECRYPT == SorD) imports.app.emit("ok-decrypting");
+    
+    var response = await ctaphid_via_webauthn(SorD, slotid(), finalPacket, packetnum, encryptedmsg, 6000);
 
     if (finalPacket) packetnum = 0;
 
@@ -488,8 +501,11 @@ module.exports = function(imports) {
         }).catch(err => console.info(err));
       }
       else {
+        imports.app.emit("ok-activity");
         cb();
       }
+    }else{
+      imports.app.emit("ok-error");
     }
     // });
   }

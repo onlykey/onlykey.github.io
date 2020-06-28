@@ -12,7 +12,7 @@ var pagesList = {
   }
 };
 
-
+//export the plugin
 module.exports = {
     pagesList: pagesList,
     consumes: ["app"],

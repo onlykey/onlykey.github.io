@@ -8,6 +8,11 @@ module.exports = function(additional_plugins) {
   */
   var $ = require("jquery");
   window.jQuery = $;
+  window.jQuery.brad = "lol";
+  
+  require("jquery-ui");
+  require("jquery-ui/ui/widgets/draggable");
+  
   require("./jquery.history.js");
   require("./jquery.scrollTo.min.js");
   require("bootstrap");
