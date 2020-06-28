@@ -140,6 +140,8 @@ module.exports = {
             html_template.css("float", "left");
             html_template.css("z-index", "-1");
             html_template.css("top", "185px");
+            html_template.css("margin-left", "-"+insertDist);
+            
             // connection_pos();
             setInterval(un_inserted_animation.interval, 500);
         });
