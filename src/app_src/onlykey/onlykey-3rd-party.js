@@ -4,6 +4,24 @@ var $ = require("jquery");
 var nacl = require("./nacl.min.js");
 var EventEmitter = require("events").EventEmitter;
 
+
+
+  var {
+    // wait,
+    // sha256,
+    hexStrToDec,
+    bytes2string,
+    // noop,
+    getstringlen,
+    // mkchallenge,
+    // bytes2b64,
+    getOS,
+    ctap_error_codes,
+    // getAllUrlParams,
+    // aesgcm_decrypt,
+    // aesgcm_encrypt
+  } = require("./onlykey.extra.js")(imports);
+  
 // var nacl = require("nacl");
 // var forge = require("forge");
 // window.nacl = nacl;
@@ -51,7 +69,7 @@ function buf2hex(buffer) {
     // buffer is an ArrayBuffer
     return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
 }
-
+/*
 const ctap_error_codes = {
     0x00: 'CTAP1_SUCCESS',
     0x01: 'CTAP1_ERR_INVALID_COMMAND',
@@ -100,7 +118,8 @@ const ctap_error_codes = {
     0x38: 'CTAP2_ERR_PIN_TOKEN_EXPIRED',
     0x39: 'CTAP2_ERR_REQUEST_TOO_LARGE',
 }
-
+*/
+/*
 function chr(c) {
     return String.fromCharCode(c);
 } // Because map passes 3 args
@@ -116,7 +135,7 @@ function getstringlen(bytes) {
         if ((bytes[i] > 122 || bytes[i] < 97) && bytes[i] != 32) return i;
     }
 }
-
+*/
 function u2f_unb64(s) {
     s = s.replace(/-/g, '+').replace(/_/g, '/');
     return window.atob(s + '==='.slice((s.length + 3) % 4));
@@ -143,11 +162,11 @@ function arrayBufToBase64UrlDecode(ba64) {
 
     return new Uint8Array(bytes);
 }
-
+/*
 function hexStrToDec(hexStr) {
     return ~~(new Number('0x' + hexStr).toString(10));
 }
-
+*/
 var IntToByteArray = function(int) {
     var byteArray = [0,
         0,
@@ -227,7 +246,7 @@ function aesgcm_encrypt(sharedsec, plaintext) {
     });
 }
 
-
+/*
 function getOS() {
     var vendor = window.navigator.vendor,
         userAgent = window.navigator.userAgent,
@@ -255,7 +274,7 @@ function getOS() {
 
     return os;
 }
-
+*/
 async function EPUB_TO_ONLYKEY_ECDH_P256(ePub, callback) {
     var xdecoded = arrayBufToBase64UrlDecode(ePub.split(".")[0]);
     var ydecoded = arrayBufToBase64UrlDecode(ePub.split(".")[1]);
