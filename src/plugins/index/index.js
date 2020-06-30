@@ -35,6 +35,8 @@ module.exports = {
                 init:function(){
                     if(document.hasFocus())
                         imports.app.on("start",doSetTime);
+                    else
+                        $(document).one("focus",doSetTime);
                 }
             }
         });
