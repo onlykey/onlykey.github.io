@@ -94,7 +94,7 @@ module.exports = function(imports) {
         //}
 
         //await wait(delay * 1000);
-
+        await wait(1000);
         var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(aerr, data) {
           console.log(aerr,data);
         });
@@ -204,7 +204,7 @@ module.exports = function(imports) {
         delay = 4;
       }
       //await wait(delay * 1000);
-
+      await wait(1000);
       var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(slot, slotid(slot), finalPacket, packetnum, encryptedmsg, 6000, function(aerr, data) {
         // console.log(data);
       });
