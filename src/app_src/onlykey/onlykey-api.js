@@ -168,7 +168,7 @@ module.exports = function(imports) {
       encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
 
 
-      await wait(delay * 1000);
+      // await wait(delay * 1000);
 
       var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);

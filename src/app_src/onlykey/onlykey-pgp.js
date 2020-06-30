@@ -113,7 +113,7 @@ module.exports = function(imports) {
         var error = ctaphid_response.error;
         
         if (!ctaphid_response.error) {
-          await wait(delay * 1000);
+          //await wait(delay * 1000);
         }
 
         if (!ctaphid_response.error) {
@@ -203,7 +203,7 @@ module.exports = function(imports) {
       if (onlykeyApi.OKversion == 'Original') {
         delay = 4;
       }
-      await wait(delay * 1000);
+      //await wait(delay * 1000);
 
       var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(slot, slotid(slot), finalPacket, packetnum, encryptedmsg, 6000, function(aerr, data) {
         // console.log(data);
