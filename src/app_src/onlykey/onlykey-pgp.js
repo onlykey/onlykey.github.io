@@ -443,7 +443,7 @@ module.exports = function(imports) {
       }
       return _status;
     }
-    //this script should only be allow set this remove soon
+    //this script should only be allow set this remove soon 
     onlykey_api_pgp._$status = _$status;
 
     function _$status_is(status_check) {
