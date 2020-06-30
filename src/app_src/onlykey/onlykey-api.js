@@ -87,30 +87,30 @@ module.exports = function(imports) {
       if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
         onlykey_api.browser = "Firefox";
       
-      if(onlykey_api.browser == "Firefox")
-        imports.app.$(window).focus();
-      //Set time on OnlyKey, get firmware version, get ecc public
-      OK_CONNECT(async function(err, status) {
-        
-        if(status){
-          console.log("OKCONNECT STATUS", status);
-        }
-
-        if (typeof(onlykey_api.sharedsec) === "undefined") {
-          // if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
-          // else headermsg("OnlyKey not connected! Refresh this page to try again.");
-          if (callback && typeof callback == "function")
-            callback(true);
-          resolve();
-        }
-        else {
-          onlykey_api.init = true;
-          //Initialize App
-          if (callback && typeof callback == "function")
-            callback();
-          resolve();
-
-        }
+      imports.app.$().ready(function(){
+        //Set time on OnlyKey, get firmware version, get ecc public
+        OK_CONNECT(async function(err, status) {
+          console.log(err);
+          if(status){
+            console.log("OKCONNECT STATUS", status);
+          }
+  
+          if (typeof(onlykey_api.sharedsec) === "undefined") {
+            // if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
+            // else headermsg("OnlyKey not connected! Refresh this page to try again.");
+            if (callback && typeof callback == "function")
+              callback(true);
+            resolve();
+          }
+          else {
+            onlykey_api.init = true;
+            //Initialize App
+            if (callback && typeof callback == "function")
+              callback();
+            resolve();
+  
+          }
+        });
       });
 
       // if (os == 'Android') await wait(6000);
