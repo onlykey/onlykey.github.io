@@ -7,7 +7,7 @@ var pagesList = {
 
 module.exports = {
     pagesList: pagesList,
-    consumes: ["app", "onlykey3rd"],
+    consumes: ["app", "onlykeyApi"],
     provides: ["plugin_index"],
     setup: function(options, imports, register) {
         function doSetTime() {
