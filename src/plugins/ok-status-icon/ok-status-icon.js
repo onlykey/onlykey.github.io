@@ -224,7 +224,7 @@ module.exports = {
                 setColor: setColor,
                 init: function() {
                     imports.app.on("start", function() {
-                        return;
+                        // return;
                         // setColor.off(true);// default state
                         if(demo){
                             setTimeout(async function() {
