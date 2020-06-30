@@ -171,7 +171,7 @@ module.exports = function(imports) {
       await wait(delay * 1000);
 
       var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
-        console.log("ctaphid_response resp", maybe_a_err, data);
+        //console.log("ctaphid_response resp", maybe_a_err, data);
       });
       
       imports.app.emit("ok-waiting");
@@ -185,6 +185,8 @@ module.exports = function(imports) {
         //check errors
         // if(ctaphid_response.error && ctaphid_response.error.indexOf("Error NotAllowedError") > -1 )
         imports.app.emit("ok-disconnected");
+        if(ctaphid_response.error)
+          onlykey_api.emit("error", ctaphid_response.error);
       }
       else {
         switch (ctaphid_response.status) {
@@ -200,7 +202,7 @@ module.exports = function(imports) {
             // msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
             // element_by_id('header_messages').innerHTML = "<br>";
             // headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-            var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
+            // var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
             // console.info("AES Key", key);
 
             imports.app.emit("ok-connected");
@@ -285,7 +287,7 @@ module.exports = function(imports) {
     ).getUint32(0, false); // get count as 32 bit BE integer
 
     var signature = new Uint8Array(response.signature);
-    var error_code = signature[0];
+    var status_code = signature[0];
 
     var data = null;
     var error = null;
@@ -293,7 +295,7 @@ module.exports = function(imports) {
     if (signature.length > 1)
       data = signature.slice(1, signature.length);
 
-    switch (ctap_error_codes[error_code]) {
+    switch (ctap_error_codes[status_code]) {
       case "CTAP1_SUCCESS":
         if (bytes2string(data.slice(0, 9)) == 'UNLOCKEDv') {
           // Reset shared secret and start over
@@ -325,7 +327,7 @@ module.exports = function(imports) {
         // case "CTAP2_ERR_OPERATION_PENDING":
         //   break;
       default:
-        console.warn("ctap_error_code", ctap_error_codes[error_code]);
+        console.warn("ctap_error_code", ctap_error_codes[status_code]);
         break;
     }
 
@@ -374,7 +376,7 @@ module.exports = function(imports) {
 */
     return {
       count: signature_count,
-      status: ctap_error_codes[error_code],
+      status: ctap_error_codes[status_code],
       data: data,
       error: error,
       signature: signature,
@@ -432,6 +434,7 @@ module.exports = function(imports) {
         console.warn("NAME:", error.name);
         console.warn("MESSAGE:", error.message);
         var response = { error: "Error " + error.name + " " + error.message };
+        
         if (error.name == 'NS_ERROR_ABORT' || error.name == 'AbortError' || error.name == 'InvalidStateError') {
           // _$status('done_challenge');
           response.error2 = response.error;
@@ -441,13 +444,13 @@ module.exports = function(imports) {
 
         if (error.name == 'NotAllowedError' && onlykey_api.os == 'Windows') {
           response.error2 = response.error;
-          response.error = "Error Win 10 1903 issue maybe?";
+          response.error = "Error Win 10 1903 issue maybe? or a CANCEL/ABORT ";
           // return resolve(-2); // 2 = set error: Win 10 1903 issue
           // return 1;
         }
 
         // if (cb) cb(response.error, response);
-
+        
         results = response;
 
         // return resolve(response); // 0 = unset error: 
