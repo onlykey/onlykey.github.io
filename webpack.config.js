@@ -13,8 +13,8 @@ var cspOptions = {
         'default-src': "'self'",
         'base-uri': "'none'",
         'object-src': "'none'",
-        'script-src': ["'self'"],
-        'style-src': ["'self'"],
+        'script-src': ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
+        'style-src': ["'unsafe-inline'", "'self'", "'unsafe-eval'"],
         'img-src': [
             "'self'",
             "data:",
