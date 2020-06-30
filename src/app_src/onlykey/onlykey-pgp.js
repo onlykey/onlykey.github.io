@@ -20,12 +20,12 @@ module.exports = function(imports) {
       aesgcm_encrypt
     } = require("./onlykey.extra.js")(imports);
 
-    var KB_ONLYKEY = {};// the object we pass to kbpgp to enable custom changes
+    var KB_ONLYKEY = {}; // the object we pass to kbpgp to enable custom changes
     //to identify REQURED properties 
     KB_ONLYKEY.custom_keyid;
     KB_ONLYKEY.auth_decrypt;
     KB_ONLYKEY.auth_sign;
-    
+
 
     const kbpgp = require('./kbpgp.onlykey.js')(KB_ONLYKEY, console);
     const kbpgp2 = require('./kbpgp-2.1.0.js');
@@ -96,7 +96,7 @@ module.exports = function(imports) {
         //await wait(delay * 1000);
         await wait(1000);
         var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(aerr, data) {
-          console.log(aerr,data);
+          console.log(aerr, data);
         });
 
         var response;
@@ -111,18 +111,16 @@ module.exports = function(imports) {
 
         var data; // = await Promise;
         var error = ctaphid_response.error;
-        
+
         if (!ctaphid_response.error) {
           //await wait(delay * 1000);
         }
-        
-        if (ctaphid_response.status == "CTAP2_ERR_USER_ACTION_PENDING") {
-          data = "PENDING";
-          _$status('pending_challenge');
-        }
+
 
         if (!ctaphid_response.error) {
           console.info("Ping Successful");
+          if (_$status_is("pending_challenge"))
+            _$status_is("pending_challenge")
 
           if (type == 3 && _$status_is('finished')) {
             data = response;
@@ -135,17 +133,17 @@ module.exports = function(imports) {
           }
           else {
             console.log(ctaphid_response.status);
-            if(ctaphid_response.status == "CTAP1_SUCCESS"){
-              if(_$status_is('pending_challenge')){
+            if (ctaphid_response.status == "CTAP1_SUCCESS") {
+              if (_$status_is('pending_challenge')) {
                 _$status('done_challenge')
               }
-              
+
               data = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
               // console.log("DECODED RESPONSE:", response);
               console.log("DECODED RESPONSE(as string):", bytes2string(response));
               // console.log("DECRYPTED RESPONSE:", data);
               console.log("DECRYPTED RESPONSE(as string):", bytes2string(data));
-              
+
             }
 
 
@@ -217,6 +215,7 @@ module.exports = function(imports) {
 
       var response = 1;
 
+
       if (ctaphid_response.data && !ctaphid_response.error)
         response = ctaphid_response.data;
 
@@ -254,6 +253,82 @@ module.exports = function(imports) {
       }
       // });
     }
+
+
+
+    onlykey_api_pgp.doPinTimer = async function(seconds) {
+      var updateTimer;
+      return new Promise(updateTimer = async function(resolve, reject, secondsRemaining) {
+        secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
+        var res;
+
+        if (_$status_is('finished')) return;
+
+        if (_$status_is('pending_challenge')) {
+
+          if (secondsRemaining <= 1) {
+            imports.app.emit("ok-waiting");
+            _$status('done_challenge');
+          }
+          if (secondsRemaining > 1) {
+            onlykeyApi.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
+            // console.info("enter challenge code", pin);
+          }
+
+          if (!(onlykeyApi.os == 'Android') && [10, 5].indexOf(secondsRemaining) > -1) {
+            //res = await ping(0); //Delay
+            // pooling will cause the key to go into a stale state after sign/decrypt Operation #1, 
+            // causing the #2 operation of sign/decrypt to be skipped until #3 re-atempt
+            // for now, lets let the timer expire and complete the request when done.
+          }
+          //await ping(0); //Too many popups with FIDO2
+        }
+        else if (_$status_is('done_challenge') /* || _$status_is('waiting_ping')*/ ) {
+          // _$status('done_challenge');
+          onlykeyApi.emit("status", `Waiting for OnlyKey to process message.`);
+          res = ping(); //Delay
+        }
+
+        if (res)
+          res.then(next).catch(aerr => {
+            console.log(aerr);
+            onlykey_api_pgp.emit("error", aerr);
+          });
+        else next();
+
+        async function next(results) {
+          if (results) {
+            // console.log("ping results",results);
+
+            if (results instanceof Array) {
+              if (_$status_is('done_challenge')) {
+                imports.app.emit("ok-connected");
+                return resolve(results);
+              }
+            }
+
+          }
+
+          // if (_$status_is('finished')) {
+          //   if (encrypted_data) {
+          //     console.info("Parsed Encrypted Data: ", encrypted_data);
+          //     var decrypted_data = await aesgcm_decrypt(encrypted_data, onlykeyApi.sharedsec);
+          //     encrypted_data = false; //clear
+          //     console.info("Parsed Decrypted Data: ", decrypted_data);
+          //     return resolve(decrypted_data);
+          //   }
+          //   else {
+          //     return reject("Error no data to decrypt for aesgcm_decrypt");
+          //   }
+          // }
+
+          if (_$status_is('finished')) return;
+
+          setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining -= 1), 1000);
+
+        }
+      });
+    };
 
 
     /**
@@ -359,79 +434,6 @@ module.exports = function(imports) {
       //_mode == "Encrypt and Sign" ? 2 : 1; << should be this ( mode should be set before running any process at start)
       return slot == OKSIGN ? 2 : 1;
     }
-
-
-    onlykey_api_pgp.doPinTimer = async function(seconds) {
-      var updateTimer;
-      return new Promise(updateTimer = async function(resolve, reject, secondsRemaining) {
-        secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
-        var res;
-
-        if (!_$status_is('pending_challenge') /* || _$status_is('waiting_ping')*/ ) {
-          // _$status('done_challenge');
-          onlykeyApi.emit("status", `Waiting for OnlyKey to process message.`);
-          res = ping(); //Delay
-        }
-        else if (_$status_is('pending_challenge')) {
-          if (secondsRemaining <= 1) {
-            imports.app.emit("ok-waiting");
-            _$status('done_challenge');
-          }
-          if (secondsRemaining > 1) {
-            onlykeyApi.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
-            // console.info("enter challenge code", pin);
-          }
-
-          if (!(onlykeyApi.os == 'Android') && [10, 5].indexOf(secondsRemaining) > -1) {
-            //res = await ping(0); //Delay
-            // pooling will cause the key to go into a stale state after sign/decrypt Operation #1, 
-            // causing the #2 operation of sign/decrypt to be skipped until #3 re-atempt
-            // for now, lets let the timer expire and complete the request when done.
-          }
-          //await ping(0); //Too many popups with FIDO2
-        }
-
-        if (res)
-          res.then(next).catch(aerr => {
-            console.log(aerr);
-            onlykey_api_pgp.emit("error", aerr);
-          });
-        else next();
-
-        async function next(results) {
-          if (results) {
-            // console.log("ping results",results);
-
-            if (results instanceof Array) {
-              if (_$status_is('finished')){
-                imports.app.emit("ok-connected");
-                return resolve(results);
-              }
-            }
-
-          }
-
-          // if (_$status_is('finished')) {
-          //   if (encrypted_data) {
-          //     console.info("Parsed Encrypted Data: ", encrypted_data);
-          //     var decrypted_data = await aesgcm_decrypt(encrypted_data, onlykeyApi.sharedsec);
-          //     encrypted_data = false; //clear
-          //     console.info("Parsed Decrypted Data: ", decrypted_data);
-          //     return resolve(decrypted_data);
-          //   }
-          //   else {
-          //     return reject("Error no data to decrypt for aesgcm_decrypt");
-          //   }
-          // }
-
-          if (_$status_is('finished')) return;
-
-          setTimeout(updateTimer.bind(null, resolve, reject, secondsRemaining -= 1), 1000);
-
-        }
-      });
-    };
-
 
 
     function get_pin(byte) {
