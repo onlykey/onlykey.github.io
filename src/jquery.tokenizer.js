@@ -279,8 +279,8 @@ var tokenizer = function($, onAddTokenizerItem) {
 
             clearValue() {
                 var value = this.$element.html()
-                    .replace(/<\/div><div>/g, "\r\n")
-                    .replace(/<br>/g, "")
+                    .replace(/<\/div><div>/g, "")
+                    .replace(/<br>/g, "\r\n")
                     .replace(/<\/div>/g, "")
                     .replace(/<div>/g, "");
                 this.$element.text("");
