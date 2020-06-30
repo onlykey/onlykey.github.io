@@ -11,7 +11,7 @@ module.exports = {
     provides: ["plugin_index"],
     setup: function(options, imports, register) {
         function doSetTime() {
-            imports.onlykey3rd(1, 0).connect();
+            imports.onlykeyApi.initok();
         }
         
         var page = {

@@ -365,6 +365,10 @@ function onlykey(keytype, enc_resp) {
     var OKversion;
     var FWversion;
     var browser = "Chrome";
+    
+    if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+        browser = "Firefox";
+    
     var os = getOS();
     var OKCONNECT = 228;
 
