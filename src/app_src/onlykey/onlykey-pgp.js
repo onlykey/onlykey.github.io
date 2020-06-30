@@ -89,7 +89,7 @@ module.exports = function(imports) {
         Array.prototype.push.apply(message, ciphertext);
         encryptedkeyHandle = await aesgcm_encrypt(message, onlykeyApi.sharedsec);
         //var encryptedkeyHandle = Uint8Array.from(message);
-        _$status('waiting_ping');
+        // _$status('waiting_ping');
         cmd = OKPING;
         //}
 
@@ -115,12 +115,10 @@ module.exports = function(imports) {
         if (!ctaphid_response.error) {
           //await wait(delay * 1000);
         }
-
+        
 
         if (!ctaphid_response.error) {
           console.info("Ping Successful");
-          if (_$status_is("pending_challenge"))
-            _$status_is("pending_challenge")
 
           if (type == 3 && _$status_is('finished')) {
             data = response;
@@ -135,7 +133,7 @@ module.exports = function(imports) {
             console.log(ctaphid_response.status);
             if (ctaphid_response.status == "CTAP1_SUCCESS") {
               if (_$status_is('pending_challenge')) {
-                _$status('done_challenge')
+                _$status('done_challenge');
               }
 
               data = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
@@ -146,19 +144,13 @@ module.exports = function(imports) {
 
             }
 
-
-            if (_$status_is('finished')) {
-              // console.info("Finished");
+            if (_$status_is('done_challenge') || _$status_is('done_challenge')) {
+              _$status('finished');
               imports.app.emit("ok-connected");
             }
 
-            if (_$status_is('done_challenge')) {
-              _$status('finished');
-            }
-
             // if (_$status_is('waiting_ping')) {
-            // _$status('pending_challenge');
-            // data = 1;
+              // _$status('pending_challenge');
             // }
 
           }
@@ -448,7 +440,8 @@ module.exports = function(imports) {
       }
     }
 
-
+    
+    //state should only be set internally
     function _$status(newStatus) {
       if (newStatus) {
         _status = newStatus;
@@ -463,7 +456,9 @@ module.exports = function(imports) {
       return !!(_$status() == status_check);
     }
     onlykey_api_pgp._$status_is = _$status_is;
-
+    
+    
+    //mode should only be set externally
     function _$mode(newMode) {
       if (newMode) {
         _mode = newMode;
