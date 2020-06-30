@@ -141,7 +141,7 @@ module.exports = function(imports) {
               // console.log("DECRYPTED RESPONSE:", data);
               console.log("DECRYPTED RESPONSE(as string):", bytes2string(data));
               if(_$status_is('pending_challenge')){
-                _$status_is('done_challenge')
+                _$status('done_challenge')
               }
             }
 
