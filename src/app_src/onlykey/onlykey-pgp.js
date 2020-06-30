@@ -93,7 +93,7 @@ module.exports = function(imports) {
         cmd = OKPING;
         //}
 
-        await wait(delay * 1000);
+        //await wait(delay * 1000);
 
         var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(aerr, data) {
           console.log(aerr,data);
@@ -112,7 +112,9 @@ module.exports = function(imports) {
         var data; // = await Promise;
         var error = ctaphid_response.error;
         
-        if (!ctaphid_response.error) {}
+        if (!ctaphid_response.error) {
+          await wait(delay * 1000);
+        }
 
         if (!ctaphid_response.error) {
           console.info("Ping Successful");
