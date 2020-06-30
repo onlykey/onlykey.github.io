@@ -144,7 +144,7 @@ module.exports = function(imports) {
 
             }
 
-            if (_$status_is('done_challenge') || _$status_is('done_challenge')) {
+            if (_$status_is('done_challenge')) {
               _$status('finished');
               imports.app.emit("ok-connected");
             }
@@ -254,8 +254,6 @@ module.exports = function(imports) {
         secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
         var res;
 
-        if (_$status_is('finished')) return;
-
         if (_$status_is('pending_challenge')) {
 
           if (secondsRemaining <= 1) {
@@ -293,7 +291,7 @@ module.exports = function(imports) {
             // console.log("ping results",results);
 
             if (results instanceof Array) {
-              if (_$status_is('done_challenge')) {
+              if (_$status_is('finished')) {
                 imports.app.emit("ok-connected");
                 return resolve(results);
               }
