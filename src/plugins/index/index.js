@@ -10,7 +10,10 @@ module.exports = {
     consumes: ["app", "onlykeyApi"],
     provides: ["plugin_index"],
     setup: function(options, imports, register) {
+        var fired = false;
         function doSetTime() {
+            if(fired) return;
+            fired = true;
             imports.onlykeyApi.initok();
         }
         
@@ -36,7 +39,9 @@ module.exports = {
                     if(document.hasFocus())
                         imports.app.on("start",doSetTime);
                     else
-                        $(document).one("focus",doSetTime);
+                        imports.app.on("start",function(){
+                            imports.app.$(document).focus(doSetTime);    
+                        });
                 }
             }
         });
