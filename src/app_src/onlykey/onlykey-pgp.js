@@ -354,7 +354,8 @@ module.exports = function(imports) {
 
 
     onlykey_api_pgp.doPinTimer = async function(seconds) {
-      return new Promise(async function updateTimer(resolve, reject, secondsRemaining) {
+      var updateTimer;
+      return new Promise(updateTimer = async function(resolve, reject, secondsRemaining) {
         secondsRemaining = typeof secondsRemaining === 'number' ? secondsRemaining : seconds || 10;
         var res;
 
@@ -394,8 +395,10 @@ module.exports = function(imports) {
             // console.log("ping results",results);
 
             if (results instanceof Array) {
-              if (_$status_is('finished'));
-              return resolve(results);
+              if (_$status_is('finished')){
+                imports.app.emit("ok-connected");
+                return resolve(results);
+              }
             }
 
           }
