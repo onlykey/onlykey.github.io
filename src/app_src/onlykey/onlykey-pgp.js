@@ -134,15 +134,17 @@ module.exports = function(imports) {
               data = "PENDING";
               _$status('pending_challenge');
             }
-            else {
+            else if(ctaphid_response.status == "CTAP1_SUCCESS"){
+              if(_$status_is('pending_challenge')){
+                _$status('done_challenge')
+              }
+              
               data = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
               // console.log("DECODED RESPONSE:", response);
               console.log("DECODED RESPONSE(as string):", bytes2string(response));
               // console.log("DECRYPTED RESPONSE:", data);
               console.log("DECRYPTED RESPONSE(as string):", bytes2string(data));
-              if(_$status_is('pending_challenge')){
-                _$status('done_challenge')
-              }
+              
             }
 
 
