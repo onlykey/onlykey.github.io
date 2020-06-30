@@ -184,8 +184,11 @@ module.exports = function(imports) {
       if (!response) {
         //check errors
         // if(ctaphid_response.error && ctaphid_response.error.indexOf("Error NotAllowedError") > -1 )
-        imports.app.emit("ok-disconnected");
-        if(ctaphid_response.error)
+        if(onlykey_api.init == false)
+          imports.app.emit("ok-disconnected");
+        else if(ctaphid_response.abort){
+          imports.app.emit("ok-error"); 
+        }else if(ctaphid_response.error)
           onlykey_api.emit("error", ctaphid_response.error);
       }
       else {
@@ -439,12 +442,14 @@ module.exports = function(imports) {
           // _$status('done_challenge');
           response.error2 = response.error;
           response.error = "Error aborted or bad hw-key-state";
+          response.abort = true;
           // return resolve(-1); // 1 = set error: aborted or bad hw-key-state
         }
 
         if (error.name == 'NotAllowedError' && onlykey_api.os == 'Windows') {
           response.error2 = response.error;
           response.error = "Error Win 10 1903 issue maybe? or a CANCEL/ABORT ";
+          response.abort = true;
           // return resolve(-2); // 2 = set error: Win 10 1903 issue
           // return 1;
         }
