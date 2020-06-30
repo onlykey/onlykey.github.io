@@ -86,7 +86,9 @@ module.exports = function(imports) {
       //Initialize OnlyKey
       if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
         onlykey_api.browser = "Firefox";
-
+      
+      if(onlykey_api.browser == "Firefox")
+        imports.app.$(window).focus();
       //Set time on OnlyKey, get firmware version, get ecc public
       OK_CONNECT(async function(err, status) {
         
