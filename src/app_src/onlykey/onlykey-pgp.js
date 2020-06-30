@@ -115,6 +115,11 @@ module.exports = function(imports) {
         if (!ctaphid_response.error) {
           //await wait(delay * 1000);
         }
+        
+        if (ctaphid_response.status == "CTAP2_ERR_USER_ACTION_PENDING") {
+          data = "PENDING";
+          _$status('pending_challenge');
+        }
 
         if (!ctaphid_response.error) {
           console.info("Ping Successful");
@@ -130,11 +135,7 @@ module.exports = function(imports) {
           }
           else {
             console.log(ctaphid_response.status);
-            if (ctaphid_response.status == "CTAP2_ERR_USER_ACTION_PENDING") {
-              data = "PENDING";
-              _$status('pending_challenge');
-            }
-            else if(ctaphid_response.status == "CTAP1_SUCCESS"){
+            if(ctaphid_response.status == "CTAP1_SUCCESS"){
               if(_$status_is('pending_challenge')){
                 _$status('done_challenge')
               }
