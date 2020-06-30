@@ -61,25 +61,24 @@ module.exports = {
                 var params = onlykeyApi.getAllUrlParams();
 
                 page.initParams = params;
-
-                onlykeyApi._status = $("#action")[0].select_one.value;
-
-                if ((onlykeyApi._status) == 'Encrypt and Sign') {
+                
+                page.p2g._$status($("#action")[0].select_one.value);
+                
+                if (page.p2g._$status_is('Encrypt and Sign')) {
                     if (params.sender) document.getElementById('pgpkeyurl2').value = params.sender;
                     // if (params.recipients) document.getElementById('pgpkeyurl').value = params.recipients;
                     if (params.type == 'e') {
                         document.getElementById('encrypt_only').checked = true;
-                        onlykeyApi._status = 'Encrypt Only';
+                        page.p2g._$status('Encrypt Only');
                         document.getElementById('pgpkeyurl2').style.display = "none";
                     }
                     if (params.type == 'es') document.getElementById('encrypt_and_sign').checked = true;
                     if (params.type == 's') {
                         document.getElementById('sign_only').checked = true;
-                        onlykeyApi._status = 'Sign Only';
+                        page.p2g._$status('Sign Only');
                         document.getElementById('pgpkeyurl').style.display = "none";
                     }
                 }
-
 
                 page.p2g.on("status", function(message) {
                     page.button.textContent = message;
@@ -183,7 +182,7 @@ module.exports = {
                 };
 
 
-                onlykeyApi._status = $("#action")[0].select_one.value;
+                page.p2g._$status($("#action")[0].select_one.value);
 
 
                 document.getElementsByTagName('fieldset')[0].style.backgroundColor = app.randomColor({
@@ -198,7 +197,7 @@ module.exports = {
 
                 var pageType = false;
 
-                if (onlykeyApi._status == 'Encrypt Only') {
+                if (page.p2g._$status_is('Encrypt Only')) {
                     document.getElementById('pgpkeyurl2').style.display = "none";
                     document.getElementById('pgpkeyurl').style.display = "initial";
                     try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
@@ -207,7 +206,7 @@ module.exports = {
                     pageType = "e";
                 }
 
-                if (onlykeyApi._status == 'Sign Only') {
+                if (page.p2g._$status_is('Sign Only')) {
                     document.getElementById('pgpkeyurl').style.display = "none";
                     document.getElementById('pgpkeyurl2').style.display = "initial";
                     try { document.getElementById('pgpkeyurl_tokenizer').style.display = "none"; }
@@ -216,7 +215,7 @@ module.exports = {
                     pageType = "s";
                 }
 
-                if (onlykeyApi._status == 'Encrypt and Sign') {
+                if (page.p2g._$status_is('Encrypt and Sign')) {
                     document.getElementById('pgpkeyurl').style.display = "initial";
                     document.getElementById('pgpkeyurl2').style.display = "initial";
                     try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
@@ -237,7 +236,7 @@ module.exports = {
                 //$(window).scrollTo("h1", 1000);
 
                 $("#pgpkeyurl").change(function() {
-                    switch (onlykeyApi._status) {
+                    switch (page.p2g._$status()) {
                         case 'Encrypt and Sign':
                             pageType = "es";
                             break;
@@ -268,7 +267,7 @@ module.exports = {
                         var message = null;
                         var file = null;
                         var reverse_status;
-                        switch (onlykeyApi._status) {
+                        switch (page.p2g._$status()) {
                             case 'Encrypt and Sign':
                                 reverse_status = "dv";
                                 pageType = "es";
@@ -286,15 +285,15 @@ module.exports = {
                         if (pageType)
                             app.pages.state.replace({ pathname: pathname }, $("title").text(), "./" + pathname + "?type=" + pageType + "&recipients=" + page.urlinputbox.value);
 
-                        switch (onlykeyApi._status) {
+                        switch (page.p2g._$status()) {
                             case 'Encrypt and Sign':
                             case 'Sign Only':
 
 
-                                console.log(onlykeyApi._status);
+                                console.log(page.p2g._$status());
                                 if (!onlykeyApi.init) await onlykeyApi.initok();
                                 if (!onlykeyApi.init) return;
-                                console.log(onlykeyApi._status);
+                                console.log(page.p2g._$status());
 
                             case 'Encrypt Only':
                                 if (page.messagebox == null) {

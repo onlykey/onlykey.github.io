@@ -51,10 +51,10 @@ module.exports = {
 
                 var params = onlykeyApi.getAllUrlParams();
 
-                onlykeyApi._status = $("#action")[0].select_one.value;
+                page.p2g._$status($("#action")[0].select_one.value);
 
 
-                if ((onlykeyApi._status) == 'Decrypt and Verify') {
+                if (page.p2g._$status_is('Decrypt and Verify')) {
                     if (params.sender) document.getElementById('pgpkeyurl').value = params.sender;
                     if (params.type == 'dv') document.getElementById('decrypt_and_verify').checked = true;
                     if (params.type == 'd') document.getElementById('decrypt_only').checked = true;
@@ -153,7 +153,7 @@ module.exports = {
                 }
 
 
-                onlykeyApi._status = $("#action")[0].select_one.value;
+                page.p2g._$status($("#action")[0].select_one.value);
 
 
                 document.getElementsByTagName('fieldset')[0].style.backgroundColor = app.randomColor({
@@ -195,7 +195,7 @@ module.exports = {
                 dlGM();
 
                 var pageType = false;
-                if (onlykeyApi._status == 'Decrypt and Verify') {
+                if (page.p2g._$status_is('Decrypt and Verify')) {
                     $("#pgpkeyurl").show();
                     $("#pgpkeyurl2").show();
                     $("#pgpkeyurl_tokenizer").show();
@@ -204,7 +204,7 @@ module.exports = {
                     pageType = "dv";
                 }
 
-                if (onlykeyApi._status == 'Decrypt Only') {
+                if (page.p2g._$status_is('Decrypt Only')) {
                     $("#pgpkeyurl").hide();
                     $("#pgpkeyurl2").show();
                     $("#pgpkeyurl_tokenizer").show();
@@ -227,14 +227,14 @@ module.exports = {
 
                         var message = null;
                         var file = null;
-                        switch (onlykeyApi._status) {
+                        switch (page.p2g._$status()) {
                             case 'Decrypt and Verify':
                             case 'Decrypt Only':
 
-                                console.log(onlykeyApi._status);
+                                console.log(page.p2g._$status());
                                 if (!onlykeyApi.init) await onlykeyApi.initok();
                                 if (!onlykeyApi.init) return;
-                                console.log(onlykeyApi._status);
+                                console.log(page.p2g._$status());
 
                                 if (page.messagebox == null) {
                                     file = document.getElementById('file');

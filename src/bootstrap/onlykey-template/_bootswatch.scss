@@ -1,3 +1,7 @@
+html {
+    overflow: -moz-scrollbars-vertical; 
+    overflow-y: scroll;
+}
 
 .modal-body{
   color: black;

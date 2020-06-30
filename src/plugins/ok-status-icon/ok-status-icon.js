@@ -57,7 +57,7 @@ module.exports = {
                 ri = setInterval(function() {
                     loopSwatch.unshift(loopSwatch.pop());
                     setColor(loopSwatch[0]);
-                }, 100);    
+                }, 250);    
             });
             rainbowRunning = function() {
                 pdone = true;
@@ -84,17 +84,14 @@ module.exports = {
             connection_pos(function(){
                 if(pdone) return;
                 ri = setInterval(function() {
-                if (i >= 1) d = 1;
-                if (i <= 0) d = 0;
-                if (d == 1)
-                    i -= 0.1;
-                else
-                    i += 0.1;
-
-                setColor("rgba(" + c + "," + i + ")");
-
-            }, 100);
-            
+                    if (i >= 1) d = 1;
+                    if (i <= 0) d = 0;
+                    if (d == 1)
+                        i -= 0.1;
+                    else
+                        i += 0.1;
+                    setColor("rgba(" + c + "," + i + ")");
+                }, 50);
             });
             pulseRunning = function() {
                 pdone = true;
@@ -129,22 +126,6 @@ module.exports = {
             }
             un_inserted_animation.inAnimation = true;
         }
-        html_template = imports.$(require("./ok-status.template.html").default);
-        html_template.find("img").on("load", function() {
-            finishRegister();
-            
-            if(!html_template) return;
-            $('[src="ok-plugged4.png"]').attr("src", "ok-plugged5.png");
-            html_template.css("position", "absolute");
-            html_template.css("display", "inline");
-            html_template.css("float", "left");
-            html_template.css("z-index", "-1");
-            html_template.css("top", "185px");
-            html_template.css("margin-left", "-"+insertDist);
-            
-            // connection_pos();
-            setInterval(un_inserted_animation.interval, 500);
-        });
         var un_inserted_animation = {
             length_loop: 12,
             step: -1,
@@ -179,10 +160,63 @@ module.exports = {
             }
 
         };
-        var ch = imports.$("body").find('[src="ok-plugged4.png"]');
-        if(ch[0])
-            ch.parent().prepend(html_template);
-        else html_template = false;
+        
+        
+        var TARGET_TO_REPLACE = '[src="ok-plugged4.png"]';
+        var img_src = "ok-coverd-r-90.png";
+        
+        html_template = imports.$(require("./ok-status.template.html").default);
+        html_template.css("visibility", "hidden");
+        html_template.find("img").on("load", function() {
+            
+            html_template.css("display", "inline");
+            html_template.css("position", "absolute");
+            html_template.css("float", "left");
+            html_template.css("z-index", "-1");
+            html_template.css("top", "193px");
+            
+            var ttr = $(TARGET_TO_REPLACE);
+            
+            ttr.fadeOut(0, function(){
+                ttr.attr("src", "ok-plugged5.png").on("load",function(){
+                    
+                    connection_pos(function(){
+                        
+                        ch.parent().prepend(html_template);//<-- add to DOM
+                        html_template.fadeOut(0);
+                        html_template.css("visibility", "");
+                        ttr.fadeIn(1000);
+                        html_template.fadeIn(1000,function(){
+                            setColor.off(true);
+                            setInterval(un_inserted_animation.interval, 500);    
+                            finishRegister();
+                        });
+                    });
+                    
+                    // setTimeout(function(){
+                        // html_template.fadeOut(0);
+                        // html_template.css("visibility", "");
+                        // html_template.fadeIn(1000,connection_pos);
+                    // },500);
+                    
+                    // setInterval(un_inserted_animation.interval, 500);
+                    //finishRegister();
+                });    
+            });
+            
+            // connection_pos();
+        });
+        
+        var ch = imports.$("body").find(TARGET_TO_REPLACE);
+        if(ch[0]){
+            html_template.find("img").attr("src", img_src);
+        }else{
+          html_template = false;
+          finishRegister();
+        } 
+        
+        
+        
         
         function finishRegister(){
         register(null, {
@@ -190,7 +224,8 @@ module.exports = {
                 setColor: setColor,
                 init: function() {
                     imports.app.on("start", function() {
-                        setColor.off(true);// default state
+                        return;
+                        // setColor.off(true);// default state
                         if(demo){
                             setTimeout(async function() {
                                 setColor.rainbow();

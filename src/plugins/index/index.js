@@ -23,7 +23,7 @@ module.exports = {
                 });
                 
                 app.$("#setTime").click(doSetTime);
-                // app.$("#setTime").click();
+                app.$("#setTime").click();
             }
         };
         
@@ -33,7 +33,7 @@ module.exports = {
             "plugin_index": {
                 pagesList: pagesList,
                 init:function(){
-                    imports.app.on("start",doSetTime);
+                    // imports.app.on("start",doSetTime);
                 }
             }
         });

@@ -10874,6 +10874,11 @@ a.text-dark:hover, a.text-dark:focus {
   }
 }
 
+html {
+  overflow: -moz-scrollbars-vertical;
+  overflow-y: scroll;
+}
+
 .modal-body {
   color: black;
 }

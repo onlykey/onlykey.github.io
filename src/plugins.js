@@ -10,7 +10,7 @@ module.exports = [
   /* the gun plugin contains helpers for gun  */
   require("./app_src/gun.js"),
   
-  /* the onlykey plugin contains the api and other untilities for other plugins */
+  /* the onlykey plugin contains the api and other utilities for other plugins */
   require("./app_src/onlykey/plugin.js"),
   
   /* pages plugin is the heart of the app state */
@@ -43,4 +43,7 @@ if (!!(process.env.NODE_ENV === "production")) {//is production
       you can use `window.console` to force output in production  */
   module.exports.push(require("./plugins/console/console.js"));
   
+}else{//is development
+  //instead of including DEV plugins in production builds, 
+  //put your DEV plugins in `plugins-devel.js` so webpack wont include it in production
 }
