@@ -40,7 +40,8 @@ module.exports = {
                         imports.app.on("start",doSetTime);
                     else
                         imports.app.on("start",function(){
-                            imports.app.$(document).focus(doSetTime);    
+                            if(imports.app.$("#setTime").length == 0)
+                                imports.app.$(document).focus(doSetTime);    
                         });
                 }
             }
