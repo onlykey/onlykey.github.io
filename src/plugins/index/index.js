@@ -33,7 +33,8 @@ module.exports = {
             "plugin_index": {
                 pagesList: pagesList,
                 init:function(){
-                    imports.app.on("start",doSetTime);
+                    if(document.hasFocus())
+                        imports.app.on("start",doSetTime);
                 }
             }
         });
