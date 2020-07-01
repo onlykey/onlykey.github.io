@@ -110,6 +110,7 @@ module.exports = {
                     page.button.textContent = message;
                     page.button.classList.add('error');
                     page.button.classList.remove('working');
+                    if(page.statusEvents) page.statusEvents.emit("completed");
                 });
 
 
@@ -119,6 +120,7 @@ module.exports = {
                 if (!init)
                     return page.init(app, $page, pathname);
 
+                page.statusEvents = page.p2g.reset();
 
                 var $ = app.$;
                 var onlykeyApi = app.onlykeyApi;
@@ -232,10 +234,9 @@ module.exports = {
                         (page.initParams.recipients ? "&recipients=" + page.initParams.recipients : ''));
 
                 $(".messageLink").html("");
-                var statusEvents = page.p2g.reset();
                 //$(window).scrollTo("h1", 1000);
 
-                statusEvents.on("completed", function(data) {
+                page.statusEvents.on("completed", function(data) {
                     $(".messageLink").html("");
                     
                     //add devider
@@ -400,7 +401,7 @@ module.exports = {
                                                 page.messagebox.value = data;
                                             $(page.messagebox).change();
                                             
-                                            statusEvents.emit("completed",data);
+                                            page.statusEvents.emit("completed",data);
 
                                         });
                                         break;
