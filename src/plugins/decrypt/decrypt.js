@@ -37,7 +37,8 @@ module.exports = {
             return arr1.join('');
         }
 
-        var page = {
+        var page = {};
+        var $page = {
             view: require("./decrypt.page.html").default,
             init: function(app, $page, pathname) {
                 init = true;
@@ -307,12 +308,15 @@ module.exports = {
             }
         };
 
-        pagesList["decrypt"] = page;
+        page.init = $page.init;
+        page.setup = $page.setup;
+        
+        pagesList["decrypt"] = $page;
 
         pagesList["decrypt-file"] = {
             view: require("./decrypt-file.page.html").default,
-            init: page.init,
-            setup: page.setup
+            init: $page.init,
+            setup: $page.setup
         };
 
         register(null, {
