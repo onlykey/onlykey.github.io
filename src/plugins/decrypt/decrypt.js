@@ -2,11 +2,11 @@
 
 var pagesList = {
     "decrypt": {
-        sort:15,
+        sort: 15,
         icon: "fa-unlock"
     },
     "decrypt-file": {
-        sort:25,
+        sort: 25,
         icon: "fa-file-text"
     }
 };
@@ -51,10 +51,10 @@ module.exports = {
 
                 var params = onlykeyApi.getAllUrlParams();
 
-                page.p2g._$status($("#action")[0].select_one.value);
+                page.p2g._$mode($("#action")[0].select_one.value);
 
 
-                if (page.p2g._$status_is('Decrypt and Verify')) {
+                if (page.p2g._$mode_is('Decrypt and Verify')) {
                     if (params.sender) document.getElementById('pgpkeyurl').value = params.sender;
                     if (params.type == 'dv') document.getElementById('decrypt_and_verify').checked = true;
                     if (params.type == 'd') document.getElementById('decrypt_only').checked = true;
@@ -153,7 +153,7 @@ module.exports = {
                 }
 
 
-                page.p2g._$status($("#action")[0].select_one.value);
+                page.p2g._$mode($("#action")[0].select_one.value);
 
 
                 document.getElementsByTagName('fieldset')[0].style.backgroundColor = app.randomColor({
@@ -195,28 +195,53 @@ module.exports = {
                 dlGM();
 
                 var pageType = false;
-                if (page.p2g._$status_is('Decrypt and Verify')) {
-                    $("#pgpkeyurl").show();
-                    $("#pgpkeyurl2").show();
-                    $("#pgpkeyurl_tokenizer").show();
-                    $("#message").show();
-                    page.button.textContent = 'Decrypt and Verify';
-                    pageType = "dv";
+
+                switch (page.p2g._$mode()) {
+                    case 'Decrypt and Verify':
+                        $("#pgpkeyurl").show();
+                        $("#pgpkeyurl2").show();
+                        $("#pgpkeyurl_tokenizer").show();
+                        $("#message").show();
+                        page.button.textContent = 'Decrypt and Verify';
+                        pageType = "dv";
+                        break;
+                    case 'Decrypt Only':
+                        $("#pgpkeyurl").hide();
+                        $("#pgpkeyurl2").show();
+                        $("#pgpkeyurl_tokenizer").show();
+                        $("#message").show();
+                        pageType = "d";
+                        page.button.textContent = 'Decrypt';
+                        break;
                 }
 
-                if (page.p2g._$status_is('Decrypt Only')) {
-                    $("#pgpkeyurl").hide();
-                    $("#pgpkeyurl2").show();
-                    $("#pgpkeyurl_tokenizer").show();
-                    $("#message").show();
-                    pageType = "d";
-                    page.button.textContent = 'Decrypt';
-                }
 
                 if (pageType)
                     app.pages.state.replace({ pathname: pathname }, $("title").text(), "./" + pathname + "?type=" + pageType);
 
+
+                 $(".messageLink").html("");
+                var statusEvents = page.p2g.reset();
                 //$(window).scrollTo("h1", 1000);
+
+                statusEvents.on("completed", function(data) {
+                    $(".messageLink").html("");
+                    
+                    //add devider
+                    var cp = $(`<hr/>`);
+                    $(".messageLink").append(cp);
+                    
+                    //add reset
+                    var rb = $(`<button type="submit" id="resetstate">Reset</button>`);
+                    rb.click(function() {
+                        page.setup(app, $page, pathname);
+                    });
+                    $(".messageLink").append(rb);
+
+                    $(".messageLink").show();
+
+                });
+
 
                 if (!$("#action").data("changeSet")) {
                     $("#action").data("changeSet", true);
@@ -227,26 +252,8 @@ module.exports = {
 
                         var message = null;
                         var file = null;
+
                         switch (page.p2g._$status()) {
-                            case 'Decrypt and Verify':
-                            case 'Decrypt Only':
-
-                                console.log(page.p2g._$status());
-                                if (!onlykeyApi.init) await onlykeyApi.initok();
-                                if (!onlykeyApi.init) return;
-                                console.log(page.p2g._$status());
-
-                                if (page.messagebox == null) {
-                                    file = document.getElementById('file');
-                                }
-                                else {
-                                    message = page.messagebox.value;
-                                }
-                                page.p2g.startDecryption(page.urlinputbox.value, message, file, function(data) {
-                                    if (page.messagebox && data)
-                                        page.messagebox.value = data;
-                                });
-                                break;
                             case 'pending_pin':
                                 break;
                             case 'finished':
@@ -268,12 +275,35 @@ module.exports = {
                                 else {
                                     // send file to user
                                 }
+                                statusEvents.emit("completed");
                                 break;
+                            default:
+                                switch (page.p2g._$mode()) {
+                                    case 'Decrypt and Verify':
+                                    case 'Decrypt Only':
+                                        
+                                        console.log(page.p2g._$mode());
+                                        if (!onlykeyApi.init) await onlykeyApi.initok();
+                                        if (!onlykeyApi.init) return;
+                                        console.log(page.p2g._$mode());
+
+                                        if (page.messagebox == null) {
+                                            file = document.getElementById('file');
+                                        }
+                                        else {
+                                            message = page.messagebox.value;
+                                        }
+                                        page.p2g.startDecryption(page.urlinputbox.value, message, file, function(data) {
+                                            if (page.messagebox && data)
+                                                page.messagebox.value = data;
+                                                
+                                            statusEvents.emit("completed");
+                                        });
+                                        break;
+                                }
                         }
                     }, false);
-
                 }
-
             }
         };
 

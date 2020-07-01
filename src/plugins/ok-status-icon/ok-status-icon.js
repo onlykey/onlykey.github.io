@@ -239,6 +239,22 @@ module.exports = {
                                 setColor.off(true);//disconnected and led off
                             }, 10000);
                         }else{
+                            
+                            /*
+                                LED Definitions
+                                Steady green light = Unlocked
+                                No light = Locked
+                                Single yellow flash = Button pressed for PIN entry
+                                3 red flashes = Wrong PIN
+                                Continuous red flashes = Exceeded PIN tries
+                                Continuous green flashes = Backup and restore is complete.
+                                Blue fade in and fade out = FIDO U2F request
+                                Blue blink on/off = FIDO2 request
+                                Purple fade in and fade out - Private key signing request (SSH or PGP)
+                                Turquoise fade in and fade out - Private key decryption request
+                                Red fade in and fade out - Device is in config mode
+                                Steady white light - Device is in bootloader mode, use the OnlyKey app to load firmware.
+                            */
                             imports.app.on("ok-disconnected", function(){
                                 setColor.off(true);
                             });
