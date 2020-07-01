@@ -37,8 +37,9 @@ module.exports = {
             }
             return arr1.join('');
         }
-
-        var page = {
+        
+        var page = {};
+        var $page = {
             view: require("./encrypt.page.html").default,
             init: function(app, $page, pathname) {
                 init = true;
@@ -419,13 +420,16 @@ module.exports = {
                 console.log("disposed", pathname);
             }
         };
-
-        pagesList["encrypt"] = page;
+        
+        page.init = $page.init;
+        page.setup = $page.setup;
+        
+        pagesList["encrypt"] = $page;
 
         pagesList["encrypt-file"] = {
             view: require("./encrypt-file.page.html").default,
-            init: page.init,
-            setup: page.setup
+            init: $page.init,
+            setup: $page.setup
         };
 
 
