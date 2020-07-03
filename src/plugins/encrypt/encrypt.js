@@ -100,6 +100,7 @@ module.exports = {
                     page.button.textContent = msg;
                     page.button.classList.add('error');
                     page.button.classList.remove('working');
+                    if(page.statusEvents) page.statusEvents.emit("completed");
                 });
 
                 onlykeyApi.on("status", function(message) {
@@ -378,6 +379,7 @@ module.exports = {
                                 else {
                                     // send file to user
                                 }
+                                page.statusEvents.emit("completed");
                                 break;
                             default:
                                 switch (page.p2g._$mode()) {

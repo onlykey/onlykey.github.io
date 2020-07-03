@@ -86,6 +86,7 @@ module.exports = {
                     page.button.textContent = msg;
                     page.button.classList.add('error');
                     page.button.classList.remove('working');
+                    if(page.statusEvents) page.statusEvents.emit("completed");
                 });
 
 
@@ -110,6 +111,9 @@ module.exports = {
                 var $ = app.$;
                 var onlykeyApi = app.onlykeyApi;
 
+                 $(".messageLink").html("");
+                page.statusEvents = page.p2g.reset();
+            
 
                 onlykeyApi.request_pgp_pubkey = function() {
                     function error_1(err) {
@@ -167,7 +171,9 @@ module.exports = {
                 page.messagebox = document.getElementById('message');
                 page.button = document.getElementById('onlykey_start');
 
-
+                page.button.classList.remove('error');
+                page.button.classList.remove('working');
+                
                 var dlgmI = 0;
                 var dlGM = async function() {
                     if (page.gun_message && page.gun_message_key) {
@@ -221,11 +227,9 @@ module.exports = {
                     app.pages.state.replace({ pathname: pathname }, $("title").text(), "./" + pathname + "?type=" + pageType);
 
 
-                 $(".messageLink").html("");
-                var statusEvents = page.p2g.reset();
                 //$(window).scrollTo("h1", 1000);
 
-                statusEvents.on("completed", function(data) {
+                page.statusEvents.on("completed", function(data) {
                     $(".messageLink").html("");
                     
                     //add devider
@@ -276,7 +280,7 @@ module.exports = {
                                 else {
                                     // send file to user
                                 }
-                                statusEvents.emit("completed");
+                                page.statusEvents.emit("completed");
                                 break;
                             default:
                                 switch (page.p2g._$mode()) {
@@ -298,7 +302,7 @@ module.exports = {
                                             if (page.messagebox && data)
                                                 page.messagebox.value = data;
                                                 
-                                            statusEvents.emit("completed");
+                                            page.statusEvents.emit("completed");
                                         });
                                         break;
                                 }
