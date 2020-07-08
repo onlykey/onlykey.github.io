@@ -117,8 +117,8 @@ module.exports = {
             },
             onlykey3rd : onlykey3rd,
             kbpgp:  imports.kbpgp(false,imports.console),
-            forge: imports.nacl,
-            nacl: imports.forge,
+            forge: imports.forge,
+            nacl: imports.nacl,
             pgpDecoder:imports.pgpDecoder
         });
 
