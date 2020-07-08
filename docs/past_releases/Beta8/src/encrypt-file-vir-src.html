@@ -1,0 +1,287 @@
+<html>
+
+<head>
+    <title>OnlyKey Apps - Encrypt & sign files using Keybase PGP and Virtru</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <!-- CSSNormalize, CSSGrids-Responsive, CSSForm, CSSTable, CSSList (v3.9.1) -->
+    <link rel="stylesheet" href="css/gallerycss-csstable-min.css">
+    <link rel="stylesheet" href="css/gallerycss-csslist-min.css">
+    <link rel="stylesheet" href="css/gallerycss-cssform-min.css">
+    <link rel="stylesheet" href="css/cssnormalize-min.css">
+    <link rel="stylesheet" href="css/cssgrids-responsive-min.css">
+    <link rel="stylesheet" href="css/cssbutton-min.css">
+    <!-- Some custom styles to make things pretty. -->
+    <link rel="stylesheet" type="text/css" href="css/ui.css">
+    <!-- pgp2go styles -->
+    <link href="css/ShareTechMono.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="https://sdk.virtru.com/js/latest/auth-widget/index.css" rel="stylesheet"/>
+    <script src="https://sdk.virtru.com/js/latest/auth-widget/index.js"></script>
+    <script src="https://sdk.virtru.com/js/latest/virtru-sdk.min.js"></script>
+    <!-- Modify header colors here to customize the look and feel of the site-->
+    <style>
+        .header {
+            background: white;
+        }
+
+        .header h1 {
+            color: rgb(97, 97, 97);
+        }
+
+        .header h2 {
+            font-weight: 300;
+            margin: 0;
+            color: rgb(137, 137, 137);
+        }
+    </style>
+</head>
+
+<body class="yui3-skin-sam">
+    <div id="headerMenu" class="yui3-menu yui3-menu-open yui3-menu-horizontal yui3-menu-fixed">
+      <span class="yui3-menu-heading">Apps</span>
+      <ul>
+          <li>
+              <a href="https://apps.crp.to/decrypt">
+                  <i class="fa fa-unlock" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://apps.crp.to/encrypt">
+                  <i class="fa fa-lock" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://apps.crp.to/decrypt-file">
+                  <i class="fa fa-file-text" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li class="yui3-menu-active">
+              <a href="https://apps.crp.to/encrypt-file">
+                  <i class="fa fa-file-archive-o" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://apps.crp.to/search">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+              </a>
+          </li>
+        </ul>
+     <span class="yui3-menu-heading">Links</span>
+      <ul>
+          <li>
+              <a href="https://apps.crp.to">
+                  <i class="fa fa-home" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://docs.crp.to/webcrypt.html">
+                  <i class="fa fa-question" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://docs.crp.to/">
+                  <i class="fa fa-book" aria-hidden="true"></i>
+              </a>
+          </li>
+          <li>
+              <a href="https://onlykey.io">
+                  <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+              </a>
+          </li>
+      </ul>
+  </div>
+  <div class="header yui3-u-1">
+        <p>
+            <img src="ok-plugged4.png" alt="logo" align="middle">
+        </p>
+        <h1>
+        <i class="fa fa-file-text fa-2x" aria-hidden="true"></i> <i class="fa fa-long-arrow-right fa-2x" aria-hidden="true"></i> <i class="fa fa-lock fa-2x" aria-hidden="true"></i>
+        </h1>
+        <code data-language="javascript">
+            <div id="header_messages"></div>
+        </code>
+    </div>
+    <h4><font size="+2">Securely encrypt and sign files using
+      <a href="https://onlykey.io" target="_blank">OnlyKey</a>, <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a>, and <a href="https://keybase.io/kbpgp" target="_blank">Virtru</a></font></h4>
+
+    <div id="container">
+        <fieldset>
+            <textarea placeholder="Your Keybase username..." rows="1" id="pgpkeyurl2"></textarea>
+            <textarea placeholder="Recipient's Keybase username..." rows="1" id="pgpkeyurl"></textarea>
+            <textarea placeholder="Enter a name to use for your encrypted files (optional)..." rows="1" id="filename"></textarea>
+            <div id="block">
+              <fieldset>
+                <div>
+                  For best results total size of files should not exceed 70MB<br>
+                </div>
+                <div style="white-space: nowrap;">
+                  Set an expiration date/time &nbsp;<i class="fa fa-hourglass-end" aria-hidden="true"></i><br>
+                  <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                  <input type="checkbox" name="select_controls" id="expire" align="left" style="-webkit-align-content: left; align-content: left; text-align:left; padding: 10px 0px 0px 0px;">
+                  <br>
+                </div>
+                  <div id="virtru-auth-widget-mount" align="left" style="overflow: hidden; text-overflow: ellipsis; text-align:left; display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; -webkit-align-content: left; align-content: left;">
+                    <label for="virtru-auth-widget-mount" id="virtru-auth-widget-mount_label">Step 1. Confirm your email below to enable expiration:</label>
+                  </div>
+                <div>
+                  <label for="expire_seconds" id="expire_seconds_label">Step 2. Enter number of hours before file/message expires:</label>
+                  <input type="number" name="select_controls" id="expire_seconds" value=0 size=6 style="padding: 10px 0px 0px 0px;">
+                </div>
+                <div>
+                  <p id="file_label" style="padding: 10px 0px 0px 0px;"></p>
+                  <input type="file" id="file" name="file" multiple /><br />
+                  <p id="filedetails"></p>
+                  <p id="virtrudetails"></p>
+                </div>
+              </fieldset>
+            </div>
+            <textarea placeholder="Step 4. Recipient's email address (required)..." rows="1" id="recipient-virtru"></textarea>
+            <button type="submit" id="onlykey_start" value="Encrypt and Sign">Encrypt and Sign</button>
+        </fieldset>
+        <center>
+            <form name="action">
+                <input type="radio" name="select_one" id="encrypt_and_sign" value="Encrypt and Sign" checked="checked"> Encrypt and Sign
+                <input type="radio" name="select_one" id="encrypt_only" value="Encrypt Only"> Encrypt Only
+                <input type="radio" name="select_one" id="sign_only" value="Sign Only"> Sign Only </form>
+        </center>
+    </div>
+    <div class="content">
+        <h3>Console Messages from OnlyKey Appear Below</h3>
+        <pre>
+            <code data-language="javascript">
+                <font color="008700">
+                    <div id="messages"></div>
+                </font>
+            </code>
+        </pre>
+    </div>
+<script>
+
+
+  let client;
+  // Start with these hidden until the user selects to expire messages
+  document.getElementById('expire_seconds').style.display = "none";
+  document.getElementById('expire_seconds_label').style.display = "none";
+  document.getElementById('recipient-virtru').style.display = "none";
+  document.getElementById('virtru-auth-widget-mount').style.display = "none";
+  document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
+  document.getElementById('file_label').innerHTML = '  Choose the file(s) to encrypt';
+  expire = document.getElementById('expire');
+
+  expire.addEventListener('change', e => {
+    console.info(document.getElementById('expire_seconds').value);
+    if (document.getElementById('expire').checked == true) {
+      document.getElementById('expire_seconds').style.display = "initial";
+      document.getElementById('expire_seconds_label').style.display = "initial";
+      document.getElementById('recipient-virtru').style.display = "initial";
+      document.getElementById('virtru-auth-widget-mount').style.display = "initial";
+      document.getElementById('virtru-auth-widget-mount_label').style.display = "initial";
+      document.getElementById('file_label').innerHTML = '  Step 3. Choose the file(s) to encrypt';
+    } else {
+      document.getElementById('expire_seconds').value = 0;
+      document.getElementById('expire_seconds').style.display = "none";
+      document.getElementById('expire_seconds_label').style.display = "none";
+      document.getElementById('recipient-virtru').style.display = "none";
+      document.getElementById('virtru-auth-widget-mount').style.display = "none";
+      document.getElementById('virtru-auth-widget-mount_label').style.display = "none";
+      document.getElementById('file_label').innerHTML = '  Choose the file(s) to encrypt';
+    }
+  });
+
+  // Run all client code from here.
+  // This will only be called when the user is successfully authenticated.
+  async function afterAuth(email) {
+
+    //TODO Enable Options fields after auth for user to set encrypted file expiration date etc.
+    console.info('Virtru email ' + email);
+    client = new Virtru.Client({email});
+    console.info('Virtru client ' + client);
+  }
+
+  // Encrypt or decrypt the file by using the support functions
+  async function encryptOrDecryptFile(filedata, thisfilename, shouldEncrypt, completion) {
+    if (shouldEncrypt) {
+      const encrypted = await encrypt(filedata, thisfilename);
+      await encrypted.toFile(thisfilename + '.tdf');
+    } else {
+      const decrypted = await decrypt(filedata);
+      const finalfilename = buildDecryptFilename(thisfilename).trim();
+      await decrypted.toFile(finalFilename);
+    }
+
+    if (completion) {
+      //completion();
+    }
+  }
+
+  // Handle filename parsing with parens involved
+  function buildDecryptFilename(filename) {
+    console.info('buildDecryptFilename');
+    console.info(filename);
+    const ext = filename.substr(-4);
+    let finalFilename = filename;
+
+    if (ext === '.tdf') {
+      finalFilename = finalFilename.replace(ext, '');
+    }
+
+    finalFilename = finalFilename.replace(/\([^.]*\)$/, '');
+
+    return finalFilename;
+  }
+
+  // Decrypt the file by creating an object url (for now) and return the stream content
+  async function decrypt(fileData) {
+    console.info('decrypt');
+    console.info(fileData);
+    const decryptParams = new Virtru.DecryptParamsBuilder()
+      .withArrayBufferSource(fileData)
+      .build();
+
+    const decrypted = await client.decrypt(decryptParams);
+    return decrypted;
+  }
+
+  // Encrypt the filedata and return the stream content and filename
+  async function encrypt(fileData, filename) {
+    console.info('encrypt');
+    console.info(filename);
+    console.info(fileData);
+
+    var recipients = document.getElementById('recipient-virtru').value;
+
+    if (document.getElementById('expire').checked == true) {
+      const policy = new Virtru.PolicyBuilder()
+        .enableExpirationDeadlineFromNow((document.getElementById('expire_seconds').value)*3600)
+        .build();
+      const encryptParams = new Virtru.EncryptParamsBuilder()
+        .withArrayBufferSource(fileData)
+        .withPolicy(policy)
+        .withUsersWithAccess([recipients])
+        .withDisplayFilename(filename)
+        //.withZipFormat() // Generate TDF in zip format
+        .build();
+      const enc = await client.encrypt(encryptParams);
+      console.info(encryptParams);
+      return enc;
+    } else {
+      const encryptParams = new Virtru.EncryptParamsBuilder()
+        .withArrayBufferSource(fileData)
+        //.withPolicy(policy)
+        .withUsersWithAccess([recipients])
+        .withDisplayFilename(filename)
+        //.withZipFormat() // Generate TDF in zip format
+        .build();
+      const enc = await client.encrypt(encryptParams);
+      console.info(encryptParams);
+      return enc;
+    }
+  }
+
+  // Set up the auth widget.
+  Virtru.AuthWidget('virtru-auth-widget-mount', {afterAuth});
+
+</script>
+</body>
+</html>
