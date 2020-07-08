@@ -11,7 +11,7 @@ module.exports = [
   require("./app_src/gun.js"),
   
   /* the onlykey plugin contains the api and other utilities for other plugins */
-  require("./app_src/onlykey/plugin.js"),
+  require("./onlykey-fido2/plugin.js"),
   
   /* pages plugin is the heart of the app state */
   require("./app_src/pages/pages.js"),

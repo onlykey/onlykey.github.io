@@ -23,11 +23,11 @@ module.exports = {
                 init = true;
 
                 // var onlykeyApi = app.onlykeyApi;
-                var onlykeyPGP = app.onlykeyPGP;
+                var onlykeyPGP = app.onlykeyApi.pgp;
                 page.p2g = onlykeyPGP();
 
                 var onlykeyApi = app.onlykeyApi;
-                var params = onlykeyApi.getAllUrlParams();
+                var params = app.pages.getAllUrlParams();
 
 
                 //if (params.q.slice(0, 10) == "-----BEGIN") {
@@ -143,7 +143,7 @@ module.exports = {
                             if ($user && !($user.indexOf("0x") == 0) && !$user.split("@")[1])
                                 $user += "@protonmail.com";
 
-                            var response_text = await app.onlykeyApi.getKey($user, "protonmail");
+                            var response_text = await app.onlykeyApi.api.getKey($user, "protonmail");
                             console.log(response_text);
 
 
@@ -250,7 +250,7 @@ module.exports = {
                                                             $pgp_copybox.hide();
                                                             $getpgp_btn.click(async function() {
                                                                 var url = 'https://keybase.io/' + listItem.username + '/pgp_keys.asc';
-                                                                var response_text = await app.onlykeyApi.getKey(url);
+                                                                var response_text = await app.onlykeyApi.api.getKey(url);
                                                                 $pgp_copybox.val(response_text);
                                                                 $pgp_copybox.show();
                                                                 $pgp_copybox.focus();

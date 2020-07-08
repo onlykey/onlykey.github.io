@@ -21,7 +21,7 @@ module.exports = {
         History.pushState(data, title, url);
       },
       replace: function(data, title, url) {
-        if(url.indexOf("index") > -1) url = url.replace("index","");
+        if (url.indexOf("index") > -1) url = url.replace("index", "");
         History.replaceState(data, title, url);
       }
     };
@@ -58,12 +58,12 @@ module.exports = {
           else
             return true;
         }
-        
-        
+
+
         return true;
         //else if (urlPath.indexOf("#") > -1) {
-          //urlPath = "/"+urlPath.substring(urlPath.indexOf("#")+1);
-          //_self.pushState(urlPath, title, urlPath);
+        //urlPath = "/"+urlPath.substring(urlPath.indexOf("#")+1);
+        //_self.pushState(urlPath, title, urlPath);
         //}
 
       });
@@ -83,12 +83,12 @@ module.exports = {
     var lastRender = false;
 
     function renderPage(pageName, init) {
-      
-      if (pageName == "index"){
-        if(pages[pageName].init) pages[pageName].init(imports.app, false, pageName);
+
+      if (pageName == "index") {
+        if (pages[pageName].init) pages[pageName].init(imports.app, false, pageName);
         return true;
-      } 
-        
+      }
+
       if (lastRender && typeof pages[lastRender].dispose == "function")
         pages[lastRender].dispose(imports.app, lastRender);
 
@@ -106,12 +106,12 @@ module.exports = {
 
       else if (pages[pageName].setup)
         pages[pageName].setup(imports.app, $p, pageName);
-      
-      
+
+
       $("title").text(start_title + " - " + capitalizeFLetter(pageName));
-      
+
       pages.emit("render", pageName, $p);
-      
+
       return $p;
     }
 
@@ -147,7 +147,7 @@ module.exports = {
           });
         }
       });
-      
+
       for (var k in app) {
         if (k == "pages") continue;
         if (app[k] && app[k].pagesList) {
@@ -160,10 +160,73 @@ module.exports = {
           }
         }
       }
-        
+
       renderPage(init_page_id, true);
 
     };
+
+    //todo: move getAllUrlParams to pages plugin
+    pages.getAllUrlParams = function getAllUrlParams(url) {
+      // get query string from url (optional) or window
+      var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
+      // we'll store the parameters here
+      var obj = {
+        "#": window.location.hash.split('#')[1] // add the hash
+      };
+      // if query string exists
+      if (queryString) {
+        // stuff after # is not part of query string, so get rid of it
+        queryString = queryString.split('#')[0];
+        // split our query string into its component parts
+        var arr = queryString.split('&');
+        for (var i = 0; i < arr.length; i++) {
+          // separate the keys and the values
+          var a = arr[i].split('=');
+          // set parameter name and value (use 'true' if empty)
+          var paramName = a[0];
+          var paramValue = typeof(a[1]) === 'undefined' ? true : a[1];
+
+          // (optional) keep case consistent
+          //paramName = paramName.toLowerCase();
+          //if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
+
+          // if the paramName ends with square brackets, e.g. colors[] or colors[2]
+          if (paramName.match(/\[(\d+)?\]$/)) {
+            // create key if it doesn't exist
+            var key = paramName.replace(/\[(\d+)?\]/, '');
+            if (!obj[key]) obj[key] = [];
+            // if it's an indexed array e.g. colors[2]
+            if (paramName.match(/\[\d+\]$/)) {
+              // get the index value and add the entry at the appropriate position
+              var index = /\[(\d+)\]/.exec(paramName)[1];
+              obj[key][index] = paramValue;
+            }
+            else {
+              // otherwise add the value to the end of the array
+              obj[key].push(paramValue);
+            }
+          }
+          else {
+            // we're dealing with a string
+            if (!obj[paramName]) {
+              // if it doesn't exist, create property
+              obj[paramName] = paramValue;
+            }
+            else if (obj[paramName] && typeof obj[paramName] === 'string') {
+              // if property does exist and it's a string, convert it to an array
+              obj[paramName] = [obj[paramName]];
+              obj[paramName].push(paramValue);
+            }
+            else {
+              // otherwise add the property
+              obj[paramName].push(paramValue);
+            }
+          }
+        }
+      }
+      return obj;
+    }
+
 
     register(null, {
       pages: pages

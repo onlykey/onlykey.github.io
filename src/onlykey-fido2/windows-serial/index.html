@@ -1,0 +1,110 @@
+<!doctype html>
+  <html>
+    <head>
+		<script src="./jquery.js"></script>
+		<link rel="stylesheet" href="node_modules/xterm/css/xterm.css" />
+		<script src="node_modules/xterm/lib/xterm.js"></script>
+		<style>
+		.terminal.xterm{
+			height:100%;
+		}
+		</style>
+	</head>
+	<body>
+		<div id="terminal" style="position:fixed;top:0;bottom:0;left:0;right:0;display: block;width: 100%;height: 100%;"></div>
+		<script>
+		</script>
+
+		<script>
+			/* global $ Terminal */
+			var FitAddon = require("xterm-addon-fit").FitAddon;			
+			var term = new Terminal();
+			const fitAddon = new FitAddon();
+			term.loadAddon(fitAddon);
+			term.open(document.getElementById('terminal'));
+			
+			fitAddon.fit();
+			$(window).resize(function(){
+				fitAddon.fit();
+			});
+			
+			var headers = [
+				"OnlyKey Windows Development Serial Console v0.0.3\r\n"
+			];
+			
+			function header(){
+				for(var i in headers){
+					term.write(headers[i]);
+				}
+			}
+			
+			/*
+			headers.push('Clear: Ctrl + X\r\n');
+			$(window).keyup(function(e){
+				if(e.ctrlKey && e.key.toLowerCase() == "x"){
+					term.clear();
+					header();
+				}
+			})
+			*/
+			
+			function clear(){
+				term.clear();
+				header();
+			}
+			
+			clear();
+			
+			var cp;
+			term.onData(send => {
+				if(send.charCodeAt(0) == 24){ //ctrl+x
+					term.clear();
+					header();
+					return;
+				}
+				term.write(send);
+				cp.stdin.write(send,"utf8",console.log);
+				
+			});
+			
+			$(function(){
+				var script_dir = global.__dirname;
+				console.log(script_dir+"node_modules");
+				
+				cp = spawn("node", "./serial.js");
+				
+				
+				cp.stdout.on('data', (data) => {
+					data = data.toString('utf8');
+					data = data.replace(/\r\n/g, '\r');
+					data = data.replace(/\r/g, '\r\n');
+					term.write(data);
+				});
+
+				cp.stderr.on('data', (data) => {
+				  console.error(data.toString());
+				});
+
+				cp.on('exit', (code) => {
+				  console.log(`Child exited with code ${code}`);
+				});
+
+				function spawn(){
+					var args = [];
+					for (var i = 0; i < arguments.length; i++) {
+						args.push(arguments[i]);
+					}
+					var e = args.shift();
+					const { spawn } = require('child_process');
+					var env = {
+						cwd: script_dir,
+						NODE_PATH: script_dir+"node_modules\\"
+					};
+					const $cp = spawn(e, args,env);
+					return $cp;
+				}
+			})
+		</script>
+		<div id="output"></div>
+	</body>
+</html>

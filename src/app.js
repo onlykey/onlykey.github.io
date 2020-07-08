@@ -35,14 +35,14 @@ module.exports = function(additional_plugins) {
       });
     }
   }, {
-    provides: ["app", "release", "randomColor"],
+    provides: ["app", "release", "randomColor", "window"],
     consumes: ["hub"],
     setup: function(options, imports, register) {
       register(null, {
         app: new EventEmitter(),
         release: require("./release.js"),
-
-        randomColor: randomColor
+        randomColor: randomColor,
+        window: window
       });
     }
   }];

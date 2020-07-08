@@ -1,0 +1,10 @@
+package-lock.json
+node_modules/
+
+windows-serial/nw-node/*
+*.zip
+
+windows-serial/build/
+
+# debug core dump
+test-api/core

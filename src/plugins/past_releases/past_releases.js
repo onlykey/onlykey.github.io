@@ -93,7 +93,7 @@ module.exports = {
 
                         }
 
-                        var vRequest = onlykeyApi.getAllUrlParams().version;
+                        var vRequest = app.pages.getAllUrlParams().version;
                         if (vRequest && data[vRequest]) {
                             setTimeout(() => {
 

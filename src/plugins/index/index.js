@@ -14,7 +14,7 @@ module.exports = {
         function doSetTime() {
             if(fired) return;
             fired = true;
-            imports.onlykeyApi.initok();
+            imports.onlykeyApi.api.connect();
         }
         
         var page = {

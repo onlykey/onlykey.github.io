@@ -45,12 +45,12 @@ module.exports = {
 
                 var $ = app.$;
                 var onlykeyApi = app.onlykeyApi;
-                var onlykeyPGP = app.onlykeyPGP;
+                var onlykeyPGP = app.onlykeyApi.pgp;
 
                 page.gun = app.newGun();
                 page.p2g = onlykeyPGP();
 
-                var params = onlykeyApi.getAllUrlParams();
+                var params = app.pages.getAllUrlParams();
 
                 page.p2g._$mode($("#action")[0].select_one.value);
 
@@ -90,11 +90,11 @@ module.exports = {
                 });
 
 
-                onlykeyApi.on("status", function(message) {
+                onlykeyApi.api.on("status", function(message) {
                     page.button.textContent = message;
                 });
 
-                onlykeyApi.on("error", function(message) {
+                onlykeyApi.api.on("error", function(message) {
                     console.log("okapi-error", message);
                     page.button.textContent = message;
                     page.button.classList.add('error');
@@ -115,7 +115,7 @@ module.exports = {
                 page.statusEvents = page.p2g.reset();
             
 
-                onlykeyApi.request_pgp_pubkey = function() {
+                onlykeyApi.api.request_pgp_pubkey = function() {
                     function error_1(err) {
                         page.button.textContent = err;
                     }
@@ -129,7 +129,7 @@ module.exports = {
                             resolve({ value: false, on_error: error_1 });
                         }
                         else {
-                            pubkey = await onlykeyApi.getKey(pubkey);
+                            pubkey = await onlykeyApi.api.getKey(pubkey);
                             resolve({
                                 value: pubkey,
                                 on_error: error_2
@@ -288,8 +288,8 @@ module.exports = {
                                     case 'Decrypt Only':
                                         
                                         console.log(page.p2g._$mode());
-                                        if (!onlykeyApi.init) await onlykeyApi.initok();
-                                        if (!onlykeyApi.init) return;
+                                        if (!onlykeyApi.api.init) await onlykeyApi.api.connect();
+                                        if (!onlykeyApi.api.init) return;
                                         console.log(page.p2g._$mode());
 
                                         if (page.messagebox == null) {
@@ -298,7 +298,7 @@ module.exports = {
                                         else {
                                             message = page.messagebox.value;
                                         }
-                                        page.p2g.startDecryption(page.urlinputbox.value, message, file, function(data) {
+                                        page.p2g.startDecryption(page.urlinputbox.value, message, file, function(err,data) {
                                             if (page.messagebox && data)
                                                 page.messagebox.value = data;
                                                 
