@@ -237,18 +237,39 @@ module.exports = function(imports) {
             delay = 4;
           }
           await wait(delay * 1000);
+            
+            function sendPacket(){
+              return onlykeyApi.ctaphid_via_webauthn(cmd, opt1, opt2, opt3, msg, 6000, function(aerr, data) {
+                // console.log(data);
+              });
+            }
+            
+            var ctaphid_response = await sendPacket();
 
-          var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, opt1, opt2, opt3, msg, 6000, function(aerr, data) {
-            // console.log(data);
-          });
+         console.warn("u2fSignBuffer ctaphid_response status", ctaphid_response.status)
+
+          if (finalPacket){
+              if(ctaphid_response.status == "CTAP1_SUCCESS"){
+                    await wait(2 * 1000);
+                    await onlykeyApi.check();
+                    await wait(1000);
+                    console.warn("we should have got CTAP2_ERR_USER_ACTION_PENDING here on final packet, try again");
+                    ctaphid_response = await sendPacket();
+                    console.warn("u2fSignBuffer ctaphid_response#2 status", ctaphid_response.status)
+              }
+          }
+          if (finalPacket){
+              packetnum = 0;
+          }
+
+
 
           var response = 1;
-
 
           if (ctaphid_response.data && !ctaphid_response.error)
             response = ctaphid_response.data;
 
-          if (finalPacket) packetnum = 0;
+            
 
           // .then(async response => {
           //decrypt data

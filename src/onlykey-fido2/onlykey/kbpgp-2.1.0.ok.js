@@ -13779,6 +13779,8 @@ _continue()
           for (i = 0; i <= onlykey.custom_keyid.length; i++) {
               this.key_id[i] = onlykey.custom_keyid[i];
           }
+        }else{
+        	console.error("no onlykey.custom_keyid")
         }
       }
       bufs.push(this.key_id);
@@ -14842,18 +14844,20 @@ _continue()
       })(this)((function(_this) {
         return function() {
           if(onlykey){
-            console.info("uhsp" + uhsp.toString('hex'));
+            //console.info("uhsp" + uhsp.toString('hex'));
             if (onlykey.custom_keyid) {
-              console.info("window.custom_keyid" + onlykey.custom_keyid.toString('hex'));
+              console.info("onlykey.custom_keyid " + onlykey.custom_keyid.toString('hex'));
               for (i = 0; i <= onlykey.custom_keyid.length; i++) {
                   uhsp[i+2] = onlykey.custom_keyid[i];
               }
-              console.info("custom uhsp" + uhsp.toString('hex'));
+              //console.info("custom uhsp" + uhsp.toString('hex'));
+            }else{
+            	console.error("No onlykey.custom_keyid !")
             }
             result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, Buffer.from([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
             results = Buffer.concat([prefix, result2]);
-			console.info("results " + results.toString('hex'));
-			console.info("result2 " + results.toString('hex'));
+			//console.info("results " + results.toString('hex'));
+			//console.info("result2 " + results.toString('hex'));
             return cb(null, results);
           }else{
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, Buffer.from([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
@@ -16844,9 +16848,9 @@ _continue()
             enc = true;
             if(onlykey){
               console.info("Key ID", key_ids[0]);
-              console.info(esk_packets);
+              //console.info(esk_packets);
               packet = esk_packets;//[0];
-              console.info(packet);
+              //console.info(packet);
               err = null;
               onlykey.auth_decrypt(packet, (ok_sesskey,packetSelect) => {
               	sesskey = packetSelect.slice(0, ok_sesskey.length);

@@ -1,24 +1,33 @@
 module.exports = function(imports) {
     return new Promise(async function(resolve, reject) {
-        
+
         var cooldown_between_calls = 10;
-        
+
         var p2g = imports.onlykeyApi.pgp();
 
-        p2g.on("error", console.log.bind({}, "PGP ERROR:") )
-        p2g.on("status", console.log.bind({}, "PGP STATUS:") )
-        p2g.on("working", console.log.bind({}, "PGP WORKING:") )
-        p2g.on("done", console.log.bind({}, "PGP DONE:") )
+        p2g.on("error", console.log.bind({}, "PGP ERROR:"))
+        p2g.on("status", function(msg){
+            
+            if(msg.indexOf("You have 8 seconds to enter challenge code") > -1)
+                particle_send_click();
+                
+            console.log("PGP STATUS:",msg)
+            
+        }
+        
+        )
+        p2g.on("working", console.log.bind({}, "PGP WORKING:"))
+        p2g.on("done", console.log.bind({}, "PGP DONE:"))
 
         var testMessage = "The quick brown fox jumps over the lazy dog" + (new Date().getTime());
 
 
         var rsaKeySet = require("../test_pgp/keys/rsakey.js");
         var ecdhKeySet = require("../test_pgp/keys/ecdhkey.js");
-        
-        var eccKeySet =   require("../test_pgp/keys/ecckey.js");
 
-        var onlykeyPubKey = (`-----BEGIN PGP PUBLIC KEY BLOCK-----
+        var eccKeySet = require("../test_pgp/keys/ecckey.js");
+
+        var pro_key = (`-----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: https://keybase.io/download
 Version: Keybase Go 5.1.1 (linux)
 
@@ -71,7 +80,10 @@ ABSNZIEwvsPwVcdA4cixfsSYlavVWFjpwJ/mY9s+vxjAiphTqSS79WBvuH1qi5Gr
 KdC7XnwBKVcoo3k1qdTej/nQY2iOZNzjkmC/
 =jUa0
 -----END PGP PUBLIC KEY BLOCK-----`);
-
+        
+        var onlykeyPubKey = rsaKeySet.PubKey;
+        // var onlykeyPubKey = pro_key;
+        
         p2g._$mode("Encrypt and Sign");
         p2g.startEncryption(onlykeyPubKey, onlykeyPubKey, testMessage, false /*file*/ , async function(err, pgp_armored_message) {
             if (!err && !pgp_armored_message)
@@ -79,7 +91,7 @@ KdC7XnwBKVcoo3k1qdTej/nQY2iOZNzjkmC/
             else if (err)
                 return reject("TEST:ONLYKEYPGP startEncryption:err: " + err);
             else
-                console.log("ONLYKEYPGP  startEncryption : PASS\r\n", testMessage, pgp_armored_message);
+                console.log("ONLYKEYPGP  startEncryption : PASS\r\n", testMessage, "\r\n", pgp_armored_message);
 
 
             cooldownLOOP(async function() {
@@ -94,7 +106,7 @@ KdC7XnwBKVcoo3k1qdTej/nQY2iOZNzjkmC/
                             return reject("TEST:ONLYKEYPGP " + err);
                         else
                         if (pgp_decrypted_message == testMessage)
-                            console.log("ONLYKEY PGP startDecryption : PASS");
+                            console.log("ONLYKEY PGP startDecryption : PASS\r\n",pgp_decrypted_message);
                         else return reject("ONLYKEY PGP startDecryption : FAIL");
                         resolve();
                     });
@@ -118,5 +130,15 @@ KdC7XnwBKVcoo3k1qdTej/nQY2iOZNzjkmC/
             clearInterval(intver);
             fn();
         }, 1000);
+    }
+
+    function particle_send_click() {
+        const { spawn } = require('child_process');
+        const sh = spawn('sh', [__dirname+'/particle_send.sh']);
+
+
+        sh.on('close', (code) => {
+            console.log("AUTOMATED CLICK");
+        });
     }
 };

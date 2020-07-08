@@ -15,7 +15,7 @@ module.exports = {
                         // imports.test_list.add(/*new Promise()*/);
                         return;
                     }else{
-                        console.log("Skipping ONLYKEY test (device not found)");
+                        console.warn("Skipping ONLYKEY test (device not found)");
                     }
 
                     function findHID(hid_interface) {
