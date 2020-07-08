@@ -277,7 +277,7 @@ module.exports = {
                     }
 
 
-                    $(window).scrollTo("#results", 800);
+                    //$(window).scrollTo("#results", 800);
                 }
 
             }
