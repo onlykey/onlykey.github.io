@@ -171,7 +171,7 @@ module.exports = function(imports) {
 
       // await wait(delay * 1000);
       await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle,30000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
@@ -223,25 +223,26 @@ module.exports = function(imports) {
 
 
 
-  onlykey_api.check = async function(callback) {
+  onlykey_api.check = function(callback) {
     return new Promise(async function(resolve) {
-      if (onlykey_api.init) {
-        if (callback && typeof callback == "function")
-          callback();
-        resolve();
-      }
+      // if (onlykey_api.init) {
+      //   if (typeof callback === 'function') 
+      //     callback();
+      //     resolve();
+      // }
 
       (function() {
         //Set time on OnlyKey, get firmware version, get ecc public
         OK_CHECK(async function(err, status) {
           if (err)
-            callback(err);
-          else callback(null, status);
-
-
+            if (typeof callback === 'function') 
+              callback(err);
+          else if (typeof callback === 'function') 
+            callback(null, status);
+            
+            resolve();
         });
       })();
-
     });
   };;
 
@@ -303,6 +304,7 @@ module.exports = function(imports) {
           onlykey_api.emit("error", ctaphid_response.error);
       }
       else {
+        console.log("CHECK STATUS",ctaphid_response.status);
         switch (ctaphid_response.status) {
           case "CTAP2_ERR_EXTENSION_NOT_SUPPORTED":
             break;
@@ -319,7 +321,7 @@ module.exports = function(imports) {
             // var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
             // console.info("AES Key", key);
 
-            imports.app.emit("ok-connected");
+            imports.app.emit("ok-connected", onlykey_api.FWversion);
             //cb(null);
             break;
         }
@@ -565,6 +567,7 @@ module.exports = function(imports) {
 
       var results = false;
       //console.log("REQUEST:", request_options);
+      wait(100);
       window.navigator.credentials.get({
         publicKey: request_options
       }).catch(error => {

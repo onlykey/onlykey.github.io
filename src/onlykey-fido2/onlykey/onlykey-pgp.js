@@ -34,6 +34,7 @@ module.exports = function(imports) {
     var EventEmitter = require("events").EventEmitter;
     var onlykey_api_pgp = new EventEmitter();
 
+    onlykey_api_pgp.check = onlykeyApi.check.bind();
 
     const OKDECRYPT = 240;
     const OKSIGN = 237;
@@ -166,93 +167,126 @@ module.exports = function(imports) {
 
       });
     }
+
+    function _buildPacketArray(cipherText) { 
+      var maxPacketSize = 228; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
+      var _cipherText = []
+      Array.prototype.push.apply(_cipherText, cipherText);
+      var packets = [];
+      while (_cipherText.length) {
+        var packetSet = [];
+        while(maxPacketSize > packetSet.length && _cipherText.length != 0){
+          packetSet.push(_cipherText.shift());
+        }
+        // var ctChunk;
+        // packet_count++;
+        // if (_cipherText.length < maxPacketSize) {
+        //   ctChunk = _cipherText;
+        // }
+        // else {
+        //   ctChunk = _cipherText.slice(0, maxPacketSize);
+        // }
+
+        packets.push(packetSet);
+
+      }
+      return packets;
+    }
     /**
      * Break cipherText into chunks and send via u2f sign
      * @param {Array} cipherText
      */
     var packetnum = 0;
-    async function u2fSignBuffer(cipherText, mainCallback, onError, KB_ONLYKEY) {
-      // this function should recursively call itself until all bytes are sent in chunks
-      var message = []; //Add header and message type
-      var maxPacketSize = 228; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
-      var finalPacket = cipherText.length - maxPacketSize <= 0;
-      var ctChunk;
-      packetnum++;
-      if (cipherText.length < maxPacketSize) {
-        ctChunk = cipherText;
-      }
-      else {
-        ctChunk = cipherText.slice(0, maxPacketSize);
-      }
+    function u2fSignBuffer(cipherText, mainCallback, onError, KB_ONLYKEY) {
+      return new Promise(function(resolve) {
+        var packetArray = _buildPacketArray(cipherText);
+        var packets_count = packetArray.length;
+        async function bufferLoop() {
+          // this function should recursively call itself until all bytes are sent in chunks
+          var message = packetArray.shift(); //Add header and message type
+          // var maxPacketSize = 228; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
+          var finalPacket = packetArray.length == 0;
+          // var ctChunk;
+          packetnum++;
+          console.log("Prepared message", packetnum,"of",packets_count);
+          // if (cipherText.length < maxPacketSize) {
+          //   ctChunk = cipherText;
+          // }
+          // else {
+          //   ctChunk = cipherText.slice(0, maxPacketSize);
+          // }
 
-      Array.prototype.push.apply(message, ctChunk);
+          //Array.prototype.push.apply(message, ctChunk);
 
-      //while (message.length < 228) message.push(0);
-      // console.info("Handlekey bytes ", message);
-      var encryptedmsg = await aesgcm_encrypt(message, onlykeyApi.sharedsec);
+          //while (message.length < 228) message.push(0);
+          // console.info("Handlekey bytes ", message);
+          var encryptedmsg = await aesgcm_encrypt(message, onlykeyApi.sharedsec);
 
-      var cmd = _$mode_is('Encrypt and Sign') ? OKSIGN : OKDECRYPT;
-      var opt1 = _$mode_is('Encrypt and Sign') ? (KB_ONLYKEY.is_ecc ? 102 : 2) : (KB_ONLYKEY.is_ecc ? 101 : 1);
-      //ecc load to slots 101 and 102 on Onlykey
-      var opt2 = finalPacket;
-      var opt3 = packetnum;
-      var msg = encryptedmsg;
+          var cmd = _$mode_is('Encrypt and Sign') ? OKSIGN : OKDECRYPT;
+          var opt1 = _$mode_is('Encrypt and Sign') ? (KB_ONLYKEY.is_ecc ? 102 : 2) : (KB_ONLYKEY.is_ecc ? 101 : 1);
+          //ecc load to slots 101 and 102 on Onlykey
+          var opt2 = finalPacket;
+          var opt3 = packetnum;
+          var msg = encryptedmsg;
 
-      if (OKSIGN == cmd) imports.app.emit("ok-signing");
-      if (OKDECRYPT == cmd) imports.app.emit("ok-decrypting");
+          if (OKSIGN == cmd) imports.app.emit("ok-signing");
+          if (OKDECRYPT == cmd) imports.app.emit("ok-decrypting");
 
-      var delay = 1;
-      if (onlykeyApi.OKversion == 'Original') {
-        delay = 4;
-      }
-      await wait(delay * 1000);
+          var delay = 1;
+          if (onlykeyApi.OKversion == 'Original') {
+            delay = 4;
+          }
+          await wait(delay * 1000);
 
-      var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, opt1, opt2, opt3, msg, 6000, function(aerr, data) {
-        // console.log(data);
+          var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, opt1, opt2, opt3, msg, 6000, function(aerr, data) {
+            // console.log(data);
+          });
+
+          var response = 1;
+
+
+          if (ctaphid_response.data && !ctaphid_response.error)
+            response = ctaphid_response.data;
+
+          if (finalPacket) packetnum = 0;
+
+          // .then(async response => {
+          //decrypt data
+          if (response != 1) {
+            // var decryptedparsedData = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
+            // console.log("DECODED RESPONSE:", response);
+            // console.log("DECODED RESPONSE(as string):", bytes2string(response));
+            // console.log("DECRYPTED RESPONSE:", decryptedparsedData);
+            // console.log("DECRYPTED RESPONSE(as string):", bytes2string(decryptedparsedData));
+          }
+          else if (ctaphid_response.error) {
+            return onError(ctaphid_response.error);
+          }
+          // console.log("Returning just the decoded response:");
+          var result = response;
+          // msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
+          if (result) {
+            if (finalPacket) {
+              // console.info("Final packet ");
+              _$status('pending_challenge');
+              doPinTimer(onError).then(skey => {
+                // console.info("skey ", skey);
+                mainCallback(skey);
+              }).catch(err => onError(err));
+            }
+            else {
+              imports.app.emit("ok-activity");
+              //cb();
+              bufferLoop();
+              // u2fSignBuffer(cipherText.slice(maxPacketSize), mainCallback, onError, KB_ONLYKEY);
+            }
+          }
+          else {
+            imports.app.emit("ok-error");
+          }
+        }
+        bufferLoop()
       });
-
-      var response = 1;
-
-
-      if (ctaphid_response.data && !ctaphid_response.error)
-        response = ctaphid_response.data;
-
-      if (finalPacket) packetnum = 0;
-
-      // .then(async response => {
-      //decrypt data
-      if (response != 1) {
-        // var decryptedparsedData = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
-        // console.log("DECODED RESPONSE:", response);
-        // console.log("DECODED RESPONSE(as string):", bytes2string(response));
-        // console.log("DECRYPTED RESPONSE:", decryptedparsedData);
-        // console.log("DECRYPTED RESPONSE(as string):", bytes2string(decryptedparsedData));
-      }
-      else if (ctaphid_response.error) {
-        return onError(ctaphid_response.error);
-      }
-      // console.log("Returning just the decoded response:");
-      var result = response;
-      // msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
-      if (result) {
-        if (finalPacket) {
-          // console.info("Final packet ");
-          _$status('pending_challenge');
-          doPinTimer(onError).then(skey => {
-            // console.info("skey ", skey);
-            mainCallback(skey);
-          }).catch(err => onError(err));
-        }
-        else {
-          imports.app.emit("ok-activity");
-          //cb();
-          u2fSignBuffer(cipherText.slice(maxPacketSize), mainCallback, onError, KB_ONLYKEY);
-        }
-      }
-      else {
-        imports.app.emit("ok-error");
-      }
-      // });
     }
 
 
@@ -270,7 +304,7 @@ module.exports = function(imports) {
             _$status('done_challenge');
           }
           if (secondsRemaining > 1) {
-            onlykeyApi.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
+            onlykey_api_pgp.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
             // console.info("enter challenge code", pin);
           }
 
@@ -284,7 +318,8 @@ module.exports = function(imports) {
         }
         else if (_$status_is('done_challenge') /* || _$status_is('waiting_ping')*/ ) {
           // _$status('done_challenge');
-          onlykeyApi.emit("status", `Waiting for OnlyKey to process message.`);
+          
+          onlykey_api_pgp.emit("status", `Waiting for OnlyKey to process message.`);
           res = ping(); //Delay
         }
 
@@ -357,8 +392,11 @@ module.exports = function(imports) {
       }
       return _status;
     }
-    //this script should only be allow set this remove soon 
-    onlykey_api_pgp._$status = _$status.bind(null, false);
+    //this script should only be allow set this
+    onlykey_api_pgp._$status = function() {
+      _$status(false);
+      console.warn("External Script Tried to Set _$status")
+    };
 
     function _$status_is(status_check) {
       return !!(_$status() == status_check);
@@ -390,12 +428,12 @@ module.exports = function(imports) {
       return statusEvents;
     };
 
-    onlykey_api_pgp.startDecryption = async function(signer, message, file, callback) {
+    onlykey_api_pgp.startDecryption = async function(signer, my_public_key, message, file, callback) {
       var sender_public_key;
 
       onlykey_api_pgp.poll_type = 3;
       onlykey_api_pgp.poll_delay = 1;
-      console.info("Setting poll_type",onlykey_api_pgp.poll_type);
+      console.info("Setting poll_type", onlykey_api_pgp.poll_type);
       // button.classList.remove('error');
       // button.classList.add('working');
       onlykey_api_pgp.emit("working");
@@ -415,8 +453,8 @@ module.exports = function(imports) {
       var done = function(msg) { callback(null, msg) };
       try {
         if (message != null)
-          await decryptText(sender_public_key, message, done);
-        else await decryptFile(sender_public_key, file, done);
+          await decryptText(sender_public_key, my_public_key, message, done);
+        else await decryptFile(sender_public_key, my_public_key, file, done);
       }
       catch (e) {
         onlykey_api_pgp.emit("error", e);
@@ -424,13 +462,13 @@ module.exports = function(imports) {
       }
     };
 
-    function decryptText(key, encryptedMessage, callback) {
+    function decryptText(key1, key2, encryptedMessage, callback) {
       return new Promise(async(resolve, reject) => {
 
         var keyStore = pgpkeyStore(reject);
         switch (_$mode()) {
           case 'Decrypt and Verify':
-            await keyStore.loadPublic(key);
+            await keyStore.loadPublic(key1);
             onlykey_api_pgp.emit("status", "Decrypting and verifying message ...");
             break;
           case 'Decrypt Only':
@@ -439,7 +477,7 @@ module.exports = function(imports) {
             break;
           default:
         }
-        await keyStore.loadPrivate(encryptedMessage);
+        await keyStore.loadPrivate(key2);
         keyStore.kbpgp.unbox({
           keyfetch: keyStore.ring,
           armored: encryptedMessage,
@@ -484,8 +522,10 @@ module.exports = function(imports) {
       });
     }
 
-    function decryptFile(key, ct, callback) {
+    function decryptFile(key1, key2, ct, callback) {
       return new Promise(async(resolve, reject) => {
+
+
         var txt = "";
         if ('files' in ct) {
           var file = ct.files[0];
@@ -534,11 +574,11 @@ module.exports = function(imports) {
           onlykey_api_pgp.emit("working");
         }
 
-        var buffer = keyStore.kbpgp.Buffer.from(parsedfile);
         var keyStore = pgpkeyStore(reject);
+        var buffer = keyStore.kbpgp.Buffer.from(parsedfile);
         switch (_$mode()) {
           case 'Decrypt and Verify':
-            await keyStore.loadPublic(key);
+            await keyStore.loadPublic(key1);
             onlykey_api_pgp.emit("status", "Decrypting and verifying...");
             break;
           case 'Decrypt Only':
@@ -547,7 +587,7 @@ module.exports = function(imports) {
             break;
           default:
         }
-        await keyStore.loadPrivate();
+        await keyStore.loadPrivate(key2);
         keyStore.kbpgp.unbox({
           keyfetch: keyStore.ring,
           raw: buffer,
@@ -597,7 +637,7 @@ module.exports = function(imports) {
     onlykey_api_pgp.startEncryption = async function(to_pgpkeys, from_signer, message, file, callback) {
       onlykey_api_pgp.emit("working");
       onlykey_api_pgp.poll_type = 4;
-      console.info("Setting poll_type",onlykey_api_pgp.poll_type);
+      console.info("Setting poll_type", onlykey_api_pgp.poll_type);
       var r_inputs, keys;
 
       var sender_public_key, recipient_public_key;
@@ -647,14 +687,16 @@ module.exports = function(imports) {
         recipient_public_key = from_signer;
       }
       var done = function(msg) { callback(null, msg) };
-      try {
-        if (message != null) await encryptText(sender_public_key, recipient_public_key, message, done);
-        else await encryptFile(sender_public_key, recipient_public_key, file, done);
-      }
-      catch (e) {
-        onlykey_api_pgp.emit("error", e);
-        callback(e);
-      }
+      var error = function(msg) {
+        callback(msg);
+        //return onlykey_api_pgp.emit("error", msg); 
+      };
+
+      if (message != null) encryptText(sender_public_key, recipient_public_key, message, done).catch(error);
+      else encryptFile(sender_public_key, recipient_public_key, file, done).catch(error);
+
+
+
     };
 
     async function encryptText(key1, key2, msg, callback) {
@@ -1059,9 +1101,9 @@ module.exports = function(imports) {
                 onlykey_api_pgp.poll_delay = 8; //Assuming RSA 4096 or 3072
                 subkey = 0;
               }
-              KB_ONLYKEY.custom_keyid = keyids[subkey].toString('hex').toUpperCase();
+              KB_ONLYKEY.custom_keyid = sigingKeyID.toString('hex').toUpperCase();
               KB_ONLYKEY.custom_keyid = KB_ONLYKEY.custom_keyid.match(/.{2}/g).map(hexStrToDec);
-              //console.info("KB_ONLYKEY.custom_keyid " + KB_ONLYKEY.custom_keyid);
+              console.info("KB_ONLYKEY.custom_keyid " + KB_ONLYKEY.custom_keyid);
               resolve(KB_ONLYKEY.custom_keyid);
             }
           });
@@ -1138,7 +1180,7 @@ ZGj4SiROlLxcLdOiMyXhicMFAQDk7cqja8Ms2ouu8HIKoBAjJU2BxQLyJaAP
 A560SEQNAA==
 =JBAp
 -----END PGP PRIVATE KEY BLOCK-----`;
-    }
+    };
     onlykey_api_pgp.test_pgp_key_rsa = function test_pgp_key_rsa() {
       //this is public public key for the private key block that is returned
       //displayed for diagnostics purposes

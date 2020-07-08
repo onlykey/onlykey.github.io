@@ -13,14 +13,18 @@ module.exports = {
         var fired = false;
         function doSetTime() {
             if(fired) return;
+            setTimeout(function(){
+                
             fired = true;
             imports.onlykeyApi.api.connect();
+            
+            },2000);
         }
         
         var page = {
             view: false,
             init: function(app) {
-                app.on("ok-connected",function(){
+                app.on("ok-connected",function(version){
                     app.$("#setTime").after("<h2 class='text-danger'>OnlyKey Time Set<br/> OTP/2FA Authentication Ready</h2>");
                     app.$("#setTime").remove();
                 });

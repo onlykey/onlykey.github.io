@@ -298,7 +298,7 @@ module.exports = {
                                         else {
                                             message = page.messagebox.value;
                                         }
-                                        page.p2g.startDecryption(page.urlinputbox.value, message, file, function(err,data) {
+                                        page.p2g.startDecryption(page.urlinputbox.value, page.urlinputbox.urlinputbox2, message, file, function(err,data) {
                                             if (page.messagebox && data)
                                                 page.messagebox.value = data;
                                                 
