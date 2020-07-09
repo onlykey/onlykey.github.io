@@ -45,6 +45,7 @@ fi
 
 #copy assets
 cp -a ./src/assets/* ./build/app/.
+cp -a ./src/assets/*.ico ./build/.
 cp -a ./src/release.js ./build/.
 
 #cleanup possible bad folders

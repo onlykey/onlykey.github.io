@@ -2,14 +2,35 @@ var express = require("express");
 var app = express();
 var http = require('http');
 var https = require('https');
-var server = http.createServer(app);
 
-var dirname = __dirname + "/docs";
 
 const fs = require('fs')
 
+var server;
+if(!process.env.PORT){
+  process.env.PORT = 3000;
+  
+  var cert; 
+  try{
+    server = https.createServer({
+      key: fs.readFileSync('_._server.key'),
+      cert: fs.readFileSync('_._server.cert')
+    }, app);
+  }catch(e){}
+  if(!cert)
+    console.log("need to run this command in terminal in project dir", __dirname);
+    console.log("' $ openssl req -nodes -new -x509 -keyout _._server.key -out _._server.cert '");
+    process.exit(1);
+}else{
+  server = http.createServer(app);
+}
+
+
+var dirname = __dirname + "/docs";
+
+
 app.use((req, res, next) => {
-  var u = req.url.split("?")[0]
+  var u = req.url.split("?")[0];
   var q = req.url.split("?")[1];
   switch (u) {
     case "/":
