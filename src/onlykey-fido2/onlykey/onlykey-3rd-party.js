@@ -387,7 +387,7 @@ function onlykey(keytype, enc_resp) {
             var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
             
             imports.app.emit("ok-connecting");
-            await ctaphid_via_webauthn(OKCONNECT, null, null, null, encryptedkeyHandle, 6000).then(async(response) => {
+            await ctaphid_via_webauthn(OKCONNECT, null, null, null, encryptedkeyHandle, 30000).then(async(response) => {
         
                 if (!response || response == 1) {
                     htmlLog("Problem setting time on onlykey");

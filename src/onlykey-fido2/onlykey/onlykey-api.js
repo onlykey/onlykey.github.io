@@ -60,14 +60,38 @@ module.exports = function(imports) {
   // var browserid = 0; //Default Chrome
   // var counter = 0;
   // var encrypted_data;
-
+  
+  const COMMANDS = {
+    "OKCONNECT": 228,
+    "OKPING": 243,
+    // "OKGETRESPONSE": 242,
+    // "OKGETPUBKEY": 236,
+    "OKDECRYPT": 240,
+    "OKSIGN": 237
+  }
+  
+  
+  function getCMD(nameOrNumber){
+    if(typeof nameOrNumber == "string"){
+      if(COMMANDS[nameOrNumber]) 
+        return COMMANDS[nameOrNumber];
+    }else{
+      for(var i in COMMANDS)  {
+        if(nameOrNumber == COMMANDS[i])
+        return i;
+      }
+    }
+    return false;
+  }
+  onlykey_api.getCMD = getCMD;
+  
   // const OKDECRYPT = 240;
   // const OKSIGN = 237;
-  const OKCONNECT = 228;
+  const OKCONNECT = getCMD('OKCONNECT');//228;
   // const OKGETPUBKEY = 236;
   // const OKGETRESPONSE = 242;
   // const OKPING = 243;
-
+  
   //const button = element_by_id('onlykey_start');
 
   /**
@@ -171,7 +195,7 @@ module.exports = function(imports) {
 
       // await wait(delay * 1000);
       await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle,30000, function(maybe_a_err, data) {
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 30000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
@@ -281,7 +305,7 @@ module.exports = function(imports) {
 
       // await wait(delay * 1000);
       await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 30000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
@@ -360,11 +384,11 @@ module.exports = function(imports) {
   // which can then be decoded
 
   function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
-    // console.log('REQUEST CMD', cmd);
-    // console.log('REQUEST OPT1', opt1);
-    // console.log('REQUEST OPT2', opt2);
-    // console.log('REQUEST OPT3', opt3);
-    // console.log('REQUEST DATA', data);
+    console.log('REQUEST CMD', getCMD(cmd));
+    console.log('REQUEST OPT1', opt1);
+    console.log('REQUEST OPT2', opt2);
+    console.log('REQUEST OPT3', opt3);
+    console.log('REQUEST DATA', data);
     //var addr = 0;
 
     // should we check that `data` is either null or an Uint8Array?
@@ -378,6 +402,7 @@ module.exports = function(imports) {
 
     // `is_extension_request` expects at least 16 bytes of data
     const data_pad = data.length < 16 ? 16 - data.length : 0;
+    // const data_pad = 255-data.length-offset;
     var array = new Uint8Array(offset + data.length + data_pad);
 
     array[0] = cmd & 0xff;
@@ -395,7 +420,7 @@ module.exports = function(imports) {
 
     array.set(data, offset);
 
-    // console.log('FORMATTED REQUEST:', array);
+    console.log('FORMATTED REQUEST:', array);
     return array;
   }
 
@@ -413,7 +438,7 @@ module.exports = function(imports) {
     // attestation.response.signature
     // signature data (bytes 5-end of U2F response
 
-    // console.log('UNFORMATTED RESPONSE:', response);
+    console.log('UNFORMATTED RESPONSE:', response);
 
     if (onlykey_api.os == "Node") {
       var signature_count = (
@@ -457,6 +482,8 @@ module.exports = function(imports) {
           // _$status('finished');
           //throw new Error(bytes2string(msgtext));
           error = bytes2string(msgtext);
+          console.warn("decode_ctaphid_response_from_signature",error);
+          break;
         }
         break;
         // case "CTAP2_ERR_NO_OPERATION_PENDING":
@@ -468,6 +495,7 @@ module.exports = function(imports) {
         // case "CTAP2_ERR_OPERATION_PENDING":
         //   break;
       default:
+        console.log(bytes2string(data));
         console.warn("ctap_error_code", ctap_error_codes[status_code]);
         break;
     }
@@ -566,7 +594,7 @@ module.exports = function(imports) {
       // return 
 
       var results = false;
-      //console.log("REQUEST:", request_options);
+//       console.log("REQUEST:", request_options);
       wait(100);
       window.navigator.credentials.get({
         publicKey: request_options
@@ -605,10 +633,10 @@ module.exports = function(imports) {
           response = results;
         }
         else {
-          // console.log("GOT ASSERTION", assertion);
-          // console.log("RESPONSE", assertion.response);
+          console.log("GOT ASSERTION", assertion);
+          console.log("RESPONSE", assertion.response);
           response = decode_ctaphid_response_from_signature(assertion.response);
-          //console.log("RESPONSE:", response);
+          console.log("RESPONSE:", response);
         }
         if (cb) cb(response.error, response);
         resolve(response);
