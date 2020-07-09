@@ -195,7 +195,7 @@ module.exports = function(imports) {
 
       // await wait(delay * 1000);
       await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 30000, function(maybe_a_err, data) {
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle,30000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
@@ -305,7 +305,7 @@ module.exports = function(imports) {
 
       // await wait(delay * 1000);
       await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 30000, function(maybe_a_err, data) {
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 

@@ -325,6 +325,7 @@ module.exports = function(imports) {
 
           if (secondsRemaining <= 1) {
             imports.app.emit("ok-waiting");
+            await wait(8000)
             _$status('done_challenge');
           }
           if (secondsRemaining > 1) {
@@ -434,6 +435,7 @@ module.exports = function(imports) {
       var clean = caller_line.slice(index+2, caller_line.length);
       return clean;
     }
+    
     function _$status_is(status_check) {
       return !!(_$status() == status_check);
     }
