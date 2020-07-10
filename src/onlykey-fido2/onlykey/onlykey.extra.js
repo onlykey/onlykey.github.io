@@ -227,20 +227,20 @@ module.exports = function(imports) {
     return new Promise(resolve => {
       forge.options.usePureJavaScript = true;
       var key = $exports.sha256(shared_sec); //AES256 key sha256 hash of shared secret
-      console.log("Key", key);
-      var iv = $exports.IntToByteArray(counter);
+      //console.log("Key", key);
+      var iv = $exports.IntToByteArray(++counter);
       while (iv.length < 12) iv.push(0);
       iv = Uint8Array.from(iv);
-      console.log("IV", iv);
+      //console.log("IV", iv);
       var decipher = forge.cipher.createDecipher('AES-GCM', key);
       decipher.start({
         iv: iv,
         tagLength: 0, // optional, defaults to 128 bits
       });
-      console.log("Encrypted", encrypted);
+      //console.log("Encrypted", encrypted);
       var buffer = forge.util.createBuffer(Uint8Array.from(encrypted));
-      console.log("Encrypted length", buffer.length());
-      console.log(buffer);
+      //console.log("Encrypted length", buffer.length());
+      //console.log(buffer);
       decipher.update(buffer);
       decipher.finish();
       var plaintext = decipher.output.toHex();
@@ -260,18 +260,18 @@ module.exports = function(imports) {
     return new Promise(resolve => {
       forge.options.usePureJavaScript = true;
       var key = $exports.sha256(shared_sec); //AES256 key sha256 hash of shared secret
-      console.log("Key", key);
-      var iv = $exports.IntToByteArray(counter);
+      //console.log("Key", key);
+      var iv = $exports.IntToByteArray(++counter);
       while (iv.length < 12) iv.push(0);
       iv = Uint8Array.from(iv);
-      console.log("IV", iv);
+      //console.log("IV", iv);
       //Counter used as IV, unique for each message
       var cipher = forge.cipher.createCipher('AES-GCM', key);
       cipher.start({
         iv: iv, // should be a 12-byte binary-encoded string or byte buffer
         tagLength: 0
       });
-      console.log("Plaintext", plaintext);
+      //console.log("Plaintext", plaintext);
       cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
       cipher.finish();
       var ciphertext = cipher.output;

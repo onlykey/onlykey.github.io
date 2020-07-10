@@ -30,7 +30,7 @@ module.exports = function(imports) {
     getOS,
     ctap_error_codes,
     getAllUrlParams,
-    // aesgcm_decrypt,
+    aesgcm_decrypt,
     // aesgcm_encrypt
   } = require("./onlykey.extra.js")(imports);
   onlykey_api.getAllUrlParams = getAllUrlParams; //<-- todo: move to pages plugin
@@ -541,12 +541,18 @@ module.exports = function(imports) {
       // Waiting for user to press button or enter challenge
       console.log('CTAP2_ERR_OPERATION_PENDING');
     }
-*/
+*/    
+    var decryptedData;
+    
+    try{
+      decryptedData = aesgcm_decrypt(data, onlykey_api.sharedsec).catch(() => void(0));
+    }catch(e){}
+    
     console.log("FORMATED RESPONSE", {
       count: signature_count,
       status: ctap_error_codes[status_code],
       data: data,
-      data_decrypted:aesgcm_decrypt(data, onlykey_api.sharedsec),
+      data_decrypted:decryptedData,
       error: error,
       signature: signature,
     })
@@ -555,7 +561,7 @@ module.exports = function(imports) {
       count: signature_count,
       status: ctap_error_codes[status_code],
       data: data,
-      data_decrypted:aesgcm_decrypt(data, onlykey_api.sharedsec),
+      data_decrypted:decryptedData,
       error: error,
       signature: signature,
     };
@@ -563,7 +569,7 @@ module.exports = function(imports) {
 
   function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout, cb) {
     
-    console.log("ctaphid_via_webauthn",cmd, opt1, opt2, opt3, data, timeout);
+    console.log("ctaphid_via_webauthn", getCMD(cmd), opt1, opt2, opt3, data, timeout);
     // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
     // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
     //

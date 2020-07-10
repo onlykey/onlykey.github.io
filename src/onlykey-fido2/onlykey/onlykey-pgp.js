@@ -245,16 +245,16 @@ module.exports = function(imports) {
 
          console.warn("u2fSignBuffer ctaphid_response status", ctaphid_response.status)
 
-          if (finalPacket){
-              if(ctaphid_response.status == "CTAP1_SUCCESS"){
-                    await wait(2 * 1000);
-                    await onlykeyApi.check();
-                    await wait(1000);
-                    console.warn("we should have got CTAP2_ERR_USER_ACTION_PENDING here on final packet, try again");
-                    ctaphid_response = await sendPacket();
-                    console.warn("u2fSignBuffer ctaphid_response#2 status", ctaphid_response.status)
-              }
-          }
+          // if (finalPacket){
+          //     if(ctaphid_response.status == "CTAP1_SUCCESS"){
+          //           await wait(2 * 1000);
+          //           await onlykeyApi.check();
+          //           await wait(1000);
+          //           console.warn("we should have got CTAP2_ERR_USER_ACTION_PENDING here on final packet, try again");
+          //           ctaphid_response = await sendPacket();
+          //           console.warn("u2fSignBuffer ctaphid_response#2 status", ctaphid_response.status)
+          //     }
+          // }
           if (finalPacket){
           }
 
@@ -317,9 +317,9 @@ module.exports = function(imports) {
         if (_$status_is('pending_challenge')) {
 
           if (secondsRemaining <= 1) {
-            await wait(4000);
             imports.app.emit("ok-waiting");
             _$status('done_challenge');
+            // await wait(1000);
           }
           if (secondsRemaining > 1) {
             onlykey_api_pgp.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
