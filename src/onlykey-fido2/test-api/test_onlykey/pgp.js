@@ -1,7 +1,7 @@
 module.exports = function(imports) {
     return new Promise(async function(resolve, reject) {
 
-        var cooldown_between_calls = 25;
+        var cooldown_between_calls = 10;
 
         var p2g = imports.onlykeyApi.pgp();
 
@@ -88,8 +88,8 @@ KdC7XnwBKVcoo3k1qdTej/nQY2iOZNzjkmC/
             cooldownLOOP(async function() {
                 p2g._$mode("Encrypt and Sign");
                 //p2g._$mode("Encrypt Only");
-                console.log("to:",onlykeyPubKey)
-                console.log("from:",onlykeyPubKey)
+                //console.log("to:",onlykeyPubKey)
+                //console.log("from:",onlykeyPubKey)
                 p2g.startEncryption(onlykeyPubKey, onlykeyPubKey, testMessage, false /*file*/ , async function(err, pgp_armored_message) {
                     if (!err && !pgp_armored_message)
                         return reject("ONLYKEYPGP never give us a message to decrypt");
@@ -101,9 +101,9 @@ KdC7XnwBKVcoo3k1qdTej/nQY2iOZNzjkmC/
 
                     cooldownLOOP(async function() {
 
-                        particle_send_click();
-                        await p2g.check();
-                        cooldownLOOP(function() {
+                        //particle_send_click();
+                        //await p2g.check();
+                        //cooldownLOOP(function() {
 
                             p2g._$mode("Decrypt and Verify");
                             //p2g._$mode("Decrypt Only");
@@ -122,7 +122,7 @@ KdC7XnwBKVcoo3k1qdTej/nQY2iOZNzjkmC/
                                 play(resolve, reject); //loop forever
                             });
 
-                        }, 5);
+                        //}, 5);
                     }, cooldown_between_calls);
 
 

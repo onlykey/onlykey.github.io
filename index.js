@@ -14,13 +14,14 @@ if(!process.env.PORT){
   try{
     server = https.createServer({
       key: fs.readFileSync('_._server.key'),
-      cert: fs.readFileSync('_._server.cert')
+      cert: cert = fs.readFileSync('_._server.cert')
     }, app);
   }catch(e){}
-  if(!cert)
+  if(!cert){
     console.log("need to run this command in terminal in project dir", __dirname);
     console.log("' $ openssl req -nodes -new -x509 -keyout _._server.key -out _._server.cert '");
-    process.exit(1);
+    server = http.createServer(app);
+  }
 }else{
   server = http.createServer(app);
 }

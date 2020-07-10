@@ -13785,7 +13785,7 @@ _continue()
       }
       bufs.push(this.key_id);
       bufs.push(uint_to_buffer(8, this.is_final));
-console.info("buffs final", bufs);
+//console.info("buffs final", bufs);
       unframed = Buffer.concat(bufs);
       return cb(null, unframed);
     };
@@ -20206,9 +20206,9 @@ _break()
                 if(onlykey){
                   //_this.type=1 //rsa
                   onlykey.auth_sign_rsa(hashed_data, (ok_sig) => {
-                      console.info("signature from OnlyKey:", ok_sig);
+                      //console.info("signature from OnlyKey:", ok_sig);
                       sig = arguments[0].to_mpi_buffer();
-                      console.info("signature from app:", sig);
+                      //console.info("signature from app:", sig);
                       size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
                       hdr = new Uint8Array(2);
                       hdr[0] = (size >>> 8);
@@ -20217,7 +20217,7 @@ _break()
                       sig = new Uint8Array(hdr.length + ok_sig.length);
                       sig.set(hdr);
                       sig.set(ok_sig, hdr.length);
-                      console.info("sig:", sig);
+                      //console.info("sig:", sig);
                       return cb(null, sig);
                   });
                 }else{
