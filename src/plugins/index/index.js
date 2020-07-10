@@ -44,13 +44,13 @@ module.exports = {
             "plugin_index": {
                 pagesList: pagesList,
                 init:function(){
-                    if(document.hasFocus())//firefox fix, firefox aborts onlykey request when not in focus
+                    // if(document.hasFocus())//firefox fix, firefox aborts onlykey request when not in focus
                         imports.app.on("start",doSetTime);
-                    else
-                        imports.app.on("start",function(){
-                            if(imports.app.$("#setTime").length == 0)
-                                imports.app.$(document).focus(doSetTime);    
-                        });
+                    // else
+                        // imports.app.on("start",function(){
+                        //     if(imports.app.$("#setTime").length == 0)
+                        //         imports.app.$(document).focus(doSetTime);    
+                        // });
                 }
             }
         });

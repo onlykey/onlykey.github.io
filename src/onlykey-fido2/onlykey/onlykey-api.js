@@ -195,7 +195,7 @@ module.exports = function(imports) {
 
       // await wait(delay * 1000);
       await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle,30000, function(maybe_a_err, data) {
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle,6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
@@ -279,7 +279,7 @@ module.exports = function(imports) {
         resolve({ data: data, error: err });
       }
 
-      var delay = 1;
+      var delay = 0;
       if (onlykey_api.OKversion == 'Original') {
         delay = delay * 4;
       }
@@ -303,9 +303,9 @@ module.exports = function(imports) {
       var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
 
 
-      // await wait(delay * 1000);
-      await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
+//       await wait(delay * 1000);
+//       await wait(1000);
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
@@ -384,11 +384,11 @@ module.exports = function(imports) {
   // which can then be decoded
 
   function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
-    console.log('REQUEST CMD', getCMD(cmd));
-    console.log('REQUEST OPT1', opt1);
-    console.log('REQUEST OPT2', opt2);
-    console.log('REQUEST OPT3', opt3);
-    console.log('REQUEST DATA', data);
+    //console.log('REQUEST CMD', getCMD(cmd));
+    //console.log('REQUEST OPT1', opt1);
+    //console.log('REQUEST OPT2', opt2);
+    //console.log('REQUEST OPT3', opt3);
+    //console.log('REQUEST DATA', data);
     //var addr = 0;
 
     // should we check that `data` is either null or an Uint8Array?
@@ -420,7 +420,7 @@ module.exports = function(imports) {
 
     array.set(data, offset);
 
-    console.log('FORMATTED REQUEST:', array);
+    //console.log('FORMATTED REQUEST:', array);
     return array;
   }
 
@@ -460,7 +460,7 @@ module.exports = function(imports) {
 
     if (signature.length > 1)
       data = signature.slice(1, signature.length);
-
+    
     switch (ctap_error_codes[status_code]) {
       case "CTAP1_SUCCESS":
         if (bytes2string(data.slice(0, 9)) == 'UNLOCKEDv') {
@@ -499,8 +499,7 @@ module.exports = function(imports) {
         console.warn("ctap_error_code", ctap_error_codes[status_code]);
         break;
     }
-
-
+    
     /*
     if (error_code == ctap_error_codes['CTAP1_SUCCESS']) {
 
@@ -543,16 +542,28 @@ module.exports = function(imports) {
       console.log('CTAP2_ERR_OPERATION_PENDING');
     }
 */
+    console.log("FORMATED RESPONSE", {
+      count: signature_count,
+      status: ctap_error_codes[status_code],
+      data: data,
+      data_decrypted:aesgcm_decrypt(data, onlykey_api.sharedsec),
+      error: error,
+      signature: signature,
+    })
+
     return {
       count: signature_count,
       status: ctap_error_codes[status_code],
       data: data,
+      data_decrypted:aesgcm_decrypt(data, onlykey_api.sharedsec),
       error: error,
       signature: signature,
     };
   }
 
   function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout, cb) {
+    
+    console.log("ctaphid_via_webauthn",cmd, opt1, opt2, opt3, data, timeout);
     // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
     // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
     //
@@ -633,10 +644,10 @@ module.exports = function(imports) {
           response = results;
         }
         else {
-          console.log("GOT ASSERTION", assertion);
-          console.log("RESPONSE", assertion.response);
+          //console.log("GOT ASSERTION", assertion);
+          //console.log("RESPONSE", assertion.response);
           response = decode_ctaphid_response_from_signature(assertion.response);
-          console.log("RESPONSE:", response);
+          //console.log("RESPONSE:", response);
         }
         if (cb) cb(response.error, response);
         resolve(response);
