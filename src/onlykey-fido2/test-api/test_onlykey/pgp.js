@@ -8,8 +8,7 @@ module.exports = function(imports) {
         p2g.on("error", console.log.bind({}, "PGP ERROR:"))
         p2g.on("status", function(msg) {
 
-                if (msg.indexOf("You have 8 seconds to enter challenge code") > -1)
-                    particle_send_click();
+                // if (msg.indexOf("You have 8 seconds to enter challenge code") > -1) particle_send_click();
 
                 console.log("PGP STATUS:", msg)
 
@@ -81,58 +80,93 @@ KdC7XnwBKVcoo3k1qdTej/nQY2iOZNzjkmC/
 =jUa0
 -----END PGP PUBLIC KEY BLOCK-----`);
 
+        var my_message = (`-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.1.0
+Comment: https://keybase.io/crypto
+
+wcFMA5QyLnrm4C4dARAAppmMnyk90ojBLZKwBFjtJ8q51gLrVQPWhtzm3t65cMj+
+iz0vKlbQfHcE2DCQXubbT2ZF5m+9Eee42CtDvkSbzpw36nWcVuVfyLvsW3UG0vir
+KGCgaY2ZWi7Y44oVBf3Cfnuor/u2nhDc5IkcFuhXtr2XEn85/RqEzNC3urnLBpim
+bgqFLY8cKJWySc6fJSSrvk3bRZApxEBN+cWqnltGWTxH8ldtgzfIKDuU10LzYVsz
+R8Vx7eIace2giPyB7nvRrpVRBBpt7OVX/u1yZE/ZxTyhWoM8fv2LBfLosoDFzRGk
+uOgb1QnJ6rIBGWcKSMrCx2zmO04anLXZDBrRmVMspVexnyd2sJbRB4YxIJ94TY1Y
+gmigI8G4FHinbU1dyvMBHZ1ITxxsz0oXxiU7VHQCLXi/kYh1LzRKzTWtNv3FwYml
+qY463Uv8XLT9mHwxGjoxvyPN0mFcX+3hOSciXlREm3Dgadjvtyp/N4upW6lGYXFt
+596kVKvVyPffEFjJ+1s51U+nEsNJAmwCFfTKyGQwLYXbWx56KKH3PUS8Re7yZnko
+M4wsfwwA6+aqwHBckQPaZi7gNrmKVb3YOvscD+/ElP6NsamjZ2tuITx2OowV/Wch
+vrLIeuR8oI7HRKYkt+vpqVtepy3TAghtQZ9tS/djRHSIOUg05momOlwtQPTTrJzS
+wbIBE+IFgdxtih8uHyP2WkeR8Evza99VejJ/88ZiHMCg21KjZfhoi34VUEHPbbiS
+b91HJdV3q39K4ApfboBRulaVRHdWn+vGVzKpJWpqtB8+C21VhmfUHzVbAnnAT+Bw
+FS+wIEta14JCx6JAuTWy2Y39ZQJkInDHY242pfTm2e9/FTOUXNKw+cPm3+Ybvwqw
+5eKcyuL+eLXY/BaMtrIrqdayVM5e8kv8KIRuLZPyL8G5iTPLIJwdRRx04CTVqlBk
+QaWy25Fzh+kmQCDYwl+LO2GaeH7jey2Wn/ZDxtAVx1DhiMyAAxQMCDLqfXq17Ndh
+QzxGw2cwFrkxoYTPUJYqb4nSL555K+uUHRqDhS+rM9vvle+5eibWsPyxjeVjjFBh
+KfBMi/CphzAxQcGgFrMvvyRpj4Dpl4iXra7l1beefenym4R0l9MSUkuuF2WEwUpc
+tm03eaRGB3AmibDwtIVp1q4L00v3HSEa3QyGUH7nw93WmHNFNCnixVLuINrjfAlP
+2cDONwNCPC9sxsY576de0PChWbGT4262szkl9NGCpMmanbKh5J5zJos4/T4dbK8S
+IO1BJncRCKt3j3Uey6BV/fU+b4vA4LFwBPWARxLmZwedpBRJfzLPvkzJsJfDvnwZ
+lhkfvrtBEbdXefktTq6yQUdAdNxOrqXqDCZo1LxODq+94lv0MyfnOIKwtNPf1k0O
+A9Q1C6jfjbTd7R3P4zbsbEAHofOFgVfm8lwHBEUIL4Lsq4NGEeCp9aJrVI2PDumK
+j2IpbXzZu1gDhtFQdsadnVazwLRkIBZi9cYa1sUkd3GBZ/RPnLqxzeWxcRj/Z9Cg
+7Aymdg==
+=sMkN
+-----END PGP MESSAGE-----`)
         // var onlykeyPubKey = rsaKeySet.PubKey;
         var onlykeyPubKey = pro_key;
 
         function play(resolve, reject) {
-            cooldownLOOP(async function() {
-                p2g._$mode("Encrypt and Sign");
-                //p2g._$mode("Encrypt Only");
-                //console.log("to:",onlykeyPubKey)
-                //console.log("from:",onlykeyPubKey)
-                p2g.startEncryption(onlykeyPubKey, onlykeyPubKey, testMessage, false /*file*/ , async function(err, pgp_armored_message) {
+            // doEncrypt(onlykeyPubKey, testMessage,  resolve, reject)
+            
+            cooldownLOOP(function() {
+            doDecrypt(onlykeyPubKey, my_message,  resolve, reject)
+            },10);
+        }
+        
+        await (new Promise(play)).catch(reject);
+        resolve();
+
+
+        async function doEncrypt(pubkeyToUse, unencrypted_message,resolve, reject) {
+            p2g._$mode("Encrypt and Sign");
+            //p2g._$mode("Encrypt Only");
+            console.log("sending connected");
+            await p2g.check();
+            cooldownLOOP(function() {
+                p2g.startEncryption(pubkeyToUse, pubkeyToUse, unencrypted_message, false /*file*/ , async function(err, pgp_armored_message) {
                     if (!err && !pgp_armored_message)
                         return reject("ONLYKEYPGP never give us a message to decrypt");
                     else if (err)
                         return reject("TEST:ONLYKEYPGP startEncryption:err: " + err);
                     else
-                        console.log("ONLYKEYPGP  startEncryption : PASS\r\n", testMessage, "\r\n", pgp_armored_message);
+                        console.log("ONLYKEYPGP  startEncryption : PASS\r\n", unencrypted_message, "\r\n", pgp_armored_message);
 
-
-                    cooldownLOOP(async function() {
-
-                        //particle_send_click();
-                        //await p2g.check();
-                        //cooldownLOOP(function() {
-
-                            p2g._$mode("Decrypt and Verify");
-                            //p2g._$mode("Decrypt Only");
-                            console.log("to:",onlykeyPubKey)
-                            console.log("from:",onlykeyPubKey)
-                            p2g.startDecryption(onlykeyPubKey, onlykeyPubKey, pgp_armored_message.toString(), false, function(err, pgp_decrypted_message) {
-                                if (!err && !pgp_decrypted_message)
-                                    return reject("ONLYKEYPGP never give us a unencrypted message");
-                                else if (err)
-                                    return reject("TEST:ONLYKEYPGP " + err);
-                                else
-                                if (pgp_decrypted_message == testMessage)
-                                    console.log("ONLYKEY PGP startDecryption : PASS\r\n", pgp_decrypted_message.toString());
-                                else return reject("ONLYKEY PGP startDecryption : FAIL");
-                                //resolve();
-                                play(resolve, reject); //loop forever
-                            });
-
-                        //}, 5);
-                    }, cooldown_between_calls);
-
-
+                    resolve();
                 });
-
-            }, 5);
+            }, cooldown_between_calls);
         }
 
-        await (new Promise(play)).catch(reject);
-        resolve();
+        async function doDecrypt(pubkeyToUse, pgp_armored_message, resolve, reject) {
+
+            console.log("sending connected");
+            await p2g.check();
+            cooldownLOOP(function() {
+                p2g._$mode("Decrypt and Verify");
+                //p2g._$mode("Decrypt Only");
+                p2g.startDecryption(pubkeyToUse, pubkeyToUse, pgp_armored_message.toString(), false, function(err, pgp_decrypted_message) {
+                    if (!err && !pgp_decrypted_message)
+                        return reject("ONLYKEYPGP never give us a unencrypted message");
+                    else if (err)
+                        return reject("TEST:ONLYKEYPGP " + err);
+                    else
+                    if (pgp_decrypted_message)
+                        console.log("ONLYKEY PGP startDecryption : PASS\r\n", pgp_decrypted_message.toString());
+                    else return reject("ONLYKEY PGP startDecryption : FAIL");
+                    resolve();
+                    //play(resolve, reject); //loop forever
+                });
+
+            }, cooldown_between_calls);
+        }
     });
 
     function cooldownLOOP(fn, waitLoop) {

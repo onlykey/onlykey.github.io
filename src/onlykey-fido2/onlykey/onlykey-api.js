@@ -291,18 +291,9 @@ module.exports = function(imports) {
       console.info("Checking OnlyKey");
 
       imports.app.emit("ok-connecting");
-
-
       appKey = nacl.box.keyPair();
-      // console.info(appKey);
-      // console.info(appKey.publicKey);
-      // console.info(appKey.secretKey);
-      // console.info("Application ECDH Public Key: ", appKey.publicKey);
-
       var cmd = OKCONNECT;
-
       var message = ctaphid_custom_message_header(appKey.publicKey, cmd)
-
       var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
 
 
@@ -310,7 +301,7 @@ module.exports = function(imports) {
       //       await wait(1000);
       var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
-      });
+      }, 0, 0 );
 
       imports.app.emit("ok-waiting");
 
@@ -462,7 +453,7 @@ module.exports = function(imports) {
 
       var data = null;
       var error = null;
-
+      var isDecrypted = false;
       switch (ctap_error_codes[status_code]) {
         case "CTAP1_SUCCESS":
           if (signature.length > 1)
@@ -489,11 +480,13 @@ module.exports = function(imports) {
             error = bytes2string(msgtext);
 
             // break;
-          }
+          }else
           try {
             //console.log("encryptedData",bytes2string(data));
-            if(decrypt_responce)
+            if(decrypt_responce){
               data = await aesgcm_decrypt(data, sharedsec).catch(() => void(0));
+              isDecrypted = true;
+            }
             //console.log("decryptedData",bytes2string(decryptedData));
           }
           catch (e) {}
@@ -506,6 +499,7 @@ module.exports = function(imports) {
         count: signature_count,
         status: ctap_error_codes[status_code],
         data: data,
+        decrypted:isDecrypted,
         error: error,
         signature: signature,
       });
@@ -530,7 +524,16 @@ module.exports = function(imports) {
       //#define DERIVE_SHARED_SECRET 2
       //#define NO_ENCRYPT_RESP 0
       //#define ENCRYPT_RESP 1
-      var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, !encrypt_input ? data : await aesgcm_encrypt(data, sharedsec));
+      
+      var keyInput;
+      var keyEncrypted = false;
+      if(!encrypt_input){
+        keyInput = data;
+      }else{
+        keyInput = await aesgcm_encrypt(data, sharedsec);
+        keyEncrypted: true;
+      };
+      var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, keyInput);
 
       console.log("ctaphid_via_webauthn", getCMD(cmd) + "(" + getCMD(cmd, true) + ")", opt1, opt2, opt3, data, timeout, encrypt_input);
       console.log("keyhandle", keyhandle);
@@ -604,6 +607,9 @@ module.exports = function(imports) {
             //console.log("RESPONSE", assertion.response);
             response = await decode_ctaphid_response_from_signature(assertion.response, decrypt_output);
             //console.log("RESPONSE:", response);
+            if(keyEncrypted){
+              response.encrypted = true;
+            }
           }
           if (cb) cb(response.error, response);
           resolve(response);
