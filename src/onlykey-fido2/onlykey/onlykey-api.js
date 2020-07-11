@@ -60,7 +60,7 @@ module.exports = function(imports) {
   // var browserid = 0; //Default Chrome
   // var counter = 0;
   // var encrypted_data;
-
+  
   const COMMANDS = {
     "OKCONNECT": 228,
     "OKPING": 243,
@@ -123,7 +123,7 @@ module.exports = function(imports) {
             console.log("OKCONNECT STATUS", status);
           }
 
-          if (typeof(sharedsec) === "undefined") {
+          if (typeof(onlykey_api.sharedsec) === "undefined") {
             // if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
             // else headermsg("OnlyKey not connected! Refresh this page to try again.");
             if (callback && typeof callback == "function")
@@ -197,8 +197,8 @@ module.exports = function(imports) {
 
 
       // await wait(delay * 1000);
-      // await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, 1, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
+      await wait(1000);
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
@@ -228,13 +228,14 @@ module.exports = function(imports) {
             okPub = response.slice(21, 53);
             // console.info("OnlyKey Public Key: ", okPub);
             sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-            // console.info("NACL shared secret: ", sharedsec);
+            onlykey_api.sharedsec = sharedsec;
+            // console.info("NACL shared secret: ", onlykey_api.sharedsec);
             onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
             onlykey_api.FWversion = bytes2string(response.slice(8, 20));
             // msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
             // element_by_id('header_messages').innerHTML = "<br>";
             // headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-            // var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+            // var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
             // console.info("AES Key", key);
 
             imports.app.emit("ok-connected");
@@ -247,32 +248,31 @@ module.exports = function(imports) {
 
     });
   }
-
-
-
-  onlykey_api.check = function(callback) {
+  
+  
+  
+  onlykey_api.check = async function(callback) {
     return new Promise(async function(resolve) {
-      // if (onlykey_api.init) {
-      //   if (typeof callback === 'function') 
-      //     callback();
-      //     resolve();
-      // }
+      if (onlykey_api.init) {
+        if (callback && typeof callback == "function")
+          callback();
+        resolve();
+      }
 
       (function() {
         //Set time on OnlyKey, get firmware version, get ecc public
         OK_CHECK(async function(err, status) {
-          if (err)
-            if (typeof callback === 'function')
-              callback(err);
-            else if (typeof callback === 'function')
-            callback(null, status);
-
-          resolve();
+          if(err) 
+            callback(err);
+          else callback(null, status);
+            
+            
         });
       })();
+
     });
   };;
-
+  
   async function OK_CHECK(callback) {
     return new Promise(async function(resolve, reject) {
 
@@ -282,26 +282,35 @@ module.exports = function(imports) {
         resolve({ data: data, error: err });
       }
 
-      var delay = 0;
+      var delay = 1;
       if (onlykey_api.OKversion == 'Original') {
         delay = delay * 4;
       }
 
       //setTimeout(async function() {
       console.info("Checking OnlyKey");
-
+      
       imports.app.emit("ok-connecting");
+
+      
       appKey = nacl.box.keyPair();
+      // console.info(appKey);
+      // console.info(appKey.publicKey);
+      // console.info(appKey.secretKey);
+      // console.info("Application ECDH Public Key: ", appKey.publicKey);
+      
       var cmd = OKCONNECT;
+      
       var message = ctaphid_custom_message_header(appKey.publicKey, cmd)
-      // var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
+      
+      var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
 
 
-      //       await wait(delay * 1000);
-      //       await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, message, 6000, function(maybe_a_err, data) {
+      // await wait(delay * 1000);
+      await wait(1000);
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
-      }, 1, 1 );
+      });
 
       imports.app.emit("ok-waiting");
 
@@ -322,7 +331,6 @@ module.exports = function(imports) {
           onlykey_api.emit("error", ctaphid_response.error);
       }
       else {
-        console.log("CHECK STATUS", ctaphid_response.status);
         switch (ctaphid_response.status) {
           case "CTAP2_ERR_EXTENSION_NOT_SUPPORTED":
             break;
@@ -330,16 +338,17 @@ module.exports = function(imports) {
             okPub = response.slice(21, 53);
             // console.info("OnlyKey Public Key: ", okPub);
             sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-            // console.info("NACL shared secret: ", sharedsec);
+            onlykey_api.sharedsec = sharedsec;
+            // console.info("NACL shared secret: ", onlykey_api.sharedsec);
             onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
             onlykey_api.FWversion = bytes2string(response.slice(8, 20));
             // msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
             // element_by_id('header_messages').innerHTML = "<br>";
             // headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-            // var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+            // var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
             // console.info("AES Key", key);
 
-            imports.app.emit("ok-connected", onlykey_api.FWversion);
+            imports.app.emit("ok-connected");
             //cb(null);
             break;
         }
@@ -349,24 +358,24 @@ module.exports = function(imports) {
 
     });
   }
-
-
+  
+  
   function ctaphid_custom_message_header(publicKey, CMD) {
-    var message = [255, 255, 255, 255, CMD];
+      var message = [255, 255, 255, 255, CMD];
 
-    //Add current epoch time
-    var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
-    var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
-    Array.prototype.push.apply(message, timePart);
+      //Add current epoch time
+      var currentEpochTime = Math.round(new Date().getTime() / 1000.0).toString(16);
+      var timePart = currentEpochTime.match(/.{2}/g).map(hexStrToDec);
+      Array.prototype.push.apply(message, timePart);
 
-    //Add transit pubkey
-    Array.prototype.push.apply(message, publicKey);
+      //Add transit pubkey
+      Array.prototype.push.apply(message, publicKey);
 
-    //Add Browser and OS codes
-    var env = [onlykey_api.browser.charCodeAt(0), onlykey_api.os.charCodeAt(0)];
-    Array.prototype.push.apply(message, env);
+      //Add Browser and OS codes
+      var env = [onlykey_api.browser.charCodeAt(0), onlykey_api.os.charCodeAt(0)];
+      Array.prototype.push.apply(message, env);
 
-    return message;
+      return message;
   }
 
   // The idea is to encode CTAPHID_VENDOR commands
@@ -378,11 +387,11 @@ module.exports = function(imports) {
   // which can then be decoded
 
   function encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data) {
-    //console.log('REQUEST CMD', getCMD(cmd));
-    //console.log('REQUEST OPT1', opt1);
-    //console.log('REQUEST OPT2', opt2);
-    //console.log('REQUEST OPT3', opt3);
-    //console.log('REQUEST DATA', data);
+    // console.log('REQUEST CMD', cmd);
+    // console.log('REQUEST OPT1', opt1);
+    // console.log('REQUEST OPT2', opt2);
+    // console.log('REQUEST OPT3', opt3);
+    // console.log('REQUEST DATA', data);
     //var addr = 0;
 
     // should we check that `data` is either null or an Uint8Array?
@@ -396,7 +405,6 @@ module.exports = function(imports) {
 
     // `is_extension_request` expects at least 16 bytes of data
     const data_pad = data.length < 16 ? 16 - data.length : 0;
-    // const data_pad = 255-data.length-offset;
     var array = new Uint8Array(offset + data.length + data_pad);
 
     array[0] = cmd & 0xff;
@@ -414,27 +422,12 @@ module.exports = function(imports) {
 
     array.set(data, offset);
 
-    //console.log('FORMATTED REQUEST:', array);
+    // console.log('FORMATTED REQUEST:', array);
     return array;
   }
-
+  
   function decode_ctaphid_response_from_signature(response, decrypt_responce) {
     return new Promise(async function(resolve, reject) {
-
-      // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#using-the-ctap2-authenticatorgetassertion-command-with-ctap1-u2f-authenticators<Paste>
-      //
-      // compared to `parse_device_response`, the data is encoded a little differently here
-      //
-      // attestation.response.authenticatorData
-      //
-      // first 32 bytes: SHA-256 hash of the rp.id
-      // 1 byte: zeroth bit = user presence set in U2F response (always 1)
-      // last 4 bytes: signature counter (32 bit big-endian)
-      //
-      // attestation.response.signature
-      // signature data (bytes 5-end of U2F response
-
-      //console.log('UNFORMATTED RESPONSE:', response);
 
       if (onlykey_api.os == "Node") {
         var signature_count = (
@@ -467,13 +460,13 @@ module.exports = function(imports) {
           else if (signature.length < 73 && bytes2string(data.slice(0, 6)) == 'Error ') {
             // Something went wrong, read the ascii response and display to user
             var msgtext = data.slice(0, getstringlen(data));
-            /*const btmsg = `${bytes2string(msgtext)}. Refresh this page and try again.`;
-            var button = element_by_id("onlykey_start");
-            if (button) {
-              button.textContent = btmsg;
-              button.classList.remove('working');
-              button.classList.add('error');
-            }*/
+            // const btmsg = `${bytes2string(msgtext)}. Refresh this page and try again.`;
+            // var button = element_by_id("onlykey_start");
+            // if (button) {
+            //   button.textContent = btmsg;
+            //   button.classList.remove('working');
+            //   button.classList.add('error');
+            // }
             //onlykey_api.emit("error", `${bytes2string(msgtext)}. Refresh this page and try again.`);
             // _$status('finished');
             //throw new Error(bytes2string(msgtext));
@@ -500,7 +493,7 @@ module.exports = function(imports) {
       try{
         data_string = bytes2string(data.slice(0, getstringlen(data)));
       }catch(e){}
-      
+
       var res = {
         count: signature_count,
         status: ctap_error_codes[status_code],
@@ -547,9 +540,11 @@ module.exports = function(imports) {
       if(!encrypt_input){
         keyInput = input_data;
       }else{
-        keyInput = await aesgcm_encrypt(input_data, sharedsec);
+        keyInput = await aesgcm_encrypt(input_data, onlykey_api.sharedsec);
         keyEncrypted = true;
       };
+
+      request.keyInput = keyInput;
       var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, keyInput);
 
       //console.log("ctaphid_via_webauthn", getCMD(cmd) + "(" + getCMD(cmd, true) + ")", opt1, opt2, opt3, input_data, timeout, encrypt_input);
@@ -577,7 +572,7 @@ module.exports = function(imports) {
         },
       };
       
-      await wait(2000);
+      //await wait(2000);
 
       return resolve(await (new Promise(async function(resolve) {
         // return 
@@ -660,7 +655,7 @@ module.exports = function(imports) {
 
   onlykey_api.ctaphid_custom_message_header = ctaphid_custom_message_header;
   onlykey_api.encode_ctaphid_request_as_keyhandle = encode_ctaphid_request_as_keyhandle;
-//   onlykey_api.decode_ctaphid_response_from_signature = decode_ctaphid_response_from_signature;
+  onlykey_api.decode_ctaphid_response_from_signature = decode_ctaphid_response_from_signature;
   onlykey_api.ctaphid_via_webauthn = ctaphid_via_webauthn;
 
 

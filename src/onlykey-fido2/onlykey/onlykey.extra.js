@@ -59,6 +59,15 @@ module.exports = function(imports) {
     return ret;
   };
 
+  /*
+  $exports.getstringlen = function getstringlen(bytes) {
+    for (var i = 1; i <= bytes.length; i++) {
+      // console.info("getstringlen ", i);
+      if ((bytes[i] > 122 || bytes[i] < 97) && bytes[i] != 32) return i;
+    }
+  };
+  */
+  
   $exports.getstringlen = function getstringlen(bytes) {
     var c = 0;
     for (var i = 1; i <= bytes.length; i++) {
@@ -227,8 +236,8 @@ module.exports = function(imports) {
     return new Promise(resolve => {
       forge.options.usePureJavaScript = true;
       var key = $exports.sha256(shared_sec); //AES256 key sha256 hash of shared secret
-      console.log("Key", key);
-      var iv = $exports.IntToByteArray(++counter);
+      //console.log("Key", key);
+      var iv = $exports.IntToByteArray(counter);
       while (iv.length < 12) iv.push(0);
       iv = Uint8Array.from(iv);
       //console.log("IV", iv);
@@ -260,8 +269,8 @@ module.exports = function(imports) {
     return new Promise(resolve => {
       forge.options.usePureJavaScript = true;
       var key = $exports.sha256(shared_sec); //AES256 key sha256 hash of shared secret
-      console.log("Key", key);
-      var iv = $exports.IntToByteArray(++counter);
+      //console.log("Key", key);
+      var iv = $exports.IntToByteArray(counter);
       while (iv.length < 12) iv.push(0);
       iv = Uint8Array.from(iv);
       //console.log("IV", iv);
@@ -275,9 +284,8 @@ module.exports = function(imports) {
       cipher.update(forge.util.createBuffer(Uint8Array.from(plaintext)));
       cipher.finish();
       var ciphertext = cipher.output;
-      ciphertext = ciphertext.toHex();
-      var res = ciphertext.match(/.{2}/g).map($exports.hexStrToDec)
-      resolve(res);
+      ciphertext = ciphertext.toHex(),
+        resolve(ciphertext.match(/.{2}/g).map($exports.hexStrToDec));
     });
   };
 

@@ -15,18 +15,11 @@ module.exports = {
             
             
             imports.app.on("start", async function() {
-                console.log("Testing Started");
-                var failed = false;
-                
-                    for(var i in test_list){
-                        await test_list[i]().catch(function(e){
-                            console.error(e);
-                            failed = true;        
-                        });
-                        if(failed) break;
-                    }
-                    
-                console[failed ? "error" : "log"]("Finished Testing");
+                console.log("Starting Tests");
+                for(var i in test_list){
+                    await test_list[i]();
+                }
+                console.log("Finished Tests");
             });
             
         };

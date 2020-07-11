@@ -7,7 +7,7 @@ module.exports = function(imports) {
     var {
       // wait,
       sha256,
-      // hexStrToDec,
+      hexStrToDec,
       bytes2string,
       noop,
       // getstringlen,
@@ -16,8 +16,8 @@ module.exports = function(imports) {
       // getOS,
       // ctap_error_codes,
       // getAllUrlParams,
-      //aesgcm_decrypt,
-      //aesgcm_encrypt
+      aesgcm_decrypt,
+      aesgcm_encrypt
     } = require("./onlykey.extra.js")(imports);
 
 
@@ -34,7 +34,6 @@ module.exports = function(imports) {
     var EventEmitter = require("events").EventEmitter;
     var onlykey_api_pgp = new EventEmitter();
 
-    onlykey_api_pgp.check = onlykeyApi.check.bind();
 
     const OKDECRYPT = onlykeyApi.getCMD('OKDECRYPT');
     const OKSIGN = onlykeyApi.getCMD('OKSIGN');
@@ -44,13 +43,13 @@ module.exports = function(imports) {
     var _mode;
     var pin;
 
-    // function ping(delay) {
-    //   console.info("PING: poll_type=" + onlykey_api_pgp.poll_type + ", delay=" + (delay || onlykey_api_pgp.poll_delay));
-    //   var p = msg_polling({ type: onlykey_api_pgp.poll_type, delay: delay || 1 });
-    //   return p;
-    // }
+    function ping(delay) {
+      console.info("PING: poll_type=" + onlykey_api_pgp.poll_type + ", delay=" + (delay || onlykey_api_pgp.poll_delay));
+      var p = msg_polling({ type: onlykey_api_pgp.poll_type, delay: delay });
+      return p;
+    }
 
-    function get_responce(callback) {
+    function msg_polling(params = {}, callback) {
       return new Promise(async function(resolve, reject) {
 
         function cb(err, data) {
@@ -61,8 +60,8 @@ module.exports = function(imports) {
 
         // var cb = callback || noop;
 
-        var delay = onlykey_api_pgp.poll_delay || 0;
-        var type = onlykey_api_pgp.poll_type; // default type to 1
+        var delay = params.delay || onlykey_api_pgp.poll_delay;
+        var type = params.type || 0; // default type to 1
         if (onlykeyApi.OKversion == 'Original') {
           delay = delay * 4;
         }
@@ -78,30 +77,24 @@ module.exports = function(imports) {
         // if (_$status_is('finished'))
         //   return encrypted_data;
         console.info("Sending Ping Request to OnlyKey");
-
-
         message = [];
-        Array.prototype.push.apply(message, new Uint8Array(64).fill(0));
-        //encryptedkeyHandle = await aesgcm_encrypt(message, onlykeyApi.sharedsec);
+        var ciphertext = new Uint8Array(64).fill(0);
+        Array.prototype.push.apply(message, ciphertext);
+        // encryptedkeyHandle = await aesgcm_encrypt(message, onlykeyApi.sharedsec);
         //var encryptedkeyHandle = Uint8Array.from(message);
         // _$status('waiting_ping');
         cmd = OKPING;
         //}
 
-        //await wait(onlykey_api_pgp.poll_delay * 1000);
-        // await wait(1000);
-        var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, null, null, null, message, 6000, function(aerr, data) {
-          console.log(aerr, data);
-        }, 1 , 1);
-        
+        //await wait(delay * 1000);
+        await wait(1000);
+        var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, 2, null, null, message, 6000, function(aerr, data) {
+          // console.log(aerr, data);
+        }, 1);
 
-        //console.log('ctaphid_response', ctaphid_response)
-        
         var response;
-        var data; // = await Promise;
-        var error = ctaphid_response.error;
 
-        if (ctaphid_response.data && !error) {
+        if (ctaphid_response.data && !ctaphid_response.error) {
           response = ctaphid_response.data;
         }
         else if (ctaphid_response.error) {
@@ -109,6 +102,8 @@ module.exports = function(imports) {
         }
         // await wait(1000);
 
+        var data; // = await Promise;
+        var error = ctaphid_response.error;
 
         if (!ctaphid_response.error) {
           //await wait(delay * 1000);
@@ -116,57 +111,66 @@ module.exports = function(imports) {
 
 
         if (!ctaphid_response.error) {
-          console.info("Ping Successful");
+          console.info("Ping Successful", ctaphid_response.status);
 
-          // console.log(ctaphid_response.status);
-          switch (ctaphid_response.status) {
-            case "CTAP2_ERR_USER_ACTION_PENDING":
-            case "CTAP2_ERR_OPERATION_PENDING":
-
-              _$status('pending_challenge')
-              // code
-              break;
-            case "CTAP1_SUCCESS":
-              if (_$status_is('pending_challenge')) {
-                _$status('done_challenge');
-              }
-              data = ctaphid_response.data; //await aesgcm_decrypt(response, onlykeyApi.sharedsec);
-              //console.log("DECODED RESPONSE:", response);
-              //console.log("DECODED RESPONSE(as string):", bytes2string(response));
-              //console.log("DECRYPTED RESPONSE:", data);
-              //console.log("DECRYPTED RESPONSE(as string):", bytes2string(data));
-              break;
-            default:
-              // code
-          }
-
-          if (_$status_is('done_challenge')) {
-            _$status('finished');
+          if (type == 3 && _$status_is('finished')) {
+            data = response;
             imports.app.emit("ok-connected");
           }
+          else if (type == 4 && _$status_is('finished')) {
+            var oksignature = response.slice(0, response.length); //4+32+2+32
+            data = oksignature;
+            imports.app.emit("ok-connected");
+          }
+          else {
+            // console.log(ctaphid_response.status);
+            switch (ctaphid_response.status) {
+              case "CTAP2_ERR_USER_ACTION_PENDING":
+              case "CTAP2_ERR_OPERATION_PENDING":
 
-          // if (_$status_is('waiting_ping')) {
-          // _$status('pending_challenge');
-          // }
+                _$status('pending_challenge')
+                // code
+                break;
+              case "CTAP1_SUCCESS":
+                if (_$status_is('pending_challenge')) {
+                  _$status('done_challenge');
+                }
+                data = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
+                // console.log("DECODED RESPONSE:", response);
+                // console.log("DECODED RESPONSE(as string):", bytes2string(response));
+                // console.log("DECRYPTED RESPONSE:", data);
+                // console.log("DECRYPTED RESPONSE(as string):", bytes2string(data));
+                break;
+              default:
+                // code
+            }
 
+            if (_$status_is('done_challenge')) {
+              _$status('finished');
+              imports.app.emit("ok-connected");
+            }
+
+            // if (_$status_is('waiting_ping')) {
+            // _$status('pending_challenge');
+            // }
+
+          }
+        }
+        else {
+          // console.log(ctaphid_response);
         }
 
-
-        if (type == 3 && _$status_is('finished')) {
-          data = response;
-          imports.app.emit("ok-connected");
-        }
-        else if (type == 4 && _$status_is('finished')) {
-          var oksignature = response.slice(0, response.length); //4+32+2+32
-          data = oksignature;
-          imports.app.emit("ok-connected");
-        }
         cb(error, data);
 
         //}, (delay * 1000));
 
       });
     }
+    /**
+     * Break cipherText into chunks and send via u2f sign
+     * @param {Array} cipherText
+     */
+
 
     function _buildPacketArray(cipherText) {
       var maxPacketSize = 228; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
@@ -182,10 +186,7 @@ module.exports = function(imports) {
       }
       return packets;
     }
-    /**
-     * Break cipherText into chunks and send via u2f sign
-     * @param {Array} cipherText
-     */
+
     function u2fSignBuffer(cipherText, mainCallback, onError, KB_ONLYKEY) {
       return new Promise(function(resolve) {
         var packetnum = 0;
@@ -226,9 +227,9 @@ module.exports = function(imports) {
           }
 
           var response = 1;
-          
+
           console.log('ctaphid_response', ctaphid_response)
-          
+
           if (ctaphid_response.data && !ctaphid_response.error)
             response = ctaphid_response.data;
 
@@ -269,11 +270,9 @@ module.exports = function(imports) {
             imports.app.emit("ok-error");
           }
         }
-        return bufferLoop()
+        return bufferLoop();
       });
     }
-
-
 
     async function doPinTimer(onError) {
       var updateTimer;
@@ -286,7 +285,6 @@ module.exports = function(imports) {
           if (secondsRemaining <= 1) {
             imports.app.emit("ok-waiting");
             _$status('done_challenge');
-            
           }
           if (secondsRemaining > 1) {
             onlykey_api_pgp.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
@@ -303,10 +301,8 @@ module.exports = function(imports) {
         }
         else if (_$status_is('done_challenge') /* || _$status_is('waiting_ping')*/ ) {
           // _$status('done_challenge');
-
           onlykey_api_pgp.emit("status", `Waiting for OnlyKey to process message.`);
-          await wait(8000);
-          res = get_responce(); //Delay
+          res = ping(); //Delay
         }
 
         if (res) {
@@ -324,10 +320,12 @@ module.exports = function(imports) {
           if (results) {
             // console.log("ping results",results);
 
+            if (results instanceof Array) {
               if (_$status_is('finished')) {
                 imports.app.emit("ok-connected");
                 return resolve(results);
               }
+            }
 
           }
 
@@ -351,19 +349,6 @@ module.exports = function(imports) {
         }
       });
     };
-
-
-    function get_pin(byte) {
-      if (onlykeyApi.FWversion == 'v0.2-beta.8c') {
-        if (byte < 6) return 1;
-        else {
-          return (byte % 5) + 1;
-        }
-      }
-      else {
-        return (byte % 6) + 1;
-      }
-    }
 
     var statusEvents;
     //state should only be set internally
@@ -426,6 +411,7 @@ module.exports = function(imports) {
       return statusEvents;
     };
 
+
     onlykey_api_pgp.startDecryption = async function(signer, my_public, message, file, callback) {
       var sender_public_key, my_public_key;
 
@@ -466,7 +452,7 @@ module.exports = function(imports) {
       var done = function(msg) { callback(null, msg) };
       try {
         if (message != null)
-          await decryptText(sender_public_key, my_public_key, message, done);
+          await decryptText(sender_public_key || signer, my_public_key || my_public, message, done);
         else await decryptFile(sender_public_key, my_public_key, file, done);
       }
       catch (e) {
@@ -481,7 +467,7 @@ module.exports = function(imports) {
         var keyStore = pgpkeyStore(reject);
         switch (_$mode()) {
           case 'Decrypt and Verify':
-            await keyStore.loadPublic(key1);
+            await keyStore.loadPublic(key1); //key to verify
             onlykey_api_pgp.emit("status", "Decrypting and verifying message ...");
             break;
           case 'Decrypt Only':
@@ -646,6 +632,8 @@ module.exports = function(imports) {
 
       });
     }
+
+
 
     onlykey_api_pgp.startEncryption = async function(to_pgpkeys, from_signer, message, file, callback) {
       onlykey_api_pgp.emit("working");
@@ -927,7 +915,6 @@ module.exports = function(imports) {
       });
     }
 
-
     onlykey_api_pgp.keyStore = pgpkeyStore;
 
     function pgpkeyStore(reject) {
@@ -940,12 +927,20 @@ module.exports = function(imports) {
 
       const kbpgp = imports.kbpgp(KB_ONLYKEY, console);
 
-      /**
-       * Decrypt ciphertext via OnlyKey
-       * @param {Array} ct
-       */
+      function get_pin(byte) {
+        if (onlykeyApi.FWversion == 'v0.2-beta.8c') {
+          if (byte < 6) return 1;
+          else {
+            return (byte % 5) + 1;
+          }
+        }
+        else {
+          return (byte % 6) + 1;
+        }
+      }
+
       KB_ONLYKEY.auth_decrypt = async function(ct_array, cb) { //OnlyKey decrypt request to keyHandle
-        if ( /*ct_array.length > 1 &&*/ onlykeyApi.request_pgp_pubkey) {
+        if (onlykeyApi.request_pgp_pubkey) {
           var key = await onlykeyApi.request_pgp_pubkey();
           if (!key.value) {
             if (key.on_error && ct_array.length > 1) {
@@ -1019,10 +1014,6 @@ module.exports = function(imports) {
         }
       };
 
-      /**
-       * Sign message via OnlyKey PGP RSA key
-       * @param {Array} ct
-       */
       KB_ONLYKEY.auth_sign_rsa = function(ct, cb) { //OnlyKey sign request to keyHandle
         if (!onlykeyApi.init) {
           throw new Error("OK NOT CONNECTED");
@@ -1037,10 +1028,6 @@ module.exports = function(imports) {
         return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb, reject, KB_ONLYKEY);
       };
 
-      /**
-       * Sign message via OnlyKey PGP ECC key
-       * @param {Array} ct 
-       */
       KB_ONLYKEY.auth_sign_ecc = function(ct, cb) { //OnlyKey sign request to keyHandle
         if (!onlykeyApi.init) {
           throw new Error("OK NOT CONNECTED");
@@ -1054,9 +1041,6 @@ module.exports = function(imports) {
         //console.info("Generated PIN", pin);
         return u2fSignBuffer(typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb, reject, KB_ONLYKEY);
       };
-
-
-
 
       var keyStore = {};
 
@@ -1131,7 +1115,7 @@ module.exports = function(imports) {
         return new Promise(async function(resolve) {
           // var key;
           // if(!key){
-          //   if ( /*ct_array.length > 1 &&*/ onlykeyApi.request_pgp_pubkey) {
+          //   if (onlykeyApi.request_pgp_pubkey) {
           //     key = await onlykeyApi.request_pgp_pubkey();
           //   }
           // }
@@ -1189,24 +1173,24 @@ module.exports = function(imports) {
 
     onlykey_api_pgp.test_pgp_key_ecc = function test_pgp_key_ecc() {
       return `-----BEGIN PGP PRIVATE KEY BLOCK-----
-Version: OpenPGP.js v4.10.4
-Comment: https://openpgpjs.org
-
-xYYEXwMi3BYJKwYBBAHaRw8BAQdAAfXO6lu5meapEWHgyjjL0N6NWQ32Ods9
-0glMWsHptRz+CQMI5DbN2CYgOUlgQU33SkeEasvsRmavDWawU2ayYbMmmzbd
-j8FDf+8pXeTXyFzJlTsEIJUMbNVy1KHlJoSCABuHeNxtpZAc9BEcx/YZzYH2
-ec0vY3JwdGVzdEBwcm90b25tYWlsLmNvbSA8Y3JwdGVzdEBwcm90b25tYWls
-LmNvbT7CeAQQFgoAIAUCXwMi3AYLCQcIAwIEFQgKAgQWAgEAAhkBAhsDAh4B
-AAoJEP3Ku9NMdjsQOxgA/0RbEQXfilev24Juk+PFPOW6ZJ9W6qBlWo+osdot
-12cLAQDwSBG6DL7Fc/aJ3hbBqeMQjE3z9f8MhK4EQBdRGBOKC8eLBF8DItwS
-CisGAQQBl1UBBQEBB0Cf8zipkZrBwXP0+fL4REUgEr7SRs9KcLvk8zYwWnM+
-fgMBCAf+CQMIPf3KXnEFnuBgfHlL8Imons4bQCNUK/VkGRQS94RV4tq3xZPR
-KhYnanouvcvxhZj9r2OA40OO1RhMA+VL69OoVPascg/4J4yJROUsvh/+98Jh
-BBgWCAAJBQJfAyLcAhsMAAoJEP3Ku9NMdjsQunUBAIYhsAzZCRPtrsNbY8AZ
-ZGj4SiROlLxcLdOiMyXhicMFAQDk7cqja8Ms2ouu8HIKoBAjJU2BxQLyJaAP
-A560SEQNAA==
-=JBAp
------END PGP PRIVATE KEY BLOCK-----`;
+  Version: OpenPGP.js v4.10.4
+  Comment: https://openpgpjs.org
+  
+  xYYEXwMi3BYJKwYBBAHaRw8BAQdAAfXO6lu5meapEWHgyjjL0N6NWQ32Ods9
+  0glMWsHptRz+CQMI5DbN2CYgOUlgQU33SkeEasvsRmavDWawU2ayYbMmmzbd
+  j8FDf+8pXeTXyFzJlTsEIJUMbNVy1KHlJoSCABuHeNxtpZAc9BEcx/YZzYH2
+  ec0vY3JwdGVzdEBwcm90b25tYWlsLmNvbSA8Y3JwdGVzdEBwcm90b25tYWls
+  LmNvbT7CeAQQFgoAIAUCXwMi3AYLCQcIAwIEFQgKAgQWAgEAAhkBAhsDAh4B
+  AAoJEP3Ku9NMdjsQOxgA/0RbEQXfilev24Juk+PFPOW6ZJ9W6qBlWo+osdot
+  12cLAQDwSBG6DL7Fc/aJ3hbBqeMQjE3z9f8MhK4EQBdRGBOKC8eLBF8DItwS
+  CisGAQQBl1UBBQEBB0Cf8zipkZrBwXP0+fL4REUgEr7SRs9KcLvk8zYwWnM+
+  fgMBCAf+CQMIPf3KXnEFnuBgfHlL8Imons4bQCNUK/VkGRQS94RV4tq3xZPR
+  KhYnanouvcvxhZj9r2OA40OO1RhMA+VL69OoVPascg/4J4yJROUsvh/+98Jh
+  BBgWCAAJBQJfAyLcAhsMAAoJEP3Ku9NMdjsQunUBAIYhsAzZCRPtrsNbY8AZ
+  ZGj4SiROlLxcLdOiMyXhicMFAQDk7cqja8Ms2ouu8HIKoBAjJU2BxQLyJaAP
+  A560SEQNAA==
+  =JBAp
+  -----END PGP PRIVATE KEY BLOCK-----`;
     };
     onlykey_api_pgp.test_pgp_key_rsa = function test_pgp_key_rsa() {
       //this is public public key for the private key block that is returned
@@ -1383,10 +1367,6 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
     };
-
-    function hexStrToDec(hexStr) {
-      return ~~(new Number('0x' + hexStr).toString(10));
-    }
 
     async function myreaderload(reader) {
       return new Promise(resolve => {

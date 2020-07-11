@@ -1,7 +1,7 @@
 module.exports = function(imports) {
     return new Promise(async function(resolve, reject) {
 
-        var cooldown_between_calls = 10;
+        var cooldown_between_calls = 3;
 
         var p2g = imports.onlykeyApi.pgp();
 
@@ -21,10 +21,10 @@ module.exports = function(imports) {
         var testMessage = "The quick brown fox jumps over the lazy dog" + (new Date().getTime());
 
 
-        var rsaKeySet = require("../test_pgp/keys/rsakey.js");
-        var ecdhKeySet = require("../test_pgp/keys/ecdhkey.js");
+        // var rsaKeySet = require("../test_pgp/keys/rsakey.js");
+        // var ecdhKeySet = require("../test_pgp/keys/ecdhkey.js");
 
-        var eccKeySet = require("../test_pgp/keys/ecckey.js");
+        // var eccKeySet = require("../test_pgp/keys/ecckey.js");
 
         var pro_key = (`-----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: https://keybase.io/download
@@ -116,24 +116,22 @@ j2IpbXzZu1gDhtFQdsadnVazwLRkIBZi9cYa1sUkd3GBZ/RPnLqxzeWxcRj/Z9Cg
 
         async function play(resolve, reject) {
             // doEncrypt(onlykeyPubKey, testMessage,  resolve, reject)
-            
+
             // await p2g.check();
-//             cooldownLOOP(function() {
-                doDecrypt(onlykeyPubKey, my_message,  resolve, reject)
-//             },5);
+            //             cooldownLOOP(function() {
+            doDecrypt(onlykeyPubKey, my_message,  resolve, reject)
+            //doEncrypt(onlykeyPubKey, testMessage, resolve, reject)
+            //             },5);
         }
-        
+
         await (new Promise(play)).catch(reject);
         resolve();
 
 
-        async function doEncrypt(pubkeyToUse, unencrypted_message,resolve, reject) {
+        async function doEncrypt(pubkeyToUse, unencrypted_message, resolve, reject) {
             p2g._$mode("Encrypt and Sign");
-            
-            await p2g.check();
             //p2g._$mode("Encrypt Only");
-            console.log("sending connected");
-            await p2g.check();
+
             cooldownLOOP(function() {
                 p2g.startEncryption(pubkeyToUse, pubkeyToUse, unencrypted_message, false /*file*/ , async function(err, pgp_armored_message) {
                     if (!err && !pgp_armored_message)
@@ -150,10 +148,9 @@ j2IpbXzZu1gDhtFQdsadnVazwLRkIBZi9cYa1sUkd3GBZ/RPnLqxzeWxcRj/Z9Cg
 
         async function doDecrypt(pubkeyToUse, pgp_armored_message, resolve, reject) {
 
-            //console.log("sending connected");
+            p2g._$mode("Decrypt and Verify");
+            // p2g._$mode("Decrypt Only");
             cooldownLOOP(function() {
-                p2g._$mode("Decrypt and Verify");
-                //p2g._$mode("Decrypt Only");
                 p2g.startDecryption(pubkeyToUse, pubkeyToUse, pgp_armored_message.toString(), false, function(err, pgp_decrypted_message) {
                     if (!err && !pgp_decrypted_message)
                         return reject("ONLYKEYPGP never give us a unencrypted message");
