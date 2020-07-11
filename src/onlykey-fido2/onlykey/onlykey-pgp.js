@@ -16,8 +16,8 @@ module.exports = function(imports) {
       // getOS,
       // ctap_error_codes,
       // getAllUrlParams,
-      aesgcm_decrypt,
-      aesgcm_encrypt
+      //aesgcm_decrypt,
+      //aesgcm_encrypt
     } = require("./onlykey.extra.js")(imports);
 
 
@@ -78,9 +78,10 @@ module.exports = function(imports) {
         // if (_$status_is('finished'))
         //   return encrypted_data;
         console.info("Sending Ping Request to OnlyKey");
+
+
         message = [];
-        var ciphertext = new Uint8Array(64).fill(0);
-        Array.prototype.push.apply(message, ciphertext);
+        Array.prototype.push.apply(message, new Uint8Array(64).fill(0));
         //encryptedkeyHandle = await aesgcm_encrypt(message, onlykeyApi.sharedsec);
         //var encryptedkeyHandle = Uint8Array.from(message);
         // _$status('waiting_ping');
@@ -90,11 +91,11 @@ module.exports = function(imports) {
         //await wait(onlykey_api_pgp.poll_delay * 1000);
         // await wait(1000);
         var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, null, null, null, message, 6000, function(aerr, data) {
-          // console.log(aerr, data);
+          console.log(aerr, data);
         }, 1 , 1);
         
 
-        console.log('ctaphid_response', ctaphid_response)
+        //console.log('ctaphid_response', ctaphid_response)
         
         var response;
         var data; // = await Promise;
@@ -177,7 +178,7 @@ module.exports = function(imports) {
         while (maxPacketSize > packetSet.length && _cipherText.length != 0) {
           packetSet.push(_cipherText.shift());
         }
-        packets.push(packetSet);
+        packets.push(Uint8Array.from(packetSet));
       }
       return packets;
     }
@@ -209,7 +210,7 @@ module.exports = function(imports) {
             //console.log("sending buffer to onlykey", cmd, opt1, opt2, opt3, msg);
             return onlykeyApi.ctaphid_via_webauthn(cmd, opt1, opt2, opt3, message, 15000, function(aerr, data) {
               // console.log(data);
-            }, 1);
+            }, 1, 1);
           }
 
           var ctaphid_response = await sendPacket();
@@ -285,7 +286,7 @@ module.exports = function(imports) {
           if (secondsRemaining <= 1) {
             imports.app.emit("ok-waiting");
             _$status('done_challenge');
-            // await wait(1000);
+            
           }
           if (secondsRemaining > 1) {
             onlykey_api_pgp.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
@@ -304,6 +305,7 @@ module.exports = function(imports) {
           // _$status('done_challenge');
 
           onlykey_api_pgp.emit("status", `Waiting for OnlyKey to process message.`);
+          await wait(8000);
           res = get_responce(); //Delay
         }
 
@@ -1166,14 +1168,14 @@ module.exports = function(imports) {
                 passphrase: passphrase
               }, err => {
                 if (!err) {
-                  //console.log(`Loaded test private key using passphrase ${passphrase}`);
+                  console.log(`Loaded test private key using passphrase ${passphrase}`);
                   keyStore.ring.add_key_manager(sender);
                   resolve(sender);
                 }
               });
             }
             else {
-              //console.log("Loaded test private key w/o passphrase");
+              console.log("Loaded test private key w/o passphrase");
               resolve(sender);
             }
           });

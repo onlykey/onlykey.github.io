@@ -114,12 +114,13 @@ j2IpbXzZu1gDhtFQdsadnVazwLRkIBZi9cYa1sUkd3GBZ/RPnLqxzeWxcRj/Z9Cg
         // var onlykeyPubKey = rsaKeySet.PubKey;
         var onlykeyPubKey = pro_key;
 
-        function play(resolve, reject) {
+        async function play(resolve, reject) {
             // doEncrypt(onlykeyPubKey, testMessage,  resolve, reject)
             
-            cooldownLOOP(function() {
-            doDecrypt(onlykeyPubKey, my_message,  resolve, reject)
-            },10);
+            // await p2g.check();
+//             cooldownLOOP(function() {
+                doDecrypt(onlykeyPubKey, my_message,  resolve, reject)
+//             },5);
         }
         
         await (new Promise(play)).catch(reject);
@@ -128,6 +129,8 @@ j2IpbXzZu1gDhtFQdsadnVazwLRkIBZi9cYa1sUkd3GBZ/RPnLqxzeWxcRj/Z9Cg
 
         async function doEncrypt(pubkeyToUse, unencrypted_message,resolve, reject) {
             p2g._$mode("Encrypt and Sign");
+            
+            await p2g.check();
             //p2g._$mode("Encrypt Only");
             console.log("sending connected");
             await p2g.check();
@@ -147,8 +150,7 @@ j2IpbXzZu1gDhtFQdsadnVazwLRkIBZi9cYa1sUkd3GBZ/RPnLqxzeWxcRj/Z9Cg
 
         async function doDecrypt(pubkeyToUse, pgp_armored_message, resolve, reject) {
 
-            console.log("sending connected");
-            await p2g.check();
+            //console.log("sending connected");
             cooldownLOOP(function() {
                 p2g._$mode("Decrypt and Verify");
                 //p2g._$mode("Decrypt Only");

@@ -227,7 +227,7 @@ module.exports = function(imports) {
     return new Promise(resolve => {
       forge.options.usePureJavaScript = true;
       var key = $exports.sha256(shared_sec); //AES256 key sha256 hash of shared secret
-      //console.log("Key", key);
+      console.log("Key", key);
       var iv = $exports.IntToByteArray(++counter);
       while (iv.length < 12) iv.push(0);
       iv = Uint8Array.from(iv);
@@ -260,7 +260,7 @@ module.exports = function(imports) {
     return new Promise(resolve => {
       forge.options.usePureJavaScript = true;
       var key = $exports.sha256(shared_sec); //AES256 key sha256 hash of shared secret
-      //console.log("Key", key);
+      console.log("Key", key);
       var iv = $exports.IntToByteArray(++counter);
       while (iv.length < 12) iv.push(0);
       iv = Uint8Array.from(iv);

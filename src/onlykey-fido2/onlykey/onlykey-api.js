@@ -198,7 +198,7 @@ module.exports = function(imports) {
 
       // await wait(delay * 1000);
       // await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, 1, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
@@ -294,14 +294,14 @@ module.exports = function(imports) {
       appKey = nacl.box.keyPair();
       var cmd = OKCONNECT;
       var message = ctaphid_custom_message_header(appKey.publicKey, cmd)
-      var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
+      // var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
 
 
       //       await wait(delay * 1000);
       //       await wait(1000);
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
+      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, message, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
-      }, 0, 0 );
+      }, 1, 1 );
 
       imports.app.emit("ok-waiting");
 
@@ -477,39 +477,56 @@ module.exports = function(imports) {
             //onlykey_api.emit("error", `${bytes2string(msgtext)}. Refresh this page and try again.`);
             // _$status('finished');
             //throw new Error(bytes2string(msgtext));
-            error = bytes2string(msgtext);
+            error = "OKERROR:"+bytes2string(msgtext);
 
             // break;
-          }else
-          try {
-            //console.log("encryptedData",bytes2string(data));
-            if(decrypt_responce){
-              data = await aesgcm_decrypt(data, sharedsec).catch(() => void(0));
-              isDecrypted = true;
-            }
-            //console.log("decryptedData",bytes2string(decryptedData));
           }
-          catch (e) {}
         default:
           console.warn("ctap_code", ctap_error_codes[status_code]);
           break;
       }
 
-      resolve({
+      try {
+        if(!error && decrypt_responce){
+        console.log("encryptedData",bytes2string(data));
+          data = await aesgcm_decrypt(data, sharedsec).catch(() => void(0));
+          isDecrypted = true;
+        console.log("decryptedData",bytes2string(data));
+        }
+      }
+      catch (e) {}
+
+      var data_string;
+      try{
+        data_string = bytes2string(data.slice(0, getstringlen(data)));
+      }catch(e){}
+      
+      var res = {
         count: signature_count,
         status: ctap_error_codes[status_code],
         data: data,
+        data_string:data_string,
         decrypted:isDecrypted,
         error: error,
         signature: signature,
-      });
+      };
+      resolve(res);
 
     });
   }
 
-  function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout, cb, encrypt_input, decrypt_output) {
+  function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, input_data, timeout, cb, encrypt_input, decrypt_output) {
     return new Promise(async function(resolve) {
-
+      var request = {
+        cmd:cmd,
+        opt1:opt1,
+        opt2:opt2,
+        opt3:opt3,
+        input_data:input_data,
+        timeout:timeout,
+        encrypt_input:encrypt_input,
+        decrypt_output:decrypt_output
+      }
 
       // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
       // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
@@ -528,15 +545,15 @@ module.exports = function(imports) {
       var keyInput;
       var keyEncrypted = false;
       if(!encrypt_input){
-        keyInput = data;
+        keyInput = input_data;
       }else{
-        keyInput = await aesgcm_encrypt(data, sharedsec);
-        keyEncrypted: true;
+        keyInput = await aesgcm_encrypt(input_data, sharedsec);
+        keyEncrypted = true;
       };
       var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, keyInput);
 
-      console.log("ctaphid_via_webauthn", getCMD(cmd) + "(" + getCMD(cmd, true) + ")", opt1, opt2, opt3, data, timeout, encrypt_input);
-      console.log("keyhandle", keyhandle);
+      //console.log("ctaphid_via_webauthn", getCMD(cmd) + "(" + getCMD(cmd, true) + ")", opt1, opt2, opt3, input_data, timeout, encrypt_input);
+      //console.log("keyhandle", keyhandle);
       var challenge = window.crypto.getRandomValues(new Uint8Array(32));
       var request_options;
 
@@ -559,17 +576,18 @@ module.exports = function(imports) {
           appid: 'https://' + id
         },
       };
+      
+      await wait(2000);
 
       return resolve(await (new Promise(async function(resolve) {
         // return 
 
         var results = false;
         //       console.log("REQUEST:", request_options);
-        // wait(100);
         window.navigator.credentials.get({
           publicKey: request_options
         }).catch(error => {
-          console.warn("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
+          console.warn("ERROR CALLING:", cmd, opt1, opt2, opt3, input_data);
           console.warn("THE ERROR:", error);
           console.warn("NAME:", error.name);
           console.warn("MESSAGE:", error.message);
@@ -611,8 +629,12 @@ module.exports = function(imports) {
               response.encrypted = true;
             }
           }
+          response.request = request;
+          response.webauthn_options = request_options;
           if (cb) cb(response.error, response);
+          console.log(response);
           resolve(response);
+
         });
         /*
         if (response.status) {
@@ -638,7 +660,7 @@ module.exports = function(imports) {
 
   onlykey_api.ctaphid_custom_message_header = ctaphid_custom_message_header;
   onlykey_api.encode_ctaphid_request_as_keyhandle = encode_ctaphid_request_as_keyhandle;
-  onlykey_api.decode_ctaphid_response_from_signature = decode_ctaphid_response_from_signature;
+//   onlykey_api.decode_ctaphid_response_from_signature = decode_ctaphid_response_from_signature;
   onlykey_api.ctaphid_via_webauthn = ctaphid_via_webauthn;
 
 
