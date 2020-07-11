@@ -119,8 +119,8 @@ j2IpbXzZu1gDhtFQdsadnVazwLRkIBZi9cYa1sUkd3GBZ/RPnLqxzeWxcRj/Z9Cg
 
             // await p2g.check();
             //             cooldownLOOP(function() {
-            doDecrypt(onlykeyPubKey, my_message,  resolve, reject)
-            //doEncrypt(onlykeyPubKey, testMessage, resolve, reject)
+            // doDecrypt(onlykeyPubKey, my_message,  resolve, reject);
+            doEncrypt(onlykeyPubKey, testMessage, resolve, reject)
             //             },5);
         }
 
