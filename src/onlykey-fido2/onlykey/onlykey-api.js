@@ -554,7 +554,7 @@ module.exports = function(imports) {
       var request_options;
 
       var id = window.location.hostname;
-
+      timeout = 30000;
       request_options = {
         challenge: challenge,
         allowCredentials: [{

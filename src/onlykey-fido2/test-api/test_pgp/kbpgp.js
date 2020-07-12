@@ -5,9 +5,9 @@ module.exports = function(kbpgp) {
     var testMessage = "The quick brown fox jumps over the lazy dog";
 
 
-    var rsaKeySet =   false;  //require("./keys/rsakey.js");
-    var ecdhKeySet =  false;  //require("./keys/ecdhkey.js");
-    var eccKeySet =   require("./keys/ecckey.js");
+    var rsaKeySet   = require("./keys/rsakey.js");
+    var ecdhKeySet  = false;  //require("./keys/ecdhkey.js");
+    var eccKeySet   = false;  //require("./keys/ecckey.js");
 
     var act;
 
