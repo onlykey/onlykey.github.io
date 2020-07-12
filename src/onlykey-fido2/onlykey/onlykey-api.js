@@ -253,20 +253,21 @@ module.exports = function(imports) {
   
   onlykey_api.check = async function(callback) {
     return new Promise(async function(resolve) {
-      if (onlykey_api.init) {
-        if (callback && typeof callback == "function")
-          callback();
-        resolve();
-      }
+      // if (onlykey_api.init) {
+      //   if (callback && typeof callback == "function")
+      //     callback();
+      //   resolve();
+      // }
 
       (function() {
         //Set time on OnlyKey, get firmware version, get ecc public
         OK_CHECK(async function(err, status) {
           if(err) 
-            callback(err);
-          else callback(null, status);
+            if (callback && typeof callback == "function")
+              callback(err);
+          else if (callback && typeof callback == "function") callback(null, status);
             
-            
+            resolve();
         });
       })();
 
