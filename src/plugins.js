@@ -27,6 +27,8 @@ module.exports.push(require("./plugins/fancy-icons/fi.js"));
 
 module.exports.push(require("./plugins/index/index.js"));
 
+module.exports.push(require("./plugins/xterm_console/index.js"));
+
 module.exports.push(require("./plugins/encrypt/encrypt.js"));
 
 module.exports.push(require("./plugins/decrypt/decrypt.js"));

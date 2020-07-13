@@ -23,23 +23,25 @@
       <a class="navbar-brand" href="./search"><i class="fa fa-search" aria-hidden="true"></i></a>
       <a class="navbar-brand" href="./password-generator"><i class="fa fa-key" aria-hidden="true"></i></a>
       -->
-      
+
       <% if(htmlWebpackPlugin.options.app_pages)
         for(var i in htmlWebpackPlugin.options.app_pages) { 
           var ap = htmlWebpackPlugin.options.app_pages[i];
           if(ap.icon){ %>
-            <a class="navbar-brand" href="./<%= ap.name %>"><i class="fa <%= ap.icon %>" aria-hidden="true"></i></a>
-       <% }else if(ap.title){ %>
-            <a class="navbar-brand" href="./<%= ap.name %>"><%= ap.title %></a>
-       <% } } %>
-      
-      
-      <br class="d-block d-sm-none" />
-      <a class="">&nbsp;Links&nbsp;</a>
-      <a class="navbar-brand" href="/"><i class="fa fa-home" aria-hidden="true"></i></a>
-      <a class="navbar-brand" href="https://docs.crp.to/webcrypt.html"><i class="fa fa-question" aria-hidden="true"></i></a>
-      <a class="navbar-brand" href="https://docs.crp.to/"><i class="fa fa-book" aria-hidden="true"></i></a>
-      <a class="navbar-brand" href="https://onlykey.io"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
+        <a class="navbar-brand" href="./<%= ap.name %>"><i class="fa <%= ap.icon %>" aria-hidden="true"></i></a>
+        <% }else if(ap.title){ %>
+          <a class="navbar-brand" href="./<%= ap.name %>">
+            <%= ap.title %>
+          </a>
+          <% } } %>
+
+
+            <br class="d-block d-sm-none" />
+            <a class="">&nbsp;Links&nbsp;</a>
+            <a class="navbar-brand" href="/"><i class="fa fa-home" aria-hidden="true"></i></a>
+            <a class="navbar-brand" href="https://docs.crp.to/webcrypt.html"><i class="fa fa-question" aria-hidden="true"></i></a>
+            <a class="navbar-brand" href="https://docs.crp.to/"><i class="fa fa-book" aria-hidden="true"></i></a>
+            <a class="navbar-brand" href="https://onlykey.io"><i class="fa fa-shopping-cart" aria-hidden="true"></i></a>
     </div>
   </nav>
   <div class="container text-center pt-1 app-head">
@@ -60,6 +62,9 @@
           <h2 class="text-danger">This App Requires JavaScript to work.</h2>
         </noscript>
     </div>
+  </div>
+  <div id="container">
+    <div id="terminal_messages"></div>
   </div>
   <div class="container">
     <div class="row pt-4">

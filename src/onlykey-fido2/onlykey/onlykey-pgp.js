@@ -42,35 +42,39 @@ module.exports = function(imports) {
     var _status;
     var _mode;
     var pin;
+    
+    var poll_delay;
+    
+    function _$PollDelay(value,comment){
+      console.log("setting poll delay",value,comment); 
+      if(value)
+        poll_delay = value;
+        
+      return poll_delay;
+    }
 
-    function ping(delay) {
-      console.info("PING: poll_type=" + onlykey_api_pgp.poll_type + ", delay=" + (delay || onlykey_api_pgp.poll_delay));
-      var p = msg_polling({ type: onlykey_api_pgp.poll_type, delay: delay });
+    function ping() {
+      console.info("PING: poll_type=" + onlykey_api_pgp.poll_type, "poll_delay=", _$PollDelay());
+      var p = msg_polling(onlykey_api_pgp.poll_type, _$PollDelay());
       return p;
     }
 
-    function msg_polling(params = {}, callback) {
+    function msg_polling(type, delay) {
       return new Promise(async function(resolve, reject) {
 
         function cb(err, data) {
-          if (typeof callback === 'function') callback(err, data);
+          // if (typeof callback === 'function') callback(err, data);
           if (err) return reject(err);
           resolve(data);
         }
 
         // var cb = callback || noop;
 
-        var delay = params.delay || onlykey_api_pgp.poll_delay;
-        var type = params.type || 0; // default type to 1
         if (onlykeyApi.OKversion == 'Original') {
           delay = delay * 4;
         }
 
-
-        //setTimeout(async function() {
-        // console.info("Requesting response from OnlyKey");
         var cmd;
-        var encryptedkeyHandle;
         var message;
 
         //Ping and get Response From OKSIGN or OKDECRYPT
@@ -87,8 +91,8 @@ module.exports = function(imports) {
         //}
 
         //await wait(delay * 1000);
-        await wait(1000);
-        var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, 2, null, null, message, 6000, function(aerr, data) {
+        await wait(delay * 1000);
+        var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, null, null, null, message, 6000, function(aerr, data) {
           // console.log(aerr, data);
         }, 1);
 
@@ -166,12 +170,7 @@ module.exports = function(imports) {
 
       });
     }
-    /**
-     * Break cipherText into chunks and send via u2f sign
-     * @param {Array} cipherText
-     */
-
-
+    
     function _buildPacketArray(cipherText) {
       var maxPacketSize = 228; //57 (OK packet size) * 4, + 4 byte 0xFF header, has to be less than 255 - header
       var _cipherText = []
@@ -220,7 +219,7 @@ module.exports = function(imports) {
 
           if (finalPacket) {
             if (ctaphid_response.status == "CTAP1_SUCCESS") {
-              console.warn("we should have got CTAP2_ERR_USER_ACTION_PENDING here on final packet, try again");
+              console.warn("ctaphid_response is",ctaphid_response.status, "we should have got CTAP2_ERR_USER_ACTION_PENDING here on final packet, try again?");
               // ctaphid_response = await sendPacket();
               // console.warn("u2fSignBuffer ctaphid_response#2 status", ctaphid_response.status)
             }
@@ -274,6 +273,7 @@ module.exports = function(imports) {
       });
     }
 
+  
     async function doPinTimer(onError) {
       var updateTimer;
       return new Promise(updateTimer = async function(resolve, reject, secondsRemaining) {
@@ -416,7 +416,7 @@ module.exports = function(imports) {
       var sender_public_key, my_public_key;
 
       onlykey_api_pgp.poll_type = 3;
-      onlykey_api_pgp.poll_delay = 1;
+      _$PollDelay(1, "seconds for default startDecryption delay")
       console.info("Setting poll_type", onlykey_api_pgp.poll_type);
       // button.classList.remove('error');
       // button.classList.add('working');
@@ -632,8 +632,6 @@ module.exports = function(imports) {
 
       });
     }
-
-
 
     onlykey_api_pgp.startEncryption = async function(to_pgpkeys, from_signer, message, file, callback) {
       onlykey_api_pgp.emit("working");
@@ -993,10 +991,12 @@ module.exports = function(imports) {
           }
           cb = cb || noop;
           if (ct.length == 396) {
-            onlykey_api_pgp.poll_delay = 5; //5 Second delay for RSA 3072
+            _$PollDelay(5, "Seconds delay for RSA 3072");
+            // onlykey_api_pgp.poll_delay = 5; //5 Second delay for RSA 3072
           }
           else if (ct.length == 524) {
-            onlykey_api_pgp.poll_delay = 7; //7 Second delay for RSA 4096
+            _$PollDelay(7, "Seconds delay for RSA 4096");
+            // onlykey_api_pgp.poll_delay = 7; //7 Second delay for RSA 4096
           }
           // if (OKversion == 'Original') {
           //   onlykey_api_pgp.poll_delay = onlykey_api_pgp.poll_delay * 4;
@@ -1083,7 +1083,7 @@ module.exports = function(imports) {
           }
           kbpgp.KeyManager.import_from_armored_pgp({
             armored: key
-          }, (error, sender) => {
+          }, (error, sender,warning, packets) => {
             if (error) {
               onlykey_api_pgp.emit("error", error);
               return;
@@ -1095,11 +1095,13 @@ module.exports = function(imports) {
 
               var keyids = sender.get_all_pgp_key_ids();
               if (typeof keyids[2] !== "undefined") {
-                onlykey_api_pgp.poll_delay = 1; //Assuming RSA 2048
+                // onlykey_api_pgp.poll_delay = 1; //Assuming RSA 2048
+              _$PollDelay(1, "Seconds delay for Assuming RSA 2048, loadPublicSignerID");
                 subkey = 2;
               }
               else {
-                onlykey_api_pgp.poll_delay = 8; //Assuming RSA 4096 or 3072
+                //onlykey_api_pgp.poll_delay = 8; //Assuming RSA 4096 or 3072
+                _$PollDelay(8, "Seconds delay for Assuming RSA 4096 or 3072, loadPublicSignerID");
                 subkey = 0;
               }
               KB_ONLYKEY.custom_keyid = sigingKeyID.toString('hex').toUpperCase();
@@ -1170,7 +1172,8 @@ module.exports = function(imports) {
 
       return keyStore;
     };
-
+    
+    onlykey_api_pgp.test_pgp_keys = "keys we load to emulate keytype to control kbpgps custom changes";
     onlykey_api_pgp.test_pgp_key_ecc = function test_pgp_key_ecc() {
     return `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: OpenPGP.js v4.10.4
@@ -1367,7 +1370,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
 =ayNx
 -----END PGP PRIVATE KEY BLOCK-----`;
     };
-
+    
     async function myreaderload(reader) {
       return new Promise(resolve => {
         reader.onloadend = function() {

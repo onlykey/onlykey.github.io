@@ -37,13 +37,16 @@ module.exports = {
             }
             return arr1.join('');
         }
-        
+
+        var terminal_applied = false;
+
         var page = {};
         var $page = {
             view: require("./encrypt.page.html").default,
             init: function(app, $page, pathname) {
                 init = true;
 
+                /*
                 var $ = app.$;
                 var onlykeyApi = app.onlykeyApi;
                 var onlykeyPGP = app.onlykeyApi.pgp;
@@ -57,45 +60,46 @@ module.exports = {
                 }
 
                 page.gun = app.newGun();
-                page.p2g = onlykeyPGP();
+                page.okpgp = onlykeyPGP();
 
                 var params = onlykeyApi.api.getAllUrlParams();
 
                 page.initParams = params;
 
-                page.p2g._$mode($("#action")[0].select_one.value);
+                page.okpgp._$mode($("#action")[0].select_one.value);
 
-                if (page.p2g._$mode_is('Encrypt and Sign')) {
+                if (page.okpgp._$mode_is('Encrypt and Sign')) {
                     if (params.sender) document.getElementById('pgpkeyurl2').value = params.sender;
                     // if (params.recipients) document.getElementById('pgpkeyurl').value = params.recipients;
                     if (params.type == 'e') {
                         document.getElementById('encrypt_only').checked = true;
-                        page.p2g._$mode('Encrypt Only');
+                        page.okpgp._$mode('Encrypt Only');
                         document.getElementById('pgpkeyurl2').style.display = "none";
                     }
                     if (params.type == 'es') document.getElementById('encrypt_and_sign').checked = true;
                     if (params.type == 's') {
                         document.getElementById('sign_only').checked = true;
-                        page.p2g._$mode('Sign Only');
+                        page.okpgp._$mode('Sign Only');
                         document.getElementById('pgpkeyurl').style.display = "none";
                     }
                 }
 
-                page.p2g.on("status", function(message) {
+                page.okpgp.on("status", function(message) {
                     page.button.textContent = message;
+                    app.xterm.writeln("OKPGP("+page.okpgp._$mode()+"): "+message);
                 });
 
-                page.p2g.on("working", function() {
+                page.okpgp.on("working", function() {
                     page.button.classList.remove('error');
                     page.button.classList.add('working');
                 });
 
-                page.p2g.on("done", function() {
+                page.okpgp.on("done", function() {
                     page.button.classList.remove('error');
                     page.button.classList.remove('working');
                 });
 
-                page.p2g.on("error", function(msg) {
+                page.okpgp.on("error", function(msg) {
                     console.log("pgp-error", msg);
                     page.button.textContent = msg;
                     page.button.classList.add('error');
@@ -114,18 +118,101 @@ module.exports = {
                     page.button.classList.remove('working');
                     if(page.statusEvents) page.statusEvents.emit("completed");
                 });
+*/
 
-
-                page.setup(app, $page, pathname);
+                page.setup(app, $page, pathname, init);
             },
-            setup: function(app, $page, pathname) {
+            setup: function(app, $page, pathname, doInit) {
                 if (!init)
                     return page.init(app, $page, pathname);
 
-                page.statusEvents = page.p2g.reset();
+                // if(!terminal_applied){
+                //     app.xterm.set_element($page.find("#terminal_messages"));
+                //     $page.find("#terminal_messages").siblings("h3").remove();
+                //     terminal_applied = true;
+                // }
+
 
                 var $ = app.$;
                 var onlykeyApi = app.onlykeyApi;
+
+                if (doInit) {
+                    
+                    var tokenizer = require("../../jquery.tokenizer.js");
+
+                    if (tokenizer) {
+                        tokenizer($, async function(itemName, returnValueFN) {
+                            returnValueFN(await onlykeyApi.api.getKey(itemName));
+                        });
+                    }
+
+                    page.gun = app.newGun();
+                    page.okpgp = app.onlykeyApi.pgp();
+
+                    var params = onlykeyApi.api.getAllUrlParams();
+
+                    page.initParams = params;
+
+                    page.okpgp._$mode($("#action")[0].select_one.value);
+
+                    if (page.okpgp._$mode_is('Encrypt and Sign')) {
+                        if (params.sender) document.getElementById('pgpkeyurl2').value = params.sender;
+                        // if (params.recipients) document.getElementById('pgpkeyurl').value = params.recipients;
+                        if (params.type == 'e') {
+                            document.getElementById('encrypt_only').checked = true;
+                            page.okpgp._$mode('Encrypt Only');
+                            document.getElementById('pgpkeyurl2').style.display = "none";
+                        }
+                        if (params.type == 'es') document.getElementById('encrypt_and_sign').checked = true;
+                        if (params.type == 's') {
+                            document.getElementById('sign_only').checked = true;
+                            page.okpgp._$mode('Sign Only');
+                            document.getElementById('pgpkeyurl').style.display = "none";
+                        }
+                    }
+
+                    page.okpgp.on("status", function(message) {
+                        page.button.textContent = message;
+                        app.xterm.writeln("OKPGP(" + page.okpgp._$mode() + "): " + message);
+                    });
+
+                    page.okpgp.on("working", function() {
+                        page.button.classList.remove('error');
+                        page.button.classList.add('working');
+                    });
+
+                    page.okpgp.on("done", function() {
+                        page.button.classList.remove('error');
+                        page.button.classList.remove('working');
+                    });
+
+                    page.okpgp.on("error", function(msg) {
+                        console.log("pgp-error", msg);
+                        page.button.textContent = msg;
+                        page.button.classList.add('error');
+                        page.button.classList.remove('working');
+                        if (page.statusEvents) page.statusEvents.emit("completed");
+                    });
+
+                    onlykeyApi.api.on("status", function(message) {
+                        page.button.textContent = message;
+                    });
+
+                    onlykeyApi.api.on("error", function(message) {
+                        console.log("okapi-error", message);
+                        page.button.textContent = message;
+                        page.button.classList.add('error');
+                        page.button.classList.remove('working');
+                        if (page.statusEvents) page.statusEvents.emit("completed");
+                    });
+                }
+                else {
+                    page.okpgp._$mode($("#action")[0].select_one.value);
+                }
+
+                app.xterm.writeln("Set PGP Mode to " + $("#action")[0].select_one.value);
+
+                page.statusEvents = page.okpgp.reset();
 
                 if (page.initParams.recipients) document.getElementById('pgpkeyurl').value = page.initParams.recipients;
 
@@ -185,10 +272,6 @@ module.exports = {
                     });
                 };
 
-
-                page.p2g._$mode($("#action")[0].select_one.value);
-
-
                 document.getElementsByTagName('fieldset')[0].style.backgroundColor = app.randomColor({
                     luminosity: 'bright',
                     format: 'rgba'
@@ -201,7 +284,7 @@ module.exports = {
 
                 var pageType = false;
 
-                if (page.p2g._$mode_is('Encrypt Only')) {
+                if (page.okpgp._$mode_is('Encrypt Only')) {
                     document.getElementById('pgpkeyurl2').style.display = "none";
                     document.getElementById('pgpkeyurl').style.display = "initial";
                     try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
@@ -210,7 +293,7 @@ module.exports = {
                     pageType = "e";
                 }
 
-                if (page.p2g._$mode_is('Sign Only')) {
+                if (page.okpgp._$mode_is('Sign Only')) {
                     document.getElementById('pgpkeyurl').style.display = "none";
                     document.getElementById('pgpkeyurl2').style.display = "initial";
                     try { document.getElementById('pgpkeyurl_tokenizer').style.display = "none"; }
@@ -219,7 +302,7 @@ module.exports = {
                     pageType = "s";
                 }
 
-                if (page.p2g._$mode_is('Encrypt and Sign')) {
+                if (page.okpgp._$mode_is('Encrypt and Sign')) {
                     document.getElementById('pgpkeyurl').style.display = "initial";
                     document.getElementById('pgpkeyurl2').style.display = "initial";
                     try { document.getElementById('pgpkeyurl_tokenizer').style.display = "block"; }
@@ -240,25 +323,25 @@ module.exports = {
 
                 page.statusEvents.on("completed", function(data) {
                     $(".messageLink").html("");
-                    
+
                     //add devider
                     var cp = $(`<hr/>`);
                     $(".messageLink").append(cp);
-                    
+
                     //add reset
                     var rb = $(`<button type="submit" id="resetstate">Reset</button>`);
                     rb.click(function() {
                         page.setup(app, $page, pathname);
                     });
                     $(".messageLink").append(rb);
-                    
-                    if(data){
+
+                    if (data) {
                         //add cpy message share link btn
                         var ml = $(`<input type="text" id="messageLink_url"/><button type="submit" id="copylink">Get and Copy Share Link</button>`);
-                        
-                        
+
+
                         var reverse_status;
-                        switch (page.p2g._$mode()) {
+                        switch (page.okpgp._$mode()) {
                             case 'Encrypt and Sign':
                                 reverse_status = "dv";
                                 break;
@@ -269,16 +352,16 @@ module.exports = {
                                 reverse_status = "d";
                                 break;
                         }
-                        
+
                         $(".messageLink").append(ml);
-            
+
                         var $messageLink_url = $(".messageLink").find("#messageLink_url");
                         $messageLink_url.hide();
-                        
+
                         var cpb = $(".messageLink").find("#copylink");
                         var origTxt = cpb.text();
                         cpb.click(function() {
-    
+
                             app.bs_modal_dialog.confirm("Copy Share Link",
                                 `Generating a share link stores 'PGP Message' on a P2P network using 
                         <a href="https://gun.eco/" target="_blank">GUN</a>, and data is encrypted before storing in the network using <a href="https://gun.eco/docs/SEA" target="_blank">SEA</a>.<br/><br/><b>Do you wish to continue?</b>`, ["Yes"],
@@ -288,7 +371,7 @@ module.exports = {
                                         var secret = gm_encode(await app.SEA.secret(pair, pair));
                                         secret = secret.substring(0, 16);
                                         var $data = await app.SEA.encrypt(data, secret);
-    
+
                                         var hash = await app.SEA.work($data, null, null, { name: "SHA-256" });
                                         page.gun.get("ok-messages#").get(hash).put($data, function(res) {
                                             console.log(hash, res);
@@ -302,7 +385,7 @@ module.exports = {
                                         });
                                     }
                                 });
-    
+
                         });
                     }
 
@@ -311,7 +394,7 @@ module.exports = {
                 });
 
                 $("#pgpkeyurl").change(function() {
-                    switch (page.p2g._$mode()) {
+                    switch (page.okpgp._$mode()) {
                         case 'Encrypt and Sign':
                             pageType = "es";
                             break;
@@ -341,8 +424,8 @@ module.exports = {
 
                         var message = null;
                         var file = null;
-                        
-                        switch (page.p2g._$mode()) {
+
+                        switch (page.okpgp._$mode()) {
                             case 'Encrypt and Sign':
                                 pageType = "es";
                                 break;
@@ -357,7 +440,7 @@ module.exports = {
                         if (pageType)
                             app.pages.state.replace({ pathname: pathname }, $("title").text(), "./" + pathname + "?type=" + pageType + "&recipients=" + page.urlinputbox.value);
 
-                        switch (page.p2g._$status()) {
+                        switch (page.okpgp._$status()) {
                             case 'pending_pin':
                                 break;
                             case 'finished':
@@ -382,15 +465,15 @@ module.exports = {
                                 page.statusEvents.emit("completed");
                                 break;
                             default:
-                                switch (page.p2g._$mode()) {
+                                switch (page.okpgp._$mode()) {
                                     case 'Encrypt and Sign':
                                     case 'Sign Only':
 
 
-                                        console.log(page.p2g._$mode());
+                                        console.log(page.okpgp._$mode());
                                         if (!onlykeyApi.api.init) await onlykeyApi.api.connect();
                                         if (!onlykeyApi.api.init) return;
-                                        console.log(page.p2g._$mode());
+                                        console.log(page.okpgp._$mode());
 
                                     case 'Encrypt Only':
                                         if (page.messagebox == null) {
@@ -399,12 +482,12 @@ module.exports = {
                                         else {
                                             message = page.messagebox.value;
                                         }
-                                        await page.p2g.startEncryption(page.urlinputbox.value, page.urlinputbox2.value, message, file, async function(err,data) {
+                                        await page.okpgp.startEncryption(page.urlinputbox.value, page.urlinputbox2.value, message, file, async function(err, data) {
                                             if (page.messagebox && data)
                                                 page.messagebox.value = data;
                                             $(page.messagebox).change();
-                                            
-                                            page.statusEvents.emit("completed",data);
+
+                                            page.statusEvents.emit("completed", data);
 
                                         });
                                         break;
@@ -419,13 +502,14 @@ module.exports = {
             },
             dispose: function(app, pathname) {
                 //init = false;
-                console.log("disposed", pathname);
+                // terminal_applied = false;
+                // console.log("disposed", pathname);
             }
         };
-        
+
         page.init = $page.init;
         page.setup = $page.setup;
-        
+
         pagesList["encrypt"] = $page;
 
         pagesList["encrypt-file"] = {

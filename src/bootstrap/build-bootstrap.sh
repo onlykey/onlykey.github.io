@@ -1,5 +1,4 @@
-
-
+#!/bin/bash -xe
 
 
 
@@ -9,8 +8,8 @@
 
 rm -rf ./bootswatch
 
-rm ../assets/css/bootstrap.css
-rm ../assets/css/bootstrap.min.css
+rm -rf ../assets/css/bootstrap.css
+rm -rf ../assets/css/bootstrap.min.css
 
 git clone https://github.com/thomaspark/bootswatch
 
@@ -22,7 +21,11 @@ npm install
 
 cp -a ../onlykey-template ./dist/onlykey
 
+cp ../../../node_modules/xterm/css/xterm.css ./dist/onlykey
+
 grunt swatch:onlykey
+
+rm ./dist/onlykey/xterm.css
 
 cp ./dist/onlykey/*.css ../../assets/css/.
 

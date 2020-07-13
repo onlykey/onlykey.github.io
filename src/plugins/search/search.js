@@ -23,12 +23,9 @@ module.exports = {
                 init = true;
 
                 // var onlykeyApi = app.onlykeyApi;
-                var onlykeyPGP = app.onlykeyApi.pgp;
-                page.p2g = onlykeyPGP();
-
-                var onlykeyApi = app.onlykeyApi;
+                page.p2g = app.onlykeyApi.pgp();
+                
                 var params = app.pages.getAllUrlParams();
-
 
                 //if (params.q.slice(0, 10) == "-----BEGIN") {
                 if (params.q)
@@ -280,6 +277,10 @@ module.exports = {
                     //$(window).scrollTo("#results", 800);
                 }
 
+            },
+            dispose: function(app, pathname) {
+                //init = false;
+                // console.log("disposed", pathname);
             }
         };
 

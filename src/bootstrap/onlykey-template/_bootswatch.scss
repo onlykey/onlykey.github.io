@@ -268,3 +268,10 @@ fieldset * {
   color: yellow;
 }
 
+@import "xterm";
+
+.terminal_messages_style{
+  margin-top: 20px;
+  border: black;
+  border-style: double;
+}

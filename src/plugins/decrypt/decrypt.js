@@ -37,84 +37,89 @@ module.exports = {
             return arr1.join('');
         }
 
-        var page = {};
+        var page = {};//encrypt and encrypt-file will take over this object;
+        
         var $page = {
             view: require("./decrypt.page.html").default,
             init: function(app, $page, pathname) {
                 init = true;
-
-                var $ = app.$;
-                var onlykeyApi = app.onlykeyApi;
-                var onlykeyPGP = app.onlykeyApi.pgp;
-
-                page.gun = app.newGun();
-                page.p2g = onlykeyPGP();
-
-                var params = app.pages.getAllUrlParams();
-
-                page.p2g._$mode($("#action")[0].select_one.value);
-
-
-                if (page.p2g._$mode_is('Decrypt and Verify')) {
-                    if (params.sender) document.getElementById('pgpkeyurl').value = params.sender;
-                    if (params.type == 'dv') document.getElementById('decrypt_and_verify').checked = true;
-                    if (params.type == 'd') document.getElementById('decrypt_only').checked = true;
-                }
-
-                if (params.gm == 1) {
-                    var gm = params["#"].split("-");
-                    page.gun_message_key = gm[1];
-                    page.gun_message = gm_decode(gm[0]);
-                }
-
-                page.p2g.on("status", function(message) {
-                    page.button.textContent = message;
-                });
-
-                page.p2g.on("working", function() {
-                    page.button.classList.remove('error');
-                    page.button.classList.add('working');
-                });
-
-                page.p2g.on("done", function() {
-                    page.button.classList.remove('error');
-                    page.button.classList.remove('working');
-                });
-
-                page.p2g.on("error", function(msg) {
-                    console.log("pgp-error", msg);
-                    page.button.textContent = msg;
-                    page.button.classList.add('error');
-                    page.button.classList.remove('working');
-                    if(page.statusEvents) page.statusEvents.emit("completed");
-                });
-
-
-                onlykeyApi.api.on("status", function(message) {
-                    page.button.textContent = message;
-                });
-
-                onlykeyApi.api.on("error", function(message) {
-                    console.log("okapi-error", message);
-                    page.button.textContent = message;
-                    page.button.classList.add('error');
-                    page.button.classList.remove('working');
-                });
-
-
-                page.setup(app, $page, pathname);
+                page.setup(app, $page, pathname, init);
             },
-            setup: function(app, $page, pathname) {
+            setup: function(app, $page, pathname, doInit) {
                 if (!init)
                     return page.init(app, $page, pathname);
 
                 var $ = app.$;
                 var onlykeyApi = app.onlykeyApi;
 
-                 $(".messageLink").html("");
-                page.statusEvents = page.p2g.reset();
-            
+                if (doInit) {
+                    
+                    page.gun = app.newGun();
+                    page.okpgp = onlykeyApi.pgp();
 
+                    var params = app.pages.getAllUrlParams();
+
+                    page.okpgp._$mode($("#action")[0].select_one.value);
+
+
+                    if (page.okpgp._$mode_is('Decrypt and Verify')) {
+                        if (params.sender) document.getElementById('pgpkeyurl').value = params.sender;
+                        if (params.type == 'dv') document.getElementById('decrypt_and_verify').checked = true;
+                        if (params.type == 'd') document.getElementById('decrypt_only').checked = true;
+                    }
+
+                    if (params.gm == 1) {
+                        var gm = params["#"].split("-");
+                        page.gun_message_key = gm[1];
+                        page.gun_message = gm_decode(gm[0]);
+                    }
+
+                    page.okpgp.on("status", function(message) {
+                        page.button.textContent = message;
+                        app.xterm.writeln("OKPGP(" + page.okpgp._$mode() + "): " + message);
+                    });
+
+                    page.okpgp.on("working", function() {
+                        page.button.classList.remove('error');
+                        page.button.classList.add('working');
+                    });
+
+                    page.okpgp.on("done", function() {
+                        page.button.classList.remove('error');
+                        page.button.classList.remove('working');
+                    });
+
+                    page.okpgp.on("error", function(msg) {
+                        console.log("pgp-error", msg);
+                        page.button.textContent = msg;
+                        page.button.classList.add('error');
+                        page.button.classList.remove('working');
+                        if (page.statusEvents) page.statusEvents.emit("completed");
+                    });
+
+                    onlykeyApi.api.on("status", function(message) {
+                        page.button.textContent = message;
+                    });
+
+                    onlykeyApi.api.on("error", function(message) {
+                        console.log("okapi-error", message);
+                        page.button.textContent = message;
+                        page.button.classList.add('error');
+                        page.button.classList.remove('working');
+                    });
+                    
+                }else{
+                    
+                    page.okpgp._$mode($("#action")[0].select_one.value);
+
+                }
+                
+                
+                app.xterm.writeln("Set PGP Mode to " + $("#action")[0].select_one.value);
+
+                page.statusEvents = page.okpgp.reset();
+                
+                $(".messageLink").html("");
                 onlykeyApi.api.request_pgp_pubkey = function() {
                     function error_1(err) {
                         page.button.textContent = err;
@@ -158,9 +163,6 @@ module.exports = {
                 }
 
 
-                page.p2g._$mode($("#action")[0].select_one.value);
-
-
                 document.getElementsByTagName('fieldset')[0].style.backgroundColor = app.randomColor({
                     luminosity: 'bright',
                     format: 'rgba'
@@ -173,7 +175,7 @@ module.exports = {
 
                 page.button.classList.remove('error');
                 page.button.classList.remove('working');
-                
+
                 var dlgmI = 0;
                 var dlGM = async function() {
                     if (page.gun_message && page.gun_message_key) {
@@ -203,7 +205,7 @@ module.exports = {
 
                 var pageType = false;
 
-                switch (page.p2g._$mode()) {
+                switch (page.okpgp._$mode()) {
                     case 'Decrypt and Verify':
                         $("#pgpkeyurl").show();
                         $("#pgpkeyurl2").show();
@@ -231,11 +233,11 @@ module.exports = {
 
                 page.statusEvents.on("completed", function(data) {
                     $(".messageLink").html("");
-                    
+
                     //add devider
                     var cp = $(`<hr/>`);
                     $(".messageLink").append(cp);
-                    
+
                     //add reset
                     var rb = $(`<button type="submit" id="resetstate">Reset</button>`);
                     rb.click(function() {
@@ -258,7 +260,7 @@ module.exports = {
                         var message = null;
                         var file = null;
 
-                        switch (page.p2g._$status()) {
+                        switch (page.okpgp._$status()) {
                             case 'pending_pin':
                                 break;
                             case 'finished':
@@ -283,14 +285,14 @@ module.exports = {
                                 page.statusEvents.emit("completed");
                                 break;
                             default:
-                                switch (page.p2g._$mode()) {
+                                switch (page.okpgp._$mode()) {
                                     case 'Decrypt and Verify':
                                     case 'Decrypt Only':
-                                        
-                                        console.log(page.p2g._$mode());
+
+                                        console.log(page.okpgp._$mode());
                                         if (!onlykeyApi.api.init) await onlykeyApi.api.connect();
                                         if (!onlykeyApi.api.init) return;
-                                        console.log(page.p2g._$mode());
+                                        console.log(page.okpgp._$mode());
 
                                         if (page.messagebox == null) {
                                             file = document.getElementById('file');
@@ -298,10 +300,10 @@ module.exports = {
                                         else {
                                             message = page.messagebox.value;
                                         }
-                                        page.p2g.startDecryption(page.urlinputbox.value, page.urlinputbox2.value, message, file, function(err,data) {
+                                        page.okpgp.startDecryption(page.urlinputbox.value, page.urlinputbox2.value, message, file, function(err, data) {
                                             if (page.messagebox && data)
                                                 page.messagebox.value = data;
-                                                
+
                                             page.statusEvents.emit("completed");
                                         });
                                         break;
@@ -309,12 +311,16 @@ module.exports = {
                         }
                     }, false);
                 }
+            },
+            dispose: function(app, pathname) {
+                //init = false;
+                // console.log("disposed", pathname);
             }
         };
 
         page.init = $page.init;
         page.setup = $page.setup;
-        
+
         pagesList["decrypt"] = $page;
 
         pagesList["decrypt-file"] = {

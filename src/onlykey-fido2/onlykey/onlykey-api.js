@@ -44,6 +44,10 @@ module.exports = function(imports) {
   // var OKversion;
   // var FWversion;
   onlykey_api.browser = "Chrome";
+  if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
+    onlykey_api.browser = "Firefox";
+
+
   onlykey_api.os = getOS();
 
 
@@ -69,7 +73,6 @@ module.exports = function(imports) {
     "OKDECRYPT": 240,
     "OKSIGN": 237
   }
-
 
   function getCMD(nameOrNumber, returnNumber) {
     if (typeof nameOrNumber == "string") {
@@ -110,10 +113,6 @@ module.exports = function(imports) {
           callback();
         resolve();
       }
-
-      //Initialize OnlyKey
-      if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
-        onlykey_api.browser = "Firefox";
 
       (function() {
         //Set time on OnlyKey, get firmware version, get ecc public
@@ -249,8 +248,6 @@ module.exports = function(imports) {
     });
   }
   
-  
-  
   onlykey_api.check = async function(callback) {
     return new Promise(async function(resolve) {
       // if (onlykey_api.init) {
@@ -306,9 +303,8 @@ module.exports = function(imports) {
       
       var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
 
-
       // await wait(delay * 1000);
-      await wait(1000);
+      // await wait(1000);
       var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         //console.log("ctaphid_response resp", maybe_a_err, data);
       });
