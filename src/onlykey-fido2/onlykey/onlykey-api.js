@@ -569,13 +569,15 @@ module.exports = function(imports) {
         },
       };
       
-      //await wait(2000);
 
       return resolve(await (new Promise(async function(resolve) {
         // return 
 
         var results = false;
         //       console.log("REQUEST:", request_options);
+        
+        await wait(1000);
+        
         window.navigator.credentials.get({
           publicKey: request_options
         }).catch(error => {

@@ -422,6 +422,10 @@ module.exports = function(imports) {
       // button.classList.add('working');
       onlykey_api_pgp.emit("working");
 
+
+      if(_$mode_is('Decrypt Only'))
+        signer = "";
+        
       if (signer == "" && _$mode_is('Decrypt and Verify')) {
         onlykey_api_pgp.emit("error", "I need senders's public pgp key to verify :(");
         return;
@@ -434,12 +438,12 @@ module.exports = function(imports) {
           sender_public_key = signer;
         }
       }
-
-      if (my_public == "" && _$mode_is('Decrypt and Verify')) {
-        onlykey_api_pgp.emit("error", "I need senders's public pgp key to verify :(");
+      
+      
+      if (my_public == "") {
+        onlykey_api_pgp.emit("error", "I need your's public pgp key to proceed :(");
         return;
-      }
-      else if (my_public != "" && _$mode_is('Decrypt and Verify')) {
+      }else {
         if (my_public.slice(0, 10) != '-----BEGIN') { // Check if its a pasted public key
           my_public_key = await onlykeyApi.getKey(my_public);
         }
@@ -447,8 +451,7 @@ module.exports = function(imports) {
           my_public_key = my_public;
         }
       }
-
-
+      
       var done = function(msg) { callback(null, msg) };
       try {
         if (message != null)
