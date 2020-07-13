@@ -46,7 +46,8 @@ module.exports = function(imports) {
     var poll_delay;
     
     function _$PollDelay(value,comment){
-      console.log("setting poll delay",value,comment); 
+        if(value)
+            console.log("setting poll delay",value,comment); 
       if(value)
         poll_delay = value;
         
@@ -54,7 +55,7 @@ module.exports = function(imports) {
     }
 
     function ping() {
-      console.info("PING: poll_type=" + onlykey_api_pgp.poll_type, "poll_delay=", _$PollDelay());
+      console.info("PING: poll_type=", onlykey_api_pgp.poll_type, "poll_delay=", _$PollDelay());
       var p = msg_polling(onlykey_api_pgp.poll_type, _$PollDelay());
       return p;
     }
@@ -416,15 +417,16 @@ module.exports = function(imports) {
       var sender_public_key, my_public_key;
 
       onlykey_api_pgp.poll_type = 3;
-      _$PollDelay(1, "seconds for default startDecryption delay")
+      _$PollDelay(5, "seconds for default startDecryption delay")
       console.info("Setting poll_type", onlykey_api_pgp.poll_type);
+      console.log("Using PGP Mode", _$mode());
       // button.classList.remove('error');
       // button.classList.add('working');
       onlykey_api_pgp.emit("working");
 
 
       if(_$mode_is('Decrypt Only'))
-        signer = "";
+        signer = false;
         
       if (signer == "" && _$mode_is('Decrypt and Verify')) {
         onlykey_api_pgp.emit("error", "I need senders's public pgp key to verify :(");
@@ -483,7 +485,7 @@ module.exports = function(imports) {
         keyStore.kbpgp.unbox({
           keyfetch: keyStore.ring,
           armored: encryptedMessage,
-          // strict: Decrypt_Only ? false : true
+          strict: Decrypt_Only ? false : true
         }, (err, decryptedMessage) => {
           if (err) {
             onlykey_api_pgp.emit("error", err);
@@ -1054,6 +1056,14 @@ module.exports = function(imports) {
       // var sender_private_key;
 
       keyStore.loadPublic = function loadPublic(key) {
+          
+          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
+              console.log("Loading getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
+              console.log("Loading getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+
         return new Promise(async function(resolve) {
           onlykey_api_pgp.emit("status", "Checking recipient's public key...");
           if (key == "") {
@@ -1077,6 +1087,13 @@ module.exports = function(imports) {
       };
 
       keyStore.loadPublicSignerID = function loadPublicSignerID(key) {
+
+          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
+              console.log("Loading getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
+              console.log("Loading getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
 
         return new Promise(async function(resolve) {
           onlykey_api_pgp.emit("status", "Checking sender's public key...");
@@ -1107,9 +1124,13 @@ module.exports = function(imports) {
                 _$PollDelay(8, "Seconds delay for Assuming RSA 4096 or 3072, loadPublicSignerID");
                 subkey = 0;
               }
-              KB_ONLYKEY.custom_keyid = sigingKeyID.toString('hex').toUpperCase();
+              // KB_ONLYKEY.custom_keyid = sigingKeyID.toString('hex').toUpperCase();
+              KB_ONLYKEY.custom_keyid = keyids[subkey].toString('hex').toUpperCase();
               KB_ONLYKEY.custom_keyid = KB_ONLYKEY.custom_keyid.match(/.{2}/g).map(hexStrToDec);
-              console.info("KB_ONLYKEY.custom_keyid " + KB_ONLYKEY.custom_keyid);
+              console.info(
+                    "KB_ONLYKEY.custom_keyid " + KB_ONLYKEY.custom_keyid, 
+                    "TEST " + sigingKeyID.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec)
+               );
               resolve(KB_ONLYKEY.custom_keyid);
             }
           });
@@ -1128,6 +1149,14 @@ module.exports = function(imports) {
           var testKey, passphrase;
           //detect ecc or rsa
           // if(key){
+              
+          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
+              console.log("Loading getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
+              console.log("Loading getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+
           var decodedKey = imports.pgpDecoder(key)
           if (decodedKey[0].publicKeyAlgorithm && decodedKey[0].publicKeyAlgorithm.toString() == "RSA (Encrypt or Sign) (0x1)" ||
             decodedKey[0].algorithm && decodedKey[0].algorithm.toString() == "RSA (Encrypt or Sign) (0x1)") {
@@ -1395,7 +1424,7 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
           try { keyids = JSON.parse(err); }
           catch (e) {}
         }
-        callback(keyids);
+        callback(null, keyids);
       });
     };
 
@@ -1404,12 +1433,24 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
         armored: public_key
       }, (error, keyObj) => {
         if (error) {
-          return;
+          callback(error);
         }
         else {
-          callback(keyObj.pgp.get_all_key_ids());
+          callback(null,keyObj.pgp.get_all_key_ids());
         }
       });
+    };
+
+    onlykey_api_pgp.getPGPCryptKeyID = function(public_key, callback) {
+        onlykey_api_pgp.getPublicKeyInfo(public_key, function(err, keyobj){
+            callback(err, keyobj.find_crypt_pgp_key().get_key_id());
+        })
+    };
+    
+    onlykey_api_pgp.getPGPVerifyKeyID = function(public_key, callback) {
+        onlykey_api_pgp.getPublicKeyInfo(public_key, function(err, keyobj){
+            callback(err, keyobj.find_verifying_pgp_key().get_key_id());
+        })
     };
 
     onlykey_api_pgp.getPublicKeyInfo = function(public_key, callback) {
@@ -1417,10 +1458,10 @@ AAuXXx+QEJsopLffeE+9q0owSCwX1E/dydgryRSga90BZT0k/g==
         armored: public_key
       }, (error, keyObj) => {
         if (error) {
-          return;
+          callback(error);
         }
         else {
-          callback(keyObj);
+          callback(null, keyObj);
         }
       });
     };

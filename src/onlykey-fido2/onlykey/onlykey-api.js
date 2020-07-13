@@ -12,10 +12,10 @@ module.exports = function(imports) {
   // var forge = require("./forge.min.js");
   // const kbpgp = require('./kbpgp.onlykey.js')(onlykey_api, console);
 
-  onlykey_api._status;
-  onlykey_api.poll_delay;
-  onlykey_api.poll_type;
-  onlykey_api.custom_keyid;
+//   onlykey_api._status;
+//   onlykey_api.poll_delay;
+//   onlykey_api.poll_type;
+//   onlykey_api.custom_keyid;
 
 
   var {
@@ -576,7 +576,7 @@ module.exports = function(imports) {
         var results = false;
         //       console.log("REQUEST:", request_options);
         
-        await wait(1000);
+        //await wait(1000);
         
         window.navigator.credentials.get({
           publicKey: request_options

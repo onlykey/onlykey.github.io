@@ -22,10 +22,25 @@ module.exports = function(imports) {
         var yourtestKeySet// = require("../test_pgp/keys/ecckey.js");
         
         
-        var ONLYKEY_pubkey_armored = "bmatusiak";//use `` to encapsulate it
-        var ONLYKEY_message_armored = false;//use `` to encapsulate it
+        var ONLYKEY_pubkey_armored = "r06u34c1d@protonmail.com";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
+        var ONLYKEY_message_armored = false;`-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.1.0
+Comment: https://keybase.io/crypto
+
+wcBMA64abdqB6k49AQgAut4WMgUjs/hndOIiTO4/SIH/dgQverNfdIromkiiKnNa
+7oWQ+zS3j/1c5kTdFVvs2Y00POejG0Wn3IhdxFZV7aBrbB6shBLCfsPSHbPGuC9Y
+H3bgNVzBoC6r2ICFW0N0mG9JTgA/5Gf2hPGlAeoaNTiW6yDfZbgEurdoTR9GoQDW
+8PHfQx65d5xmaIT7snL4Tqia+UkTrN8SFo6RQ14QSPOGbSFhDFejt6OqLyc3qXxQ
+rFT2lTEzjndRmPyZ/jmtZNgUseZX7fcWUbM9P1HHsNurb7eYi300yQcwAwOtHeTi
+HuOCA+rFGQ7FqwZ3PoE7Uyaj62yZq3oD7R+VBYixftJAASnNxEW9MLFOeX5Uepmj
+i+cxvoOMvTjOSRJ/bcbExRyVw5un2a5cCcF45tTRaVNxHoxJtcQCoyBxUfcodbH6
+/A==
+=U2JX
+-----END PGP MESSAGE-----`;//use `` to encapsulate it
 
         var onlykeyPubKey = ONLYKEY_pubkey_armored ? ONLYKEY_pubkey_armored : rsaKeySet ? rsaKeySet.PubKey : eccKeySet ? eccKeySet.PubKey : yourtestKeySet.PubKey;
+        
+        console.log("Running onlykey test with KEY:", onlykeyPubKey);
 
         async function play(resolve, reject) {
             
@@ -45,8 +60,12 @@ module.exports = function(imports) {
 
 
         async function doEncrypt(pubkeyToUse, unencrypted_message, resolve, reject) {
-            p2g._$mode("Encrypt and Sign");
-            //p2g._$mode("Encrypt Only");
+            //p2g._$mode("Encrypt and Sign");
+            p2g._$mode("Encrypt Only");
+
+            if(p2g._$mode() == "Encrypt Only"){
+                cooldown_between_calls = cooldown_first_call
+            }
 
             cooldownLOOP(async function() {
                 await imports.onlykeyApi.api.check();
@@ -68,11 +87,12 @@ module.exports = function(imports) {
 
         async function doDecrypt(pubkeyToUse, pgp_armored_message, resolve, reject) {
 
-            p2g._$mode("Decrypt and Verify");
+//             p2g._$mode("Decrypt and Verify");
+            p2g._$mode("Decrypt Only");
 
             cooldownLOOP(async function() {
                 await imports.onlykeyApi.api.check();
-                // p2g._$mode("Decrypt Only");
+                
                 cooldownLOOP(function() {
                     p2g.startDecryption(pubkeyToUse, pubkeyToUse, pgp_armored_message.toString(), false, function(err, pgp_decrypted_message) {
                         if (!err && !pgp_decrypted_message)
