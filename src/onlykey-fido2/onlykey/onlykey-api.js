@@ -517,7 +517,8 @@ module.exports = function(imports) {
         encrypt_input:encrypt_input,
         decrypt_output:decrypt_output
       }
-
+      
+      console.log(request);
       // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
       // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
       //

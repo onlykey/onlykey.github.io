@@ -417,7 +417,7 @@ module.exports = function(imports) {
       var sender_public_key, my_public_key;
 
       onlykey_api_pgp.poll_type = 3;
-      _$PollDelay(5, "seconds for default startDecryption delay")
+      _$PollDelay(10, "seconds for default startDecryption delay")
       console.info("Setting poll_type", onlykey_api_pgp.poll_type);
       console.log("Using PGP Mode", _$mode());
       // button.classList.remove('error');
@@ -996,11 +996,11 @@ module.exports = function(imports) {
           }
           cb = cb || noop;
           if (ct.length == 396) {
-            _$PollDelay(5, "Seconds delay for RSA 3072");
+            _$PollDelay(7, "Seconds delay for RSA 3072");
             // onlykey_api_pgp.poll_delay = 5; //5 Second delay for RSA 3072
           }
           else if (ct.length == 524) {
-            _$PollDelay(7, "Seconds delay for RSA 4096");
+            _$PollDelay(10, "Seconds delay for RSA 4096");
             // onlykey_api_pgp.poll_delay = 7; //7 Second delay for RSA 4096
           }
           // if (OKversion == 'Original') {
@@ -1057,12 +1057,6 @@ module.exports = function(imports) {
 
       keyStore.loadPublic = function loadPublic(key) {
           
-          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
-              console.log("Loading getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-          })
-          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
-              console.log("Loading getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-          })
 
         return new Promise(async function(resolve) {
           onlykey_api_pgp.emit("status", "Checking recipient's public key...");
@@ -1070,6 +1064,13 @@ module.exports = function(imports) {
             onlykey_api_pgp.emit("error", "I need recipient's public pgp key :(");
             return;
           }
+
+          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
+              console.log("loadPublic getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
+              console.log("loadPublic getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
 
           kbpgp.KeyManager.import_from_armored_pgp({
             armored: key
@@ -1088,19 +1089,20 @@ module.exports = function(imports) {
 
       keyStore.loadPublicSignerID = function loadPublicSignerID(key) {
 
-          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
-              console.log("Loading getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-          })
-          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
-              console.log("Loading getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-          })
-
         return new Promise(async function(resolve) {
           onlykey_api_pgp.emit("status", "Checking sender's public key...");
           if (key == "") {
             onlykey_api_pgp.emit("error", "I need sender's public pgp key :(");
             return;
           }
+          
+          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
+              console.log("loadPublicSignerID getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
+              console.log("loadPublicSignerID getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+
           kbpgp.KeyManager.import_from_armored_pgp({
             armored: key
           }, (error, sender,warning, packets) => {
@@ -1150,27 +1152,27 @@ module.exports = function(imports) {
           //detect ecc or rsa
           // if(key){
               
-          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
-              console.log("Loading getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-          })
-          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
-              console.log("Loading getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-          })
-
           var decodedKey = imports.pgpDecoder(key)
           if (decodedKey[0].publicKeyAlgorithm && decodedKey[0].publicKeyAlgorithm.toString() == "RSA (Encrypt or Sign) (0x1)" ||
             decodedKey[0].algorithm && decodedKey[0].algorithm.toString() == "RSA (Encrypt or Sign) (0x1)") {
             testKey = onlykey_api_pgp.test_pgp_key_rsa()
             passphrase = 'test123';
-            console.log("loaded rsa private")
+            console.log("Loading Private as RSA key");
           }
           else {
             KB_ONLYKEY.is_ecc = true;
             testKey = onlykey_api_pgp.test_pgp_key_ecc();
             passphrase = 'G2SaK_v[ST_hS,-z';
-            console.log("loaded ecc private")
+            console.log("Loading Private as ECC key");
           }
           // }
+
+          onlykey_api_pgp.getPGPVerifyKeyID(key, function(err, keyobj){
+              console.log("loadPrivate getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
+          onlykey_api_pgp.getPGPCryptKeyID(key, function(err, keyobj){
+              console.log("loadPrivate getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+          })
 
           kbpgp.KeyManager.import_from_armored_pgp({
             armored: testKey
