@@ -3,7 +3,7 @@ module.exports = {
     provides: ["onlykeyApi", "kbpgp", "forge", "nacl", "pgpDecoder", "onlykey3rd"],
     setup: function(options, imports, register) {
 
-        imports.kbpgp = require('./onlykey/kbpgp-2.1.0.ok.js');
+        imports.kbpgp = require('./onlykey/kbpgp-2.1.0.ok.ecc.js');
         imports.nacl = require('./onlykey/nacl.min.js');
         imports.forge = require('./onlykey/forge.min.js');
         imports.pgpDecoder = require('./onlykey/pgp-decoder/pgp.decoder.js');

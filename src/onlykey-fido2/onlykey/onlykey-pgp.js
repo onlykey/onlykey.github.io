@@ -22,7 +22,7 @@ module.exports = function(imports) {
     } = require("./onlykey.extra.js")(imports);
 
 
-    const kbpgp2 = require('./kbpgp-2.1.0.js');
+    const kbpgp2 = imports.kbpgp(false,console);
     // window.kbpgp = kbpgp2;
 
     // const url = require("url");
@@ -383,7 +383,21 @@ module.exports = function(imports) {
         }
       };
 
-      KB_ONLYKEY.auth_sign = function(ct, cb) { //OnlyKey sign request to keyHandle
+      KB_ONLYKEY.auth_sign_rsa = function(ct, cb) { //OnlyKey sign request to keyHandle
+        if (!onlykeyApi.init) {
+          throw new Error("OK NOT CONNECTED");
+          // return;
+        }
+        var pin_hash = sha256(ct);
+        cb = cb || noop;
+        // console.info("Signature Packet bytes ", Array.from(ct));
+        // msg("Signature Packet bytes " + Array.from(ct));
+        pin = [get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31])];
+        //console.info("Generated PIN", pin);
+        return u2fSignBuffer(OKSIGN, typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
+      };
+      
+      KB_ONLYKEY.auth_sign_ecc = function(ct, cb) { //OnlyKey sign request to keyHandle
         if (!onlykeyApi.init) {
           throw new Error("OK NOT CONNECTED");
           // return;
