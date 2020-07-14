@@ -297,7 +297,6 @@ module.exports = function(imports) {
         // });
       }
 
-
       KB_ONLYKEY.auth_decrypt = async function(ct_array, cb) { //OnlyKey decrypt request to keyHandle
         if ( /*ct_array.length > 1 &&*/ onlykeyApi.request_pgp_pubkey) {
           var key = await onlykeyApi.request_pgp_pubkey();
@@ -489,7 +488,7 @@ module.exports = function(imports) {
       function _$mode(newMode) {
         if (newMode) {
           _mode = newMode;
-          // console.info("Changed _status to ", newStatus);
+          console.info("PGP mode set to", newMode);
         }
         return _mode;
       }
@@ -806,9 +805,11 @@ module.exports = function(imports) {
           kbpgp.box(params, (err, results) => {
             if (err) {
               _api.emit("error", err);
+              callback(callback)
+              resolve();
               return;
             }
-            if ((document.getElementById('onlykey_start').value) == 'Sign Only') {
+            if (_$mode_is('Sign Only')) {
               _api.emit("status", 'Done :)  Click here to copy message, then paste signed message into an email, IM, whatever.');
             }
             else {
@@ -817,8 +818,8 @@ module.exports = function(imports) {
 
             _$status("finished");
             _api.emit("done");
-            callback(results);
-            return resolve();
+            callback(null, results);
+            return resolve(results);
           });
         });
       }

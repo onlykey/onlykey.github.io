@@ -22,8 +22,8 @@ module.exports = function(imports) {
         var yourtestKeySet// = require("../test_pgp/keys/ecckey.js");
         
         
-        var ONLYKEY_pubkey_armored = "r06u34c1d_";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
-        var ONLYKEY_message_armored = `-----BEGIN PGP MESSAGE-----
+        var ONLYKEY_pubkey_armored = "bmatusiak";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
+        var ONLYKEY_message_armored = false; `-----BEGIN PGP MESSAGE-----
 Version: Keybase OpenPGP v2.1.13
 Comment: https://keybase.io/crypto
 
