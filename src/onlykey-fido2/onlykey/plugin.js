@@ -1,18 +1,18 @@
 module.exports = {
-    consumes: ["app", "console", "window"],
-    provides: ["onlykeyApi", "kbpgp", "forge", "nacl", "pgpDecoder", "onlykey3rd"],
+    consumes: ["app", "console"],
+    provides: ["onlykeyApi", "onlykeyPGP", "onlykey3rd", "kbpgp", "forge", "nacl"],
     setup: function(options, imports, register) {
 
-        imports.kbpgp = require('./onlykey/kbpgp-2.1.0.js');
-        imports.nacl = require('./onlykey/nacl.min.js');
-        imports.forge = require('./onlykey/forge.min.js');
-        imports.pgpDecoder = require('./onlykey/pgp-decoder/pgp.decoder.js');
-
-        const onlykeyApi = require('./onlykey/onlykey-api.js')(imports);
-        const onlykeyPGP = require('./onlykey/onlykey-pgp.js')(imports);
-        const onlykey3rd = require('./onlykey/onlykey-3rd-party.js')(imports, onlykeyApi);
-
+        var Gun = imports.Gun;
         const request = require('superagent');
+
+        const onlykeyApi = require('./onlykey-api.js')(imports);
+        const onlykeyPGP = require('./onlykey-pgp.js')(imports);
+        const onlykey3rd = require('./onlykey-3rd-party.js')(imports);
+        const kbpgp = require('./kbpgp-2.1.0.js');
+        const nacl = require('./nacl.min.js');
+        const forge = require('./forge.min.js');
+
         var getKey = function getKey(url, statusFn_force) {
             var statusFn, force;
             if (typeof statusFn_force == "string")
@@ -107,18 +107,15 @@ module.exports = {
         onlykeyApi.getKey = getKey;
         
         register(null, {
-            onlykeyApi: {
-                api: onlykeyApi,
-                pgp: function(use_virtue) {
-                    return onlykeyPGP(onlykeyApi, use_virtue);
-                },
-                onlykey3rd: onlykey3rd,
+            onlykeyApi: onlykeyApi,
+            onlykeyPGP: function(use_virtue) {
+                return onlykeyPGP(onlykeyApi, use_virtue);
             },
             onlykey3rd: onlykey3rd,
-            kbpgp: imports.kbpgp,
-            forge: imports.forge,
-            nacl: imports.nacl,
-            pgpDecoder: imports.pgpDecoder
+            kbpgp: kbpgp,
+            forge: forge,
+            nacl: nacl,
+            getKey:getKey
         });
 
 

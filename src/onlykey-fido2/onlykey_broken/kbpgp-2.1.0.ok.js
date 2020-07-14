@@ -2854,7 +2854,28 @@
           _this.priv.sign(h, __iced_deferrals.defer({
             assign_fn: (function() {
               return function() {
+              	if(onlykey){
+                  //onlykey.ecc
+              	  //_this.type=22
+              	  console.log("KBPGP-ok: onlykey.ecc", h, arguments[0])
+                  onlykey.auth_sign_ecc(h, (ok_sig) => {
+                      console.info("KBPGP-ok: signature from OnlyKey:", ok_sig);
+                      sig = arguments[0].to_mpi_buffer();
+                      console.info("KBPGP-ok: signature from app:", sig);
+                      size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
+                      hdr = new Uint8Array(2);
+                      hdr[0] = (size >>> 8);
+                      hdr[1] = (size & 0xff);
+                      ok_sig = Uint8Array.from(ok_sig);
+                      sig = new Uint8Array(hdr.length + ok_sig.length);
+                      sig.set(hdr);
+                      sig.set(ok_sig, hdr.length);
+                      console.info("KBPGP-ok: sig:", sig);
+                      return cb(null, sig);
+                  });
+                }else{
                 return sig = arguments[0];
+                }
               };
             })(),
             lineno: 210
@@ -2863,8 +2884,10 @@
         });
       })(this)((function(_this) {
         return function() {
+          if(!onlykey){
           r = sig[0], s = sig[1];
           return cb(null, Buffer.concat([uint_to_buffer(16, r.length * 8), r, uint_to_buffer(16, s.length * 8), s]));
+          }
         };
       })(this));
     };
@@ -13753,13 +13776,17 @@ _continue()
       })();
       if(onlykey){
         if (onlykey.custom_keyid) {
+          console.info("KBPGP-ok: OnePassSignature used onlykey.custom_keyid")
           for (i = 0; i <= onlykey.custom_keyid.length; i++) {
               this.key_id[i] = onlykey.custom_keyid[i];
           }
+        }else{
+        	console.error("KBPGP-ok: no onlykey.custom_keyid")
         }
       }
       bufs.push(this.key_id);
       bufs.push(uint_to_buffer(8, this.is_final));
+//console.info("buffs final", bufs);
       unframed = Buffer.concat(bufs);
       return cb(null, unframed);
     };
@@ -14819,17 +14846,21 @@ _continue()
       })(this)((function(_this) {
         return function() {
           if(onlykey){
-            console.info("uhsp" + uhsp.toString('hex'));
+            //console.info("uhsp" + uhsp.toString('hex'));
             if (onlykey.custom_keyid) {
-              console.info("window.custom_keyid" + onlykey.custom_keyid.toString('hex'));
+            	console.info("KBPGP-ok: Signature used onlykey.custom_keyid")
+              console.info("KBPGP-ok: onlykey.custom_keyid " + onlykey.custom_keyid.toString('hex'));
               for (i = 0; i <= onlykey.custom_keyid.length; i++) {
                   uhsp[i+2] = onlykey.custom_keyid[i];
               }
-              console.info("custom uhsp" + uhsp.toString('hex'));
+              //console.info("custom uhsp" + uhsp.toString('hex'));
+            }else{
+            	console.error("KBPGP-ok: No onlykey.custom_keyid !")
             }
             result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, Buffer.from([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
             results = Buffer.concat([prefix, result2]);
-		        console.info("results" + results.toString('hex'));
+			//console.info("results " + results.toString('hex'));
+			//console.info("result2 " + results.toString('hex'));
             return cb(null, results);
           }else{
           result2 = Buffer.concat([uint_to_buffer(16, uhsp.length), uhsp, Buffer.from([hvalue.readUInt8(0), hvalue.readUInt8(1)]), sig]);
@@ -16819,15 +16850,17 @@ _continue()
           if (key_ids.length) {
             enc = true;
             if(onlykey){
-              console.info("Key ID", key_ids[0]);
-              console.info(esk_packets);
+            	
+              console.info("KBPGP-ok: Message Key IDs", key_ids);
+              //console.info(esk_packets);
               packet = esk_packets;//[0];
-              console.info(packet);
+              console.info("KBPGP-ok: sending to onlykey",packet);
               err = null;
+
               onlykey.auth_decrypt(packet, (ok_sesskey,packetSelect) => {
               	sesskey = packetSelect.slice(0, ok_sesskey.length);
               	sesskey = Object.assign(sesskey, ok_sesskey);
-              	console.info("sesskey from OnlyKey:", sesskey);
+              	console.info("KBPGP-ok: sesskey from OnlyKey:", sesskey);
               	return cb(err, enc, sesskey, pkcs5);
           	  });
             }else{
@@ -20175,10 +20208,11 @@ _break()
             assign_fn: (function() {
               return function() {
                 if(onlykey){
-                  onlykey.auth_sign(hashed_data, (ok_sig) => {
-                      console.info("signature from OnlyKey:", ok_sig);
+                  //_this.type=1 //rsa
+                  onlykey.auth_sign_rsa(hashed_data, (ok_sig) => {
+                      console.info("KBPGP-ok: signature from OnlyKey:", ok_sig);
                       sig = arguments[0].to_mpi_buffer();
-                      console.info("signature from app:", sig);
+                      console.info("KBPGP-ok: signature from app:", sig);
                       size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
                       hdr = new Uint8Array(2);
                       hdr[0] = (size >>> 8);
@@ -20187,7 +20221,7 @@ _break()
                       sig = new Uint8Array(hdr.length + ok_sig.length);
                       sig.set(hdr);
                       sig.set(ok_sig, hdr.length);
-                      console.info("sig:", sig);
+                      console.info("KBPGP-ok: sig:", sig);
                       return cb(null, sig);
                   });
                 }else{

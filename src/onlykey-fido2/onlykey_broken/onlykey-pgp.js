@@ -49,6 +49,15 @@ module.exports = function(imports) {
     var _status;
     var _mode;
     var pin;
+    
+    var statusEvents = new EventEmitter();
+    onlykey_api_pgp.reset = function() {
+      _$status("reset");
+      statusEvents = new EventEmitter();
+      _$status("ready");
+      return statusEvents;
+    };
+
 
     function ping(delay) {
       console.info("PING: poll_type=" + onlykey_api_pgp.poll_type + ", delay=" + (delay || onlykey_api_pgp.poll_delay));
@@ -436,14 +445,6 @@ module.exports = function(imports) {
     }
 
 
-    var statusEvents;
-    onlykey_api_pgp.reset = function() {
-      _$status("reset");
-      statusEvents = new EventEmitter();
-      _$status("ready");
-      return statusEvents;
-    };
-    //state should only be set internally
     function _$status(newStatus) {
       if (newStatus) {
         _status = newStatus;
@@ -478,7 +479,7 @@ module.exports = function(imports) {
 
     // var ring = new kbpgp.keyring.KeyRing();
 
-    onlykey_api_pgp.startDecryption = async function(signer, mypubkey, message, file, callback) {
+    onlykey_api_pgp.startDecryption = async function(signer, mypubkey,  message, file, callback) {
       var sender_public_key;
 
       onlykey_api_pgp.poll_type = 3;

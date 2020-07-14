@@ -60,9 +60,35 @@ module.exports = function(imports) {
   // var counter = 0;
   // var encrypted_data;
 
+  const COMMANDS = {
+    "OKCONNECT": 228,
+    "OKPING": 243,
+    // "OKGETRESPONSE": 242,
+    // "OKGETPUBKEY": 236,
+    "OKDECRYPT": 240,
+    "OKSIGN": 237
+  }
+
+  function getCMD(nameOrNumber, returnNumber) {
+    if (typeof nameOrNumber == "string") {
+      if (COMMANDS[nameOrNumber])
+        return COMMANDS[nameOrNumber];
+    }
+    else {
+      for (var i in COMMANDS) {
+        if (nameOrNumber == COMMANDS[i]) {
+          if (returnNumber) return COMMANDS[i];
+          return i;
+        }
+      }
+    }
+    return false;
+  }
+  onlykey_api.getCMD = getCMD;
+
   // const OKDECRYPT = 240;
   // const OKSIGN = 237;
-  const OKCONNECT = 228;
+  const OKCONNECT = getCMD('OKCONNECT'); //228;
   // const OKGETPUBKEY = 236;
   // const OKGETRESPONSE = 242;
   // const OKPING = 243;
@@ -75,7 +101,7 @@ module.exports = function(imports) {
    * Receives hardware generated entropy for future use
    */
   onlykey_api.init = false;
-  onlykey_api.initok = async function(callback) {
+  onlykey_api.connect = async function(callback) {
     return new Promise(async function(resolve) {
       if (onlykey_api.init) {
         if (callback && typeof callback == "function")
@@ -123,7 +149,6 @@ module.exports = function(imports) {
     onlykey_api.init = false;
     onlykey_api.connect(cb);
   };
-  onlykey_api.connect = onlykey_api.initok;
 
   // setTimeout(() => {
   //   onlykey_api.initok(function() {
