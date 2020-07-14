@@ -4,7 +4,7 @@ module.exports = function(imports) {
         var cooldown_first_call = 5;
         var cooldown_between_calls = 30;
 
-        var p2g = imports.onlykeyApi.pgp();
+        var p2g = imports.onlykeyApi.pgp().api();
 
         p2g.on("error", console.log.bind({}, "PGP ERROR:"))
         p2g.on("status", function(msg) {
