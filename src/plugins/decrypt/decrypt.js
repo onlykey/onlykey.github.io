@@ -37,8 +37,8 @@ module.exports = {
             return arr1.join('');
         }
 
-        var page = {};//encrypt and encrypt-file will take over this object;
-        
+        var page = {}; //encrypt and encrypt-file will take over this object;
+
         var $page = {
             view: require("./decrypt.page.html").default,
             init: function(app, $page, pathname) {
@@ -52,15 +52,15 @@ module.exports = {
                 var $ = app.$;
                 var onlykeyApi = app.onlykeyApi;
 
+
+                page.okpgp = onlykeyApi.pgp().api();
+                
+                page.okpgp._$mode($("#action")[0].select_one.value);
+
                 if (doInit) {
-                    
                     page.gun = app.newGun();
-                    page.okpgp = onlykeyApi.pgp();
-
+                
                     var params = app.pages.getAllUrlParams();
-
-                    page.okpgp._$mode($("#action")[0].select_one.value);
-
 
                     if (page.okpgp._$mode_is('Decrypt and Verify')) {
                         if (params.sender) document.getElementById('pgpkeyurl').value = params.sender;
@@ -73,52 +73,44 @@ module.exports = {
                         page.gun_message_key = gm[1];
                         page.gun_message = gm_decode(gm[0]);
                     }
-
-                    page.okpgp.on("status", function(message) {
-                        page.button.textContent = message;
-                        app.xterm.writeln("OKPGP(" + page.okpgp._$mode() + "): " + message);
-                    });
-
-                    page.okpgp.on("working", function() {
-                        page.button.classList.remove('error');
-                        page.button.classList.add('working');
-                    });
-
-                    page.okpgp.on("done", function() {
-                        page.button.classList.remove('error');
-                        page.button.classList.remove('working');
-                    });
-
-                    page.okpgp.on("error", function(msg) {
-                        console.log("pgp-error", msg);
-                        page.button.textContent = msg;
-                        page.button.classList.add('error');
-                        page.button.classList.remove('working');
-                        if (page.statusEvents) page.statusEvents.emit("completed");
-                    });
-
-                    onlykeyApi.api.on("status", function(message) {
-                        page.button.textContent = message;
-                    });
-
-                    onlykeyApi.api.on("error", function(message) {
-                        console.log("okapi-error", message);
-                        page.button.textContent = message;
-                        page.button.classList.add('error');
-                        page.button.classList.remove('working');
-                    });
-                    
-                }else{
-                    
-                    page.okpgp._$mode($("#action")[0].select_one.value);
-
                 }
-                
-                
+
+                page.okpgp.on("status", function(message) {
+                    page.button.textContent = message;
+                    app.xterm.writeln("OKPGP(" + page.okpgp._$mode() + "): " + message);
+                });
+
+                page.okpgp.on("working", function() {
+                    page.button.classList.remove('error');
+                    page.button.classList.add('working');
+                });
+
+                page.okpgp.on("done", function() {
+                    page.button.classList.remove('error');
+                    page.button.classList.remove('working');
+                });
+
+                page.okpgp.on("error", function(msg) {
+                    console.log("pgp-error", msg);
+                    page.button.textContent = msg;
+                    page.button.classList.add('error');
+                    page.button.classList.remove('working');
+                    if (page.okpgp) page.okpgp.emit("completed");
+                });
+
+                onlykeyApi.api.on("status", function(message) {
+                    page.button.textContent = message;
+                });
+
+                onlykeyApi.api.on("error", function(message) {
+                    console.log("okapi-error", message);
+                    page.button.textContent = message;
+                    page.button.classList.add('error');
+                    page.button.classList.remove('working');
+                });
+
                 app.xterm.writeln("Set PGP Mode to " + $("#action")[0].select_one.value);
 
-                page.statusEvents = page.okpgp.reset();
-                
                 $(".messageLink").html("");
                 onlykeyApi.api.request_pgp_pubkey = function() {
                     function error_1(err) {
@@ -215,7 +207,7 @@ module.exports = {
                         pageType = "dv";
                         break;
                     case 'Decrypt Only':
-                        $("#pgpkeyurl").hide();
+                        $("#pgpkeyurl").show();
                         $("#pgpkeyurl2").show();
                         $("#pgpkeyurl_tokenizer").show();
                         $("#message").show();
@@ -231,7 +223,7 @@ module.exports = {
 
                 //$(window).scrollTo("h1", 1000);
 
-                page.statusEvents.on("completed", function(data) {
+                page.okpgp.on("completed", function(data) {
                     $(".messageLink").html("");
 
                     //add devider
@@ -282,7 +274,7 @@ module.exports = {
                                 else {
                                     // send file to user
                                 }
-                                page.statusEvents.emit("completed");
+                                page.okpgp.emit("completed");
                                 break;
                             default:
                                 switch (page.okpgp._$mode()) {
@@ -304,7 +296,7 @@ module.exports = {
                                             if (page.messagebox && data)
                                                 page.messagebox.value = data;
 
-                                            page.statusEvents.emit("completed");
+                                            page.okpgp.emit("completed");
                                         });
                                         break;
                                 }

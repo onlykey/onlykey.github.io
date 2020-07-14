@@ -47,7 +47,7 @@ module.exports = function(imports) {
           try { keyids = JSON.parse(err); }
           catch (e) {}
         }
-        callback(keyids);
+        callback(null, keyids);
       });
     };
 
@@ -56,11 +56,23 @@ module.exports = function(imports) {
         armored: public_key
       }, (error, keyObj) => {
         if (error) {
-          return;
+          callback(error);
         }
         else {
-          callback(keyObj.pgp.get_all_key_ids());
+          callback(null, keyObj.pgp.get_all_key_ids());
         }
+      });
+    };
+
+    onlykey_pgp_api.getPGPCryptKeyID = function(public_key, callback) {
+      onlykey_pgp_api.getPublicKeyInfo(public_key, function(err, keyobj) {
+        callback(err, keyobj.find_crypt_pgp_key().get_key_id());
+      });
+    };
+
+    onlykey_pgp_api.getPGPVerifyKeyID = function(public_key, callback) {
+      onlykey_pgp_api.getPublicKeyInfo(public_key, function(err, keyobj) {
+        callback(err, keyobj.find_verifying_pgp_key().get_key_id());
       });
     };
 
@@ -69,14 +81,13 @@ module.exports = function(imports) {
         armored: public_key
       }, (error, keyObj) => {
         if (error) {
-          return;
+          callback(error);
         }
         else {
-          callback(keyObj);
+          callback(null, keyObj);
         }
       });
     };
-
     const OKDECRYPT = 240;
     const OKSIGN = 237;
     const OKPING = 243;
@@ -475,7 +486,7 @@ module.exports = function(imports) {
       function _$status(newStatus) {
         if (newStatus) {
           _status = newStatus;
-          _api.emit("_status",newStatus);
+          _api.emit("_status", newStatus);
           // console.info("Changed _status to ", newStatus);
         }
         return _status;
@@ -497,8 +508,8 @@ module.exports = function(imports) {
         return !!(_$mode() == mode_check);
       }
 
-      async function startDecryption(signer, mypubkey, message, file, callback) {
-        var sender_public_key;
+      async function startDecryption(signer, my_public, message, file, callback) {
+        var sender_public_key, my_public_key;
 
         _poll_type = 3;
         _poll_delay = 1;
@@ -519,12 +530,26 @@ module.exports = function(imports) {
             sender_public_key = signer;
           }
         }
+
+        if (my_public == "") {
+          _api.emit("error", "I need your's public pgp key to proceed :(");
+          return;
+        }
+        else {
+          if (my_public.slice(0, 10) != '-----BEGIN') { // Check if its a pasted public key
+            my_public_key = await onlykeyApi.getKey(my_public);
+          }
+          else {
+            my_public_key = my_public;
+          }
+        }
+
         if (message != null)
-          decryptText(sender_public_key, message, callback);
+          decryptText(sender_public_key, my_public_key, message, callback);
         else decryptFile(sender_public_key, file, callback);
       };
 
-      function decryptText(key, encryptedMessage, callback) {
+      function decryptText(key, onlykeyKey, encryptedMessage, callback) {
         return new Promise(async(resolve) => {
 
           var keyStore = pgpkeyStore();
@@ -539,7 +564,7 @@ module.exports = function(imports) {
               break;
             default:
           }
-          await keyStore.loadPrivate();
+          await keyStore.loadPrivate(onlykeyKey);
           kbpgp.unbox({
             keyfetch: keyStore.ring,
             armored: encryptedMessage,
@@ -1032,10 +1057,38 @@ module.exports = function(imports) {
           });
         };
 
-        keyStore.loadPrivate = function loadPrivate() {
+        keyStore.loadPrivate = function loadPrivate(keyType_or_PubKeyToCompare) {
           return new Promise(async function(resolve) {
+
+            var testKey, passphrase;
+            //detect ecc or rsa
+            // if(key){
+
+            var decodedKey = imports.pgpDecoder(keyType_or_PubKeyToCompare)
+            if (decodedKey[0].publicKeyAlgorithm && decodedKey[0].publicKeyAlgorithm.toString() == "RSA (Encrypt or Sign) (0x1)" ||
+              decodedKey[0].algorithm && decodedKey[0].algorithm.toString() == "RSA (Encrypt or Sign) (0x1)") {
+              testKey = test_pgp_key_rsa()
+              passphrase = 'test123';
+              console.log("Loading Private as RSA key");
+            }
+            else {
+              KB_ONLYKEY.is_ecc = true;
+              testKey = test_pgp_key_ecc();
+              passphrase = 'G2SaK_v[ST_hS,-z';
+              console.log("Loading Private as ECC key");
+            }
+            // }
+
+            onlykey_pgp_api.getPGPVerifyKeyID(keyType_or_PubKeyToCompare, function(err, keyobj) {
+              console.log("loadPrivate getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+            })
+            onlykey_pgp_api.getPGPCryptKeyID(keyType_or_PubKeyToCompare, function(err, keyobj) {
+              console.log("loadPrivate getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+            })
+
+
             kbpgp.KeyManager.import_from_armored_pgp({
-              armored: test_pgp_key_rsa()
+              armored: testKey
             }, (err, sender) => {
               if (err) {
                 _api.emit("error", err);
@@ -1043,8 +1096,6 @@ module.exports = function(imports) {
               }
 
               if (sender.is_pgp_locked()) {
-                let passphrase = 'test123';
-
                 sender.unlock_pgp({
                   passphrase: passphrase
                 }, err => {
@@ -1064,6 +1115,29 @@ module.exports = function(imports) {
         };
 
         return keyStore;
+      };
+
+      "keys we load to emulate keytype to control kbpgps custom changes";
+      function test_pgp_key_ecc() {
+        return `-----BEGIN PGP PRIVATE KEY BLOCK-----
+Version: OpenPGP.js v4.10.4
+Comment: https://openpgpjs.org
+
+xYYEXwMi3BYJKwYBBAHaRw8BAQdAAfXO6lu5meapEWHgyjjL0N6NWQ32Ods9
+0glMWsHptRz+CQMI5DbN2CYgOUlgQU33SkeEasvsRmavDWawU2ayYbMmmzbd
+j8FDf+8pXeTXyFzJlTsEIJUMbNVy1KHlJoSCABuHeNxtpZAc9BEcx/YZzYH2
+ec0vY3JwdGVzdEBwcm90b25tYWlsLmNvbSA8Y3JwdGVzdEBwcm90b25tYWls
+LmNvbT7CeAQQFgoAIAUCXwMi3AYLCQcIAwIEFQgKAgQWAgEAAhkBAhsDAh4B
+AAoJEP3Ku9NMdjsQOxgA/0RbEQXfilev24Juk+PFPOW6ZJ9W6qBlWo+osdot
+12cLAQDwSBG6DL7Fc/aJ3hbBqeMQjE3z9f8MhK4EQBdRGBOKC8eLBF8DItwS
+CisGAQQBl1UBBQEBB0Cf8zipkZrBwXP0+fL4REUgEr7SRs9KcLvk8zYwWnM+
+fgMBCAf+CQMIPf3KXnEFnuBgfHlL8Imons4bQCNUK/VkGRQS94RV4tq3xZPR
+KhYnanouvcvxhZj9r2OA40OO1RhMA+VL69OoVPascg/4J4yJROUsvh/+98Jh
+BBgWCAAJBQJfAyLcAhsMAAoJEP3Ku9NMdjsQunUBAIYhsAzZCRPtrsNbY8AZ
+ZGj4SiROlLxcLdOiMyXhicMFAQDk7cqja8Ms2ouu8HIKoBAjJU2BxQLyJaAP
+A560SEQNAA==
+=JBAp
+-----END PGP PRIVATE KEY BLOCK-----`;
       };
 
       function test_pgp_key_rsa() {

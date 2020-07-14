@@ -147,13 +147,11 @@ module.exports = {
                     }
 
                     page.gun = app.newGun();
-                    page.okpgp = app.onlykeyApi.pgp();
+                    page.okpgp = app.onlykeyApi.pgp().api();
 
                     var params = onlykeyApi.api.getAllUrlParams();
 
                     page.initParams = params;
-
-                    page.okpgp._$mode($("#action")[0].select_one.value);
 
                     if (page.okpgp._$mode_is('Encrypt and Sign')) {
                         if (params.sender) document.getElementById('pgpkeyurl2').value = params.sender;
@@ -206,9 +204,9 @@ module.exports = {
                         if (page.statusEvents) page.statusEvents.emit("completed");
                     });
                 }
-                else {
+
                     page.okpgp._$mode($("#action")[0].select_one.value);
-                }
+
 
                 app.xterm.writeln("Set PGP Mode to " + $("#action")[0].select_one.value);
 
