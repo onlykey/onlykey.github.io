@@ -70,9 +70,9 @@ module.exports = function(imports) {
       });
     };
 
-    onlykey_pgp_api.getPGPVerifyKeyID = function(public_key, callback) {
+    onlykey_pgp_api.getPGPVerifyKeyID = function(public_key, callback) { //also loads type
       onlykey_pgp_api.getPublicKeyInfo(public_key, function(err, keyobj) {
-        callback(err, keyobj.find_verifying_pgp_key().get_key_id());
+        callback(err, keyobj.find_verifying_pgp_key().get_key_id(), keyobj.find_verifying_pgp_key().key.pub.type);
       });
     };
 
@@ -797,7 +797,7 @@ module.exports = function(imports) {
               params = {
                 msg: msg,
                 encrypt_for: keyList,
-                sign_with: await keyStore.loadPrivate()
+                sign_with: await keyStore.loadPrivate(key2)
               };
               _api.emit("status", 'Encrypting and signing message ...');
               break;
@@ -820,7 +820,7 @@ module.exports = function(imports) {
               await keyStore.loadPublicSignerID(key2);
               params = {
                 msg: msg,
-                sign_with: await keyStore.loadPrivate()
+                sign_with: await keyStore.loadPrivate(key2)
               };
               _api.emit("status", 'Signing message ...');
               break;
@@ -1064,53 +1064,52 @@ module.exports = function(imports) {
             //detect ecc or rsa
             // if(key){
 
-            var decodedKey = imports.pgpDecoder(keyType_or_PubKeyToCompare)
-            if (decodedKey[0].publicKeyAlgorithm && decodedKey[0].publicKeyAlgorithm.toString() == "RSA (Encrypt or Sign) (0x1)" ||
-              decodedKey[0].algorithm && decodedKey[0].algorithm.toString() == "RSA (Encrypt or Sign) (0x1)") {
-              testKey = test_pgp_key_rsa()
-              passphrase = 'test123';
-              console.log("Loading Private as RSA key");
-            }
-            else {
-              KB_ONLYKEY.is_ecc = true;
-              testKey = test_pgp_key_ecc();
-              passphrase = 'G2SaK_v[ST_hS,-z';
-              console.log("Loading Private as ECC key");
-            }
-            // }
+            onlykey_pgp_api.getPGPVerifyKeyID(keyType_or_PubKeyToCompare, function(err, verify_key_id, key_type) {
+              console.log("loadPrivate getPGPVerifyKeyID key, ID:", verify_key_id.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
 
-            onlykey_pgp_api.getPGPVerifyKeyID(keyType_or_PubKeyToCompare, function(err, keyobj) {
-              console.log("loadPrivate getPGPVerifyKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-            })
-            onlykey_pgp_api.getPGPCryptKeyID(keyType_or_PubKeyToCompare, function(err, keyobj) {
-              console.log("loadPrivate getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-            })
-
-
-            kbpgp.KeyManager.import_from_armored_pgp({
-              armored: testKey
-            }, (err, sender) => {
-              if (err) {
-                _api.emit("error", err);
-                return;
-              }
-
-              if (sender.is_pgp_locked()) {
-                sender.unlock_pgp({
-                  passphrase: passphrase
-                }, err => {
-                  if (!err) {
-                    //console.log(`Loaded test private key using passphrase ${passphrase}`);
-                    keyStore.ring.add_key_manager(sender);
-                    resolve(sender);
-                  }
-                });
+              if (key_type == 1) {
+                testKey = test_pgp_key_rsa()
+                passphrase = 'test123';
+                console.log("Loading Private as RSA key");
               }
               else {
-                //console.log("Loaded test private key w/o passphrase");
-                resolve(sender);
+                KB_ONLYKEY.is_ecc = true;
+                testKey = test_pgp_key_ecc();
+                passphrase = 'G2SaK_v[ST_hS,-z';
+                console.log("Loading Private as ECC key");
               }
-            });
+              // }
+
+//               onlykey_pgp_api.getPGPCryptKeyID(keyType_or_PubKeyToCompare, function(err, keyobj) {
+//                 console.log("loadPrivate getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
+//               })
+
+
+              kbpgp.KeyManager.import_from_armored_pgp({
+                armored: testKey
+              }, (err, sender) => {
+                if (err) {
+                  _api.emit("error", err);
+                  return;
+                }
+
+                if (sender.is_pgp_locked()) {
+                  sender.unlock_pgp({
+                    passphrase: passphrase
+                  }, err => {
+                    if (!err) {
+                      //console.log(`Loaded test private key using passphrase ${passphrase}`);
+                      keyStore.ring.add_key_manager(sender);
+                      resolve(sender);
+                    }
+                  });
+                }
+                else {
+                  //console.log("Loaded test private key w/o passphrase");
+                  resolve(sender);
+                }
+              });
+            })
           });
         };
 
@@ -1118,6 +1117,7 @@ module.exports = function(imports) {
       };
 
       "keys we load to emulate keytype to control kbpgps custom changes";
+
       function test_pgp_key_ecc() {
         return `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: OpenPGP.js v4.10.4
