@@ -22,7 +22,8 @@ module.exports = function(imports) {
         var yourtestKeySet// = require("../test_pgp/keys/ecckey.js");
         
         
-        var ONLYKEY_pubkey_armored = "bmatusiak";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
+        var ONLYKEY_pubkey_armored = "r06u34c1d_";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
+        var ONLYKEY_pubkey_armored_verify = true;
         var ONLYKEY_message_armored = false; `-----BEGIN PGP MESSAGE-----
 Version: Keybase OpenPGP v2.1.13
 Comment: https://keybase.io/crypto
@@ -60,9 +61,11 @@ Ab4=
 
 
         async function doEncrypt(pubkeyToUse, unencrypted_message, resolve, reject) {
-            //p2g._$mode("Encrypt and Sign");
-            p2g._$mode("Encrypt Only");
-
+            if(ONLYKEY_pubkey_armored_verify){
+                p2g._$mode("Encrypt and Sign");
+            }else{
+                p2g._$mode("Encrypt Only");
+            }
             if(p2g._$mode() == "Encrypt Only"){
                 cooldown_between_calls = cooldown_first_call
             }
@@ -86,9 +89,11 @@ Ab4=
         }
 
         async function doDecrypt(pubkeyToUse, pgp_armored_message, resolve, reject) {
-
-//             p2g._$mode("Decrypt and Verify");
-            p2g._$mode("Decrypt Only");
+            if(ONLYKEY_pubkey_armored_verify){
+                p2g._$mode("Decrypt and Verify");
+            }else{
+                p2g._$mode("Decrypt Only");
+            }
 
             cooldownLOOP(async function() {
                 await imports.onlykeyApi.api.check();
