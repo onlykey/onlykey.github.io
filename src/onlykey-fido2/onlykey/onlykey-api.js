@@ -1,5 +1,6 @@
 module.exports = function(imports) {
 
+  var window = imports.window
   var console = imports.console;
 
   /* globals  */
@@ -86,42 +87,42 @@ module.exports = function(imports) {
       //Initialize OnlyKey
       if (window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1)
         onlykey_api.browser = "Firefox";
-      
-      imports.app.$().ready(function(){
-        //Set time on OnlyKey, get firmware version, get ecc public
-        OK_CONNECT(async function(err, status) {
-          console.log(err);
-          if(status){
-            console.log("OKCONNECT STATUS", status);
-          }
-  
-          if (typeof(onlykey_api.sharedsec) === "undefined") {
-            // if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
-            // else headermsg("OnlyKey not connected! Refresh this page to try again.");
-            if (callback && typeof callback == "function")
-              callback(true);
-            resolve();
-          }
-          else {
-            onlykey_api.init = true;
-            //Initialize App
-            if (callback && typeof callback == "function")
-              callback();
-            resolve();
-  
-          }
-        });
+
+      //imports.app.$().ready(function(){
+      //Set time on OnlyKey, get firmware version, get ecc public
+      OK_CONNECT(async function(err, status) {
+        console.log(err);
+        if (status) {
+          console.log("OKCONNECT STATUS", status);
+        }
+
+        if (typeof(onlykey_api.sharedsec) === "undefined") {
+          // if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
+          // else headermsg("OnlyKey not connected! Refresh this page to try again.");
+          if (callback && typeof callback == "function")
+            callback(true);
+          resolve();
+        }
+        else {
+          onlykey_api.init = true;
+          //Initialize App
+          if (callback && typeof callback == "function")
+            callback();
+          resolve();
+
+        }
       });
-
-      // if (os == 'Android') await wait(6000);
-      // else await wait(3000);
-      // await wait(1000);
-
     });
+
+    // if (os == 'Android') await wait(6000);
+    // else await wait(3000);
+    // await wait(1000);
+
+    //});
   };
-  onlykey_api.check = function(cb){
+  onlykey_api.check = function(cb) {
     onlykey_api.init = false;
-    onlykey_api.connect(cb);
+    return onlykey_api.connect(cb);
   };
   onlykey_api.connect = onlykey_api.initok;
 
@@ -137,7 +138,7 @@ module.exports = function(imports) {
       function cb(err, data) {
         if (typeof callback === 'function') callback(err, data);
         // if (err) return reject(err);
-        resolve({data: data, error:err});
+        resolve({ data: data, error: err });
       }
 
       var delay = 1;
@@ -177,7 +178,7 @@ module.exports = function(imports) {
       var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         console.log("ctaphid_response resp", maybe_a_err, data);
       });
-      
+
       imports.app.emit("ok-waiting");
 
       var response;
@@ -212,7 +213,7 @@ module.exports = function(imports) {
             break;
         }
         cb(null, ctaphid_response.status);
-        
+
       }
 
     });
@@ -282,11 +283,19 @@ module.exports = function(imports) {
 
     // console.log('UNFORMATTED RESPONSE:', response);
 
-    var signature_count = (
-      new DataView(
-        response.authenticatorData.slice(33, 37)
-      )
-    ).getUint32(0, false); // get count as 32 bit BE integer
+    var signature_count;
+    if (onlykey_api.os == "Node") {
+      signature_count = (
+        new DataView(toArrayBuffer(Buffer.from(response.authenticatorData.slice(33, 37))))
+      ).getUint32(0, false); // get count as 32 bit BE integer
+    }
+    else {
+      signature_count = (
+        new DataView(
+          response.authenticatorData.slice(33, 37)
+        )
+      ).getUint32(0, false); // get count as 32 bit BE integer
+    }
 
     var signature = new Uint8Array(response.signature);
     var error_code = signature[0];
@@ -496,6 +505,14 @@ module.exports = function(imports) {
   onlykey_api.ctaphid_via_webauthn = ctaphid_via_webauthn;
 
 
+  function toArrayBuffer(buf) {
+    var ab = new ArrayBuffer(buf.length);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buf.length; ++i) {
+      view[i] = buf[i];
+    }
+    return ab;
+  }
   /**
    * Parse custom U2F sign response
    * @param {Array} response

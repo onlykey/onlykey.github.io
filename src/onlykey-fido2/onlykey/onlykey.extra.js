@@ -133,6 +133,11 @@ module.exports = function(imports) {
   }
 
   $exports.getOS = function getOS() {
+    
+    if(typeof window == "undefined"){
+      os = "Node";
+      return os;
+    }
     var userAgent = window.navigator.userAgent,
       platform = window.navigator.platform,
       macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],

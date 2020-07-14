@@ -528,6 +528,8 @@ module.exports = function(imports) {
         }, (err, decryptedMessage) => {
           if (err) {
             onlykey_api_pgp.emit("error", err);
+            callback(err);
+            resolve();
             return;
           }
           if (Decrypt_Only) {
@@ -559,7 +561,7 @@ module.exports = function(imports) {
           // messagebox.focus();
           // messagebox.select();
           onlykey_api_pgp.emit("done");
-          callback(decryptedMessage);
+          callback(null, decryptedMessage);
           resolve(decryptedMessage);
         });
       });

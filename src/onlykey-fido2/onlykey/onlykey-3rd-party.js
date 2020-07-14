@@ -1,6 +1,6 @@
-module.exports = function(imports){
-/* global $ TextEncoder */
-var $ = require("jquery");
+module.exports = function(imports, onlykeyApi){
+/* global TextEncoder */
+// var $ = require("jquery");
 var nacl = require("./nacl.min.js");
 var EventEmitter = require("events").EventEmitter;
 
@@ -27,7 +27,7 @@ var EventEmitter = require("events").EventEmitter;
 // window.nacl = nacl;
 // window.forge = forge;
 
-var crypto = window.crypto;
+var crypto = imports.window.crypto;
 
 var log = htmlLog.bind(console);
 
@@ -39,14 +39,14 @@ function htmlLog(text) {
     for (var i = 0; i < arguments.length; i++) {
         args.push(arguments[i]);
     }
-    $("#console_output").append($("<span/>").text(args.join(" ")));
-    $("#console_output").append($("<br/>"));
+    // $("#console_output").append($("<span/>").text(args.join(" ")));
+    // $("#console_output").append($("<br/>"));
     return console.log.bind({}, args.join(" "));
 };
 
 function _setStatus(newStatus) {
     window._status = newStatus;
-    $("#onlykey_status").text(newStatus);
+    // $("#onlykey_status").text(newStatus);
 }
 
 var sha256 = async function(s) {
@@ -387,7 +387,7 @@ function onlykey(keytype, enc_resp) {
             var encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
             
             imports.app.emit("ok-connecting");
-            await ctaphid_via_webauthn(OKCONNECT, null, null, null, encryptedkeyHandle, 6000).then(async(response) => {
+            await ctaphid_via_webauthn(OKCONNECT, null, null, null, encryptedkeyHandle, 30000).then(async(response) => {
         
                 if (!response || response == 1) {
                     htmlLog("Problem setting time on onlykey");
