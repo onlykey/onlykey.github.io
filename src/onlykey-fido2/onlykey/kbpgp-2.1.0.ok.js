@@ -14848,7 +14848,7 @@ _continue()
           if(onlykey){
             //console.info("uhsp" + uhsp.toString('hex'));
             if (onlykey.custom_keyid) {
-            	console.info("KBPGP-ok: OnePassSignature used onlykey.custom_keyid")
+            	console.info("KBPGP-ok: Signature used onlykey.custom_keyid")
               console.info("KBPGP-ok: onlykey.custom_keyid " + onlykey.custom_keyid.toString('hex'));
               for (i = 0; i <= onlykey.custom_keyid.length; i++) {
                   uhsp[i+2] = onlykey.custom_keyid[i];

@@ -23,7 +23,20 @@ module.exports = function(imports) {
         
         
         var ONLYKEY_pubkey_armored = "r06u34c1d_";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
-        var ONLYKEY_message_armored = false;//use `` to encapsulate it, no need to set this if you can use a service 
+        var ONLYKEY_message_armored = `-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.1.13
+Comment: https://keybase.io/crypto
+
+wcBMA64abdqB6k49AQf/aP/xEwG+TREVN4CZETzTJbB/q+wxFyyWMGXw1vkHpScG
+6B1JfYBQ8c+FmfMJry1RZN7y6CG0qCRSvaN23eZKrqHia5T4XPjhX9GVHjUZHLcE
+QmDCe1HgFvdUnVW3gXkfQQgCkqoeq786zm7Cj/Iwc5R5GXe/9ZYBi0ublhfYFdTc
+XI45paq5GVNh3+r5xDafqaJ6g1vq1dEIsX5KOuzggh1Kv+qQCMwjoompzbtw+bl+
+37otc3fMlWTr9KXSk142MbyeNtLL5tnkDMtnIAXKddiwPa3+mZXTfBq3o08dTUL8
+POqNN8FriRS27oZADwKhE/JYHfTobli105mLGWI/7NJBAaPZ3AfCfuy5M03uoPVX
+kl1k/xYUKjY56h+5mh7x4Rr6zwn0swhcSBLzSYJurpjhPjO3Jf/OVfWYk4myQ/wE
+Ab4=
+=nN5Q
+-----END PGP MESSAGE-----`;//use `` to encapsulate it, no need to set this if you can use a service 
 
         var onlykeyPubKey = ONLYKEY_pubkey_armored ? ONLYKEY_pubkey_armored : rsaKeySet ? rsaKeySet.PubKey : eccKeySet ? eccKeySet.PubKey : yourtestKeySet.PubKey;
         
@@ -43,7 +56,7 @@ module.exports = function(imports) {
         }
 
         await (new Promise(play)).catch(reject);
-        resolve();
+        return resolve();
 
 
         async function doEncrypt(pubkeyToUse, unencrypted_message, resolve, reject) {

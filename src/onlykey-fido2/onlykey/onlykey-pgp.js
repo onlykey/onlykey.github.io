@@ -95,7 +95,7 @@ module.exports = function(imports) {
         await wait(delay * 1000);
         var ctaphid_response = await onlykeyApi.ctaphid_via_webauthn(cmd, null, null, null, message, 6000, function(aerr, data) {
           // console.log(aerr, data);
-        }, 1);
+        }, 1, 0);
 
         var response;
 
@@ -1008,9 +1008,9 @@ module.exports = function(imports) {
           // }
           var padded_ct = ct.slice(12, ct.length);
           var keyid = ct.slice(1, 8);
-          // console.info("Key ID bytes", Array.from(keyid));
+          console.info("Key ID bytes", Array.from(keyid));
           var pin_hash = sha256(padded_ct);
-          // console.info("Padded CT Packet bytes", Array.from(padded_ct));
+          console.info("Padded CT Packet bytes", Array.from(padded_ct));
           pin = [get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31])];
           console.log("Generated PIN " + pin);
           return u2fSignBuffer(typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, function(oks) {
@@ -1233,6 +1233,8 @@ A560SEQNAA==
       //this is public public key for the private key block that is returned
       //displayed for diagnostics purposes
       /*
+        0: 1a9fe0b9e8b60581 Uint8Array(8) [26, 159, 224, 185, 232, 182, 5, 129]
+        1: bb2ff56243e86289 Uint8Array(8) [187, 47, 245, 98, 67, 232, 98, 137]
       -----BEGIN PGP PUBLIC KEY BLOCK-----
       Version: Keybase OpenPGP v2.1.0
       Comment: https://keybase.io/crypto
