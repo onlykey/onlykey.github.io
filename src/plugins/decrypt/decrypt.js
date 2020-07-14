@@ -52,28 +52,36 @@ module.exports = {
                 var $ = app.$;
                 var onlykeyApi = app.onlykeyApi;
 
-
                 page.okpgp = onlykeyApi.pgp().api();
                 
-                page.okpgp._$mode($("#action")[0].select_one.value);
-
                 if (doInit) {
                     page.gun = app.newGun();
                 
                     var params = app.pages.getAllUrlParams();
-
-                    if (page.okpgp._$mode_is('Decrypt and Verify')) {
-                        if (params.sender) document.getElementById('pgpkeyurl').value = params.sender;
-                        if (params.type == 'dv') document.getElementById('decrypt_and_verify').checked = true;
-                        if (params.type == 'd') document.getElementById('decrypt_only').checked = true;
-                    }
-
+                    if (params.type == 'dv') document.getElementById('decrypt_and_verify').checked = true;
+                    if (params.type == 'd') document.getElementById('decrypt_only').checked = true;
+                    if (params.sender) document.getElementById('pgpkeyurl').value = params.sender;
+                    
                     if (params.gm == 1) {
                         var gm = params["#"].split("-");
                         page.gun_message_key = gm[1];
                         page.gun_message = gm_decode(gm[0]);
                     }
+                    
+                    onlykeyApi.api.on("status", function(message) {
+                        page.button.textContent = message;
+                    });
+    
+                    onlykeyApi.api.on("error", function(message) {
+                        console.log("okapi-error", message);
+                        page.button.textContent = message;
+                        page.button.classList.add('error');
+                        page.button.classList.remove('working');
+                    });
                 }
+                
+                page.okpgp._$mode($("#action")[0].select_one.value);
+                
 
                 page.okpgp.on("status", function(message) {
                     page.button.textContent = message;
@@ -98,18 +106,8 @@ module.exports = {
                     if (page.okpgp) page.okpgp.emit("completed");
                 });
 
-                onlykeyApi.api.on("status", function(message) {
-                    page.button.textContent = message;
-                });
 
-                onlykeyApi.api.on("error", function(message) {
-                    console.log("okapi-error", message);
-                    page.button.textContent = message;
-                    page.button.classList.add('error');
-                    page.button.classList.remove('working');
-                });
-
-                app.xterm.writeln("Set PGP Mode to " + $("#action")[0].select_one.value);
+                app.xterm.writeln("PGP Mode to " + page.okpgp._$mode());
 
                 $(".messageLink").html("");
                 onlykeyApi.api.request_pgp_pubkey = function() {

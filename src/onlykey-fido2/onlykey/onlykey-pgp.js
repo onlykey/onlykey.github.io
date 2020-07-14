@@ -409,7 +409,7 @@ module.exports = function(imports) {
 
           if (!_$status_is('pending_challenge') /* || _$status_is('waiting_ping')*/ ) {
             // _$status('done_challenge');
-            onlykeyApi.emit("status", `Waiting for OnlyKey to process message.`);
+            _api.emit("status", `Waiting for OnlyKey to process message.`);
             res = ping(); //Delay
           }
           else if (_$status_is('pending_challenge')) {
@@ -418,7 +418,7 @@ module.exports = function(imports) {
               _$status('done_challenge');
             }
             if (secondsRemaining > 1) {
-              onlykeyApi.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
+              _api.emit("status", `You have ${secondsRemaining} seconds to enter challenge code ${pin} on OnlyKey.`);
               // console.info("enter challenge code", pin);
             }
 
