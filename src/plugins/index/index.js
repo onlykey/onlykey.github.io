@@ -12,14 +12,13 @@ module.exports = {
     setup: function(options, imports, register) {
         var fired = false;
         function doSetTime() {
-            console.log("setting time")
+            // console.log("setting time")
             if(fired) return;
             setTimeout(function(){
                 
             fired = true;
             imports.onlykeyApi.api.check(function(asd){
-                console.log(asd)
-                
+                // console.log(asd)
             });
             
             },2000);
