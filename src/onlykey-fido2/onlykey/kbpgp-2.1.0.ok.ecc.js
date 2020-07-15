@@ -2860,7 +2860,24 @@
               	  console.log("KBPGP-ok: onlykey.ecc", h, arguments[0])
                   onlykey.auth_sign_ecc(h, (ok_sig) => {
                       console.info("KBPGP-ok: signature from OnlyKey:", ok_sig);
-                      sig = arguments[0].to_mpi_buffer();
+                      
+                      var sigO = Buffer.concat([uint_to_buffer(16, arguments[0][0].length * 8), arguments[0][0], uint_to_buffer(16, arguments[0][1].length * 8), arguments[0][1]]);
+                      console.info("KBPGP-ok: signature from app:", sigO);
+                      
+                      r = Uint8Array.from(ok_sig.slice(0,32));
+                      s = Uint8Array.from(ok_sig.slice(32,64));
+                      sig = Buffer.concat([uint_to_buffer(16, r.length * 8), r, uint_to_buffer(16, s.length * 8), s]);
+                        
+                      console.info("KBPGP-ok: sig:", sig);
+                      return cb(null, sig);
+                                            
+                      //sig = [Uint8Array.from(ok_sig.slice(0,32)),Uint8Array.from(ok_sig.slice(0,32))];
+                      //sig = Buffer.concat([uint_to_buffer(16, sig[0].length * 8), sig[0], uint_to_buffer(16, sig[1].length * 8), sig[1]])
+                      //console.info("KBPGP-ok: sig:", sig);
+                      //return cb(null, sig);
+                      //arguments[0].to_mpi_buffer();
+                      /*
+                      sig = Buffer.concat([uint_to_buffer(16, arguments[0][0].length * 8), arguments[0][0], uint_to_buffer(16, arguments[0][1].length * 8), arguments[0][1]]);
                       console.info("KBPGP-ok: signature from app:", sig);
                       size = (ok_sig.length - 1) * 8 + nbits(ok_sig[0]);
                       hdr = new Uint8Array(2);
@@ -2870,8 +2887,11 @@
                       sig = new Uint8Array(hdr.length + ok_sig.length);
                       sig.set(hdr);
                       sig.set(ok_sig, hdr.length);
+
+
                       console.info("KBPGP-ok: sig:", sig);
                       return cb(null, sig);
+                      */
                   });
                 }else{
                 return sig = arguments[0];

@@ -7,7 +7,7 @@ module.exports = function(kbpgp) {
 
     var rsaKeySet   = require("./keys/rsakey.js");
     var ecdhKeySet  = false;  //require("./keys/ecdhkey.js");
-    var eccKeySet   = false;  //require("./keys/ecckey.js");
+    var eccKeySet   = require("./keys/ecckey.js");
 
     var act;
 
