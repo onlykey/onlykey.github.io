@@ -413,7 +413,12 @@ module.exports = function(imports) {
 
       function slotid(slot) {
         //_mode == "Encrypt and Sign" ? 2 : 1; << should be this ( mode should be set before running any process at start)
-        return slot == OKSIGN ? 2 : 1;
+        var ret = (slot == OKSIGN ? 2 : 1);
+        
+        if(KB_ONLYKEY.is_ecc){
+          ret+=100;
+        }
+        return ret;
       }
 
       function doPinTimer(seconds) {
