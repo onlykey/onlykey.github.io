@@ -197,9 +197,9 @@ module.exports = function(imports) {
             break;
           case "CTAP1_SUCCESS":
             okPub = response.slice(21, 53);
-            // console.info("OnlyKey Public Key: ", okPub);
+            console.info("OnlyKey Public Key: ", okPub);
             onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-            // console.info("NACL shared secret: ", onlykey_api.sharedsec);
+            console.info("NACL shared secret: ", onlykey_api.sharedsec);
             onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
             onlykey_api.FWversion = bytes2string(response.slice(8, 20));
             console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);

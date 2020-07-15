@@ -194,6 +194,7 @@ module.exports = function(imports) {
                 _$status('pending_challenge');
               }
               else {
+                console.log("Shared Secret", onlykeyApi.sharedsec)    
                 data = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
                 console.log("DECODED RESPONSE:", response);
                 //console.log("DECODED RESPONSE(as string):", bytes2string(response));
