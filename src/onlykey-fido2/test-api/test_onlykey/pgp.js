@@ -2,7 +2,7 @@ module.exports = function(imports) {
     return new Promise(async function(resolve, reject) {
         
         //fill in your onlykey keybase username or protonmail email address
-        var ONLYKEY_pubkey_armored = "r06u34c1d_";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
+        var ONLYKEY_pubkey_armored = "testcrp9";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
         var ONLYKEY_pubkey_armored_verify = true;
         var ONLYKEY_message_armored = false; `-----BEGIN PGP MESSAGE-----
 Version: Keybase OpenPGP v2.1.13

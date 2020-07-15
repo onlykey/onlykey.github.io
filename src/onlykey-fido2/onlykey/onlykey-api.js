@@ -90,8 +90,8 @@ module.exports = function(imports) {
 
       //imports.app.$().ready(function(){
       //Set time on OnlyKey, get firmware version, get ecc public
-      OK_CONNECT(async function(err, status) {
-        console.log(err);
+      OK_CONNECT(async function(aerr, status) {
+        // console.log(err);
         if (status) {
           console.log("OKCONNECT STATUS", status);
         }
@@ -176,7 +176,7 @@ module.exports = function(imports) {
       await wait(delay * 1000);
 
       var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
-        console.log("ctaphid_response resp", maybe_a_err, data);
+        // console.log("ctaphid_response resp", maybe_a_err, data);
       });
 
       imports.app.emit("ok-waiting");
@@ -202,6 +202,7 @@ module.exports = function(imports) {
             // console.info("NACL shared secret: ", onlykey_api.sharedsec);
             onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
             onlykey_api.FWversion = bytes2string(response.slice(8, 20));
+            console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
             // msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
             // element_by_id('header_messages').innerHTML = "<br>";
             // headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
@@ -328,7 +329,7 @@ module.exports = function(imports) {
           //throw new Error(bytes2string(msgtext));
           error = bytes2string(msgtext);
         }
-        break;
+        // break;
         // case "CTAP2_ERR_NO_OPERATION_PENDING":
         //   error = 'no data received';
         //   break;
@@ -395,6 +396,16 @@ module.exports = function(imports) {
   }
 
   function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout, cb) {
+    var request = {
+        cmd:cmd,
+        opt1:opt1,
+        opt2:opt2,
+        opt3:opt3,
+        input_data:data,
+        timeout:timeout
+      }
+      
+      
     // if a token does not support CTAP2, WebAuthn re-encodes as CTAP1/U2F:
     // https://fidoalliance.org/specs/fido-v2.0-rd-20170927/fido-client-to-authenticator-protocol-v2.0-rd-20170927.html#interoperating-with-ctap1-u2f-authenticators
     //
@@ -410,11 +421,10 @@ module.exports = function(imports) {
     //#define ENCRYPT_RESP 1
     var keyhandle = encode_ctaphid_request_as_keyhandle(cmd, opt1, opt2, opt3, data);
     var challenge = window.crypto.getRandomValues(new Uint8Array(32));
-    var request_options;
-
+    
     var id = window.location.hostname;
 
-    request_options = {
+    request.request_options = {
       challenge: challenge,
       allowCredentials: [{
         id: keyhandle,
@@ -431,14 +441,15 @@ module.exports = function(imports) {
         appid: 'https://' + id
       },
     };
-
+    
     return new Promise(async function(resolve) {
       // return 
-
+      
+      console.log({ctaphid_request:request});
       var results = false;
-      console.log("REQUEST:", request_options);
+      // console.log("REQUEST:", request_options);
       window.navigator.credentials.get({
-        publicKey: request_options
+        publicKey: request.request_options
       }).catch(error => {
         console.warn("ERROR CALLING:", cmd, opt1, opt2, opt3, data);
         console.warn("THE ERROR:", error);
@@ -474,8 +485,11 @@ module.exports = function(imports) {
           // console.log("GOT ASSERTION", assertion);
           // console.log("RESPONSE", assertion.response);
           response = decode_ctaphid_response_from_signature(assertion.response);
-          console.log("RESPONSE:", response);
+          response.request = request;
+          // console.log("RESPONSE:", response);
         }
+        console.log({ctaphid_response:response});
+        
         if (cb) cb(response.error, response);
         resolve(response);
       });
