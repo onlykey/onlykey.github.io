@@ -371,7 +371,12 @@ module.exports = function(imports) {
           // if (OKversion == 'Original') {
           //   _poll_delay = _poll_delay * 4;
           // }
+//           if(KB_ONLYKEY)KB_ONLYKEY;
           var padded_ct = ct.slice(12, ct.length);
+          
+          if(KB_ONLYKEY.is_ecc)
+            padded_ct = ct.slice(13,13+32);
+
           var keyid = ct.slice(1, 8);
           console.info("Key ID bytes", Array.from(keyid));
           var pin_hash = sha256(padded_ct);

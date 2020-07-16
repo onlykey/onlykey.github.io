@@ -16945,8 +16945,10 @@ _continue()
         });
       })(this)((function(_this) {
         return function() {
-          if(!onlykey)
+          if(!onlykey){
+          	 console.log("KBPGP-oem:","enc",enc,"sesskey", sesskey, "pkcs5", pkcs5)
           return cb(err, enc, sesskey, pkcs5);
+          }
         };
       })(this));
     };
