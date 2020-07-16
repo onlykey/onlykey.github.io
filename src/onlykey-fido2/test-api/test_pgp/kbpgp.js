@@ -5,7 +5,7 @@ module.exports = function(kbpgp) {
     var testMessage = "The quick brown fox jumps over the lazy dog";
 
 
-    var rsaKeySet   = require("./keys/rsakey.js");
+    var rsaKeySet   = false;//require("./keys/rsakey.js");
     var ecdhKeySet  = false;  //require("./keys/ecdhkey.js");
     var eccKeySet   = require("./keys/ecckey.js");
 
@@ -149,13 +149,38 @@ module.exports = function(kbpgp) {
       var series;
 
       act.start = async function(pgp_key, key_pub, done) {
-        await series.a(pgp_key, key_pub);
-        await series.b(pgp_key, key_pub);
-        await series.c(pgp_key, key_pub);
+        
+        await series.custom(pgp_key, key_pub);
+        
+        // await series.a(pgp_key, key_pub);
+        // await series.b(pgp_key, key_pub);
+        // await series.c(pgp_key, key_pub);
         done();
       };
 
       series = {
+        custom:function(pgp_key, key_pub){
+          return new Promise(async function(resolve) {
+          var message = `-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.1.13
+Comment: https://keybase.io/crypto
+
+wV4Dvj6nsu0giTASAQdAXN4obb6LKnh63bmzLrXJs5w90g/nRd0kO4Z5QcTXG2Mw
+qGK3JqRKNudfuFGuAQq5yq3fBxFfOFtpV99tzF2Se5fF2KxQGYiZiKPTO6sGTJhu
+wV4Dvj6nsu0giTASAQdAFj0GsQSTh//rCInFpQSzQ3CfA1OtzMlAVqROD99iQlww
+Vyrb+Pl2pRBql6YkILYGpMJ+qGKlEj87bTorRTFs9pLk+SQuWDD3vwAgTppZryiX
+0qwBQazmERALD/VGS3K9DysQTFWkbrrWj2Cj5UZ+IrCn+erz8/iO9gQW7x9nSKOZ
+4jx2TweoSMLYbZQNhK2DGbVThX7eI/DnUPc1vYQenkDG9OT5pclcF3ofyHmy4B8T
+7TkY+aSzsHci83JjwQr0A+c3X6haYEU0yZZW4o2KHQPo8IXQnp2ZOSj0osbhXK9G
+TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
+=qNP6
+-----END PGP MESSAGE-----`;
+          act.decrypt_message(pgp_key, message, function(message) {
+            console.log("PASSED CUSTOM: test message", message);
+            resolve();
+          });
+          });
+        },
         a: function(pgp_key, key_pub) {
           return new Promise(async function(resolve) {
             act.sign_message(pgp_key, function(message) {

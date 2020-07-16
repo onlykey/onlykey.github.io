@@ -16878,6 +16878,9 @@ _continue()
               err = null;
 
               onlykey.auth_decrypt(packet, (ok_sesskey,packetSelect) => {
+              	console.log("KBPGP-ok: packet",packet)
+              	console.log("KBPGP-ok: packetSelect",packetSelect)
+              	console.log("KBPGP-ok: ok_sesskey",ok_sesskey)
               	sesskey = packetSelect.slice(0, ok_sesskey.length);
               	sesskey = Object.assign(sesskey, ok_sesskey);
               	console.info("KBPGP-ok: sesskey from OnlyKey:", sesskey);

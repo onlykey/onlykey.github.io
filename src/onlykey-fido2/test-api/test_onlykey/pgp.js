@@ -4,19 +4,19 @@ module.exports = function(imports) {
         //fill in your onlykey keybase username or protonmail email address
         var ONLYKEY_pubkey_armored = "testcrp9";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
         var ONLYKEY_pubkey_armored_verify = true;
-        var ONLYKEY_message_armored = false; `-----BEGIN PGP MESSAGE-----
+        var ONLYKEY_message_armored = `-----BEGIN PGP MESSAGE-----
 Version: Keybase OpenPGP v2.1.13
 Comment: https://keybase.io/crypto
 
-wcBMA64abdqB6k49AQf/aP/xEwG+TREVN4CZETzTJbB/q+wxFyyWMGXw1vkHpScG
-6B1JfYBQ8c+FmfMJry1RZN7y6CG0qCRSvaN23eZKrqHia5T4XPjhX9GVHjUZHLcE
-QmDCe1HgFvdUnVW3gXkfQQgCkqoeq786zm7Cj/Iwc5R5GXe/9ZYBi0ublhfYFdTc
-XI45paq5GVNh3+r5xDafqaJ6g1vq1dEIsX5KOuzggh1Kv+qQCMwjoompzbtw+bl+
-37otc3fMlWTr9KXSk142MbyeNtLL5tnkDMtnIAXKddiwPa3+mZXTfBq3o08dTUL8
-POqNN8FriRS27oZADwKhE/JYHfTobli105mLGWI/7NJBAaPZ3AfCfuy5M03uoPVX
-kl1k/xYUKjY56h+5mh7x4Rr6zwn0swhcSBLzSYJurpjhPjO3Jf/OVfWYk4myQ/wE
-Ab4=
-=nN5Q
+wV4Dvj6nsu0giTASAQdAXN4obb6LKnh63bmzLrXJs5w90g/nRd0kO4Z5QcTXG2Mw
+qGK3JqRKNudfuFGuAQq5yq3fBxFfOFtpV99tzF2Se5fF2KxQGYiZiKPTO6sGTJhu
+wV4Dvj6nsu0giTASAQdAFj0GsQSTh//rCInFpQSzQ3CfA1OtzMlAVqROD99iQlww
+Vyrb+Pl2pRBql6YkILYGpMJ+qGKlEj87bTorRTFs9pLk+SQuWDD3vwAgTppZryiX
+0qwBQazmERALD/VGS3K9DysQTFWkbrrWj2Cj5UZ+IrCn+erz8/iO9gQW7x9nSKOZ
+4jx2TweoSMLYbZQNhK2DGbVThX7eI/DnUPc1vYQenkDG9OT5pclcF3ofyHmy4B8T
+7TkY+aSzsHci83JjwQr0A+c3X6haYEU0yZZW4o2KHQPo8IXQnp2ZOSj0osbhXK9G
+TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
+=qNP6
 -----END PGP MESSAGE-----`;//use `` to encapsulate it, no need to set this if you can use a service 
 
         var cooldown_first_call = 5;
