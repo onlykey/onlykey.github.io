@@ -2,6 +2,12 @@ module.exports = {
     consumes: ["app", "console", "window"],
     provides: ["onlykeyApi", "kbpgp", "forge", "nacl", "pgpDecoder", "onlykey3rd"],
     setup: function(options, imports, register) {
+        
+        Uint8Array.prototype.toHexString = function(){
+            var ret = []; 
+            this.map(function(c){return ret.push(c.toString(16).toUpperCase())})
+            return ret.join(" ");
+        }
 
         imports.kbpgp = require('./onlykey/kbpgp-2.1.0.ok.ecc.js');
         imports.nacl = require('./onlykey/nacl.min.js');

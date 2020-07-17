@@ -356,6 +356,7 @@ module.exports = function(imports) {
         }
 
         function complete(ct) {
+          ct_array;
           ct = ct.raw;
           if (!onlykeyApi.init) {
             throw new Error("OK NOT CONNECTED");
@@ -374,9 +375,10 @@ module.exports = function(imports) {
 //           if(KB_ONLYKEY)KB_ONLYKEY;
           var padded_ct = ct.slice(12, ct.length);
           
-          if(KB_ONLYKEY.is_ecc)
-            padded_ct = ct.slice(13,13+32);
-
+          if(KB_ONLYKEY.is_ecc){
+            var s = 13;
+            padded_ct = ct.slice(s,s+32);
+          }
           var keyid = ct.slice(1, 8);
           console.info("Key ID bytes", Array.from(keyid));
           var pin_hash = sha256(padded_ct);
@@ -384,7 +386,22 @@ module.exports = function(imports) {
           pin = [get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31])];
           console.log("Generated PIN " + pin);
           return u2fSignBuffer(OKDECRYPT, typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, function(oks) {
-            cb(oks, ct);
+
+                if(KB_ONLYKEY.is_ecc){
+                  var ret = [9];
+                  ret = ret.concat(oks);
+                  ret.push((function(buf) {//checksum?
+                      var i, res, _i, _ref;
+                      res = 0;
+                      for (i = _i = 0, _ref = buf.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+                        res = (res + buf.readUInt8(i)) & 0xffff;
+                      }
+                      return res.toString();
+                  })(kbpgp.Buffer.from(oks)));
+                  ret.push(0)//padd end with extra 0
+                  oks = Uint8Array.from(ret);
+                }
+                cb(oks, ct);
           });
         }
       };
