@@ -1,6 +1,6 @@
 module.exports = {
     provides: ["test_onlykey"],
-    consumes: ["app", "test_list", "onlykeyApi", "window"],
+    consumes: ["app", "test_list", "onlykeyApi", "kbpgp", "window"],
     setup: function(options, imports, register) {
 
         var EventEmitter = require("events").EventEmitter;

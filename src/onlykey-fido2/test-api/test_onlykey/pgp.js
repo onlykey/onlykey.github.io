@@ -1,10 +1,11 @@
 module.exports = function(imports) {
+    var kbpgp = imports.kbpgp;
     return new Promise(async function(resolve, reject) {
         
         //fill in your onlykey keybase username or protonmail email address
         var ONLYKEY_pubkey_armored = "testcrp9";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
         var ONLYKEY_pubkey_armored_verify = true;
-        var ONLYKEY_message_armored = `-----BEGIN PGP MESSAGE-----
+        var ONLYKEY_message_armored = "";`-----BEGIN PGP MESSAGE-----
 Version: Keybase OpenPGP v2.1.13
 Comment: https://keybase.io/crypto
 
@@ -18,10 +19,12 @@ Vyrb+Pl2pRBql6YkILYGpMJ+qGKlEj87bTorRTFs9pLk+SQuWDD3vwAgTppZryiX
 TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
 =qNP6
 -----END PGP MESSAGE-----`;//use `` to encapsulate it, no need to set this if you can use a service 
-
+        
+        if(ONLYKEY_message_armored == "") ONLYKEY_message_armored = false;
+        
         var cooldown_first_call = 5;
         var cooldown_between_calls = 30;
-
+        
         var p2g = imports.onlykeyApi.pgp().api();
 
         p2g.on("error", console.log.bind({}, "PGP ERROR:"))
@@ -37,7 +40,7 @@ TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
 
         var rsaKeySet// = require("../test_pgp/keys/rsakey.js");
         var eccKeySet// = require("../test_pgp/keys/ecckey.js");
-        var yourtestKeySet// = require("../test_pgp/keys/ecckey.js");
+        var yourtestKeySet = require("../test_pgp/keys/ecckey.js");
                 
         var onlykeyPubKey = ONLYKEY_pubkey_armored ? ONLYKEY_pubkey_armored : rsaKeySet ? rsaKeySet.PubKey : eccKeySet ? eccKeySet.PubKey : yourtestKeySet.PubKey;
         
@@ -81,8 +84,16 @@ TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
                             return reject("TEST:ONLYKEYPGP startEncryption:err: " + err);
                         else
                             console.log("ONLYKEYPGP  startEncryption : PASS\r\n", unencrypted_message, "\r\n", pgp_armored_message);
-
-                        resolve(null, pgp_armored_message.toString());
+                        
+                        if(yourtestKeySet){
+                            loadPrivKey(yourtestKeySet, function(privKey){
+                                decrypt_message(privKey, pgp_armored_message.toString(), function(message){
+                                  console.log(message)  
+                                  resolve(null, pgp_armored_message.toString());
+                                })
+                            })
+                        }
+                        else resolve(null, pgp_armored_message.toString());
                     });
                 }, cooldown_first_call);
             }, cooldown_first_call);
@@ -139,4 +150,63 @@ TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
             console.log("AUTOMATED CLICK");
         });
     }
+
+
+     function loadPrivKey(keySetA, cb) {
+
+        kbpgp.KeyManager.import_from_armored_pgp({
+          armored: keySetA.PrivKey
+        }, (err, sender) => {
+          if (err) {
+            // onlykey_api_pgp.emit("error", err);
+            if (err) throw err;
+            return;
+          }
+
+          if (sender.is_pgp_locked()) {
+            let passphrase = keySetA.PrivKeyPW;
+
+            sender.unlock_pgp({
+              passphrase: passphrase
+            }, err => {
+              if (!err) {
+                // console.log(`Loaded test private key using passphrase '${passphrase}'`);
+                cb(sender);
+              }
+              else {
+                if (err) throw err;
+              }
+            });
+          }
+          else {
+            // console.log("Loaded test private key w/o passphrase");
+            cb(sender);
+          }
+        });
+      }
+
+     function decrypt_message(pgp_key, message, cb) {
+        var ring = new kbpgp.keyring.KeyRing;
+        var kms = [pgp_key];
+        var pgp_msg = message;
+        // var asp = '/* as in Encryption ... */' ;
+        for (var i in kms) {
+          ring.add_key_manager(kms[i]);
+        }
+        kbpgp.unbox({ keyfetch: ring, armored: pgp_msg /*, asp*/ }, function(err, literals) {
+          if (err) throw err;
+          else {
+            // console.log("decrypted message");
+            // console.log(literals[0].toString());
+            cb(literals[0].toString());
+            var km, ds = km = null;
+            ds = literals[0].get_data_signer();
+            if (ds) { km = ds.get_key_manager(); }
+            if (km) {
+              // console.log("Signed by PGP fingerprint", km.get_pgp_fingerprint().toString('hex'));
+            }
+          }
+        });
+      };
+
 };

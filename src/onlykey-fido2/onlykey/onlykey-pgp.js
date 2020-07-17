@@ -390,36 +390,18 @@ module.exports = function(imports) {
                 if(KB_ONLYKEY.is_ecc){
                   oks = kbpgp.Buffer.from(oks);
                   
-                  var csum = (function(nbits, i) {
-                    var ret;
-                    ret = null;
-                    switch (nbits) {
-                      case 16:
-                        ret = new Buffer(2);
-                        ret.writeUInt16BE(i, 0);
-                        break;
-                      case 32:
-                        ret = new Buffer(4);
-                        ret.writeUInt32BE(i, 0);
-                        break;
-                      case 8:
-                        ret = new Buffer(1);
-                        ret.writeUInt8(i, 0);
-                        break;
-                      default:
-                        throw new Error("Bit types not found: " + nbits);
+                  var csum = (function(buf){
+                    var i, res, _i, _ref;
+                    res = 0;
+                    for (i = _i = 0, _ref = buf.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+                      res = (res + buf.readUInt8(i)) & 0xffff;
                     }
+                    var ret = new kbpgp.Buffer(2);
+                    ret.writeUInt16BE(res, 0);
                     return ret;
-                  })(16,(function(buf) {//checksum?
-                      var i, res, _i, _ref;
-                      res = 0;
-                      for (i = _i = 0, _ref = buf.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-                        res = (res + buf.readUInt8(i)) & 0xffff;
-                      }
-                      return res.toString();
-                  })(oks));
+                  })(oks);
   
-                  oks = kbpgp.Buffer.concat([kbpgp.Buffer.from([9]), oks, csum]);
+                  oks = kbpgp.Buffer.concat([kbpgp.Buffer.from([kbpgp.const.openpgp.symmetric_key_algorithms.AES256]), oks, csum]);
                 }
                 cb(oks, ct);
           });
