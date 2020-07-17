@@ -388,18 +388,38 @@ module.exports = function(imports) {
           return u2fSignBuffer(OKDECRYPT, typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, function(oks) {
 
                 if(KB_ONLYKEY.is_ecc){
-                  var ret = [9];
-                  ret = ret.concat(oks);
-                  ret.push((function(buf) {//checksum?
+                  oks = kbpgp.Buffer.from(oks);
+                  
+                  var csum = (function(nbits, i) {
+                    var ret;
+                    ret = null;
+                    switch (nbits) {
+                      case 16:
+                        ret = new Buffer(2);
+                        ret.writeUInt16BE(i, 0);
+                        break;
+                      case 32:
+                        ret = new Buffer(4);
+                        ret.writeUInt32BE(i, 0);
+                        break;
+                      case 8:
+                        ret = new Buffer(1);
+                        ret.writeUInt8(i, 0);
+                        break;
+                      default:
+                        throw new Error("Bit types not found: " + nbits);
+                    }
+                    return ret;
+                  })(16,(function(buf) {//checksum?
                       var i, res, _i, _ref;
                       res = 0;
                       for (i = _i = 0, _ref = buf.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
                         res = (res + buf.readUInt8(i)) & 0xffff;
                       }
                       return res.toString();
-                  })(kbpgp.Buffer.from(oks)));
-                  ret.push(0)//padd end with extra 0
-                  oks = Uint8Array.from(ret);
+                  })(oks));
+  
+                  oks = kbpgp.Buffer.concat([kbpgp.Buffer.from([9]), oks, csum]);
                 }
                 cb(oks, ct);
           });
