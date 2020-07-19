@@ -4,7 +4,7 @@ module.exports = function(imports) {
         
         //fill in your onlykey keybase username or protonmail email address
         var ONLYKEY_pubkey_armored = "testcrp9";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
-        var ONLYKEY_pubkey_armored_verify = true;
+        var ONLYKEY_pubkey_armored_verify = false;
         var ONLYKEY_message_armored = "";`-----BEGIN PGP MESSAGE-----
 Version: Keybase OpenPGP v2.1.13
 Comment: https://keybase.io/crypto
@@ -67,9 +67,10 @@ TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
             if(ONLYKEY_pubkey_armored_verify){
                 p2g._$mode("Encrypt and Sign");
             }else{
-                p2g._$mode("Encrypt Only");
+                //p2g._$mode("Encrypt Only");
+                p2g._$mode("Sign Only");                
             }
-            if(p2g._$mode() == "Encrypt Only"){
+            if(p2g._$mode() == "Encrypt Only" || p2g._$mode() == "Sign Only"){
                 cooldown_between_calls = cooldown_first_call
             }
 
@@ -203,7 +204,7 @@ TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
             ds = literals[0].get_data_signer();
             if (ds) { km = ds.get_key_manager(); }
             if (km) {
-              // console.log("Signed by PGP fingerprint", km.get_pgp_fingerprint().toString('hex'));
+              console.log("Signed by PGP fingerprint", km.get_pgp_fingerprint().toString('hex'));
             }
           }
         });
