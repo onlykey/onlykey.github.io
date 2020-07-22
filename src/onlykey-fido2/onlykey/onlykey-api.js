@@ -427,6 +427,7 @@ module.exports = function(imports) {
     request.request_options = {
       challenge: challenge,
       allowCredentials: [{
+        transports: ["usb"],
         id: keyhandle,
         type: 'public-key',
       }],
