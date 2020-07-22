@@ -30,11 +30,20 @@ module.exports = function(imports) {
     getOS,
     ctap_error_codes,
     getAllUrlParams,
-    // aesgcm_decrypt,
+    aesgcm_decrypt,
     // aesgcm_encrypt
   } = require("./onlykey.extra.js")(imports);
   onlykey_api.getAllUrlParams = getAllUrlParams; //<-- todo: move to pages plugin
 
+
+  async function digestBuff(buff) {
+      const msgUint8 = buff;
+      const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
+      return hashHex;
+  }
+  
 
   // var keyHandleDict = {}; // KeyHandle -> PublicKey
   // var hw_RNG = {};
@@ -174,7 +183,10 @@ module.exports = function(imports) {
 
 
       await wait(delay * 1000);
-
+      
+      
+      var enc_resp = 1;
+            
       var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
         // console.log("ctaphid_response resp", maybe_a_err, data);
       });
@@ -196,21 +208,52 @@ module.exports = function(imports) {
           case "CTAP2_ERR_EXTENSION_NOT_SUPPORTED":
             break;
           case "CTAP1_SUCCESS":
-            okPub = response.slice(21, 53);
-            console.info("OnlyKey Public Key: ", okPub);
-            onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-            console.info("NACL shared secret: ", onlykey_api.sharedsec);
-            onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
-            onlykey_api.FWversion = bytes2string(response.slice(8, 20));
-            console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
-            // msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
-            // element_by_id('header_messages').innerHTML = "<br>";
-            // headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-            var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
-            // console.info("AES Key", key);
-
-            imports.app.emit("ok-connected");
-            cb(null);
+            var BREAKING_BETA_8C = !!(bytes2string(response.slice(8, 20)) == "v0.2-beta.8c");
+            
+            if(!BREAKING_BETA_8C){
+              okPub = response.slice(0, 32);
+              console.info("Onlykey transit public", okPub);
+              
+              // Decrypt with transit_key
+              var transit_key = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);   
+              console.info("Onlykey transit public", okPub);
+              console.info("App transit public", appKey.publicKey);
+              console.info("Transit shared secret", transit_key);
+              transit_key = await digestBuff(Uint8Array.from(transit_key)); //AES256 key sha256 hash of shared secret
+              console.info("AES Key", transit_key);
+              var encrypted  = response.slice(32, response.length);
+              
+              onlykey_api.FWversion = bytes2string(response.slice(32+8, 32+20));
+              
+              response = await aesgcm_decrypt(encrypted, transit_key);
+              
+              
+              onlykey_api.OKversion = response[32+19] == 99 ? 'Color' : 'Go';
+              onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+              
+              console.info("OnlyKey Public Key: ", okPub);
+              console.info("NACL shared secret: ", onlykey_api.sharedsec);
+              console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
+              
+              imports.app.emit("ok-connected");
+              cb(null);
+            }else{
+              okPub = response.slice(21, 53);
+              console.info("OnlyKey Public Key: ", okPub);
+              onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+              console.info("NACL shared secret: ", onlykey_api.sharedsec);
+              onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
+              onlykey_api.FWversion = bytes2string(response.slice(8, 20));
+              console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
+              // msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
+              // element_by_id('header_messages').innerHTML = "<br>";
+              // headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
+              //var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
+              // console.info("AES Key", key);
+  
+              imports.app.emit("ok-connected");
+              cb(null);
+            }
             break;
         }
         cb(null, ctaphid_response.status);
