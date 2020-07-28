@@ -9,10 +9,19 @@ module.exports = {
             test_onlykey: {
                 init: function() {
                     if ((findHID(3) || findHID(2))) {
-                        imports.test_list.add(require("./connect.js").bind({}, imports));
+                        
+                        
+                        //imports.test_list.add(require("./connect.js").bind({}, imports));
+                        
                         // imports.test_list.add(require("./ecdh.js").bind({},imports));
+                        
                         imports.test_list.add(require("./pgp.js").bind({}, imports));
+                        
                         // imports.test_list.add(/*new Promise()*/);
+                        
+                        
+                        
+                        
                         return;
                     }else{
                         console.warn("Skipping ONLYKEY test (device not found)");

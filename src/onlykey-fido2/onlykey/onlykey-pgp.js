@@ -357,6 +357,8 @@ module.exports = function(imports) {
 
         function complete(ct) {
           ct_array;
+          console.log("OK-SELECTED Key:", ct);
+          var _ct = ct;
           ct = ct.raw;
           if (!onlykeyApi.init) {
             throw new Error("OK NOT CONNECTED");
@@ -385,8 +387,10 @@ module.exports = function(imports) {
           // console.info("Padded CT Packet bytes", Array.from(padded_ct));
           pin = [get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31])];
           console.log("Generated PIN " + pin);
+          console.log("OK-padded_ct", padded_ct)
           return u2fSignBuffer(OKDECRYPT, typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, function(oks) {
-
+                console.log("oks",oks)
+                 /*
                 if(KB_ONLYKEY.is_ecc){
                   oks = kbpgp.Buffer.from(oks);
                   
@@ -402,7 +406,7 @@ module.exports = function(imports) {
                   })(oks);
   
                   oks = kbpgp.Buffer.concat([kbpgp.Buffer.from([kbpgp.const.openpgp.symmetric_key_algorithms.AES256]), oks, csum]);
-                }
+                }*/
                 cb(oks, ct);
           });
         }

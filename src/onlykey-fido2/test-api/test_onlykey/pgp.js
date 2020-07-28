@@ -5,7 +5,7 @@ module.exports = function(imports) {
         //fill in your onlykey keybase username or protonmail email address
         var ONLYKEY_pubkey_armored = "testcrp9";// bmatusiak "r06u34c1d_";//use `` to encapsulate it
         var ONLYKEY_pubkey_armored_verify = false;
-        var ONLYKEY_message_armored = "";`-----BEGIN PGP MESSAGE-----
+        var ONLYKEY_message_armored = `-----BEGIN PGP MESSAGE-----
 Version: Keybase OpenPGP v2.1.13
 Comment: https://keybase.io/crypto
 
@@ -86,9 +86,9 @@ TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
                         else
                             console.log("ONLYKEYPGP  startEncryption : PASS\r\n", unencrypted_message, "\r\n", pgp_armored_message);
                         
-                        if(yourtestKeySet){
-                            loadPrivKey(yourtestKeySet, function(privKey){
-                                decrypt_message(privKey, pgp_armored_message.toString(), function(message){
+                        if(!ONLYKEY_pubkey_armored_verify && yourtestKeySet){
+                            loadPubKey(yourtestKeySet, function(pubKey){
+                                decrypt_message(pubKey, pgp_armored_message.toString(), function(message){
                                   console.log(message)  
                                   resolve(null, pgp_armored_message.toString());
                                 })
@@ -152,7 +152,22 @@ TYaGtPDqINxKA2OaOpXpl6Pj0ZEONb85/3i/IPJC
         });
     }
 
-
+     function loadPubKey(keySetA, cb) {
+    
+        
+        kbpgp.KeyManager.import_from_armored_pgp({
+          armored: keySetA.PubKey
+        }, (err, sender) => {
+          if (err) {
+            // onlykey_api_pgp.emit("error", err);
+            if (err) throw err;
+            return;
+          }
+        
+          cb(sender);
+        
+        });
+    }
      function loadPrivKey(keySetA, cb) {
 
         kbpgp.KeyManager.import_from_armored_pgp({

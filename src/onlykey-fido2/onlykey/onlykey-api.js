@@ -212,7 +212,6 @@ module.exports = function(imports) {
             
             if(!BREAKING_BETA_8C){
               okPub = response.slice(0, 32);
-              console.info("Onlykey transit public", okPub);
               
               // Decrypt with transit_key
               var transit_key = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);   
@@ -220,7 +219,7 @@ module.exports = function(imports) {
               console.info("App transit public", appKey.publicKey);
               console.info("Transit shared secret", transit_key);
               transit_key = await digestBuff(Uint8Array.from(transit_key)); //AES256 key sha256 hash of shared secret
-              console.info("AES Key", transit_key);
+              console.info("App AES Key", transit_key);
               var encrypted  = response.slice(32, response.length);
               
               onlykey_api.FWversion = bytes2string(response.slice(32+8, 32+20));
@@ -231,8 +230,8 @@ module.exports = function(imports) {
               onlykey_api.OKversion = response[32+19] == 99 ? 'Color' : 'Go';
               onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
               
-              console.info("OnlyKey Public Key: ", okPub);
-              console.info("NACL shared secret: ", onlykey_api.sharedsec);
+              //console.info("OnlyKey Public Key: ", okPub);
+              //console.info("NACL shared secret: ", onlykey_api.sharedsec);
               console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
               
               imports.app.emit("ok-connected");
