@@ -1,6 +1,6 @@
 module.exports = {
     consumes: ["app", "console", "window"],
-    provides: ["onlykeyApi", "kbpgp", "forge", "nacl", "pgpDecoder", "onlykey3rd"],
+    provides: ["onlykeyApi", "kbpgp", "forge", "nacl", "onlykey3rd"],
     setup: function(options, imports, register) {
         
         Uint8Array.prototype.toHexString = function(){
@@ -12,7 +12,7 @@ module.exports = {
         imports.kbpgp = require('./onlykey/kbpgp-2.1.0.ok.ecc.js');
         imports.nacl = require('./onlykey/nacl.min.js');
         imports.forge = require('./onlykey/forge.min.js');
-        imports.pgpDecoder = require('./onlykey/pgp-decoder/pgp.decoder.js');
+        // imports.pgpDecoder = require('./onlykey/pgp-decoder/pgp.decoder.js'); //  "pgpDecoder",
 
         const onlykeyApi = require('./onlykey/onlykey-api.js')(imports);
         const onlykeyPGP = require('./onlykey/onlykey-pgp.js')(imports);
@@ -124,7 +124,7 @@ module.exports = {
             kbpgp: imports.kbpgp(false,imports.console),
             forge: imports.forge,
             nacl: imports.nacl,
-            pgpDecoder: imports.pgpDecoder
+            // pgpDecoder: imports.pgpDecoder
         });
 
 

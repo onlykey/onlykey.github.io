@@ -8,13 +8,13 @@ some plugins can be used just for development or production
 module.exports = [
   
   /* the gun plugin contains helpers for gun  */
-  require("./app_src/gun.js"),
+  require("./lib/gun.js"),
   
   /* the onlykey plugin contains the api and other utilities for other plugins */
   require("./onlykey-fido2/plugin.js"),
   
   /* pages plugin is the heart of the app state */
-  require("./app_src/pages/pages.js"),
+  require("./plugins/pages/pages.js"),
   
   
   require("./plugins/past_releases/past_releases.js")

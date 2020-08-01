@@ -140,7 +140,7 @@ module.exports = {
 
                 if (doInit) {
 
-                    var tokenizer = require("../../jquery.tokenizer.js");
+                    var tokenizer = require("../../lib/jquery.tokenizer.js");
 
                     if (tokenizer) {
                         tokenizer($, async function(itemName, returnValueFN) {

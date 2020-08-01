@@ -1,9 +1,9 @@
 //change   _template_  to your plugin name  
 module.exports = {
-    consumes: ["app"],
+    consumes: ["app","console"],
     provides: ["fancy-icons"],
     setup: function(options, imports, register) {
-        
+        var console = imports.console;
         
         var wait = ms => new Promise(resolve => setTimeout(resolve, ms));
   

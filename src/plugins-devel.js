@@ -18,7 +18,7 @@ module.exports.push(require("./plugins/console/console_debug.js"));
 module.exports.push(require("./plugins/chat/chat.js"));
 
 /* for encrypted data to for onlykey devices */
-module.exports.push(require("./app_src/history.js"));
+module.exports.push(require("./lib/history.js"));
 
 
 module.exports.push(require("./plugins/password-generator/password-generator.js"));

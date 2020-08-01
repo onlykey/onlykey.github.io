@@ -8,20 +8,19 @@ module.exports = function(additional_plugins) {
   */
   var $ = require("jquery");
   window.jQuery = $;
-  window.jQuery.brad = "lol";
   
   require("jquery-ui");
   require("jquery-ui/ui/widgets/draggable");
   
-  require("./jquery.history.js");
-  require("./jquery.scrollTo.min.js");
+  require("./lib/jquery.history.js");
+  require("./lib/jquery.scrollTo.min.js");
   require("bootstrap");
 
 
   var randomColor = require('randomcolor');
 
 
-  var architect = require("./architect.js");
+  var architect = require("./lib/architect.js");
 
   var EventEmitter = require("events").EventEmitter;
 

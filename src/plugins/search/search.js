@@ -43,8 +43,9 @@ module.exports = {
                 if (!init)
                     return page.init(app, $page, pathname);
 
-                var pgpDecoder = require("../../pgp-decoder/pgp.decoder.js");
-
+                // var pgpDecoder = require("../../pgp-decoder/pgp.decoder.js");
+                var pgpDecoder = imports.app.pgpDecoder;
+                
                 var default_anonymous_email = "onlykey@crp.to";
 
                 var forge = app.forge;
