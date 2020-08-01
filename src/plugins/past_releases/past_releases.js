@@ -14,7 +14,7 @@ module.exports = {
 
 
         var page = {
-
+            view: require("./past_releases.page.html").default,
             init: function(app, $page, pathname) {
                 init = true;
 
@@ -70,11 +70,11 @@ module.exports = {
                             var contain = $('<div>').appendTo($("#releases"));
                             if (is_current) {
                                 contain.append("<h2>" + releaseData.name + " : " + releaseData.stage + releaseData.version + "(live)</h2>");
-                                contain.append('<a href="../" class="yui3-button primary-button">Open ' + releaseData.stage + releaseData.version + '(live)</a>');
+                                contain.append('<a href="../" class="btn btn-success">Open ' + releaseData.stage + releaseData.version + '(live)</a>');
                             }
                             else {
                                 contain.append("<h2>" + releaseData.name + " : " + releaseData.stage + releaseData.version + (is_current ? "(live)" : "") + "</h2>");
-                                contain.append('<a href="../past_releases/' + releasesName + '" class="yui3-button primary-button">Open ' + releaseData.stage + releaseData.version + (is_current ? "(live)" : "") + '</a>');
+                                contain.append('<a href="../past_releases/' + releasesName + '" class="btn btn-success">Open ' + releaseData.stage + releaseData.version + (is_current ? "(live)" : "") + '</a>');
 
                             }
                             if (releaseData.authors) {
@@ -83,7 +83,7 @@ module.exports = {
                                     contain.append("<p>*" + releaseData.change_log[i] + "</p>");
                                 }
                                 if (releaseData.firmware_release_url)
-                                    contain.append("<p><a href='" + releaseData.firmware_release_url[i] + "'>Firmware</a></p>");
+                                    contain.append("<p><a class='btn btn-warning' href='" + releaseData.firmware_release_url[i] + "'>Firmware</a></p>");
                                 for (i in releaseData.authors) {
                                     contain.append("<p>" + releaseData.authors[i] + "</p>");
                                 }

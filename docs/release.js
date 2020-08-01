@@ -5,7 +5,8 @@ module.exports = {
   "change_log": [
     "Added Multiple Recipient Support for GPG Encryption",
     "Added Password Generator",
-    "~Added Build&Plugin for source"
+    "Added ECC PGP Key Support",
+    "Added 3rd Party Support"
   ],
   "authors":[
     "Brad ~ bmatusiak.us",
