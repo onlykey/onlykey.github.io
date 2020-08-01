@@ -238,7 +238,7 @@ module.exports = {
                                                                     else sl.leftDiv.append("<img src='https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png' />");
 
 
-                                                                    sl.rightDiv.append("<font color='red'>Keybase Username = <a color='red' class='d-inline' href='https://keybase.io/" + listItem.username + "'>" + listItem.username + "</a></font>");
+                                                                    sl.rightDiv.append("<font color='red'>Keybase Username = <a color='text-danger' class='d-inline' target='_blank' href='https://keybase.io/" + listItem.username + "'>" + listItem.username + "</a></font>");
                                                                     if (listItem.full_name) sl.rightDiv.append("<p>Full Name = " + listItem.full_name + "</p>");
                                                                     sl.rightDiv.append("<p>"+email+"</p>");
                                                                     sl.rightDiv.append("View Keybase Profile <a href='https://keybase.io/" + listItem.username + "'>Here</a>");
