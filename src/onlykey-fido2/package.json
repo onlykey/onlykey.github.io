@@ -23,6 +23,7 @@
     "file-saver": "^2.0.2",
     "jszip": "^3.5.0",
     "node-webcrypto-shim": "0.0.1",
+    "optimist": "^0.6.1",
     "tweetnacl": "^1.0.3"
   }
 }
