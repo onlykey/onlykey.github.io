@@ -2,7 +2,7 @@
 
 var pagesList = {
     "search": {
-        sort:30,
+        sort: 30,
         icon: "fa-search",
         //   title: "Chat"
     }
@@ -24,7 +24,7 @@ module.exports = {
 
                 // var onlykeyApi = app.onlykeyApi;
                 page.p2g = app.onlykeyApi.pgp();
-                
+
                 var params = app.pages.getAllUrlParams();
 
                 //if (params.q.slice(0, 10) == "-----BEGIN") {
@@ -45,7 +45,7 @@ module.exports = {
 
                 // var pgpDecoder = require("../../pgp-decoder/pgp.decoder.js");
                 var pgpDecoder = imports.app.pgpDecoder;
-                
+
                 var default_anonymous_email = "onlykey@crp.to";
 
                 var forge = app.forge;
@@ -58,7 +58,7 @@ module.exports = {
 
 
                 $('#submit').click(function(e) {
-                    
+
                     var sites = {
                         q: $("#sites option:selected").val(),
                         rpp: 5
@@ -68,12 +68,12 @@ module.exports = {
                         rpp: 5
                     };
                     searchKeybase(sites, users);
-                    
+
                     e.preventDefault();
                     return false; // prevents default click action
                 });
-                
-                
+
+
                 if ($('#user').val())
                     $('#submit').click();
 
@@ -149,21 +149,29 @@ module.exports = {
 
 
 
-                            page.p2g.getPublicKeyInfo(response_text, function(theKey) {
+                            page.p2g.getPublicKeyInfo(response_text, function(err, theKey) {
                                 if (theKey) {
 
                                     var email = theKey.pgp.userids[0].components.email;
                                     var username = theKey.pgp.userids[0].components.username;
-                                    var keyid = "0x" + theKey.find_crypt_pgp_key().get_key_id().toString("hex");
-                                    var keyid_short = theKey.find_crypt_pgp_key().get_short_key_id();
-
+                                    var keyid = "0x" + theKey.pgp.key_manager.get_pgp_key_id().toString("hex").toUpperCase();
+                                    var keyid_short = theKey.pgp.key_manager.get_pgp_short_key_id();
+                                    var fingerprint = theKey.pgp.get_fingerprint().toString("hex").toUpperCase();
+                                    var keyType = theKey.pgp.primary.key.pub.type;
 
                                     sl.leftDiv.append("<img src='https://www.gravatar.com/avatar/" + forge.md5.create().update(email).digest().toHex() + "?s=1024default=https%3A%2F%2Fgravatar.com%2Favatar%2F" + forge.md5.create().update(default_anonymous_email).digest().toHex() + "' />");
-                                    sl.rightDiv.append("<font color='red'>Protonmail Username = " + username + "</font><br>");
-                                    sl.rightDiv.append("<p color='red'>GPG KeyID = " + keyid + " (" + keyid_short + ")" + "</p><br>");
-                                    sl.rightDiv.append("Send Encrypted <a target='_blank' href='./encrypt?type=e&recipients=" + username + "'>Message</a> <a target='_blank' href='./encrypt-file?type=e&recipients=" + username + "'>File</a><br>");
+                                    sl.rightDiv.append("<font color='red'>Protonmail Username = " + username + "</font>");
+                                    sl.rightDiv.append("<p>"+email+"</p>");
+                                    sl.rightDiv.append("<p>GPG KeyID: " + keyid + " (" + keyid_short + ")" + "<br/>Fingerprint: " + fingerprint + "</p>");
+                                    
+                                    for (var b in app.kbpgp.const.openpgp.public_key_algorithms) {
+                                        if (app.kbpgp.const.openpgp.public_key_algorithms[b] == keyType)
+                                            sl.rightDiv.append("<p>KeyType " + b + "</p>");
+                                    }
 
-                                    var $getpgp_btn = $("<button>Copy PGP Key</button>");
+                                    sl.rightDiv.append("Send Encrypted <a class='btn btn-success' target='_blank' href='./encrypt?type=e&recipients=" + username + "'>Message</a> <a class='btn btn-success' target='_blank' href='./encrypt-file?type=e&recipients=" + username + "'>File</a><br>");
+
+                                    var $getpgp_btn = $("<button class='btn btn-success'>Copy PGP Key</button>");
                                     var $pgp_copybox = $("<textarea>&nbsp;</textarea>");
                                     sl.rightDiv.append($getpgp_btn);
                                     sl.rightDiv.append($pgp_copybox);
@@ -179,7 +187,8 @@ module.exports = {
                                         $getpgp_btn.text(origTxt + " (copied)");
                                         setTimeout(() => { $getpgp_btn.text(origTxt); }, 5000);
                                     });
-                                    console.log(theKey);
+
+                                    // console.log(theKey);
                                 }
                             });
                             if (!(sites.q == 'all'))
@@ -205,59 +214,83 @@ module.exports = {
                                                     url: 'https://keybase.io/_/api/1.0/user/lookup.json?uid=' + listItem.uid,
                                                     async: true,
                                                     dataType: 'json',
-                                                    success: function(data) {
+                                                    success: async function(data) {
                                                         console.log(data);
                                                         if (listItem.username) {
 
-                                                            var sl = searchLayout();
-                                                            if (listItem.picture_url != null)
-                                                                sl.leftDiv.append("<img src='" + listItem.picture_url + "' width='10' height='auto'/><br>");
-                                                            else sl.leftDiv.append("<img src='https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png' />");
+                                                            var url = 'https://keybase.io/' + listItem.username + '/pgp_keys.asc';
+                                                            var response_text = await app.onlykeyApi.api.getKey(url);
+
+                                                            page.p2g.getPublicKeyInfo(response_text, function(err, theKey) {
+                                                                if (theKey) {
 
 
-                                                            sl.rightDiv.append("<font color='red'>Keybase Username = " + listItem.username + "</font><br>");
-                                                            if (listItem.full_name) sl.rightDiv.append("Full Name = " + listItem.full_name + "<br><br>");
-                                                            sl.rightDiv.append("View Keybase Profile <a href='https://keybase.io/" + listItem.username + "'>Here</a><br>");
-                                                            sl.rightDiv.append("Send Encrypted <a target='_blank' href='./encrypt?type=e&recipients=" + listItem.username + "'>Message</a> <a target='_blank' href='./encrypt-file?type=e&recipients=" + listItem.username + "'>File</a><br>");
+                                                                    var email = theKey.pgp.userids[0].components.email;
+                                                                    var username = theKey.pgp.userids[0].components.username;
+                                                                    var keyid = "0x" + theKey.pgp.key_manager.get_pgp_key_id().toString("hex").toUpperCase();
+                                                                    var keyid_short = theKey.pgp.key_manager.get_pgp_short_key_id();
+                                                                    var fingerprint = theKey.pgp.get_fingerprint().toString("hex").toUpperCase();
+                                                                    var keyType = theKey.pgp.primary.key.pub.type;
 
-                                                            for (var i in element.services_summary) {
-                                                                var srv = element.services_summary[i].service_name.toUpperCase();
-                                                                switch (srv) {
-                                                                    case 'GITHUB':
-                                                                        sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://github.com/" + element.services_summary[i].username + "'>" +
-                                                                            srv + " Username = " + element.services_summary[i].username + "</a><br>");
-                                                                        break;
-                                                                    case 'REDDIT':
-                                                                        sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://www.reddit.com/user/" + element.services_summary[i].username + "'>" +
-                                                                            srv + " Username = " + element.services_summary[i].username + "</a><br>");
-                                                                        break;
-                                                                    case 'TWITTER':
-                                                                        sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://twitter.com/" + element.services_summary[i].username + "'>" +
-                                                                            srv + " Username = " + element.services_summary[i].username + "</a><br>");
-                                                                        break;
+                                                                    var sl = searchLayout();
+                                                                    if (listItem.picture_url != null)
+                                                                        sl.leftDiv.append("<img src='" + listItem.picture_url + "' width='10' height='auto'/><br>");
+                                                                    else sl.leftDiv.append("<img src='https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png' />");
 
-                                                                    default:
-                                                                        sl.rightDiv.append("<font color='blue'>" + element.services_summary[i].service_name.toUpperCase() + " Username = " + element.services_summary[i].username + "</font><br>");
+
+                                                                    sl.rightDiv.append("<font color='red'>Keybase Username = <a color='red' class='d-inline' href='https://keybase.io/" + listItem.username + "'>" + listItem.username + "</a></font>");
+                                                                    if (listItem.full_name) sl.rightDiv.append("<p>Full Name = " + listItem.full_name + "</p>");
+                                                                    sl.rightDiv.append("<p>"+email+"</p>");
+                                                                    sl.rightDiv.append("View Keybase Profile <a href='https://keybase.io/" + listItem.username + "'>Here</a>");
+                                                                    sl.rightDiv.append("<p>GPG KeyID: " + keyid + " (" + keyid_short + ")" + "<br/>Fingerprint: " + fingerprint + "</p>");
+                                                                    
+                                                                    for (var b in app.kbpgp.const.openpgp.public_key_algorithms) {
+                                                                        if (app.kbpgp.const.openpgp.public_key_algorithms[b] == keyType)
+                                                                            sl.rightDiv.append("<p>KeyType " + b + "</p>");
+                                                                    }
+                                                                    
+                                                                    for (var i in element.services_summary) {
+                                                                        var srv = element.services_summary[i].service_name.toUpperCase();
+                                                                        switch (srv) {
+                                                                            case 'GITHUB':
+                                                                                sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://github.com/" + element.services_summary[i].username + "'>" +
+                                                                                    srv + " Username = " + element.services_summary[i].username + "</a><br>");
+                                                                                break;
+                                                                            case 'REDDIT':
+                                                                                sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://www.reddit.com/user/" + element.services_summary[i].username + "'>" +
+                                                                                    srv + " Username = " + element.services_summary[i].username + "</a><br>");
+                                                                                break;
+                                                                            case 'TWITTER':
+                                                                                sl.rightDiv.append("<a target='_blank' class='color-blue' href='https://twitter.com/" + element.services_summary[i].username + "'>" +
+                                                                                    srv + " Username = " + element.services_summary[i].username + "</a><br>");
+                                                                                break;
+
+                                                                            default:
+                                                                                sl.rightDiv.append("<font color='blue'>" + element.services_summary[i].service_name.toUpperCase() + " Username = " + element.services_summary[i].username + "</font><br>");
+                                                                        }
+                                                                    }
+
+                                                                    sl.rightDiv.append("Send Encrypted <a class='btn btn-success' target='_blank' href='./encrypt?type=e&recipients=" + listItem.username + "'>Message</a> <a class='btn btn-success' target='_blank' href='./encrypt-file?type=e&recipients=" + listItem.username + "'>File</a><br>");
+
+                                                                    var $getpgp_btn = $("<button  class='btn btn-success'>Copy PGP Key</button>");
+                                                                    var $pgp_copybox = $("<textarea>&nbsp;</textarea>");
+                                                                    sl.rightDiv.append($getpgp_btn);
+                                                                    sl.rightDiv.append($pgp_copybox);
+                                                                    $pgp_copybox.hide();
+                                                                    $getpgp_btn.click(async function() {
+                                                                        $pgp_copybox.val(response_text);
+                                                                        $pgp_copybox.show();
+                                                                        $pgp_copybox.focus();
+                                                                        $pgp_copybox.select();
+                                                                        var successful = document.execCommand('copy');
+                                                                        $pgp_copybox.hide();
+                                                                        var origTxt = $getpgp_btn.text();
+                                                                        $getpgp_btn.text(origTxt + " (copied)");
+                                                                        setTimeout(() => { $getpgp_btn.text(origTxt); }, 5000);
+                                                                    });
+                                
+
                                                                 }
-                                                            }
-
-                                                            var $getpgp_btn = $("<button>Copy PGP Key</button>");
-                                                            var $pgp_copybox = $("<textarea>&nbsp;</textarea>");
-                                                            sl.rightDiv.append($getpgp_btn);
-                                                            sl.rightDiv.append($pgp_copybox);
-                                                            $pgp_copybox.hide();
-                                                            $getpgp_btn.click(async function() {
-                                                                var url = 'https://keybase.io/' + listItem.username + '/pgp_keys.asc';
-                                                                var response_text = await app.onlykeyApi.api.getKey(url);
-                                                                $pgp_copybox.val(response_text);
-                                                                $pgp_copybox.show();
-                                                                $pgp_copybox.focus();
-                                                                $pgp_copybox.select();
-                                                                var successful = document.execCommand('copy');
-                                                                $pgp_copybox.hide();
-                                                                var origTxt = $getpgp_btn.text();
-                                                                $getpgp_btn.text(origTxt + " (copied)");
-                                                                setTimeout(() => { $getpgp_btn.text(origTxt); }, 5000);
                                                             });
                                                         }
                                                     }
@@ -287,7 +320,7 @@ module.exports = {
 
 
         pagesList["search"] = page;
-        
+
         register(null, {
             "plugin_search": {
                 pagesList: pagesList
