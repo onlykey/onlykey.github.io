@@ -1,0 +1,66 @@
+div.tokenizer{
+    margin-top: 10px;
+}
+
+
+div.tokenizer * {
+    width:auto;
+    margin:0;
+    font-family: sans-serif;
+}
+
+div.tokenizer>div {
+    overflow: hidden;
+    background-color:white;
+    padding: 12px;
+    border: none;
+    border: solid 2px #c9c9c9;
+    transition: border 0.4s;
+}
+
+div.tokenizer.focused>div{
+    border: solid 2px #969696;
+}
+
+div.tokenizer ul {
+    display: inline;
+    margin: 0;
+}
+
+div.tokenizer ul * {
+    border:none;
+    outline:none;
+}
+
+div.tokenizer ul li {
+    display: inline-block;
+    margin-right: 3px;
+    vertical-align: top;
+}
+
+div.tokenizer ul li span:hover {
+    text-decoration: underline;
+}
+
+div.tokenizer ul li span {
+    cursor:default;
+}
+
+div.tokenizer ul li span[contenteditable="true"] {
+    cursor:text;
+}
+
+div.tokenizer ul li:last-child {
+    margin-right: 0;
+}
+
+div.tokenizer .tokenizer_input {
+    margin:0;
+    /*text-decoration: underline;*/
+    min-width: 1px;
+}
+
+div.tokenizer .remove-icon{
+    display:inline;
+    margin-left:2px;
+}

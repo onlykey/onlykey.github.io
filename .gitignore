@@ -8,3 +8,11 @@ node_modules/
 *.lock
 
 *.lock
+
+build/
+
+package-lock.json
+
+_._*
+
+radata/

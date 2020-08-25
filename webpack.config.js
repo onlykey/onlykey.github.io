@@ -1,129 +1,167 @@
 const path = require('path');
-const webpack = require('webpack');
-const MinifyPlugin = require("babel-minify-webpack-plugin");
+// const webpack = require('webpack');
+// const MinifyPlugin = require("babel-minify-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
-const SriPlugin = require('webpack-subresource-integrity');
+// const CopyWebpackPlugin = require('copy-webpack-plugin');
+// const HtmlWebpackIncludeAssetsPlugin = require('html-webpack-include-assets-plugin');
+// const SriPlugin = require('webpack-subresource-integrity');
+const CspHtmlWebpackPlugin = require("csp-html-webpack-plugin");
+
+var cspOptions = {
+    enabled: true,
+    policy: {
+        'default-src': "'self'",
+        'base-uri': "'none'",
+        'object-src': "'none'",
+        'script-src': [
+            // "'unsafe-inline'",
+            "'self'", 
+            "'unsafe-eval'"],
+        'style-src': [
+            // "'unsafe-inline'", 
+            "'self'", 
+            "'unsafe-eval'"],
+        'img-src': [
+            "'self'",
+            "data:",
+            "https://www.gravatar.com",
+            "https://raw.githubusercontent.com/keybase/client/master/browser/images/icon-keybase-logo-128.png",
+            "https://s3.amazonaws.com/keybase_processed_uploads/",
+
+        ],
+        'connect-src': [
+            "'self'",
+            "https://keybase.io",
+            "https://onlykey.herokuapp.com", //for api
+            "wss://onlykey.herokuapp.com", //for gun
+            // "https://api.protonmail.ch",
+            // "wss://www.peersocial.io"
+        ]
+    },
+    hashEnabled: {
+        'script-src': true,
+        'style-src': true
+    },
+    nonceEnabled: {
+        'script-src': true,
+        'style-src': true
+    },
+    //processFn: defaultProcessFn
+};
+
+var pageFiles = getPagesList();
 
 let plugins = [
+
     new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './encrypt.html' : './encrypt-dev.html',
-        template: './src/encrypt-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './decrypt.html' : './decrypt-dev.html',
-        template: './src/decrypt-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './encrypt-file.html' : './encrypt-file-dev.html',
-        template: './src/encrypt-file-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './decrypt-file.html' : './decrypt-file-dev.html',
-        template: './src/decrypt-file-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './search.html' : './search-dev.html',
-        template: './src/search-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './index.html' : './index-dev.html',
+        app_pages: pageFiles,
+        dir_name: "./app",
+        filename: './index.html',
         template: './src/index-src.html',
         inject: 'body',
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
-        showErrors: false
+        showErrors: false,
+
+        cspPlugin: cspOptions
     }),
+
     new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './encrypt-file-vir.html' : './encrypt-file-vir-dev.html',
-        template: './src/encrypt-file-vir-src.html',
+        app_pages: pageFiles,
+        dir_name: ".",
+        filename: './app/index.html',
+        template: './src/index-src.html',
         inject: 'body',
         minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
         hash: (process.env.NODE_ENV === 'production') ? true : false,
         cache: false,
-        showErrors: false
-    }),
-    new HtmlWebpackPlugin({
-        filename: (process.env.NODE_ENV === 'production') ? './decrypt-file-vir.html' : './decrypt-file-vir-dev.html',
-        template: './src/decrypt-file-vir-src.html',
-        inject: 'body',
-        minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
-        hash: (process.env.NODE_ENV === 'production') ? true : false,
-        cache: false,
-        showErrors: false
-    }),
-    new webpack.ProvidePlugin({
-      nacl: './nacl.min.js',
-      forge: './forge.min.js',
-      kbpgp: './kbpgp.js',
-      'auth_sign()': './onlykey-api.js',
-      'auth_decrypt()': './onlykey-api.js',
+        showErrors: false,
+
+        cspPlugin: cspOptions
     })
+
 ];
 
-if (process.env.NODE_ENV === 'production') {
-    plugins.push(new MinifyPlugin(
-          minifyOpts={
-          consecutiveAdds: false,
-          deadcode: false,
-          evaluate: false,
-          flipComparisons: false,
-          guards: false,
-          infinity: false,
-          mangle: false,
-          mergeVars: false,
-          numericLiterals: false,
-          propertyLiterals: false,
-          removeConsole: true,
-          removeDebugger: true
-        },
-        pluginOpts={
-          exclude: ["./src/forge.min.js", "./src/nacl.min.js"]
-        }
-      ));
-    plugins.push(new SriPlugin({
-        hashFuncNames: ['sha256', 'sha384'],
-        enabled: process.env.NODE_ENV === 'production'
-    }));
+for (var i in pageFiles) {
+    var filename = pageFiles[i].name;
+    plugins.push(
+        new HtmlWebpackPlugin({
+            app_pages: pageFiles,
+            page: filename,
+            filename: (process.env.NODE_ENV === 'production') ? './app/' + filename + '.html' : './app/' + filename + '.html',
+            template: './src/app-src.html',
+            inject: 'body',
+            minify: (process.env.NODE_ENV === 'production') ? { collapseWhitespace: true, removeComments: true } : false,
+            hash: (process.env.NODE_ENV === 'production') ? true : false,
+            cache: false,
+            showErrors: false,
+
+            cspPlugin: cspOptions
+        })
+    );
 }
 
+
+plugins.push(new CspHtmlWebpackPlugin({}, {}));
+
+
 module.exports = {
-    entry: ['./src/app.js'],
+    mode: process.env.NODE_ENV,
+    entry: [(process.env.NODE_ENV === 'production') ? './src/entry.js' : './src/entry-devel.js'],
     externals: {
-      u2f: './src/u2f-api.js',
-      Virtru: './src/virtru-sdk.min.js'
+        // u2f: './src/u2f-api.js',
+        // Virtru: './src/virtru-sdk.min.js'
     },
     output: {
-        path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './dev'),
-        filename: 'bundle.[hash].js',
+        path: path.resolve(__dirname, (process.env.OUT_DIR) ? process.env.OUT_DIR : './'),
+        filename: './app/bundle.[hash].js',
         crossOriginLoading: 'anonymous'
     },
-    plugins: plugins
+    plugins: plugins,
+    module: {
+        rules: [{
+            test: /\.page\.html$/i,
+            use: 'raw-loader',
+        }, {
+            test: /\.modal\.html$/i,
+            use: 'raw-loader',
+        }, {
+            test: /\.template\.html$/i,
+            use: 'raw-loader',
+        }]
+    },
+};
+
+function getPagesList() {
+
+    var _files = [];
+
+
+    var plugins = require("./src/plugins.js");
+    if (!(process.env.NODE_ENV === 'production')) {
+        plugins = [].concat(plugins, require("./src/plugins-devel.js"));
+    }
+
+    for (var i in plugins) {
+        if (plugins[i].pagesList) {
+            for (var j in plugins[i].pagesList) {
+                _files.push({
+                    name: j,
+                    icon: plugins[i].pagesList[j].icon,
+                    title: plugins[i].pagesList[j].title,
+                    sort: plugins[i].pagesList[j].sort
+                });
+            }
+        }
+    }
+
+    _files.sort(function(a,b){
+        if(!a.sort)a.sort=10000;
+        if(!b.sort)b.sort=10000;
+        return b.sort - a.sort;
+    });
+    _files.reverse();
+    
+    return _files;
 }

@@ -1,0 +1,27 @@
+<h4>
+    <font size="+2">Securely decrypt and verify files using
+        <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a>
+    </font>
+</h4>
+<fieldset>
+    <textarea placeholder="Sender's Keybase username or URL to their public pgp key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
+    <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
+    <form name="fileform">
+        <div class="block">
+            <div class="block-inner">
+                <h3>Choose the file to decrypt</h3>
+                <input type="file" id="file" name="file" /><br />
+                <p id="filedetails"></p>
+            </div>
+        </div>
+    </form>
+    <button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button>
+</fieldset>
+<center>
+    <form id="action">
+        <label>
+            <input type="radio" name="select_one" id="decrypt_and_verify" value="Decrypt and Verify" checked="checked"> Decrypt and Verify </label>
+        <label>
+            <input type="radio" name="select_one" id="decrypt_only" value="Decrypt Only"> Decrypt Only </label>
+    </form>
+</center>
