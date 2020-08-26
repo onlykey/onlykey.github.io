@@ -3,7 +3,7 @@
 
 ## About
 
-WebCrypt is a serverless Web App that integrates with [OnlyKey](https://onlykey.io) to provide PGP encryption everywhere on-the-go. With OnlyKey and Keybase together you have offline cold storage of your OpenPGP keys and can still easily encrypt messages and files.
+WebCrypt is a serverless Web App that integrates with [OnlyKey](https://onlykey.io) to provide PGP encryption everywhere on-the-go. With WebCrypt you have offline cold storage of your OpenPGP keys and can still easily encrypt messages and files right in your browser.
 
 Supports Firefox, Google Chrome, Brave, and Edge (new) browsers!
 
