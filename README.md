@@ -3,7 +3,7 @@
 
 ## About
 
-WebCrypt is a serverless Web App that integrates with [OnlyKey](https://onlykey.io) and [keybase.io](https://keybase.io/) to provide PGP encryption everywhere on-the-go. With OnlyKey and Keybase together you have offline cold storage of your OpenPGP keys and can still easily encrypt messages and files.
+WebCrypt is a serverless Web App that integrates with [OnlyKey](https://onlykey.io) to provide PGP encryption everywhere on-the-go. With OnlyKey and Keybase together you have offline cold storage of your OpenPGP keys and can still easily encrypt messages and files.
 
 Supports Firefox, Google Chrome, Brave, and Edge (new) browsers!
 
@@ -30,7 +30,7 @@ With Keybase user/key management is made easy and with OnlyKey private keys rema
 **Step 2. Send a user encrypted message or file -** Click the link in the search results to send the selected user encrypted message/file. You can also browse to [https://apps.crp.to/encrypt](https://apps.crp.to/encrypt) to send a secure message or browse to [https://apps.crp.to/encrypt-file](https://apps.crp.to/encrypt-file) to send a secure file if you already know the recipient. To encrypt files for yourself just use your Keybase username as the recipient.
 
 
-**Step 3. Receive an encrypted message or file -** To decrypt a message or file browse to [https://apps.crp.to/decrypt](https://apps.crp.to/decrypt) or [https://apps.crp.to/decrypt-file](https://apps.crp.to/decrypt-file). 
+**Step 3. Receive an encrypted message or file -** To decrypt a message or file browse to [https://apps.crp.to/decrypt](https://apps.crp.to/decrypt) or [https://apps.crp.to/decrypt-file](https://apps.crp.to/decrypt-file).
 
 You can receive encrypted messages and files from anyone, no tech skills are required!<br><br>
 Receiving encrypted files is as easy as putting a custom link in your email signature:<br><br>
