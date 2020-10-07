@@ -186,7 +186,7 @@ module.exports = {
 
                 page.okpgp.on("status", function(message) {
                     page.button.textContent = message;
-                    app.xterm.writeln("OKPGP(" + page.okpgp._$mode() + "): " + message);
+                    //app.xterm.writeln("OKPGP(" + page.okpgp._$mode() + "): " + message);
                 });
 
                 page.okpgp.on("working", function() {
@@ -208,7 +208,7 @@ module.exports = {
                 });
 
 
-                app.xterm.writeln("PGP Mode to " + page.okpgp._$mode());
+                //app.xterm.writeln("PGP Mode to " + page.okpgp._$mode());
 
                 if (page.initParams.recipients) document.getElementById('pgpkeyurl').value = page.initParams.recipients;
 
