@@ -965,7 +965,7 @@ module.exports = function(imports) {
                   }
                   // loadPublic(key1);
                   await keyStore.loadPublicSignerID(key2);
-                  sender_private_key = await keyStore.loadPrivate();
+                  sender_private_key = await keyStore.loadPrivate(key2);
                   params = {
                     msg: kbpgp.Buffer.from(zip),
                     encrypt_for: keyList,
@@ -990,7 +990,7 @@ module.exports = function(imports) {
                   break;
                 case 'Sign Only':
                   await keyStore.loadPublicSignerID(key2);
-                  sender_private_key = await keyStore.loadPrivate();
+                  sender_private_key = await keyStore.loadPrivate(key2);
                   params = {
                     msg: kbpgp.Buffer.from(zip),
                     sign_with: sender_private_key
