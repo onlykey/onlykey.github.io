@@ -679,8 +679,8 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       }],
       timeout: timeout,
       rpId: 'apps.crp.to',
-      userVerification: 'required',
-      requireResidentKey: 'required',
+      userVerification: 'discouraged',
+      //requireResidentKey: 'required',
       //userPresence: 'false',
       //mediation: 'silent',
       extensions: {
