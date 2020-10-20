@@ -679,7 +679,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       }],
       timeout: timeout,
       //rpId: 'apps.crp.to',
-      userVerification: 'discouraged',
+      userVerification: 'required',
       //userPresence: 'false',
       //mediation: 'silent',
       //extensions: {
