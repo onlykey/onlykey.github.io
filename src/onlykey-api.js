@@ -110,7 +110,11 @@ IntToByteArray = function(int) {
 function get_pin (byte) {
   if (byte < 6) return 1;
   else {
-    return (byte % 5) + 1;
+    if (FWversion.indexOf('beta') > -1) {
+      return (byte % 5) + 1;
+    } else {
+    return (byte % 6) + 1;
+    }
   }
 }
 
