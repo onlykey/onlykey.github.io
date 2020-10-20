@@ -726,14 +726,14 @@ function onlykey(keytype, enc_resp) {
           }],
           timeout: timeout,
           //rpId: 'apps.crp.to',
-          rpId: id ,
+          //rpId: id ,
           userVerification: 'discouraged',
           //userPresence: 'false',
           //mediation: 'silent',
-          extensions: {
+          //extensions: {
             // appid: 'https://apps.crp.to',
-            appid: 'https://'+id 
-          },
+            //appid: 'https://'+id 
+          //},
         };
 
         return window.navigator.credentials.get({
