@@ -8,6 +8,7 @@ var hw_RNG = {};
 var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
+var FWversion;
 var browser = "Chrome";
 var os = getOS();
 var packetnum=0;
@@ -293,7 +294,7 @@ async function msg_polling(params = {}, cb) {
       _setStatus('pending_challenge');
       data = 1;
     } else if (type == 1) {
-      var FWversion = bytes2string(response.slice(8, 20));
+      FWversion = bytes2string(response.slice(8, 20));
 
       if (FWversion.indexOf('beta') > -1) {
         okPub = response.slice(21, 53);
