@@ -297,9 +297,9 @@ async function msg_polling(params = {}, cb) {
       } else {
         FWversion = bytes2string(response.slice(32+8, 32+20));
         okPub = response.slice(0, 32);
-        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
         OKversion = response[32+19] == 99 ? 'Color' : 'Go';
       }
+      sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
       var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
       msg("OnlyKey " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
       id('header_messages').innerHTML = "<br>";
