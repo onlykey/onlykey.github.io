@@ -289,16 +289,23 @@ async function msg_polling(params = {}, cb) {
       _setStatus('pending_challenge');
       data = 1;
     } else if (type == 1) {
-      okPub = response.slice(21, 53);
-      console.info("OnlyKey Public Key: ", okPub );
-      sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-      console.info("NACL shared secret: ", sharedsec );
-      OKversion = response[19] == 99 ? 'Color' : 'Original';
       var FWversion = bytes2string(response.slice(8, 20));
-      msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
+
+      if (FWversion.indexOf('beta') > -1) {
+        okPub = response.slice(21, 53);
+        OKversion = response[19] == 99 ? 'Color' : 'Original';
+      } else {
+        FWversion = bytes2string(response.slice(32+8, 32+20));
+        okPub = response.slice(0, 32);
+        sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+        OKversion = response[32+19] == 99 ? 'Color' : 'Go';
+      }
+      var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+      msg("OnlyKey " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
       id('header_messages').innerHTML = "<br>";
       headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-      var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+      console.info("OnlyKey Public Key: ", okPub );
+      console.info("NACL shared secret: ", sharedsec );
       console.info("AES Key", key);
       return;
     } /*else if (type == 2) {
