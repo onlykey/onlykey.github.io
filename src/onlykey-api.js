@@ -678,14 +678,14 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
           type: 'public-key',
       }],
       timeout: timeout,
-      rpId: 'apps.crp.to',
+      //rpId: 'apps.crp.to',
       userVerification: 'discouraged',
       //requireResidentKey: 'required',
       //userPresence: 'false',
       //mediation: 'silent',
-      extensions: {
-        appid: 'https://apps.crp.to',
-      },
+      //extensions: {
+      //  appid: 'https://apps.crp.to',
+      //},
   }
 
 
