@@ -28,7 +28,9 @@ module.exports = {
 
     function hrefTakeover(tag) {
       var urlPath = tag.attr('href');
+      var target = tag.attr('target');
       if (urlPath == "#") return true;
+      if (target == "_blank") return true;
 
       if (!tag.data("href-takeover")) {
         tag.data("href-takeover", true);
@@ -43,7 +45,8 @@ module.exports = {
         if (page_id == "index") return true;
 
         // var title = $(this).text();
-
+        
+        
         if (urlPath.indexOf("/") == 0 || urlPath.indexOf("./") == 0) {
           var _hash = pathHref(urlPath);
           if (pages[_hash].view && lastRender != _hash) {
