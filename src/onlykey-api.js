@@ -71,7 +71,7 @@ initok = async function () {
       if (os=='Android') await wait(6000);
       else await wait(3000);
     }
-    await wait(1000);
+    await wait(2000);
     if (typeof(sharedsec) === "undefined" && window._status != 'Encrypt Only') {
       if (browser=='Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
       else headermsg("OnlyKey not connected! Refresh this page to try again.");
