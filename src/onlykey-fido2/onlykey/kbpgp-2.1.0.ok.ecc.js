@@ -5555,7 +5555,7 @@ _break()
       for (i = _i = 0, _len = hex_key_ids.length; _i < _len; i = ++_i) {
         id = hex_key_ids[i];
         k = this._keys[id];
-        if (k != null ? (_ref = k.key) != null ? _ref.can_perform(ops) : void 0 : void 0) {
+        if (onlykey.is_ecc) {
           ret_i = i;
           km = this._kms[id];
           break;

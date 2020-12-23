@@ -148,7 +148,7 @@ module.exports = {
                 appTerm._core._soundService.playBellSound();
         }
 
-        appTerm.writeln("Extra Messages from " + term_escape.dim + term_escape.red + "OnlyKey WebCrypt" + term_escape.reset + " Will Appear Here");
+        appTerm.writeln(term_escape.green + "OnlyKey WebCrypt Log Will Appear Here" + term_escape.reset);
 
 
         var _self;

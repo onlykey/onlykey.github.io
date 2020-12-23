@@ -106,8 +106,8 @@ module.exports = function(imports) {
         }
 
         if (typeof(onlykey_api.sharedsec) === "undefined") {
-          // if (browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
-          // else headermsg("OnlyKey not connected! Refresh this page to try again.");
+          if (onlykey_api.browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
+          else headermsg("OnlyKey not connected! Refresh this page to try again.");
           if (callback && typeof callback == "function")
             callback(true);
           resolve();
@@ -163,6 +163,7 @@ module.exports = function(imports) {
       var message;
 
       imports.app.emit("ok-connecting");
+      
 
       cmd = OKCONNECT;
       message = [255, 255, 255, 255, OKCONNECT]; //Add header and message type
@@ -180,15 +181,11 @@ module.exports = function(imports) {
       Array.prototype.push.apply(message, env);
       // msg(browser + " Browser running on " + os + " Operating System");
       encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
-
-
       await wait(delay * 1000);
-      
-      
       var enc_resp = 1;
-            
       var ctaphid_response = await ctaphid_via_webauthn(cmd, 2, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
-        // console.log("ctaphid_response resp", maybe_a_err, data);
+         console.info("ctaphid_response resp", maybe_a_err, data);
+         
       });
 
       imports.app.emit("ok-waiting");
@@ -197,10 +194,10 @@ module.exports = function(imports) {
 
       if (ctaphid_response.data && !ctaphid_response.error)
         response = ctaphid_response.data;
-
+      
       if (!response) {
-        //check errors
-        // if(ctaphid_response.error && ctaphid_response.error.indexOf("Error NotAllowedError") > -1 )
+        if (onlykey_api.browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
+        else headermsg("OnlyKey not connected! Refresh this page to try again.");
         imports.app.emit("ok-disconnected");
       }
       else {
@@ -246,7 +243,7 @@ module.exports = function(imports) {
               console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
               // msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
               // element_by_id('header_messages').innerHTML = "<br>";
-              // headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
+              headermsg("OnlyKey " + onlykey_api.FWversion + " Secure Connection Established\n");
               //var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
               // console.info("AES Key", key);
   
@@ -254,6 +251,9 @@ module.exports = function(imports) {
               cb(null);
             }
             break;
+          default:
+            imports.app.emit("ok-disconnected");
+          
         }
         cb(null, ctaphid_response.status);
 
@@ -570,6 +570,18 @@ module.exports = function(imports) {
     }
     return ab;
   }
+  
+  function id(s) { return document.getElementById(s); }
+  
+  function headermsg(s) { 
+    
+    if(imports.app)
+      imports.app.emit("ok-message",s);
+    else
+      id('header_messages').innerHTML += "<br>" + s; 
+    
+  }
+  
   /**
    * Parse custom U2F sign response
    * @param {Array} response
