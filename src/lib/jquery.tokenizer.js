@@ -270,10 +270,18 @@ var tokenizer = function($, onAddTokenizerItem) {
                 this.$element = $("<span class='tokenizer_input' contenteditable='true'></span>");
                 this.$element.on("keydown", $.proxy(this.handleKeydown, this));
                 this.$element.on("keyup", $.proxy(this.handleKeyup, this));
+                this.$element.focusout($.proxy(this.focusout, this));
             },
 
-            blur() {
+            blur(event) {
                 this.$element.trigger("blur");
+                return this;
+            },
+            
+            focusout(event) {
+                if (!this.isEmpty()) {
+                    this.channel.publish("add", this.clearValue());
+                }
                 return this;
             },
 

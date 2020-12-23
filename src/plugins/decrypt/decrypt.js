@@ -85,7 +85,7 @@ module.exports = {
 
                 page.okpgp.on("status", function(message) {
                     page.button.textContent = message;
-                    app.xterm.writeln("OKPGP(" + page.okpgp._$mode() + "): " + message);
+                    //app.xterm.writeln("OKPGP(" + page.okpgp._$mode() + "): " + message);
                 });
 
                 page.okpgp.on("working", function() {
@@ -107,7 +107,7 @@ module.exports = {
                 });
 
 
-                app.xterm.writeln("PGP Mode to " + page.okpgp._$mode());
+                //app.xterm.writeln("PGP Mode to " + page.okpgp._$mode());
 
                 $(".messageLink").html("");
                 onlykeyApi.api.request_pgp_pubkey = function() {

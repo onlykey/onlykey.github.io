@@ -594,7 +594,7 @@ module.exports = function(imports) {
 
         if (message != null)
           decryptText(sender_public_key, my_public_key, message, callback);
-        else decryptFile(sender_public_key, file, callback);
+        else decryptFile(sender_public_key, my_public_key, file, callback);
       };
 
       function decryptText(key, onlykeyKey, encryptedMessage, callback) {
@@ -659,7 +659,7 @@ module.exports = function(imports) {
         });
       }
 
-      function decryptFile(key, ct, callback) {
+      function decryptFile(key, my_public_key, ct, callback) {
         return new Promise(async(resolve) => {
           var txt = "";
           if ('files' in ct) {
@@ -722,7 +722,7 @@ module.exports = function(imports) {
               break;
             default:
           }
-          await keyStore.loadPrivate();
+          await keyStore.loadPrivate(my_public_key);
           kbpgp.unbox({
             keyfetch: keyStore.ring,
             raw: buffer,
@@ -965,7 +965,7 @@ module.exports = function(imports) {
                   }
                   // loadPublic(key1);
                   await keyStore.loadPublicSignerID(key2);
-                  sender_private_key = await keyStore.loadPrivate();
+                  sender_private_key = await keyStore.loadPrivate(key2);
                   params = {
                     msg: kbpgp.Buffer.from(zip),
                     encrypt_for: keyList,
@@ -990,7 +990,7 @@ module.exports = function(imports) {
                   break;
                 case 'Sign Only':
                   await keyStore.loadPublicSignerID(key2);
-                  sender_private_key = await keyStore.loadPrivate();
+                  sender_private_key = await keyStore.loadPrivate(key2);
                   params = {
                     msg: kbpgp.Buffer.from(zip),
                     sign_with: sender_private_key

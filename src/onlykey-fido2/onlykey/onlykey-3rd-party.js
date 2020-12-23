@@ -305,9 +305,9 @@ async function ONLYKEY_ECDH_P256_to_EPUB(publicKeyRawBuffer, callback) {
     // var orig_publicKeyRawBuffer = Uint8Array.from(publicKeyRawBuffer);
 
     //console.log("publicKeyRawBuffer  B", publicKeyRawBuffer)
-    publicKeyRawBuffer = Array.from(publicKeyRawBuffer)
-    publicKeyRawBuffer.unshift(publicKeyRawBuffer.pop());
-    publicKeyRawBuffer = Uint8Array.from(publicKeyRawBuffer);
+    // publicKeyRawBuffer = Array.from(publicKeyRawBuffer)
+    // publicKeyRawBuffer.unshift(publicKeyRawBuffer.pop());
+    // publicKeyRawBuffer = Uint8Array.from(publicKeyRawBuffer);
 
     //console.log("publicKeyRawBuffer  F", publicKeyRawBuffer)
     var importedPubKey = await crypto.subtle.importKey(

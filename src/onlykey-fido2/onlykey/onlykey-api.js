@@ -243,7 +243,7 @@ module.exports = function(imports) {
               console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
               // msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
               // element_by_id('header_messages').innerHTML = "<br>";
-              headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
+              headermsg("OnlyKey " + onlykey_api.FWversion + " Secure Connection Established\n");
               //var key = sha256(onlykey_api.sharedsec); //AES256 key sha256 hash of shared secret
               // console.info("AES Key", key);
   
@@ -573,7 +573,14 @@ module.exports = function(imports) {
   
   function id(s) { return document.getElementById(s); }
   
-  function headermsg(s) { id('header_messages').innerHTML += "<br>" + s; }
+  function headermsg(s) { 
+    
+    if(imports.app)
+      imports.app.emit("ok-message",s);
+    else
+      id('header_messages').innerHTML += "<br>" + s; 
+    
+  }
   
   /**
    * Parse custom U2F sign response
