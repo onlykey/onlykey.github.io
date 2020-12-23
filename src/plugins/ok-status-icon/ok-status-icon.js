@@ -279,6 +279,9 @@ module.exports = {
                             imports.app.on("ok-waiting", function(){
                                 setColor.yellow(true);
                             });
+                            imports.app.on("ok-message", function(msg){
+                                imports.$("#header_messages").text(msg);
+                            });
                         }
                     });
                 }
