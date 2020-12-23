@@ -259,7 +259,7 @@ module.exports = {
                                 setColor.off(true);
                             });
                             imports.app.on("ok-connecting", function(){
-                                setColor.rainbow();
+                                setColor.off(true);
                             });
                             imports.app.on("ok-connected", function(){
                                 setColor.green();
