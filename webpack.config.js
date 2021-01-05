@@ -34,8 +34,6 @@ var cspOptions = {
             "https://keybase.io",
             "https://onlykey.herokuapp.com", //for api
             "wss://onlykey.herokuapp.com", //for gun
-            // "https://api.protonmail.ch",
-            // "wss://www.peersocial.io"
         ]
     },
     hashEnabled: {
