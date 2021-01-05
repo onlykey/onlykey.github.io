@@ -1,11 +1,12 @@
+<h5><div id=header_messages></div></h5>
 <h4>
     <font size="+2">Securely decrypt and verify messages using
-        <a href="https://onlykey.io" target="_blank">OnlyKey</a> and <a href="https://keybase.io/kbpgp" target="_blank">Keybase PGP</a></font>
+        <a href="https://onlykey.io" target="_blank">OnlyKey</a></font>
 </h4>
 
 <fieldset>
-    <textarea placeholder="Sender's Keybase username or URL to their public pgp key or paste their key..." rows="1" id="pgpkeyurl"></textarea>
-    <textarea placeholder="Your Keybase username or URL to your public pgp key or paste your key..." rows="1" id="pgpkeyurl2"></textarea>
+    <textarea placeholder="Sender's Keybase username, Protonmail email, or paste their key..." rows="1" id="pgpkeyurl"></textarea>
+    <textarea placeholder="Your Keybase username, Protonmail email, or paste your public key..." rows="1" id="pgpkeyurl2"></textarea>
     <textarea placeholder="PGP message to decrypt ..." id="message"></textarea>
     <button type="submit" id="onlykey_start" value="Decrypt and Verify">Decrypt and Verify</button>
     <div class="messageLink startHidden container-flex"></div>

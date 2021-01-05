@@ -148,7 +148,6 @@ require('gun/nts'); // is there a GUN BUG with this?
 
 
 var gunOptions = {
-    peers: ["https://www.peersocial.io/gun"],
     file: 'radata',
     web: $server,
     super: false,

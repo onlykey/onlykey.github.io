@@ -305,9 +305,9 @@ async function ONLYKEY_ECDH_P256_to_EPUB(publicKeyRawBuffer, callback) {
     // var orig_publicKeyRawBuffer = Uint8Array.from(publicKeyRawBuffer);
 
     //console.log("publicKeyRawBuffer  B", publicKeyRawBuffer)
-    publicKeyRawBuffer = Array.from(publicKeyRawBuffer)
-    publicKeyRawBuffer.unshift(publicKeyRawBuffer.pop());
-    publicKeyRawBuffer = Uint8Array.from(publicKeyRawBuffer);
+    // publicKeyRawBuffer = Array.from(publicKeyRawBuffer)
+    // publicKeyRawBuffer.unshift(publicKeyRawBuffer.pop());
+    // publicKeyRawBuffer = Uint8Array.from(publicKeyRawBuffer);
 
     //console.log("publicKeyRawBuffer  F", publicKeyRawBuffer)
     var importedPubKey = await crypto.subtle.importKey(
@@ -726,14 +726,14 @@ function onlykey(keytype, enc_resp) {
           }],
           timeout: timeout,
           //rpId: 'apps.crp.to',
-          rpId: id ,
+          //rpId: id ,
           userVerification: 'discouraged',
           //userPresence: 'false',
           //mediation: 'silent',
-          extensions: {
+          //extensions: {
             // appid: 'https://apps.crp.to',
-            appid: 'https://'+id 
-          },
+            //appid: 'https://'+id 
+          //},
         };
 
         return window.navigator.credentials.get({
