@@ -560,6 +560,7 @@ module.exports = function(imports) {
                   console.log(keyid);
                   console.log(userid);
                   _api.emit("status", "Done :) Signed by " + userid + " (Key ID: " + keyid + "), Click here to copy message");
+                  _$status("finished");
                 }
               }
             }
@@ -669,6 +670,7 @@ module.exports = function(imports) {
                 }
               }
             }
+            _$status("finished");
             var finalfile = new Blob([ct[0].toBuffer()], { type: "text/plain;charset=utf-8" });
             saveAs(finalfile, filename);
             _api.emit("done");
