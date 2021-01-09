@@ -126,30 +126,23 @@ module.exports = function(imports) {
             resolve(data);
           }
 
-          // var cb = callback || noop;
-
           var delay = params.delay || _poll_delay;
           var type = params.type || 0; // default type to 1
           if (onlykeyApi.OKversion == 'Original') {
             delay = delay * 4;
           }
 
-
-          //setTimeout(async function() {
           // console.info("Requesting response from OnlyKey");
           var cmd;
           var encryptedkeyHandle;
           var message;
 
           //Ping and get Response From OKSIGN or OKDECRYPT
-          // if (_$status_is('finished'))
-          //   return encrypted_data;
           console.info("Sending Ping Request to OnlyKey");
           message = [];
           var ciphertext = new Uint8Array(64).fill(0);
           Array.prototype.push.apply(message, ciphertext);
           encryptedkeyHandle = await aesgcm_encrypt(message, onlykeyApi.sharedsec);
-          //var encryptedkeyHandle = Uint8Array.from(message);
           _$status('waiting_ping');
           cmd = OKPING;
           //}
@@ -168,7 +161,6 @@ module.exports = function(imports) {
           else if (ctaphid_response.error) {
             _$status('finished');
           }
-          // await wait(1000);
 
           var data; // = await Promise;
           var error = ctaphid_response.error;
@@ -197,36 +189,22 @@ module.exports = function(imports) {
                 console.log("Shared Secret", onlykeyApi.sharedsec)    
                 data = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
                 console.log("DECODED RESPONSE:", response);
-                //console.log("DECODED RESPONSE(as string):", bytes2string(response));
                 console.log("DECRYPTED RESPONSE:", data);
-                //console.log("DECRYPTED RESPONSE(as string):", bytes2string(data));
               }
-
-
+              
               if (_$status_is('finished')) {
-                // console.info("Finished");
                 imports.app.emit("ok-connected");
               }
 
               if (_$status_is('done_challenge')) {
                 _$status('finished');
               }
-
-              // if (_$status_is('waiting_ping')) {
-              // _$status('pending_challenge');
-              // data = 1;
-              // }
-
             }
           }
           else {
             console.log(ctaphid_response);
           }
-
           cb(error, data);
-
-          //}, (delay * 1000));
-
         });
       }
       /**
@@ -247,15 +225,8 @@ module.exports = function(imports) {
         else {
           ctChunk = cipherText.slice(0, maxPacketSize);
         }
-
         Array.prototype.push.apply(message, ctChunk);
-
-        //while (message.length < 228) message.push(0);
-        // console.info("Handlekey bytes ", message);
         var encryptedmsg = await aesgcm_encrypt(message, onlykeyApi.sharedsec);
-        // console.info("Encrypted Handlekey bytes ", encryptedmsg);
-
-
         if (OKSIGN == slot) imports.app.emit("ok-signing");
         if (OKDECRYPT == slot) imports.app.emit("ok-decrypting");
 
@@ -275,22 +246,16 @@ module.exports = function(imports) {
           response = ctaphid_response.data;
 
         if (finalPacket) packetnum = 0;
-
-        // .then(async response => {
-        //decrypt data
         if (response != 1) {
-          // var decryptedparsedData = await aesgcm_decrypt(response, onlykeyApi.sharedsec);
           // console.log("DECODED RESPONSE:", response);
           // console.log("DECODED RESPONSE(as string):", bytes2string(response));
           // console.log("DECRYPTED RESPONSE:", decryptedparsedData);
           // console.log("DECRYPTED RESPONSE(as string):", bytes2string(decryptedparsedData));
         }
-        // console.log("Returning just the decoded response:");
+
         var result = response;
-        // msg((result ? "Successfully sent" : "Error sending") + " to OnlyKey");
         if (result) {
           if (finalPacket) {
-            // console.info("Final packet ");
             _$status('pending_challenge');
             doPinTimer().then(skey => {
               // console.info("skey ", skey);
@@ -299,14 +264,12 @@ module.exports = function(imports) {
           }
           else {
             imports.app.emit("ok-activity");
-            //cb();
             u2fSignBuffer(slot, cipherText.slice(maxPacketSize), mainCallback);
           }
         }
         else {
           imports.app.emit("ok-error");
         }
-        // });
       }
 
       KB_ONLYKEY.auth_decrypt = async function(ct_array, cb) { //OnlyKey decrypt request to keyHandle
@@ -334,12 +297,9 @@ module.exports = function(imports) {
 
             for (var i in mypubkeyids) {
               var target = Array.from(mypubkeyids[i]).join("-");
-              // msg("----input keyid " + target);
               for (var j in ct_array) {
                 var check = Array.from(ct_array[j].key_id).join("-");
-                // msg("msg-check keyid " + check);
                 if (target == check) {
-                  // msg("----match keyid " + check);
                   return complete(ct_array[j]);
                 }
               }
@@ -371,10 +331,6 @@ module.exports = function(imports) {
           else if (ct.length == 524) {
             _poll_delay = 7; //7 Second delay for RSA 4096
           }
-          // if (OKversion == 'Original') {
-          //   _poll_delay = _poll_delay * 4;
-          // }
-//           if(KB_ONLYKEY)KB_ONLYKEY;
           var padded_ct = ct.slice(12, ct.length);
           
           if(KB_ONLYKEY.is_ecc){
@@ -384,29 +340,11 @@ module.exports = function(imports) {
           var keyid = ct.slice(1, 8);
           console.info("Key ID bytes", Array.from(keyid));
           var pin_hash = sha256(padded_ct);
-          // console.info("Padded CT Packet bytes", Array.from(padded_ct));
           pin = [get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31])];
           console.log("Generated PIN " + pin);
           console.log("OK-padded_ct", padded_ct)
           return u2fSignBuffer(OKDECRYPT, typeof padded_ct === 'string' ? padded_ct.match(/.{2}/g) : padded_ct, function(oks) {
                 console.log("oks",oks)
-                 /*
-                if(KB_ONLYKEY.is_ecc){
-                  oks = kbpgp.Buffer.from(oks);
-                  
-                  var csum = (function(buf){
-                    var i, res, _i, _ref;
-                    res = 0;
-                    for (i = _i = 0, _ref = buf.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-                      res = (res + buf.readUInt8(i)) & 0xffff;
-                    }
-                    var ret = new kbpgp.Buffer(2);
-                    ret.writeUInt16BE(res, 0);
-                    return ret;
-                  })(oks);
-  
-                  oks = kbpgp.Buffer.concat([kbpgp.Buffer.from([kbpgp.const.openpgp.symmetric_key_algorithms.AES256]), oks, csum]);
-                }*/
                 cb(oks, ct);
           });
         }
@@ -420,7 +358,6 @@ module.exports = function(imports) {
         var pin_hash = sha256(ct);
         cb = cb || noop;
         // console.info("Signature Packet bytes ", Array.from(ct));
-        // msg("Signature Packet bytes " + Array.from(ct));
         pin = [get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31])];
         //console.info("Generated PIN", pin);
         return u2fSignBuffer(OKSIGN, typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
@@ -434,14 +371,12 @@ module.exports = function(imports) {
         var pin_hash = sha256(ct);
         cb = cb || noop;
         // console.info("Signature Packet bytes ", Array.from(ct));
-        // msg("Signature Packet bytes " + Array.from(ct));
         pin = [get_pin(pin_hash[0]), get_pin(pin_hash[15]), get_pin(pin_hash[31])];
         //console.info("Generated PIN", pin);
         return u2fSignBuffer(OKSIGN, typeof ct === 'string' ? ct.match(/.{2}/g) : ct, cb);
       };
 
       function slotid(slot) {
-        //_mode == "Encrypt and Sign" ? 2 : 1; << should be this ( mode should be set before running any process at start)
         var ret = (slot == OKSIGN ? 2 : 1);
         
         if(KB_ONLYKEY.is_ecc){
@@ -456,7 +391,6 @@ module.exports = function(imports) {
           var res;
 
           if (!_$status_is('pending_challenge') /* || _$status_is('waiting_ping')*/ ) {
-            // _$status('done_challenge');
             _api.emit("status", `Waiting for OnlyKey to process message.`);
             res = ping(); //Delay
           }
@@ -471,12 +405,8 @@ module.exports = function(imports) {
             }
 
             if (!(onlykeyApi.os == 'Android') && [10, 5].indexOf(secondsRemaining) > -1) {
-              //res = await ping(0); //Delay
-              // pooling will cause the key to go into a stale state after sign/decrypt Operation #1, 
-              // causing the #2 operation of sign/decrypt to be skipped until #3 re-atempt
-              // for now, lets let the timer expire and complete the request when done.
+              
             }
-            //await ping(0); //Too many popups with FIDO2
           }
 
           if (res)
@@ -496,19 +426,6 @@ module.exports = function(imports) {
               }
 
             }
-
-            // if (_$status_is('finished')) {
-            //   if (encrypted_data) {
-            //     console.info("Parsed Encrypted Data: ", encrypted_data);
-            //     var decrypted_data = await aesgcm_decrypt(encrypted_data, onlykeyApi.sharedsec);
-            //     encrypted_data = false; //clear
-            //     console.info("Parsed Decrypted Data: ", decrypted_data);
-            //     return resolve(decrypted_data);
-            //   }
-            //   else {
-            //     return reject("Error no data to decrypt for aesgcm_decrypt");
-            //   }
-            // }
 
             if (_$status_is('finished')) return;
 
@@ -562,8 +479,6 @@ module.exports = function(imports) {
         _poll_type = 3;
         _poll_delay = 1;
         //console.info(_poll_type);
-        // button.classList.remove('error');
-        // button.classList.add('working');
         _api.emit("working");
 
         if (signer == "" && _$mode_is('Decrypt and Verify')) {
@@ -649,11 +564,10 @@ module.exports = function(imports) {
               }
             }
             console.info(decryptedMessage);
-            // messagebox.value = ct;
-            // messagebox.focus();
-            // messagebox.select();
             _api.emit("done");
             callback(null, decryptedMessage);
+            _$status('finished');
+            imports.app.emit("ok-connected");
             resolve(decryptedMessage);
           });
         });
@@ -705,7 +619,6 @@ module.exports = function(imports) {
               console.error(err);
               alert('An error occurred attempting to encrypt this file. Please be sure you have authenticated, and try again.');
             }
-            // button.classList.remove('working');
             _api.emit("working");
           }
 
@@ -736,7 +649,6 @@ module.exports = function(imports) {
               _api.emit("status", 'Done :)  downloading decrypted file ' + filename);
             }
             else {
-              // var recipient_public_key;
               var ds = null;
               ds = ct[0].get_data_signer();
               if (ds == null) {
@@ -758,11 +670,11 @@ module.exports = function(imports) {
               }
             }
             var finalfile = new Blob([ct[0].toBuffer()], { type: "text/plain;charset=utf-8" });
-            //var finalfile2 = new Blob([result_buffer], {type: "octet/stream"});
-            //new var blob = new Blob([xhr.response], {type: "octet/stream"});
             saveAs(finalfile, filename);
             _api.emit("done");
             callback();
+            _$status('finished');
+            imports.app.emit("ok-connected");
             resolve();
           });
 
@@ -805,11 +717,9 @@ module.exports = function(imports) {
                 keys.push(r_inputs[i]);
               else
                 keys.push(await onlykeyApi.getKey(r_inputs[i]));
-              //keys.push(await this.downloadPublicKey(r_inputs[i])); 
             }
           }
           sender_public_key = keys;
-          //sender_public_key = await this.downloadPublicKey(urlinputbox.value);
           console.info("sender_public_key" + sender_public_key);
         }
 
@@ -888,10 +798,10 @@ module.exports = function(imports) {
             else {
               _api.emit("status", 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.');
             }
-
-            _$status("finished");
             _api.emit("done");
             callback(null, results);
+            _$status('finished');
+            imports.app.emit("ok-connected");
             return resolve(results);
           });
         });
@@ -900,12 +810,7 @@ module.exports = function(imports) {
       async function encryptFile(key1, key2, f, callback) {
 
 
-        //console.info(f);
-        //console.info(f.files[0]);
-        // todo process multiple files
-        // await readfiles(infile);
         var zip = new JSZip();
-        //var folderzip = zip.folder("files");
         var txt = "";
         if ('files' in f) {
           for (var i = 0; i < f.files.length; i++) {
@@ -963,7 +868,6 @@ module.exports = function(imports) {
                   else {
                     keyList.push(await keyStore.loadPublic(key1));
                   }
-                  // loadPublic(key1);
                   await keyStore.loadPublicSignerID(key2);
                   sender_private_key = await keyStore.loadPrivate(key2);
                   params = {
@@ -1012,7 +916,6 @@ module.exports = function(imports) {
                   _api.emit("status", 'Done :)  downloading signed file ' + filename + '.zip.gpg');
                 else
                   _api.emit("status", 'Done :)  downloading encrypted file ' + filename + '.zip.gpg');
-                _$status("finished");
                 if (usevirtru != null) {
                   try {
                     _api.emit("status", 'Done :)  downloading encrypted file ' + filename + '.tdf');
@@ -1031,6 +934,8 @@ module.exports = function(imports) {
                   saveAs(finalfile, filename + ".zip.gpg");
                   _api.emit("done");
                   callback();
+                  _$status('finished');
+                  imports.app.emit("ok-connected");
                   return resolve();
                 }
               });
@@ -1042,10 +947,6 @@ module.exports = function(imports) {
         var keyStore = {};
 
         keyStore.ring = new kbpgp.keyring.KeyRing();
-
-        // var sender_public_key;
-        // var recipient_public_key;
-        // var sender_private_key;
 
         keyStore.loadPublic = function loadPublic(key) {
           return new Promise(async function(resolve) {
@@ -1110,7 +1011,6 @@ module.exports = function(imports) {
 
             var testKey, passphrase;
             //detect ecc or rsa
-            // if(key){
 
             onlykey_pgp_api.getPGPVerifyKeyID(keyType_or_PubKeyToCompare, function(err, verify_key_id, key_type) {
               console.log("loadPrivate getPGPVerifyKeyID key, ID:", verify_key_id.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
@@ -1126,11 +1026,6 @@ module.exports = function(imports) {
                 passphrase = 'G2SaK_v[ST_hS,-z';
                 console.log("Loading Private as ECC key");
               }
-              // }
-
-//               onlykey_pgp_api.getPGPCryptKeyID(keyType_or_PubKeyToCompare, function(err, keyobj) {
-//                 console.log("loadPrivate getPGPCryptKeyID key, ID:", keyobj.toString('hex').toUpperCase().match(/.{2}/g).map(hexStrToDec))
-//               })
 
 
               kbpgp.KeyManager.import_from_armored_pgp({
@@ -1189,64 +1084,6 @@ A560SEQNAA==
       };
 
       function test_pgp_key_rsa() {
-        //this is public public key for the private key block that is returned
-        //displayed for diagnostics purposes
-        /*
-        -----BEGIN PGP PUBLIC KEY BLOCK-----
-        Version: Keybase OpenPGP v2.1.0
-        Comment: https://keybase.io/crypto
-
-        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
-        T93J2CvJFKBr3QFlPST+
-        =73ob
-        -----END PGP PUBLIC KEY BLOCK-----
-        */
-        //PRIVATE KEY BLOCK pw `test123`
         return `-----BEGIN PGP PRIVATE KEY BLOCK-----
 Version: TEST KEY v1.0.0
 Comment: THIS KEY IS JUST A PLACEHOLDER

@@ -1583,13 +1583,8 @@
 
     Curve25519.prototype.decrypt = function(x, V) {
       var S;
-
-      console.log("Curve25519:decrypt:x",x);
       x = Curve25519.reverse_buf(x);
       S = kbnacl.alloc({}).scalarmult(x, V);
-      console.log("Curve25519:decrypt:V",V);
-      console.log("Curve25519:decrypt:xREV",x);
-      console.log("Curve25519:decrypt:S",S);
       return S;
     };
 
@@ -5555,7 +5550,7 @@ _break()
       for (i = _i = 0, _len = hex_key_ids.length; _i < _len; i = ++_i) {
         id = hex_key_ids[i];
         k = this._keys[id];
-        if (onlykey.is_ecc) {
+        if (onlykey.is_ecc || (k != null ? (_ref = k.key) != null ? _ref.can_perform(ops) : void 0 : void 0)) {
           ret_i = i;
           km = this._kms[id];
           break;
