@@ -219,8 +219,6 @@ Thanks to http://tilomitra.github.io/prettypages/
 
 Copyright 2012 Yahoo! Inc. All rights reserved. Licensed under the BSD License. http://yuilibrary.com/license/
 
-Thanks to Ron Garret for originally posting a serverless implementation of U2F here - https://github.com/rongarret/u2f-test
-
 The MIT License (MIT)
 Copyright (c) 2019 CryptoTrust LLC.
 
