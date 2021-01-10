@@ -567,6 +567,8 @@ module.exports = function(imports) {
             console.info(decryptedMessage);
             _api.emit("done");
             callback(null, decryptedMessage);
+            _$status('finished');
+            imports.app.emit("ok-connected");
             resolve(decryptedMessage);
           });
         });
@@ -673,6 +675,8 @@ module.exports = function(imports) {
             saveAs(finalfile, filename);
             _api.emit("done");
             callback();
+            _$status('finished');
+            imports.app.emit("ok-connected");
             resolve();
           });
 
@@ -796,10 +800,10 @@ module.exports = function(imports) {
             else {
               _api.emit("status", 'Done :)  Click here to copy message, then paste encrypted message into an email, IM, whatever.');
             }
-
-            _$status("finished");
             _api.emit("done");
             callback(null, results);
+            _$status('finished');
+            imports.app.emit("ok-connected");
             return resolve(results);
           });
         });
@@ -914,7 +918,6 @@ module.exports = function(imports) {
                   _api.emit("status", 'Done :)  downloading signed file ' + filename + '.zip.gpg');
                 else
                   _api.emit("status", 'Done :)  downloading encrypted file ' + filename + '.zip.gpg');
-                _$status("finished");
                 if (usevirtru != null) {
                   try {
                     _api.emit("status", 'Done :)  downloading encrypted file ' + filename + '.tdf');
@@ -933,6 +936,8 @@ module.exports = function(imports) {
                   saveAs(finalfile, filename + ".zip.gpg");
                   _api.emit("done");
                   callback();
+                  _$status('finished');
+                  imports.app.emit("ok-connected");
                   return resolve();
                 }
               });

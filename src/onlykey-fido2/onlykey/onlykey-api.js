@@ -80,8 +80,8 @@ module.exports = function(imports) {
         }
 
         if (typeof(onlykey_api.sharedsec) === "undefined") {
-          if (onlykey_api.browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
-          else headermsg("OnlyKey not connected! Refresh this page to try again.");
+          if (onlykey_api.browser == 'Firefox') headermsg("<p class='text-danger'>OnlyKey not connected! Close this tab and open a new one to try again.</p>");
+          else headermsg("<p class='text-danger'>OnlyKey not connected! Refresh this page to try again.</p>");
           if (callback && typeof callback == "function")
             callback(true);
           resolve();
@@ -152,8 +152,8 @@ module.exports = function(imports) {
         response = ctaphid_response.data;
       
       if (!response) {
-        if (onlykey_api.browser == 'Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
-        else headermsg("OnlyKey not connected! Refresh this page to try again.");
+        if (onlykey_api.browser == 'Firefox') headermsg("<p class='text-danger'>OnlyKey not connected! Close this tab and open a new one to try again.</p>");
+        else headermsg("<p class='text-danger'>OnlyKey not connected! Refresh this page to try again.</p>");
         imports.app.emit("ok-disconnected");
       }
       else {
@@ -189,11 +189,10 @@ module.exports = function(imports) {
               onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
               onlykey_api.FWversion = bytes2string(response.slice(8, 20));
               console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
-              headermsg("OnlyKey " + onlykey_api.FWversion + " Secure Connection Established\n");
-  
               imports.app.emit("ok-connected");
               cb(null);
             }
+            headermsg("<p class='text-success'>OnlyKey " + onlykey_api.FWversion + " Secure Connection Established</p>\n");
             break;
           default:
             imports.app.emit("ok-disconnected");
@@ -297,6 +296,9 @@ module.exports = function(imports) {
         }
       default:
         console.warn("ctap_error_code", ctap_error_codes[error_code]);
+        if (ctap_error_codes[error_code] == 'CTAP2_ERR_EXTENSION_NOT_SUPPORTED') {
+           error = ctap_error_codes[error_code];
+        }
         break;
     }
 
@@ -414,10 +416,9 @@ module.exports = function(imports) {
   function id(s) { return document.getElementById(s); }
   
   function headermsg(s) { 
-    
-    if(imports.app)
-      imports.app.emit("ok-message",s);
-    else
+    //if(imports.app)
+    //  imports.app.emit("ok-message",s);
+    //else
       id('header_messages').innerHTML += "<br>" + s; 
     
   }

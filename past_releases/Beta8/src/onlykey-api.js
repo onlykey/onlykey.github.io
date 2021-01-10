@@ -8,6 +8,7 @@ var hw_RNG = {};
 var appId = window.location.origin;
 var version = "U2F_V2";
 var OKversion;
+var FWversion;
 var browser = "Chrome";
 var os = getOS();
 var packetnum=0;
@@ -70,7 +71,7 @@ initok = async function () {
       if (os=='Android') await wait(6000);
       else await wait(3000);
     }
-    await wait(1000);
+    await wait(2000);
     if (typeof(sharedsec) === "undefined" && window._status != 'Encrypt Only') {
       if (browser=='Firefox') headermsg("OnlyKey not connected! Close this tab and open a new one to try again.");
       else headermsg("OnlyKey not connected! Refresh this page to try again.");
@@ -110,7 +111,11 @@ IntToByteArray = function(int) {
 function get_pin (byte) {
   if (byte < 6) return 1;
   else {
-    return (byte % 5) + 1;
+    if (FWversion.indexOf('beta') > -1) {
+      return (byte % 5) + 1;
+    } else {
+    return (byte % 6) + 1;
+    }
   }
 }
 
@@ -289,16 +294,23 @@ async function msg_polling(params = {}, cb) {
       _setStatus('pending_challenge');
       data = 1;
     } else if (type == 1) {
-      okPub = response.slice(21, 53);
-      console.info("OnlyKey Public Key: ", okPub );
+      FWversion = bytes2string(response.slice(8, 20));
+
+      if (FWversion.indexOf('beta') > -1) {
+        okPub = response.slice(21, 53);
+        OKversion = response[19] == 99 ? 'Color' : 'Original';
+      } else {
+        FWversion = bytes2string(response.slice(32+8, 32+20));
+        okPub = response.slice(0, 32);
+        OKversion = response[32+19] == 99 ? 'Color' : 'Go';
+      }
       sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-      console.info("NACL shared secret: ", sharedsec );
-      OKversion = response[19] == 99 ? 'Color' : 'Original';
-      var FWversion = bytes2string(response.slice(8, 20));
-      msg("OnlyKey " + OKversion + " " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
+      var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+      msg("OnlyKey " + FWversion + " secure encrypted connection established using NACL shared secret and AES256 GCM encryption\n");
       id('header_messages').innerHTML = "<br>";
       headermsg("OnlyKey " + FWversion + " Secure Connection Established\n");
-      var key = sha256(sharedsec); //AES256 key sha256 hash of shared secret
+      console.info("OnlyKey Public Key: ", okPub );
+      console.info("NACL shared secret: ", sharedsec );
       console.info("AES Key", key);
       return;
     } /*else if (type == 2) {
@@ -668,6 +680,7 @@ async function ctaphid_via_webauthn(cmd, opt1, opt2, opt3, data, timeout) {
       timeout: timeout,
       //rpId: 'apps.crp.to',
       userVerification: 'discouraged',
+      //requireResidentKey: 'required',
       //userPresence: 'false',
       //mediation: 'silent',
       //extensions: {
