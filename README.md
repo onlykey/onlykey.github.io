@@ -20,6 +20,9 @@ WebCrypt integrates with services like [Keybase](https://keybase.io/) and [Proto
 
 [Decrypt Messages](https://apps.crp.to/decrypt)
 
+
+{% include tip.html content="WebCrypt 3.0 Demo [here](https://vimeo.com/505377733) that demonstrates using OnlyKey WebCrypt for file encryption<br>[![Demo: OnlyKey WebCrypt 3.0 - Now Supporting Multiple Recipients and ProtonMail](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt3.gif)](https://vimeo.com/505377733)" %}
+
 ## How it works
 
 With Keybase and/or Protonmail management of identify and keys is easy, these services allow storage and searching of public keys. These public keys can then be retrieved and used to encrypt or verify messages and files. OnlyKey WebCrypt allows composing encrypted messages and encrypting files similarly to composing an email. The recipient is either a user's Keybase username, Protonmail email, or a pasted public key. The sender can be anyone allowing OnlyKey user's to use WebCrypt to receive encrypted messages and files from anyone, even non-OnlyKey users.
@@ -28,23 +31,13 @@ With OnlyKey, private keys remain securely offline. Private keys are not accessi
 
 ## How to send an encrypted message
 
-{% include callout.html content="**Find a recipient -** The first step in sending a secure message or file is to identify who to send it to. Browse to [https://apps.crp.to/search](https://apps.crp.to/search) to use our custom Keybase/Protonmail search tool to search for Keybase usernames and Protonmail email addresses.<br>
-This search tool returns information that can be used to match users based on:<br>
-- Twitter, Github, Reddit, or Hackernews Usernames<br>
-- Web domains<br>
-- PGP fingerprint<br>" type="default" %}
-
-{% include image.html file="user-search.jpg" %}
+{% include callout.html content="**Find a recipient -** The first step in sending a secure message or file is to identify who to send it to. Browse to [https://apps.crp.to/search](https://apps.crp.to/search) to use our custom Keybase/Protonmail search tool to search for Keybase usernames and Protonmail email addresses.<br>" type="default" %}
 
 {% include callout.html content="**Send a user encrypted message or file -** Click the link in the search results to send the selected user encrypted message/file. You can also browse to [https://apps.crp.to/encrypt](https://apps.crp.to/encrypt) to send a secure message or browse to [https://apps.crp.to/encrypt-file](https://apps.crp.to/encrypt-file) to send a secure file if you already know the recipient. To encrypt files for yourself just use your Keybase username or Protonmail email as the recipient. " type="default" %}
-
-{% include image.html file="webcrypt1.png" %}
 
 ## How to receive an encrypted message
 
 {% include callout.html content="**Receive an encrypted message or file -** To decrypt a message or file browse to [https://apps.crp.to/decrypt](https://apps.crp.to/decrypt) or [https://apps.crp.to/decrypt-file](https://apps.crp.to/decrypt-file). " type="default" %}
-
-{% include image.html file="webcrypt2.png" %}
 
 {% include tip.html content="
 You can receive encrypted messages and files from anyone, no technical skills are required!<br><br>
@@ -52,12 +45,13 @@ Receiving encrypted files is as easy as putting a custom link in your email sign
 **Bob Smith**<br>
 **Email:** Bobsmith@bobsmith.com<br>
 **Phone:** 111.222.3333<br>
-*Send me a secure [message](https://apps.crp.to/encrypt.html?type=e&recipients=bobsmith2) or [file](https://apps.crp.to/encrypt-file.html?type=e&recipients=bobsmith2)*<br>
+*Send me a secure [message](https://apps.crp.to/app/encrypt?type=e&recipients=bobsmith2) or [file](https://apps.crp.to//app/encrypt?type=e&recipients=bobsmith2)*<br>
+
 *[More info](https://onlykey.io/pages/webcrypt)*<br>
 <br>
-- Link the text **'message'** to: https://apps.crp.to/encrypt.html?type=e&recipients=<mark>bobsmith2</mark>
+- Link the text **'message'** to: https://apps.crp.to/app/encrypt?type=e&recipients=<mark>bobsmith2</mark>
 <br><br>
-- Link the text **'file'** to: https://apps.crp.to/encrypt-file.html?type=e&recipients=<mark>bobsmith2</mark>
+- Link the text **'file'** to: https://apps.crp.to/app/encrypt-file?type=e&recipients=<mark>bobsmith2</mark>
 <br><br>
 - Change <mark>bobsmith2</mark> in the link to your Keybase user name
 <br><br>
