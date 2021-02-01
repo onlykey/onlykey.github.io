@@ -21,7 +21,7 @@ WebCrypt integrates with services like [Keybase](https://keybase.io/) and [Proto
 [Decrypt Messages](https://apps.crp.to/decrypt)
 
 
-{% include tip.html content="WebCrypt 3.0 Demo [here](https://vimeo.com/505377733) that demonstrates using OnlyKey WebCrypt for file encryption<br>[![Demo: OnlyKey WebCrypt 3.0 - Now Supporting Multiple Recipients and ProtonMail](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt3.gif)](https://vimeo.com/505377733)" %}
+WebCrypt 3.0 Demo [here](https://vimeo.com/505377733) that demonstrates using OnlyKey WebCrypt for file encryption<br>[![Demo: OnlyKey WebCrypt 3.0 - Now Supporting Multiple Recipients and ProtonMail](https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/master/images/webcrypt3.gif)](https://vimeo.com/505377733)" %}
 
 ## How it works
 
