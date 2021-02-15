@@ -522,6 +522,7 @@ module.exports = function(imports) {
               _api.emit("status", "Decrypting and verifying message ...");
               break;
             case 'Decrypt Only':
+              await keyStore.loadPublic(onlykeyKey);
               _api.emit("status", "Decrypting message ...");
               var Decrypt_Only = true;
               break;
@@ -631,6 +632,7 @@ module.exports = function(imports) {
               _api.emit("status", "Decrypting and verifying...");
               break;
             case 'Decrypt Only':
+              await keyStore.loadPublic(onlykeyKey);
               _api.emit("status", "Decrypting...");
               var Decrypt_Only = true;
               break;
