@@ -77,6 +77,7 @@ module.exports = function(imports) {
     };
 
     onlykey_pgp_api.getPublicKeyInfo = function(public_key, callback) {
+      console.info(public_key);
       kbpgp2.KeyManager.import_from_armored_pgp({
         armored: public_key
       }, (error, keyObj) => {
@@ -88,6 +89,7 @@ module.exports = function(imports) {
         }
       });
     };
+    
     const OKDECRYPT = 240;
     const OKSIGN = 237;
     const OKPING = 243;
@@ -474,7 +476,7 @@ module.exports = function(imports) {
       }
 
       async function startDecryption(signer, my_public, message, file, callback) {
-        var sender_public_key, my_public_key;
+        var sender_public_key, onlykeyKey;
 
         _poll_type = 3;
         _poll_delay = 1;
@@ -500,16 +502,16 @@ module.exports = function(imports) {
         }
         else {
           if (my_public.slice(0, 10) != '-----BEGIN') { // Check if its a pasted public key
-            my_public_key = await onlykeyApi.getKey(my_public);
+            onlykeyKey = await onlykeyApi.getKey(my_public);
           }
           else {
-            my_public_key = my_public;
+            onlykeyKey = my_public;
           }
         }
 
         if (message != null)
-          decryptText(sender_public_key, my_public_key, message, callback);
-        else decryptFile(sender_public_key, my_public_key, file, callback);
+          decryptText(sender_public_key, onlykeyKey, message, callback);
+        else decryptFile(sender_public_key, onlykeyKey, file, callback);
       };
 
       function decryptText(key, onlykeyKey, encryptedMessage, callback) {
@@ -519,6 +521,7 @@ module.exports = function(imports) {
           switch (_$mode()) {
             case 'Decrypt and Verify':
               await keyStore.loadPublic(key);
+              await keyStore.loadPublic(onlykeyKey);
               _api.emit("status", "Decrypting and verifying message ...");
               break;
             case 'Decrypt Only':
@@ -532,7 +535,7 @@ module.exports = function(imports) {
           kbpgp.unbox({
             keyfetch: keyStore.ring,
             armored: encryptedMessage,
-            // strict: Decrypt_Only ? false : true
+            strict: Decrypt_Only ? false : true
           }, (err, decryptedMessage) => {
             if (err) {
               _api.emit("error", err);
@@ -561,7 +564,6 @@ module.exports = function(imports) {
                   console.log(keyid);
                   console.log(userid);
                   _api.emit("status", "Done :) Signed by " + userid + " (Key ID: " + keyid + "), Click here to copy message");
-                  _$status("finished");
                 }
               }
             }
@@ -575,7 +577,7 @@ module.exports = function(imports) {
         });
       }
 
-      function decryptFile(key, my_public_key, ct, callback) {
+      function decryptFile(key, onlykeyKey, ct, callback) {
         return new Promise(async(resolve) => {
           var txt = "";
           if ('files' in ct) {
@@ -629,6 +631,7 @@ module.exports = function(imports) {
           switch (_$mode()) {
             case 'Decrypt and Verify':
               await keyStore.loadPublic(key);
+              await keyStore.loadPublic(onlykeyKey);
               _api.emit("status", "Decrypting and verifying...");
               break;
             case 'Decrypt Only':
@@ -638,7 +641,7 @@ module.exports = function(imports) {
               break;
             default:
           }
-          await keyStore.loadPrivate(my_public_key);
+          await keyStore.loadPrivate(onlykeyKey);
           kbpgp.unbox({
             keyfetch: keyStore.ring,
             raw: buffer,
@@ -672,7 +675,6 @@ module.exports = function(imports) {
                 }
               }
             }
-            _$status("finished");
             var finalfile = new Blob([ct[0].toBuffer()], { type: "text/plain;charset=utf-8" });
             saveAs(finalfile, filename);
             _api.emit("done");
