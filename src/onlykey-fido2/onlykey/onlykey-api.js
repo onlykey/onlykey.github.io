@@ -339,14 +339,14 @@ module.exports = function(imports) {
       }],
       timeout: timeout,
       //rpId: 'apps.crp.to',
-      rpId: id,
+      //rpId: id,
       userVerification: 'discouraged',
       //userPresence: 'false',
       //mediation: 'silent',
-      extensions: {
+      //extensions: {
         // appid: 'https://apps.crp.to',
-        appid: 'https://' + id
-      },
+        //appid: 'https://' + id
+      //},
     };
     
     return new Promise(async function(resolve) {
