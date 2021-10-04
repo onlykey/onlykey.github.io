@@ -141,28 +141,16 @@ module.exports = function(imports) {
       Array.prototype.push.apply(message, env);
       encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
       
-      // await wait(delay * 1000);
-      
-      setTimeout(function(){
-        
-      },delay * 1000)
+      // await wait(delay * 1000);   // safari dont like async with webauthn
+      // setTimeout(function(){  },delay * 1000)  /// this fails on safari
       
       var enc_resp = 1;//<----- not used in setting time/initial connection
-      // var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
-      //   console.info("ctaphid_response resp", maybe_a_err, data);
-         
-      // });
-      
-      
       ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
          console.info("ctaphid_response resp", maybe_a_err, data);
          
       }).then(async function(ctaphid_response){
-        
-  
-  
         imports.app.emit("ok-waiting");
-  
+        
         var response;
   
         if (ctaphid_response.data && !ctaphid_response.error)
