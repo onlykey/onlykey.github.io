@@ -29,8 +29,11 @@ module.exports = function(imports) {
     ctap_error_codes,
     getAllUrlParams,
     aesgcm_decrypt,
+    getBrowser,
     // aesgcm_encrypt
   } = require("./onlykey.extra.js")(imports);
+  onlykey_api.extra = require("./onlykey.extra.js")(imports);
+  
   onlykey_api.getAllUrlParams = getAllUrlParams; //<-- todo: move to pages plugin
 
 
@@ -104,8 +107,8 @@ module.exports = function(imports) {
   };
   onlykey_api.connect = onlykey_api.initok;
 
-  async function OK_CONNECT(callback) {
-    return new Promise(async function(resolve, reject) {
+  function OK_CONNECT(callback) {
+    return new Promise(function(resolve, reject) {
 
       function cb(err, data) {
         if (typeof callback === 'function') callback(err, data);
@@ -137,70 +140,87 @@ module.exports = function(imports) {
       var env = [onlykey_api.browser.charCodeAt(0), onlykey_api.os.charCodeAt(0)];
       Array.prototype.push.apply(message, env);
       encryptedkeyHandle = Uint8Array.from(message); // Not encrypted as this is the initial key exchange
-      await wait(delay * 1000);
-      var enc_resp = 1;
-      var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
+      
+      // await wait(delay * 1000);
+      
+      setTimeout(function(){
+        
+      },delay * 1000)
+      
+      var enc_resp = 1;//<----- not used in setting time/initial connection
+      // var ctaphid_response = await ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
+      //   console.info("ctaphid_response resp", maybe_a_err, data);
+         
+      // });
+      
+      
+      ctaphid_via_webauthn(cmd, null, null, null, encryptedkeyHandle, 6000, function(maybe_a_err, data) {
          console.info("ctaphid_response resp", maybe_a_err, data);
          
+      }).then(async function(ctaphid_response){
+        
+  
+  
+        imports.app.emit("ok-waiting");
+  
+        var response;
+  
+        if (ctaphid_response.data && !ctaphid_response.error)
+          response = ctaphid_response.data;
+        
+        if (!response) {
+          if (onlykey_api.browser == 'Firefox') headermsg("<p class='text-danger'>OnlyKey not connected! Close this tab and open a new one to try again.</p>");
+          else headermsg("<p class='text-danger'>OnlyKey not connected! Refresh this page to try again.</p>");
+          imports.app.emit("ok-disconnected");
+        }
+        else {
+          switch (ctaphid_response.status) {
+            case "CTAP2_ERR_EXTENSION_NOT_SUPPORTED":
+              break;
+            case "CTAP1_SUCCESS":
+              var BREAKING_BETA_8C = !!(bytes2string(response.slice(8, 20)) == "v0.2-beta.8c");
+              
+              if(!BREAKING_BETA_8C){
+                okPub = response.slice(0, 32);
+                
+                // Decrypt with transit_key
+                var transit_key = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);   
+                console.info("Onlykey transit public", okPub);
+                console.info("App transit public", appKey.publicKey);
+                console.info("Transit shared secret", transit_key);
+                transit_key = await digestBuff(Uint8Array.from(transit_key)); //AES256 key sha256 hash of shared secret
+                console.info("App AES Key", transit_key);
+                var encrypted  = response.slice(32, response.length);
+                onlykey_api.FWversion = bytes2string(response.slice(32+8, 32+20));
+                response = await aesgcm_decrypt(encrypted, transit_key);
+                onlykey_api.OKversion = response[32+19] == 99 ? 'Color' : 'Go';
+                onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+                console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
+                imports.app.emit("ok-connected");
+                cb(null);
+              }else{
+                okPub = response.slice(21, 53);
+                console.info("OnlyKey Public Key: ", okPub);
+                onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
+                console.info("NACL shared secret: ", onlykey_api.sharedsec);
+                onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
+                onlykey_api.FWversion = bytes2string(response.slice(8, 20));
+                console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
+                imports.app.emit("ok-connected");
+                cb(null);
+              }
+              headermsg("<p class='text-success'>OnlyKey " + onlykey_api.FWversion + " Secure Connection Established</p>\n");
+              break;
+            default:
+              imports.app.emit("ok-disconnected");
+            
+          }
+          cb(null, ctaphid_response.status);
+  
+        }
+
       });
 
-      imports.app.emit("ok-waiting");
-
-      var response;
-
-      if (ctaphid_response.data && !ctaphid_response.error)
-        response = ctaphid_response.data;
-      
-      if (!response) {
-        if (onlykey_api.browser == 'Firefox') headermsg("<p class='text-danger'>OnlyKey not connected! Close this tab and open a new one to try again.</p>");
-        else headermsg("<p class='text-danger'>OnlyKey not connected! Refresh this page to try again.</p>");
-        imports.app.emit("ok-disconnected");
-      }
-      else {
-        switch (ctaphid_response.status) {
-          case "CTAP2_ERR_EXTENSION_NOT_SUPPORTED":
-            break;
-          case "CTAP1_SUCCESS":
-            var BREAKING_BETA_8C = !!(bytes2string(response.slice(8, 20)) == "v0.2-beta.8c");
-            
-            if(!BREAKING_BETA_8C){
-              okPub = response.slice(0, 32);
-              
-              // Decrypt with transit_key
-              var transit_key = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);   
-              console.info("Onlykey transit public", okPub);
-              console.info("App transit public", appKey.publicKey);
-              console.info("Transit shared secret", transit_key);
-              transit_key = await digestBuff(Uint8Array.from(transit_key)); //AES256 key sha256 hash of shared secret
-              console.info("App AES Key", transit_key);
-              var encrypted  = response.slice(32, response.length);
-              onlykey_api.FWversion = bytes2string(response.slice(32+8, 32+20));
-              response = await aesgcm_decrypt(encrypted, transit_key);
-              onlykey_api.OKversion = response[32+19] == 99 ? 'Color' : 'Go';
-              onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-              console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
-              imports.app.emit("ok-connected");
-              cb(null);
-            }else{
-              okPub = response.slice(21, 53);
-              console.info("OnlyKey Public Key: ", okPub);
-              onlykey_api.sharedsec = nacl.box.before(Uint8Array.from(okPub), appKey.secretKey);
-              console.info("NACL shared secret: ", onlykey_api.sharedsec);
-              onlykey_api.OKversion = response[19] == 99 ? 'Color' : 'Original';
-              onlykey_api.FWversion = bytes2string(response.slice(8, 20));
-              console.info("Version:",[onlykey_api.OKversion, onlykey_api.FWversion]);
-              imports.app.emit("ok-connected");
-              cb(null);
-            }
-            headermsg("<p class='text-success'>OnlyKey " + onlykey_api.FWversion + " Secure Connection Established</p>\n");
-            break;
-          default:
-            imports.app.emit("ok-disconnected");
-          
-        }
-        cb(null, ctaphid_response.status);
-
-      }
 
     });
   }
@@ -419,7 +439,9 @@ module.exports = function(imports) {
     //if(imports.app)
     //  imports.app.emit("ok-message",s);
     //else
+    try{
       id('header_messages').innerHTML += "<br>" + s; 
+    }catch(e){}
     
   }
   

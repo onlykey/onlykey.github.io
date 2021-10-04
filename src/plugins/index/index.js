@@ -12,17 +12,22 @@ module.exports = {
     setup: function(options, imports, register) {
         var fired = false;
 
-        function doSetTime(timeout) {
+        async function doSetTime(e) {
+            return new Promise(function(resolve,reject){
+                
             // console.log("setting time")
-            if (fired) return;
-            setTimeout(function() {
+            // if (fired) return;
+            // setTimeout(function() {
 
                 fired = true;
                 imports.onlykeyApi.api.check(function(asd) {
                     // console.log(asd)
+                    resolve();
                 });
 
-            }, timeout);
+            // }, timeout);
+            
+            })
         }
 
         var page = {
@@ -33,7 +38,7 @@ module.exports = {
                     app.$("#setTime").remove();
                 });
 
-                app.$("#setTime").click(doSetTime.bind(null, 1));
+                app.$("#setTime").click(doSetTime);
                 // app.$("#setTime").click();
             }
         };
@@ -45,7 +50,14 @@ module.exports = {
                 pagesList: pagesList,
                 init: function() {
                     // if(document.hasFocus())//firefox fix, firefox aborts onlykey request when not in focus
-                    imports.app.on("start", doSetTime.bind(null, 2000));
+                    console.log("here");
+                    
+                    var browser = imports.onlykeyApi.api.extra.getBrowser();
+                    
+                    if(browser !== "Apple")
+                        imports.app.on("start", doSetTime.bind(null, 2000));
+                        
+                        
                     // else
                     // imports.app.on("start",function(){
                     //     if(imports.app.$("#setTime").length == 0)
