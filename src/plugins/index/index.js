@@ -45,7 +45,8 @@ module.exports = {
                 pagesList: pagesList,
                 init: function() {
                     // if(document.hasFocus())//firefox fix, firefox aborts onlykey request when not in focus
-                    imports.app.on("start", doSetTime.bind(null, 2000));
+                    if(imports.onlykeyApi.api.extra.getBrowser() !== "Apple")
+                        imports.app.on("start", doSetTime.bind(null, 2000));
                     // else
                     // imports.app.on("start",function(){
                     //     if(imports.app.$("#setTime").length == 0)

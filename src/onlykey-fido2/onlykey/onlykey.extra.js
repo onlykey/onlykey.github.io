@@ -163,6 +163,23 @@ module.exports = function(imports) {
 
     return os;
   }
+  
+  
+  $exports.getBrowser = function getBrowser() {
+    
+    if(typeof window == "undefined"){
+      browser = "Node";
+      return browser;
+    }
+    var vendor = window.navigator.vendor,
+      browser = 'Google';
+
+    if (vendor.indexOf('Apple') > -1) {
+      browser = 'Apple';
+    }
+
+    return browser;
+  }
 
 
   $exports.ctap_error_codes = {
