@@ -30,13 +30,13 @@ module.exports = {
 
 
                 var onlykey3rd = app.onlykey3rd;
-                var ok = onlykey3rd(1, 0);
+                var ok = onlykey3rd();
                 var $ = app.$;
 
                 $("#onlykey_start").click(async function() {
                     var phrase = $("#phrase").val();
-                    ok.derive_public_key(phrase, function(error, phrasePubkey) {
-                        ok.derive_shared_secret(phrase, phrasePubkey, async function(error, phrasePubkeySecret) {
+                    ok.derive_public_key(phrase,1, false,  function(error, phrasePubkey) {
+                        ok.derive_shared_secret(phrase, phrasePubkey, 1, false, async function(error, phrasePubkeySecret) {
                             $("#phrase_out").val(phrasePubkeySecret);
                         });
                     });

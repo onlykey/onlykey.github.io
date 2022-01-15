@@ -47,6 +47,24 @@ module.exports = {
                     // if(document.hasFocus())//firefox fix, firefox aborts onlykey request when not in focus
                     if(imports.onlykeyApi.api.extra.getBrowser() !== "Apple")
                         imports.app.on("start", doSetTime.bind(null, 2000));
+                    else {
+                        // console.log("index_init");
+                        imports.app.onlykeyApi.api.step = function(proceed){
+                            
+                            imports.app.bs_modal_dialog.confirm("Continue",
+                                `To continue please click 'Yes' to access OnlyKey via USB`, ["Yes"],
+                                async function(cancel, ans) {
+                                    if (ans == "Yes") {
+                                        proceed();
+                                    }
+                                });
+
+                        }
+                        
+                        imports.app.on("start", doSetTime.bind(null, 2000));
+                    }
+                        
+                    
                     // else
                     // imports.app.on("start",function(){
                     //     if(imports.app.$("#setTime").length == 0)
