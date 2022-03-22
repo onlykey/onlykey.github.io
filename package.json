@@ -47,7 +47,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "gun": "^0.2020.520",
-    "node-onlykey": "github:trustcrypto/node-onlykey#043e5d64f12ad90c166c7e04446eefcededd29e6",
+    "node-onlykey": "github:trustcrypto/node-onlykey#4796f8e7a243024c754a6c44457a1e4a04553987",
     "xterm": "^4.8.1",
     "xterm-addon-fit": "^0.4.0"
   }
