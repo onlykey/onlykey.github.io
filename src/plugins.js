@@ -37,6 +37,9 @@ module.exports.push(require("./plugins/search/search.js"));
 
 module.exports.push(require("./plugins/ok-status-icon/ok-status-icon.js"));
 
+// Firmware newer than v3.0.4 is served by apps.onlykey.io; see the plugin.
+module.exports.push(require("./plugins/version-route/version-route.js"));
+
 if (!!(process.env.NODE_ENV === "production")) {//is production
   
   //production only plugins (we should have sister plugins enabled in plugins-devel.js)
