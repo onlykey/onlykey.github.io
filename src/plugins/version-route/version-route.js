@@ -19,9 +19,14 @@ module.exports = {
     setup: function(options, imports, register) {
         var window = imports.window;
         var done = false;
+        /* The onlykeyApi SERVICE is node-onlykey's wrapper {api, pgp, onlykey3rd};
+         * the handshake stores the version on the api object inside it. Reading
+         * imports.onlykeyApi.FWversion got undefined, which parses as "old" and
+         * never redirected - caught by onlykey-testing 03-gui/20-crpto-router. */
+        var api = (imports.onlykeyApi && imports.onlykeyApi.api) || imports.onlykeyApi || {};
         imports.app.on("ok-connected", function() {
             if (done) return;
-            var route = versionRoute.afterHandshake(window.location, imports.onlykeyApi.FWversion);
+            var route = versionRoute.afterHandshake(window.location, api.FWversion);
             if (route.action !== "redirect") return;
             done = true;
             try {
